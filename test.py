@@ -73,8 +73,6 @@ assert not test_glyphs.vendetta
 
 # Build a DPS object, and test some functions.
 calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs)
-assert calculator.stat_multiplier() == 1.05
-assert calculator.physical_damage_multiplier() == 1
 
 assert calculator.oh_penalty() == .5
 assert calculator.assassins_resolve()

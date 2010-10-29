@@ -5,6 +5,14 @@ class Stats(object):
     # rows 1-9 from my WotLK spreadsheets to see how these are typically
     # defined, though the numbers will need to updated for level 85.
 
+    DEFAULT_LEVEL = 85
+    MELEE_HIT_RATING_CONVERSION = {85:120.109001159667969}
+    SPELL_HIT_RATING_CONVERSION = {85:102.445999145507812}
+    CRIT_RATING_CONVERSION = {85:179.279998779296875}
+    HASTE_RATING_CONVERSION = {85:128.057006835937500}
+    EXPERTISE_RATING_CONVERSION = {85:30.027200698852539 * 4}
+    MASTERY_RATING_CONVERSION = {85:179.279998779296875}
+    
     def __init__(self, str, agi, ap, crit, hit, exp, haste, mastery, mh, oh, ranged, procs):
         # This will need to be adjusted if at any point we want to support
         # other classes, but this is probably the easiest way to do it for
@@ -22,7 +30,44 @@ class Stats(object):
         self.ranged = ranged
         self.procs = procs
 
+    #As noted elsewhere, these asserts probably should be exceptions
+    #once we have good agreement on how they will be caught/handled
+    def get_mastery_from_rating(self, level=DEFAULT_LEVEL):
+        if level in MASTERY_RATING_CONVERSION:
+            return 8 + self.mastery / self.MASTERY_RATING_CONVERSION[level]
+        else:
+            assert False, "No conversion factor available for level " + str(level)
+            
+    def get_melee_hit_from_rating(self, level=DEFAULT_LEVEL):
+        if level in MELEE_HIT_RATING_CONVERSION:
+            return self.hit / self.MELEE_HIT_RATING_CONVERSION[level]
+        else:
+            assert False, "No conversion factor available for level " + str(level)
 
+    def get_expertise_from_rating(self, level=DEFAULT_LEVEL):
+        if level in EXPERTISE_RATING_CONVERSION:
+            return self.expertise / self.EXPERTISE_RATING_CONVERSION[level]
+        else:
+            assert False, "No conversion factor available for level " + str(level)
+
+    def get_spell_hit_from_rating(self, level=DEFAULT_LEVEL):
+        if level in SPELL_HIT_RATING_CONVERSION:
+            return self.hit / self.SPELL_HIT_RATING_CONVERSION[level]
+        else:
+            assert False, "No conversion factor available for level " + str(level)
+
+    def get_crit_from_rating(self, level=DEFAULT_LEVEL):
+        if level in CRIT_RATING_CONVERSION:
+            return self.crit / self.CRIT_RATING_CONVERSION[level]
+        else:
+            assert False, "No conversion factor available for level " + str(level)
+
+    def get_haste_multiplier_from_rating(self, level=DEFAULT_LEVEL):
+        if level in HASTE_RATING_CONVERSION:
+            return 1 + self.haste / (100 * self.HASTE_RATING_CONVERSION[level])
+        else:
+            assert False, "No conversion factor available for level " + str(level)
+    
 class Weapon(object):
     def __init__(self, damage, speed, is_dagger=False, is_two_handed=False, is_thrown=False, is_ranged=False):
         self.average_damage =  damage
