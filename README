@@ -1,0 +1,25 @@
+ShadowCraft - Engine
+--------------------
+This repository contains the calculations piece of ShadowCraft, a WoW 
+theorycraft project.  Initially, this is focused on rogues (hence the name),
+but the framework is designed such that if other classes wish to make use of it
+in the future, they can do so in a sensible and reasonable way.  All rogue
+specific functionality is currently contained in directories named "rogue" -
+for instance, the objects/ directory contains objects of general use for 
+theorycrafting calculations, while objects/rogue contains objects specifically
+for use in rogue theorycraft.
+
+If you would like to contribute to this project, either to add your own
+calculations module (for rogues or otherwise) or to improve what's already here
+(bugfixes, new features, etc.) by all means do so; however, I will be 
+maintaining reasonably tight control over the architecture and *extremely*
+tight control over my calculations module (currently located in 
+calcs/rogue/Aldriana).  This doesn't mean you can't contribute stuff; it just
+means that you should be aware that I may not accept your changed.
+
+If you have any questions/comments/suggestions, you can email me at aldriana at
+elitistjerks.com.  Additionally, if your question is of more general nature, 
+there is a discussion thread for this project on the EJ forums.
+
+  -- Aldriana
+  Oct 28 2010
