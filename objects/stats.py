@@ -125,8 +125,8 @@ class Procs(object):
     allowed_procs = frozenset([
         'heroic_deaths_verdict',
         'heroic_sharpened_twilight_scale',
-        'relentless_metagem',
-        'chaotic_metagem'
+        'chaotic_metagem',
+        'potion_of_the_tolvir'
     ])
 
     def __init__(self, *args):

@@ -39,9 +39,9 @@ assert test_ranged._normalization_speed == 2.1
 
 
 # Set up procs and make sure things at least vaguely work.
-test_procs = stats.Procs('relentless_metagem', 'heroic_deaths_verdict')
+test_procs = stats.Procs('chaotic_metagem', 'heroic_deaths_verdict')
 
-assert test_procs.relentless_metagem
+assert test_procs.chaotic_metagem
 assert not test_procs.heroic_sharpened_twilight_scale
 
 
@@ -50,7 +50,7 @@ assert not test_procs.heroic_sharpened_twilight_scale
 # soon as I can find or put together a decent estimate of stats for, say, level
 # 85 heroic dungeon gear.
 
-test_stats = stats.Stats(20, 3485, 190, 1463, 1086, 641, 899, 666, test_mh, test_oh, test_ranged, test_procs)
+test_stats = stats.Stats(20, 3485, 190, 1517, 1086, 641, 899, 666, test_mh, test_oh, test_ranged, test_procs)
 
 assert test_stats.mastery == 666
 

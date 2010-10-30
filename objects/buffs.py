@@ -15,6 +15,8 @@ class Buffs(object):
         'spell_damage_debuff',              # Ebon Plaguebringer, Master Poisoner, Earth and Moon, Curse of Elements
         'spell_crit_debuff',                # Critical Mass, Shadow and Flame
         'bleed_damage_debuff',              # Hemo, Mangle, Trauma
+        'agi_flask',                        # Flask of the Winds
+        'guild_feast'                       # Seafood Magnifique Feast
     ])
     
     def __init__(self, *args):
@@ -77,10 +79,20 @@ class Buffs(object):
             return 0
 
     def buff_agi(self):
-        if self.str_and_agi_buff:
-            return 1395
+        if self.agi_flask:
+            flask_agi = 300
         else:
-            return 0
+            flask_agi = 0
+
+        if self.guild_feast:
+            food_agi = 90
+        else:
+            food_agi = 0
+
+        if self.str_and_agi_buff:
+            return 1395 + food_agi + flask_agi
+        else:
+            return 0 + food_agi + flask_agi
 
     def buff_all_crit(self):
         if self.crit_chance_buff:
