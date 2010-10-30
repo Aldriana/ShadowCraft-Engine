@@ -47,6 +47,8 @@ class DamageCalculator(object):
     # These four hit functions need to be adjusted for the draenei racial at
     # some point, but, as usual, I'm being lazy.
     # Afaik this racial is removed with Cata? - Rac
+    # It's still a self-buff for draenei, and while rogues can't be draenei
+    # this is in the part of the code that other classes might someday use.
     def melee_hit_chance(self, base_miss_chance, dodgeable, parryable):
         miss_chance = base_miss_chance - self.stats.get_melee_hit_from_rating()
         if miss_chance < 0:
