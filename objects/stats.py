@@ -33,7 +33,7 @@ class Stats(object):
     # As noted elsewhere, these asserts probably should be exceptions
     # once we have good agreement on how they will be caught/handled
     def get_mastery_from_rating(self, rating=None, level=DEFAULT_LEVEL):
-        if level in MASTERY_RATING_CONVERSION:
+        if level in self.MASTERY_RATING_CONVERSION:
             if rating is None:
                 rating = self.mastery
             return 8 + rating / self.MASTERY_RATING_CONVERSION[level]
@@ -41,7 +41,7 @@ class Stats(object):
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
     def get_melee_hit_from_rating(self, rating=None, level=DEFAULT_LEVEL):
-        if level in MELEE_HIT_RATING_CONVERSION:
+        if level in self.MELEE_HIT_RATING_CONVERSION:
             if rating is None:
                 rating = self.hit
             return rating / (100 * self.MELEE_HIT_RATING_CONVERSION[level])
@@ -49,15 +49,15 @@ class Stats(object):
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
     def get_expertise_from_rating(self, rating=None, level=DEFAULT_LEVEL):
-        if level in EXPERTISE_RATING_CONVERSION:
+        if level in self.EXPERTISE_RATING_CONVERSION:
             if rating is None:
-                rating = self.expertise
+                rating = self.exp
             return rating / (100 * self.EXPERTISE_RATING_CONVERSION[level])
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
     def get_spell_hit_from_rating(self, rating=None, level=DEFAULT_LEVEL):
-        if level in SPELL_HIT_RATING_CONVERSION:
+        if level in self.SPELL_HIT_RATING_CONVERSION:
             if rating is None:
                 rating = self.hit
             return rating / (100 * self.SPELL_HIT_RATING_CONVERSION[level])
@@ -65,7 +65,7 @@ class Stats(object):
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
     def get_crit_from_rating(self, rating=None, level=DEFAULT_LEVEL):
-        if level in CRIT_RATING_CONVERSION:
+        if level in self.CRIT_RATING_CONVERSION:
             if rating is None:
                 rating = self.crit
             return rating / (100 * self.CRIT_RATING_CONVERSION[level])
@@ -73,7 +73,7 @@ class Stats(object):
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
     def get_haste_multiplier_from_rating(self, rating=None, level=DEFAULT_LEVEL):
-        if level in HASTE_RATING_CONVERSION:
+        if level in self.HASTE_RATING_CONVERSION:
             if rating is None:
                 rating = self.haste
             return 1 + rating / (100 * self.HASTE_RATING_CONVERSION[level])

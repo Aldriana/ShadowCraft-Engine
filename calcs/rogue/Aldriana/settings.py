@@ -24,7 +24,9 @@ class Cycle(object):
 class AssassinationCycle(Cycle):
     _cycle_type = 'assassination'
 
-    def __init__(self, min_envenom_size_mutilate=4, min_rupture_size_mutilate=4, min_envenom_size_backstab=4, min_envenom_size_rupture=4)
+    allowed_values = frozenset([1,2,3,4,5])
+
+    def __init__(self, min_envenom_size_mutilate=4, min_rupture_size_mutilate=4, min_envenom_size_backstab=4, min_rupture_size_backstab=4):
         # Minimum number of combo points to spend on finishers of the given
         # type, during mutilate and backstab portions of the fight.  Rupture
         # will be done whenever we have that many CPs or more and rupture is
@@ -35,7 +37,15 @@ class AssassinationCycle(Cycle):
         # rupture uptime while at high CPs.  1+ rupture therefore represents
         # "keep Rupture up as much as possible, at the expense of trying to
         # make it any particular size".
+
+        assert min_envenom_size_mutilate in self.allowed_values
         self.min_envenom_size_mutilate = min_envenom_size_mutilate
+
+        assert min_rupture_size_mutilate in self.allowed_values
         self.min_rupture_size_mutilate = min_rupture_size_mutilate
+
+        assert min_envenom_size_backstab in self.allowed_values
         self.min_envenom_size_backstab = min_envenom_size_backstab
+
+        assert min_rupture_size_backstab in self.allowed_values
         self.min_rupture_size_backstab = min_rupture_size_backstab
