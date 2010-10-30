@@ -1,11 +1,13 @@
 class Settings(object):
     # Settings object for AldrianasRogueDamageCalculator.
 
-    def __init__(self, cycle, time_in_execute_range=.35, tricks_on_cooldown=True, response_time=.5):
+    def __init__(self, cycle, time_in_execute_range=.35, tricks_on_cooldown=True, response_time=.5, mh_poison = 'ip', oh_poison='dp'):
         self.cycle = cycle
         self.time_in_execute_range = time_in_execute_range
         self.tricks_on_cooldown = tricks_on_cooldown
         self.response_time = response_time
+        self.mh_poison = mh_poison
+        self.oh_poison = oh_poison
 
 
 class Cycle(object):

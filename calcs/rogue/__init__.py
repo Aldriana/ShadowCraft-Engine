@@ -49,3 +49,14 @@ class RogueDamageCalculator(DamageCalculator):
             oh_damage *= 1.2
 
         return mh_damage, oh_damage
+
+
+    # Not strictly speaking rogue-specific, but given that the base object
+    # doesn't currently have any notion of whether you'd dual-wielding or not
+    # (and this calculation depends on that), I'm going to leave this here
+    # until we figure out how to handle that.
+    #
+    # Also has a dependency on (target_level - attacker_level), but ignoring
+    # that for now.
+    def crit_cap(self):
+        return self.dual_wield_melee_hit_chance - .24

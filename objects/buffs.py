@@ -84,13 +84,13 @@ class Buffs(object):
 
     def buff_all_crit(self):
         if self.crit_chance_buff:
-            return 5
+            return .05
         else:
             return 0
 
     def buff_spell_crit(self):
         if self.spell_crit_debuff:
-            return 5
+            return .05
         else:
             return 0
         
