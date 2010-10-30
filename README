@@ -15,11 +15,11 @@ calculations module (for rogues or otherwise) or to improve what's already here
 maintaining reasonably tight control over the architecture and *extremely*
 tight control over my calculations module (currently located in 
 calcs/rogue/Aldriana).  This doesn't mean you can't contribute stuff; it just
-means that you should be aware that I may not accept your changed.
+means that you should be aware that I may not accept your changes.
 
 If you have any questions/comments/suggestions, you can email me at aldriana at
-elitistjerks.com.  Additionally, if your question is of more general nature, 
-there is a discussion thread for this project on the EJ forums.
+elitistjerks dot com.  Additionally, if your question is of a more general 
+nature, there is a discussion thread for this project on the EJ forums.
 
 NOTE: Please read style.txt if you intend to submit code to this project.
 
