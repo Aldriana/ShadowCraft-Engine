@@ -74,7 +74,7 @@ class Buffs(object):
 
     def buff_str(self):
         if self.str_and_agi_buff:
-            return 1395
+            return 549
         else:
             return 0
 
@@ -90,7 +90,7 @@ class Buffs(object):
             food_agi = 0
 
         if self.str_and_agi_buff:
-            return 1395 + food_agi + flask_agi
+            return 549 + food_agi + flask_agi
         else:
             return 0 + food_agi + flask_agi
 
