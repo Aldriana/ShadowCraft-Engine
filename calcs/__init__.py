@@ -16,11 +16,11 @@ class DamageCalculator(object):
     # Similarly, if you want to include an opponents level and initialize these
     # in a level-dependant way, go ahead.
     TARGET_BASE_ARMOR = 11977.
-    BASE_ONE_HAND_MISS_RATE = 8.
-    BASE_DW_MISS_RATE = 27.
-    BASE_SPELL_MISS_RATE = 17.
-    BASE_DODGE_CHANCE = 6.5
-    BASE_PARRY_CHANCE = 14.
+    BASE_ONE_HAND_MISS_RATE = .08
+    BASE_DW_MISS_RATE = .27
+    BASE_SPELL_MISS_RATE = .17
+    BASE_DODGE_CHANCE = .065
+    BASE_PARRY_CHANCE = .14
 
     def __init__(self, stats, talents, glyphs, buffs, settings=None):
         self.stats = stats
@@ -49,6 +49,11 @@ class DamageCalculator(object):
     # Afaik this racial is removed with Cata? - Rac
     # It's still a self-buff for draenei, and while rogues can't be draenei
     # this is in the part of the code that other classes might someday use.
+    #
+    # It also just occurred to me that these need to be adjusted (and broken
+    # down by hand) to deal with the case where, for instance, a gnome is using
+    # a dagger in one hand and an axe in the other.  Won't matter for mutilate
+    # (which is what I'm doing first) but it could come up for, say, subtlety.
     def melee_hit_chance(self, base_miss_chance, dodgeable, parryable):
         miss_chance = base_miss_chance - self.stats.get_melee_hit_from_rating()
         if miss_chance < 0:
@@ -68,7 +73,7 @@ class DamageCalculator(object):
         else:
             parry_chance = 0
 
-        return 1 - (miss_chance + dodge_chance + parry_chance) / 100
+        return 1 - (miss_chance + dodge_chance + parry_chance)
 
     def one_hand_melee_hit_chance(self, dodgeable=True, parryable=False):
         # Most attacks by DPS aren't parryable due to positional negation. But
@@ -76,7 +81,7 @@ class DamageCalculator(object):
         # to True.
         return self.melee_hit_chance(self.BASE_ONE_HAND_MISS_RATE, dodgeable, parryable)
 
-    def two_hand_melee_hit_chance(self, dodgeable=True, parryable=False):
+    def dual_wield_melee_hit_chance(self, dodgeable=True, parryable=False):
         # Most attacks by DPS aren't parryable due to positional negation. But
         # if you ever want to attacking from the front, you can just set that
         # to True.
@@ -85,9 +90,10 @@ class DamageCalculator(object):
     def spell_hit_chance(self):
         miss_chance = self.BASE_SPELL_MISS_RATE - self.get_spell_hit_from_rating()
         if miss_chance < 0:
-            miss_chance = 0. #Left with no return due to resist, other mechanics I don't know about
+            return 0
+        else:
+            return miss_chance
 
-    
     def buff_melee_crit(self):
         return self.buffs.buff_all_crit()
 
@@ -96,4 +102,4 @@ class DamageCalculator(object):
 
     def target_armor(self):
         return self.buffs.armor_reduction_multiplier() * self.TARGET_BASE_ARMOR
-        
+
