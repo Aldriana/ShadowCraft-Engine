@@ -90,8 +90,60 @@ class Race(object):
             return False
         object.__getattribute__(self, name)
 
+    #3 to expertise
+    def axe_specialization(self):
+        if self.axe_specialization:
+            return 3
+        return 0
+
+    #3 to expertise
+    def sword_1h_specialization(self):
+        if self.sword_1h_specialization:
+            return 3
+        return 0
+
+    #3 to expertise
+    def sword_2h_specialization(self):
+        if self.sword_2h_specialization:
+            return 3
+        return 0
+
+    #3 to expertise
+    def mace_specialization(self):
+        if self.mace_specialization:
+            return 3
+        return 0
+
+    #3 to expertise
+    def dagger_specialization(self):
+        if self.dagger_specialization:
+            return 3
+        return 0
+
+    #1% to crit
+    def throwing_specialization(self):
+        if self.throwing_specialization:
+            return 1
+        return 0
+
+    #1% to crit
+    def gun_specialization(self):
+        if self.gun_specialization:
+            return 1
+        return 0
+
+    #1% to crit
+    def bow_specialization(self):
+        if self.bow_specialization:
+            return 1
+        return 0
+
 if __name__ == "__main__":
     race = Race("night elf");
     print race.stats
     print race.quickness
     print race.blood_fury
+    race2 = Race("undead");
+    print race2.stats
+    print race2.quickness
+    print race2.blood_fury
