@@ -28,3 +28,74 @@ class Buffs(object):
         if name in self.allowed_buffs:
             return False
         object.__getattribute__(self, name)
+            
+    def stat_multiplier(self):
+        if self.stat_multiplier_buff:
+            return 1.05
+        return 1
+
+    def all_damage_multiplier(self):
+        if self.all_damage_buff:
+            return 1.03
+        else:
+            return 1
+
+    def spell_damage_multiplier(self):
+        if self.spell_damage_debuff:
+            return 1.08 * self.all_damage_multiplier()
+        else:
+            return self.all_damage_multiplier()
+
+    def physical_damage_multiplier(self):
+        if self.physical_vulnerability_debuff:
+            return 1.04 * self.all_damage_multiplier()
+        else:
+            return self.all_damage_multiplier()
+
+    def bleed_damage_multiplier(self):
+        if self.bleed_damage_debuff:
+            return 1.3 * self.all_damage_multiplier()
+        else:
+            return self.all_damage_multiplier()
+
+    def attack_power_multiplier(self):
+        if self.attack_power_buff:
+            return 1.1
+        else:
+            return 1
+
+    def melee_haste_multiplier(self):
+        if self.melee_haste_buff:
+            return 1.1
+        else:
+            return 1
+
+    def buff_str(self):
+        if self.str_and_agi_buff:
+            return 1395
+        else:
+            return 0
+
+    def buff_agi(self):
+        if self.str_and_agi_buff:
+            return 1395
+        else:
+            return 0
+
+    def buff_all_crit(self):
+        if self.crit_chance_buff:
+            return 5
+        else:
+            return 0
+
+    def buff_spell_crit(self):
+        if self.spell_crit_debuff:
+            return 5
+        else:
+            return 0
+        
+    def armor_reduction_multiplier(self):
+        if self.armor_debuff:
+            return 0.88 
+        else:
+            return 1
