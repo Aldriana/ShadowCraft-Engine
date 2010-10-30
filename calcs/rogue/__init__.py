@@ -9,12 +9,15 @@ class RogueDamageCalculator(DamageCalculator):
     # backstab damage as a function of AP - that (almost) any rogue damage
     # calculator will need to know, so things like that go here.
 
+    # Will need to be adjusted when/if we add character level as an option.
+    AGI_PER_CRIT = 324.72 * 100
+    AGI_CRIT_INTERCEPT = -.295
+
     def oh_penalty(self):
         if self.talents.is_combat_rogue():
             return .875
         else:
             return .5
-
 
     def assassins_resolve(self):
         return self.talents.is_assassination_rogue() and self.stats.mh.is_dagger
@@ -31,7 +34,6 @@ class RogueDamageCalculator(DamageCalculator):
             damage *= 1.15
 
         return damage
-
 
     def mutilate_damage(self, ap, is_poisoned=True):
         mh_weapon_damage = self.stats.mh.normalized_damage(ap)
@@ -50,6 +52,14 @@ class RogueDamageCalculator(DamageCalculator):
 
         return mh_damage, oh_damage
 
+    def melee_crit_rate(self, agi, crit):
+        base_crit = self.AGI_CRIT_INTERCEPT + agi / self.AGI_PER_CRIT
+        base_crit += self.stats.get_crit_from_rating(crit)
+        return base_crit + self.buffs.buff_all_crit()
+
+    def spell_crit_rate(self, crit):
+        base_crit += self.stats.get_crit_from_rating(crit)
+        return base_crit + self.buffs.buff_all_crit() + self.buffs.buff_spell_crit()
 
     # Not strictly speaking rogue-specific, but given that the base object
     # doesn't currently have any notion of whether you'd dual-wielding or not

@@ -40,7 +40,7 @@ class Stats(object):
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
-    def get_melee_hit_from_rating(self, level=DEFAULT_LEVEL):
+    def get_melee_hit_from_rating(self, rating=None, level=DEFAULT_LEVEL):
         if level in MELEE_HIT_RATING_CONVERSION:
             if rating is None:
                 rating = self.hit
@@ -48,7 +48,7 @@ class Stats(object):
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
-    def get_expertise_from_rating(self, level=DEFAULT_LEVEL):
+    def get_expertise_from_rating(self, rating=None, level=DEFAULT_LEVEL):
         if level in EXPERTISE_RATING_CONVERSION:
             if rating is None:
                 rating = self.expertise
@@ -56,7 +56,7 @@ class Stats(object):
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
-    def get_spell_hit_from_rating(self, level=DEFAULT_LEVEL):
+    def get_spell_hit_from_rating(self, rating=None, level=DEFAULT_LEVEL):
         if level in SPELL_HIT_RATING_CONVERSION:
             if rating is None:
                 rating = self.hit
@@ -64,7 +64,7 @@ class Stats(object):
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
-    def get_crit_from_rating(self, level=DEFAULT_LEVEL):
+    def get_crit_from_rating(self, rating=None, level=DEFAULT_LEVEL):
         if level in CRIT_RATING_CONVERSION:
             if rating is None:
                 rating = self.crit
@@ -72,7 +72,7 @@ class Stats(object):
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
-    def get_haste_multiplier_from_rating(self, level=DEFAULT_LEVEL):
+    def get_haste_multiplier_from_rating(self, rating=None, level=DEFAULT_LEVEL):
         if level in HASTE_RATING_CONVERSION:
             if rating is None:
                 rating = self.haste
