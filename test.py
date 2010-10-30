@@ -29,9 +29,9 @@ assert not test_buffs.bleed_damage_debuff
 
 
 # Set up weapons and make sure things at least vaguely work.
-test_mh = stats.Weapon(.5*(665+999), 1.8, is_dagger=True)
-test_oh = stats.Weapon(.5*(453+842), 1.4, is_dagger=True)
-test_ranged = stats.Weapon(.5*(1097+1646), 2.2, is_thrown=True)
+test_mh = stats.Weapon(737, 1.8, is_dagger=True)
+test_oh = stats.Weapon(573, 1.4, is_dagger=True)
+test_ranged = stats.Weapon(1104, 2.0, is_thrown=True)
 
 assert test_mh._normalization_speed == 1.7
 assert test_oh._normalization_speed == 1.7
@@ -50,9 +50,9 @@ assert not test_procs.heroic_sharpened_twilight_scale
 # soon as I can find or put together a decent estimate of stats for, say, level
 # 85 heroic dungeon gear.
 
-test_stats = stats.Stats(10, 2271, 303, 876, 343, 170, 878, 528, test_mh, test_oh, test_ranged, test_procs)
+test_stats = stats.Stats(20, 3485, 190, 1463, 1086, 641, 899, 666, test_mh, test_oh, test_ranged, test_procs)
 
-assert test_stats.mastery == 528
+assert test_stats.mastery == 666
 
 
 # Initialize talents and test.
