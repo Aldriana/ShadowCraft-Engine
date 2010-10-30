@@ -19,7 +19,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         # breakdown or other sub-result, make sure to call this, as it 
         # initializes many values that are needed to perform the calculations.
 
-        assert self.settings.cycle._cycle_type = 'assassination'
+        assert self.settings.cycle._cycle_type == 'assassination'
         assert self.stats.mh.is_dagger
         assert self.stats.oh.is_dagger
 
