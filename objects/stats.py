@@ -118,7 +118,7 @@ class Weapon(object):
         return not self.type in frozenset(['gun', 'bow', 'crossbow', 'thrown'])
 
     def damage(self, ap=0):
-        return  self.speed * (self.weapon-dps + ap/14.)
+        return  self.speed * (self.weapon_dps + ap/14.)
 
     def normalized_damage(self, ap=0):
         return self.speed * self.weapon_dps + self._normalization_speed * ap/14.
