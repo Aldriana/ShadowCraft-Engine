@@ -91,49 +91,49 @@ class Race(object):
         object.__getattribute__(self, name)
 
     #3 to expertise
-    def axe_specialization(self):
+    def axe_specialization_value(self):
         if self.axe_specialization:
             return 3
         return 0
 
     #3 to expertise
-    def sword_1h_specialization(self):
+    def sword_1h_specialization_value(self):
         if self.sword_1h_specialization:
             return 3
         return 0
 
     #3 to expertise
-    def sword_2h_specialization(self):
+    def sword_2h_specialization_value(self):
         if self.sword_2h_specialization:
             return 3
         return 0
 
     #3 to expertise
-    def mace_specialization(self):
+    def mace_specialization_value(self):
         if self.mace_specialization:
             return 3
         return 0
 
     #3 to expertise
-    def dagger_specialization(self):
+    def dagger_specialization_value(self):
         if self.dagger_specialization:
             return 3
         return 0
 
     #1% to crit
-    def throwing_specialization(self):
+    def throwing_specialization_value(self):
         if self.throwing_specialization:
             return 1
         return 0
 
     #1% to crit
-    def gun_specialization(self):
+    def gun_specialization_value(self):
         if self.gun_specialization:
             return 1
         return 0
 
     #1% to crit
-    def bow_specialization(self):
+    def bow_specialization_value(self):
         if self.bow_specialization:
             return 1
         return 0
