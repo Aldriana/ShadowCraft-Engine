@@ -165,7 +165,7 @@ class GearBuffs(object):
     activated_ability_values = {
         'unsolvable_riddle':    (1605, 20, 120),                #Increase agility by 1605 for 20 seconds, 2min cd
         'demon_panther':        (1425, 20, 120),                #Increase agility by 1425 for 20 seconds, 2min cd
-        'potion_of_the_tolvir': (1200, 25, float(+infinity)),   #Increase agility by 1200 for 25 seconds, once per fight
+        'potion_of_the_tolvir': (1200, 25, float('inf')),   #Increase agility by 1200 for 25 seconds, once per fight
     }
     
     def __init__(self, *args):
