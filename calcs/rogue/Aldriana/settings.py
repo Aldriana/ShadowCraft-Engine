@@ -26,26 +26,22 @@ class AssassinationCycle(Cycle):
 
     allowed_values = frozenset([1,2,3,4,5])
 
-    def __init__(self, min_envenom_size_mutilate=4, min_rupture_size_mutilate=4, min_envenom_size_backstab=4, min_rupture_size_backstab=4):
-        # Minimum number of combo points to spend on finishers of the given
-        # type, during mutilate and backstab portions of the fight.  Rupture
-        # will be done whenever we have that many CPs or more and rupture is
-        # down; Envenom we will build until the condition is minimally
-        # satisfied and then envenom.  That is: a 1+ envenom during Backstab
-        # will always be 1 or 2 CPs, but an envenom can be as many as 5CPs if
-        # you had been building for a larger envenom and happen to run out of
-        # rupture uptime while at high CPs.  1+ rupture therefore represents
-        # "keep Rupture up as much as possible, at the expense of trying to
-        # make it any particular size".
-
+    def __init__(self, min_envenom_size_mutilate=4, min_envenom_size_backstab=4, prioritize_rupture_uptime_mutilate=True, prioritize_rupture_uptime_backstab=True):
         assert min_envenom_size_mutilate in self.allowed_values
         self.min_envenom_size_mutilate = min_envenom_size_mutilate
-
-        assert min_rupture_size_mutilate in self.allowed_values
-        self.min_rupture_size_mutilate = min_rupture_size_mutilate
 
         assert min_envenom_size_backstab in self.allowed_values
         self.min_envenom_size_backstab = min_envenom_size_backstab
 
-        assert min_rupture_size_backstab in self.allowed_values
-        self.min_rupture_size_backstab = min_rupture_size_backstab
+        # There are two fundamental ways you can manage rupture; one is to
+        # reapply with whatever CP you have as soon as you can after the old
+        # rupture drops; we will call this priorotizing uptime over size.
+        # The second is to use ruptures that are the same size as your
+        # envenoms, which we will call prioritizing size over uptime.  True
+        # means the first of these options; False means the second.  
+        # There are theoretically other things you can do (say, 4+ envenom and
+        # 5+ ruptures) but such things are significantly harder to model so I'm
+        # not going to worry about them until we have reason to believe they're
+        # actually better.
+        self.prioritize_rupture_uptime_mutilate = prioritize_rupture_uptime_mutilate
+        self.prioritize_rupture_uptime_backstab = prioritize_rupture_uptime_backstab
