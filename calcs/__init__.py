@@ -22,11 +22,12 @@ class DamageCalculator(object):
     BASE_DODGE_CHANCE = .065
     BASE_PARRY_CHANCE = .14
 
-    def __init__(self, stats, talents, glyphs, buffs, settings=None):
+    def __init__(self, stats, talents, glyphs, buffs, race, settings=None):
         self.stats = stats
         self.talents = talents
         self.glyphs = glyphs
         self.buffs = buffs
+        self.race = race
         self.settings = settings
 
     def get_dps(self):

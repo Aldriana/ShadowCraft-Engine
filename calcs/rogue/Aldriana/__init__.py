@@ -58,7 +58,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         self.baseline_energy_regen = 10 * self.stats.get_haste_multiplier_from_rating()
 
-        self.base_agility = self.stats.agi + self.buffs.buff_agi() # Need racial agi
+        self.base_agility = (self.stats.agi + self.buffs.buff_agi()) * self.stats.gear_buffs.leather_specialization_multiplier() + self.race.racial_agi
 
     def assassination_dps_breakdown_mutilate(self):
         mutilate_energy_cost = 48 + 12/self.one_hand_melee_hit_chance() 

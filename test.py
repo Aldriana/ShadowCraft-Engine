@@ -8,13 +8,15 @@ from calcs.rogue.Aldriana import AldrianasRogueDamageCalculator
 from calcs.rogue.Aldriana import settings
 
 from objects import buffs
+from objects import race
 from objects import stats
 from objects.rogue import rogue_talents
 from objects.rogue import rogue_glyphs
 
 
 # Set up buffs and make sure things at least vaguely work.
-test_buffs = buffs.Buffs('stat_multiplier_buff',
+test_buffs = buffs.Buffs(
+    'stat_multiplier_buff',
     'crit_chance_buff',
     'melee_haste_buff',
     'attack_power_buff',
@@ -29,20 +31,21 @@ assert not test_buffs.bleed_damage_debuff
 
 
 # Set up weapons and make sure things at least vaguely work.
-test_mh = stats.Weapon(737, 1.8, 'dagger')
-test_oh = stats.Weapon(573, 1.4, 'dagger')
+test_mh = stats.Weapon(737, 1.8, 'dagger', 'hurricane')
+test_oh = stats.Weapon(573, 1.4, 'dagger', 'landslide')
 test_ranged = stats.Weapon(1104, 2.0, 'thrown')
 
 assert test_mh._normalization_speed == 1.7
 assert test_oh._normalization_speed == 1.7
 assert test_ranged._normalization_speed == 2.1
-
+assert test_mh.hurricane
+assert not test_oh.hurricane
 
 # Set up procs and make sure things at least vaguely work.
-test_procs = stats.Procs('heroic_deaths_verdict')
+test_procs = stats.Procs('darkmoon_card_hurricane')
 
-assert test_procs.heroic_deaths_verdict
-assert not test_procs.heroic_sharpened_twilight_scale
+assert test_procs.darkmoon_card_hurricane
+assert not test_procs.fluid_death
 
 # Set up gear buffs and make sure things at leat vaguely work
 test_gear_buffs = stats.GearBuffs('chaotic_metagem')
@@ -76,12 +79,18 @@ assert test_glyphs.backstab
 assert not test_glyphs.vendetta
 
 
+# Set up race and test
+test_race = race.Race('night_elf')
+assert test_race.racial_agi == 210
+assert not test_race.get_racial_expertise('1h_sword')
+
+
 # Set up settings.
 test_cycle = settings.AssassinationCycle()
 test_settings = settings.Settings(test_cycle, response_time=1)
 
 # Build a DPS object, and test some functions.
-calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_settings)
+calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings)
 
 assert calculator.oh_penalty() == .5
 assert calculator.assassins_resolve()

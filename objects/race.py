@@ -1,18 +1,22 @@
 class Race(object):
-    rogue_base_stats = {80:(113,189,105,43,67),
-                        85:(122,206,114,46,73)}
-    racial_stat_offset = {  "human":        (0,0,0,0,0),
-                "night elf":    (-4,4,0,0,0),
-                "dwarf":        (5,-4,1,-1,-1),
-                "gnome":        (-5,2,0,3,0),
-                "draenei":      (1,-3,0,0,2),
-                "worgen":       (3,2,0,-4,-1),
-                "orc":          (3,-3,1,-3,2),
-                "undead":       (-1,-2,0,-2,5),
-                "tauren":       (5,-4,1,-4,2),
-                "troll":        (1,2,0,-4,1),
-                "blood elf":    (-3,2,0,3,-2),
-                "goblin":       (-3,2,0,3,-2),
+    rogue_base_stats = {
+        80:(113,189,105,43,67),
+        85:(122,206,114,46,73)
+    }
+
+    racial_stat_offset = {
+        "human":        (0,0,0,0,0),
+        "night_elf":    (-4,4,0,0,0),
+        "dwarf":        (5,-4,1,-1,-1),
+        "gnome":        (-5,2,0,3,0),
+        "draenei":      (1,-3,0,0,2),
+        "worgen":       (3,2,0,-4,-1),
+        "orc":          (3,-3,1,-3,2),
+        "undead":       (-1,-2,0,-2,5),
+        "tauren":       (5,-4,1,-4,2),
+        "troll":        (1,2,0,-4,1),
+        "blood_elf":    (-3,2,0,3,-2),
+        "goblin":       (-3,2,0,3,-2),
     }
 
     allowed_racials = frozenset([
@@ -44,7 +48,7 @@ class Race(object):
 
     racials_by_race = {
                 "human":        ["mace_expertise_racial","sword_1h_expertise_racial","sword_2h_specialization","human_spirit"],
-                "night elf":    ["quickness"],
+                "night_elf":    ["quickness"],
                 "dwarf":        ["stoneform","gun_specialization","mace_specialization"],
                 "gnome":        ["expansive_mind","dagger_specialization","sword_1h_specialization"],
                 "draenei":      ["heroic_presence"],
@@ -53,30 +57,30 @@ class Race(object):
                 "undead":       [],
                 "tauren":       ["endurance"],
                 "troll":        ["regeneration","beast_slaying","throwing_specialization","bow_specialization"],
-                "blood elf":    ["arcane_torrent"],
+                "blood_elf":    ["arcane_torrent"],
                 "goblin":       ["rocket_barrage","time_is_money"],
     }
 
     #Note this allows invalid class-race combos
-    def __init__(self, race, clas="Rogue", level=85):
-        self.clas = str.lower(clas)
+    def __init__(self, race, character_class="rogue", level=85):
+        self.character_class = str.lower(character_class)
         self.race_name = str.lower(race)
-        if self.clas == "rogue":
+        if self.character_class == "rogue":
             self.stat_set = Race.rogue_base_stats
         else:
             #Unsupported class, throw error
-            assert False, "Unsupported class %{class}s" % {'class': clas}
+            assert False, "Unsupported class %(class)s" % {'class': character_class}
         if level in self.stat_set:
             self.stats = self.stat_set[level]
         else:
             #Unsupported level, throw error
-            assert False, "Unsupported class/level combination %{class}s/%{level}d" \
-            % {'class': self.clas, 'level':level}
+            assert False, "Unsupported class/level combination %(class)s/%{level}d" \
+            % {'class': self.character_class, 'level':level}
         if self.race_name in Race.racial_stat_offset:
             self.stats = map(sum,zip(self.stats, Race.racial_stat_offset[race]))
         else:
             #Non-existant race
-            assert False, "Unsupported race %{race}s" % {'race':self.race_name}
+            assert False, "Unsupported race %(race)s" % {'race':self.race_name}
         self.set_racials()
 
     def set_racials(self):
@@ -88,58 +92,54 @@ class Race(object):
         # Any racial we haven't assigned a value to, we don't have.
         if name in self.allowed_racials:
             return False
-        object.__getattribute__(self, name)
+        elif name == 'racial_str':
+            return self.stats[0]
+        elif name == 'racial_agi':
+            return self.stats[1]
+        elif name == 'racial_sta':
+            return self.stats[2]
+        elif name == 'racial_int':
+            return self.stats[3]
+        elif name == 'racial_spi':
+            return self.stats[4]
+        else:
+            object.__getattribute__(self, name)
 
-    #3 to expertise
-    def axe_specialization_value(self):
-        if self.axe_specialization:
-            return 3
+    def get_racial_expertise(self, weapon_type):
+        if weapon_type in ['1h_axe', '2h_axe', 'fist']:
+            if self.axe_specialization:
+                return .75
+        elif weapon_type == '1h_sword':
+            if self.sword_1h_specialization:
+                return .75
+        elif weapon_type == '2h_sword': 
+            if self.sword_2h_specialization:
+                return .75
+        elif weapon_type in ['1h_mace', '2h_mace']:
+            if self.mace_specialization:
+                return .75
+        elif weapon_type == 'dagger':
+            if self.dagger_specialization:
+                return .75
+
         return 0
 
-    #3 to expertise
-    def sword_1h_specialization_value(self):
-        if self.sword_1h_specialization:
-            return 3
+    def get_racial_crit(self, weapon_type):
+        if weapon_type == 'thrown':
+            if self.throwing_specialization:
+                return .01
+        elif weapon_type == 'gun':
+            if self.gun_specialization:
+                return .01
+        elif weapon_type == 'bow':
+            if self.bow_specialization:
+                return .01
+
         return 0
 
-    #3 to expertise
-    def sword_2h_specialization_value(self):
-        if self.sword_2h_specialization:
-            return 3
-        return 0
-
-    #3 to expertise
-    def mace_specialization_value(self):
-        if self.mace_specialization:
-            return 3
-        return 0
-
-    #3 to expertise
-    def dagger_specialization_value(self):
-        if self.dagger_specialization:
-            return 3
-        return 0
-
-    #1% to crit
-    def throwing_specialization_value(self):
-        if self.throwing_specialization:
-            return 1
-        return 0
-
-    #1% to crit
-    def gun_specialization_value(self):
-        if self.gun_specialization:
-            return 1
-        return 0
-
-    #1% to crit
-    def bow_specialization_value(self):
-        if self.bow_specialization:
-            return 1
-        return 0
 
 if __name__ == "__main__":
-    race = Race("night elf");
+    race = Race("night_elf");
     print race.stats
     print race.quickness
     print race.blood_fury

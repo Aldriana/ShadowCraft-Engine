@@ -18,7 +18,7 @@ class Buffs(object):
         'agi_flask',                        # Flask of the Winds
         'guild_feast'                       # Seafood Magnifique Feast
     ])
-    
+
     def __init__(self, *args):
         for buff in args:
             # A real exception would be good here as well.
@@ -105,7 +105,7 @@ class Buffs(object):
             return .05
         else:
             return 0
-        
+
     def armor_reduction_multiplier(self):
         if self.armor_debuff:
             return 0.88 
