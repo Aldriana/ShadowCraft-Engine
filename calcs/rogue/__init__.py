@@ -20,7 +20,7 @@ class RogueDamageCalculator(DamageCalculator):
             return .5
 
     def assassins_resolve(self):
-        return self.talents.is_assassination_rogue() and self.stats.mh.is_dagger
+        return self.talents.is_assassination_rogue() and (self.stats.mh.type == 'dagger')
 
 
     def backstab_damage(self, ap):

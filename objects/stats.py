@@ -1,5 +1,5 @@
 class Stats(object):
-    # For the moment, lets define this as raw stats from gear + race; AP is 
+    # For the moment, lets define this as raw stats from gear + race; AP is
     # only AP bonuses from gear and level.  Do not include multipliers like
     # Vitality and Sinister Calling; this is just raw stats.  See calcs page
     # rows 1-9 from my WotLK spreadsheets to see how these are typically
@@ -13,7 +13,7 @@ class Stats(object):
     EXPERTISE_RATING_CONVERSION = {85:30.027200698852539 * 4}
     MASTERY_RATING_CONVERSION = {85:179.279998779296875}
 
-    def __init__(self, str, agi, ap, crit, hit, exp, haste, mastery, mh, oh, ranged, procs):
+    def __init__(self, str, agi, ap, crit, hit, exp, haste, mastery, mh, oh, ranged, procs, gear_buffs):
         # This will need to be adjusted if at any point we want to support
         # other classes, but this is probably the easiest way to do it for
         # the moment.
@@ -29,6 +29,7 @@ class Stats(object):
         self.oh = oh
         self.ranged = ranged
         self.procs = procs
+        self.gear_buffs = gear_buffs
 
     # As noted elsewhere, these asserts probably should be exceptions
     # once we have good agreement on how they will be caught/handled
@@ -81,21 +82,18 @@ class Stats(object):
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
 class Weapon(object):
-    def __init__(self, damage, speed, is_dagger=False, is_two_handed=False, is_thrown=False, is_ranged=False):
+    def __init__(self, damage, speed, weapon_type):
         self.average_damage =  damage
         self.speed = speed
-        self.is_dagger = is_dagger
-        self.is_two_handed = is_two_handed
-        self.is_thrown = is_thrown
-        self.is_ranged = is_ranged
+        self.type = weapon_type
 
-        if is_thrown:
+        if self.type == 'thrown':
             self._normalization_speed = 2.1
-        elif is_ranged:
+        elif self.type in ['gun','bow']:
             self._normalization_speed = 2.8
-        elif is_two_handed:
+        elif self.type in ['2h_sword', '2h_mace', '2h_axe', 'polearm']:
             self._normalization_speed = 3.3
-        elif is_dagger:
+        elif self.type == 'dagger':
             self._normalization_speed = 1.7
         else:
             self._normalization_speed = 2.4
@@ -114,19 +112,20 @@ class Procs(object):
     # For the moment I'm just going to take procs as a list of proc names;
     # we can worry about a more robust proc system later.
     #
-    # Note that activated abilities (Eng gloves, etc.) should also go here -
-    # this is the certified dumping ground for anything that's not a static
-    # stat boost.  Which, now that I think about it, also includes metagems.
-    # And set bonuses.  And racial abilities.  And some silly stuff like that. 
-    # Probably should look into rewriting this in a more sensible fashion at
-    # some point, but this will do for now.
+    # Activated racials moved to race.Race, gear-based buffs that aren't
+    # static stat increases moved to stats.GearBuffs. -Rac
     #
     # Will also need to build a decent list of procs to support at some point.
     allowed_procs = frozenset([
         'heroic_deaths_verdict',
         'heroic_sharpened_twilight_scale',
-        'relentless_metagem',
-        'chaotic_metagem'
+        'rogue_t11_4pc',
+        'rogue_t10_4pc',
+        'hurricane',
+        'darkmoon_card_hurricane',
+        'unheeded_warning',
+        'fluid_death',                      #stacks on-hit, should be a proc
+        'essence_of_the_cyclone'
     ])
 
     def __init__(self, *args):
@@ -139,3 +138,45 @@ class Procs(object):
         if name in self.allowed_procs:
             return False
         object.__getattribute__(self, name)
+
+#Catch-all for non-proc gear based buffs (static or activated)
+class GearBuffs(object):
+    allowed_buffs = frozenset([
+        'leather_specialization',       #Increase %stat by 5%
+        'rogue_t10_2pc',
+        'relentless_metagem',           #Increase critical damage by 3%
+        'chaotic_metagem',              #Increase critical damage by 3%
+        'rogue_t11_2pc',                #Increase crit chance for BS, Mut, SS by 5%
+        'engineer_glove_enchant',
+        'unsolvable_riddle',
+        'demon_panther'
+    ])
+
+    def __init__(self, *args):
+        for arg in args:
+            if arg in self.allowed_buffs:
+                setattr(self, arg, True)
+
+    def __getattr__(self, name):
+        # Any proc we haven't assigned a value to, we don't have.
+        if name in self.allowed_buffs:
+            return False
+        object.__getattribute__(self, name)
+
+    def chaotic_metagem_value(self):
+        if self.chaotic_metagem:
+            return .03
+        else:
+            return 0
+
+    def rogue_t11_2pc_value(self):
+        if self.rogue_t11_2pc:
+            return .05
+        else:
+            return 0
+
+    def leather_specialization_value(self):
+        if self.leather_specialization:
+            return .05
+        else:
+            return 0

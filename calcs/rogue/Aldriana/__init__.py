@@ -50,8 +50,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         # initializes many values that are needed to perform the calculations.
 
         assert self.settings.cycle._cycle_type == 'assassination'
-        assert self.stats.mh.is_dagger
-        assert self.stats.oh.is_dagger
+        assert self.stats.mh.type == 'dagger'
+        assert self.stats.oh.type == 'dagger'
 
         self.rupture_energy_cost = 25 / self.one_hand_melee_hit_chance()
         self.envenom_energy_cost = 35 / self.one_hand_melee_hit_chance()

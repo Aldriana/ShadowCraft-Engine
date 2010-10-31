@@ -29,9 +29,9 @@ assert not test_buffs.bleed_damage_debuff
 
 
 # Set up weapons and make sure things at least vaguely work.
-test_mh = stats.Weapon(.5*(665+999), 1.8, is_dagger=True)
-test_oh = stats.Weapon(.5*(453+842), 1.4, is_dagger=True)
-test_ranged = stats.Weapon(.5*(1097+1646), 2.2, is_thrown=True)
+test_mh = stats.Weapon(.5*(665+999), 1.8, 'dagger')
+test_oh = stats.Weapon(.5*(453+842), 1.4, 'dagger')
+test_ranged = stats.Weapon(.5*(1097+1646), 2.2, 'thrown')
 
 assert test_mh._normalization_speed == 1.7
 assert test_oh._normalization_speed == 1.7
@@ -39,18 +39,22 @@ assert test_ranged._normalization_speed == 2.1
 
 
 # Set up procs and make sure things at least vaguely work.
-test_procs = stats.Procs('relentless_metagem', 'heroic_deaths_verdict')
+test_procs = stats.Procs('heroic_deaths_verdict')
 
-assert test_procs.relentless_metagem
+assert test_procs.heroic_deaths_verdict
 assert not test_procs.heroic_sharpened_twilight_scale
 
+# Set up gear buffs and make sure things at leat vaguely work
+test_gear_buffs = stats.GearBuffs('chaotic_metagem')
+assert test_gear_buffs.chaotic_metagem
+assert not test_gear_buffs.rogue_t11_2pc
 
 # Set up a calcs object and make sure things at least vaguely work.  Stat
 # values are currently pulled from a level 80 gear set, which I will fix as
 # soon as I can find or put together a decent estimate of stats for, say, level
 # 85 heroic dungeon gear.
 
-test_stats = stats.Stats(10, 2271, 303, 876, 343, 170, 878, 528, test_mh, test_oh, test_ranged, test_procs)
+test_stats = stats.Stats(10, 2271, 303, 876, 343, 170, 878, 528, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
 
 assert test_stats.mastery == 528
 
