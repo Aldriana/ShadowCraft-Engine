@@ -46,6 +46,13 @@ class Race(object):
         "time_is_money"             #Goblin
     ])
 
+    activated_racial_data = {
+        'blood_fury':       (0,15,120),     #level-based ap (or sp) increase
+        'berserking':       (1.2,10,180),   #20% haste increase for 10 seconds, 3 minute cd
+        'arcane_torrent':   (15,0,120),     #gain 15 energy (or 15 runic power or 6% mana), 2 minute cd
+        'rocket_barrage':   (0,0,120)       #deal level-based damage, 2 min cd
+    }
+
     racials_by_race = {
                 "human":        ["mace_expertise_racial","sword_1h_expertise_racial","sword_2h_specialization","human_spirit"],
                 "night_elf":    ["quickness"],
@@ -107,19 +114,19 @@ class Race(object):
     def get_racial_expertise(self, weapon_type):
         if weapon_type in ['1h_axe', '2h_axe', 'fist']:
             if self.axe_specialization:
-                return 3
+                return .0075
         elif weapon_type == '1h_sword':
             if self.sword_1h_specialization:
-                return 3
+                return .0075
         elif weapon_type == '2h_sword': 
             if self.sword_2h_specialization:
-                return 3
+                return .0075
         elif weapon_type in ['1h_mace', '2h_mace']:
             if self.mace_specialization:
-                return 3
+                return .0075
         elif weapon_type == 'dagger':
             if self.dagger_specialization:
-                return 3
+                return .0075
 
         return 0
 

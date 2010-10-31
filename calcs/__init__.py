@@ -56,22 +56,22 @@ class DamageCalculator(object):
     # a dagger in one hand and an axe in the other.  Won't matter for mutilate
     # (which is what I'm doing first) but it could come up for, say, subtlety.
     def melee_hit_chance(self, base_miss_chance, dodgeable, parryable, weapon_type):
-        miss_chance = base_miss_chance - (self.stats.get_melee_hit_from_rating() + self.race.get_racial_hit()) /100
+        miss_chance = base_miss_chance - (self.stats.get_melee_hit_from_rating() + self.race.get_racial_hit())
         if miss_chance < 0:
             miss_chance = 0.
 
-        #Expertise represented as the reduced chance to be dodged or parried
-        dodge_and_parry_reduction = (self.stats.get_expertise_from_rating() + self.race.get_racial_expertise(weapon_type)) / (4 * 100)
+        #Expertise represented as the reduced chance to be dodged or parried, not true "Expertise"
+        expertise = (self.stats.get_expertise_from_rating() + self.race.get_racial_expertise(weapon_type))
 
         if dodgeable:
-            dodge_chance = self.BASE_DODGE_CHANCE - dodge_and_parry_reduction
+            dodge_chance = self.BASE_DODGE_CHANCE - expertise
             if dodge_chance < 0:
                 dodge_chance = 0
         else:
             dodge_chance = 0
 
         if parryable:
-            parry_chance = self.BASE_PARRY_CHANCE - dodge_and_parry_reduction
+            parry_chance = self.BASE_PARRY_CHANCE - expertise
             if parry_chance < 0:
                 parry_chance = 0
         else:
