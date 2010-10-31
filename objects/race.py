@@ -107,19 +107,19 @@ class Race(object):
     def get_racial_expertise(self, weapon_type):
         if weapon_type in ['1h_axe', '2h_axe', 'fist']:
             if self.axe_specialization:
-                return .75
+                return 3
         elif weapon_type == '1h_sword':
             if self.sword_1h_specialization:
-                return .75
+                return 3
         elif weapon_type == '2h_sword': 
             if self.sword_2h_specialization:
-                return .75
+                return 3
         elif weapon_type in ['1h_mace', '2h_mace']:
             if self.mace_specialization:
-                return .75
+                return 3
         elif weapon_type == 'dagger':
             if self.dagger_specialization:
-                return .75
+                return 3
 
         return 0
 
@@ -136,6 +136,11 @@ class Race(object):
 
         return 0
 
+    def get_racial_hit(self):
+        if self.heroic_presence:
+            return .01
+        else:
+            return 0
 
 if __name__ == "__main__":
     race = Race("night_elf");

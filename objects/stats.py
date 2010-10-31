@@ -81,21 +81,15 @@ class Stats(object):
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
-
 class Weapon(object):
-    allowed_melee_enchants = frozenset([
-        'hurricane',
-        'landslide'
-    ])
-
-    def __init__(self, damage, speed, weapon_type, enchant=None):
+    def __init__(self, damage, speed, weapon_type):
+        self.average_damage =  damage
         self.speed = speed
-        self.weapon_dps = damage/speed
         self.type = weapon_type
 
         if self.type == 'thrown':
             self._normalization_speed = 2.1
-        elif self.type in ['gun','bow', 'crossbow']:
+        elif self.type in ['gun','bow']:
             self._normalization_speed = 2.8
         elif self.type in ['2h_sword', '2h_mace', '2h_axe', 'polearm']:
             self._normalization_speed = 3.3
@@ -104,24 +98,14 @@ class Weapon(object):
         else:
             self._normalization_speed = 2.4
 
-        if enchant is not None:
-            assert self.is_melee() and enchant in self.allowed_melee_enchants
-            setattr(self, enchant, True)
-
-    def __getattr__(self, name):
-        # Any enchant we haven't assigned a value to, we don't have.
-        if name in self.allowed_melee_enchants:
-            return False
-        object.__getattribute__(self, name)
-
-    def is_melee(self):
-        return not self.type in frozenset(['gun', 'bow', 'crossbow', 'thrown'])
-
     def damage(self, ap=0):
-        return  self.speed * (self.weapon_dps + ap/14.)
+        return self.average_damage + self.speed * ap/14.
 
     def normalized_damage(self, ap=0):
-        return self.speed * self.weapon_dps + self._normalization_speed * ap/14.
+        return self.average_damage + self._normalization_speed * ap/14.
+
+    def dps(self, ap=0):
+        return self.average_damage / self.speed + ap/14.
 
 
 class Procs(object):
@@ -133,7 +117,11 @@ class Procs(object):
     #
     # Will also need to build a decent list of procs to support at some point.
     allowed_procs = frozenset([
+        'heroic_deaths_verdict',
+        'heroic_sharpened_twilight_scale',
         'rogue_t11_4pc',
+        'rogue_t10_4pc',
+        'hurricane',
         'darkmoon_card_hurricane',
         'unheeded_warning',
         'fluid_death',                      #stacks on-hit, should be a proc
@@ -151,18 +139,17 @@ class Procs(object):
             return False
         object.__getattribute__(self, name)
 
-
 #Catch-all for non-proc gear based buffs (static or activated)
 class GearBuffs(object):
     allowed_buffs = frozenset([
         'leather_specialization',       #Increase %stat by 5%
+        'rogue_t10_2pc',
         'relentless_metagem',           #Increase critical damage by 3%
         'chaotic_metagem',              #Increase critical damage by 3%
         'rogue_t11_2pc',                #Increase crit chance for BS, Mut, SS by 5%
         'engineer_glove_enchant',
         'unsolvable_riddle',
-        'demon_panther',
-        'potion_of_the_tolvir'
+        'demon_panther'
     ])
 
     def __init__(self, *args):
@@ -171,36 +158,25 @@ class GearBuffs(object):
                 setattr(self, arg, True)
 
     def __getattr__(self, name):
-        # Any gear buff we haven't assigned a value to, we don't have.
+        # Any proc we haven't assigned a value to, we don't have.
         if name in self.allowed_buffs:
             return False
-        elif name == 'racial_str':
-            return self.stats[0]
-        elif name == 'racial_agi':
-            return self.stats[1]
-        elif name == 'racial_sta':
-            return self.stats[2]
-        elif name == 'racial_int':
-            return self.stats[3]
-        elif name == 'racial_spi':
-            return self.stats[4]
-        else:
-            object.__getattribute__(self, name)
+        object.__getattribute__(self, name)
 
-    def metagem_crit_multiplier(self):
+    def chaotic_metagem_value(self):
         if self.chaotic_metagem:
-            return 1.03
+            return .03
         else:
-            return 1
+            return 0
 
-    def rogue_t11_2pc_crit_bonus(self):
+    def rogue_t11_2pc_value(self):
         if self.rogue_t11_2pc:
             return .05
         else:
             return 0
 
-    def leather_specialization_multiplier(self):
+    def leather_specialization_value(self):
         if self.leather_specialization:
-            return 1.05
+            return .05
         else:
-            return 1
+            return 0

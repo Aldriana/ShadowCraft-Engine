@@ -4,13 +4,13 @@ class DamageCalculator(object):
     # most) classes if they implement a damage calculator using this framework.
     # Not saying that will happen, but I want to leave my options open.
     # Any calculations that are specific to a particular class should go in
-    # calcs.<class>.<Class>DamageCalculator instead - for an example, see 
+    # calcs.<class>.<Class>DamageCalculator instead - for an example, see
     # calcs.rogue.RogueDamageCalculator
 
     # If someone wants to have __init__ take a player level as well and use it
     # to initialize these to a level-dependent value, they're welcome to.  At
     # the moment I'm hardcoding them to level 85 values.
-    
+
     ARMOR_MITIGATION_PARAMETER = 26070.
 
     # Similarly, if you want to include an opponents level and initialize these
@@ -55,20 +55,23 @@ class DamageCalculator(object):
     # down by hand) to deal with the case where, for instance, a gnome is using
     # a dagger in one hand and an axe in the other.  Won't matter for mutilate
     # (which is what I'm doing first) but it could come up for, say, subtlety.
-    def melee_hit_chance(self, base_miss_chance, dodgeable, parryable):
-        miss_chance = base_miss_chance - self.stats.get_melee_hit_from_rating()
+    def melee_hit_chance(self, base_miss_chance, dodgeable, parryable, weapon_type):
+        miss_chance = base_miss_chance - (self.stats.get_melee_hit_from_rating() + self.race.get_racial_hit()) /100
         if miss_chance < 0:
             miss_chance = 0.
 
+        #Expertise represented as the reduced chance to be dodged or parried
+        dodge_and_parry_reduction = (self.stats.get_expertise_from_rating() + self.race.get_racial_expertise(weapon_type)) / (4 * 100)
+
         if dodgeable:
-            dodge_chance = self.BASE_DODGE_CHANCE - self.stats.get_expertise_from_rating()
+            dodge_chance = self.BASE_DODGE_CHANCE - dodge_and_parry_reduction
             if dodge_chance < 0:
                 dodge_chance = 0
         else:
             dodge_chance = 0
 
         if parryable:
-            parry_chance = self.BASE_PARRY_CHANCE - self.stats.get_expertise_from_rating()
+            parry_chance = self.BASE_PARRY_CHANCE - dodge_and_parry_reduction
             if parry_chance < 0:
                 parry_chance = 0
         else:
@@ -76,17 +79,25 @@ class DamageCalculator(object):
 
         return 1 - (miss_chance + dodge_chance + parry_chance)
 
-    def one_hand_melee_hit_chance(self, dodgeable=True, parryable=False):
+    def one_hand_melee_hit_chance(self, dodgeable=True, parryable=False, weapon=None):
         # Most attacks by DPS aren't parryable due to positional negation. But
         # if you ever want to attacking from the front, you can just set that
         # to True.
-        return self.melee_hit_chance(self.BASE_ONE_HAND_MISS_RATE, dodgeable, parryable)
+        if weapon == None:
+            weapon = self.stats.mh
+        return self.melee_hit_chance(self.BASE_ONE_HAND_MISS_RATE, dodgeable, parryable, weapon.type)
 
-    def dual_wield_melee_hit_chance(self, dodgeable=True, parryable=False):
+    def dual_wield_mh_hit_chance(self, dodgeable=True, parryable=False):
         # Most attacks by DPS aren't parryable due to positional negation. But
         # if you ever want to attacking from the front, you can just set that
         # to True.
-        return self.melee_hit_chance(self.BASE_DW_MISS_RATE, dodgeable, parryable)
+        return self.melee_hit_chance(self.BASE_DW_MISS_RATE, dodgeable, parryable, self.stats.mh.type)
+
+    def dual_wield_oh_hit_chance(self, dodgeable=True, parryable=False):
+        # Most attacks by DPS aren't parryable due to positional negation. But
+        # if you ever want to attacking from the front, you can just set that
+        # to True.
+        return self.melee_hit_chance(self.BASE_DW_MISS_RATE, dodgeable, parryable, self.stats.oh.type)
 
     def spell_hit_chance(self):
         miss_chance = self.BASE_SPELL_MISS_RATE - self.get_spell_hit_from_rating()
