@@ -1,6 +1,6 @@
 class Stats(object):
     # For the moment, lets define this as raw stats from gear + race; AP is
-    # only AP bonuses from gear and level.  Do not include multipliers like
+    # only AP boosts from gear and level.  Do not include multipliers like
     # Vitality and Sinister Calling; this is just raw stats.  See calcs page
     # rows 1-9 from my WotLK spreadsheets to see how these are typically
     # defined, though the numbers will need to updated for level 85.
@@ -162,10 +162,14 @@ class GearBuffs(object):
         'potion_of_the_tolvir'
     ])
 
-    activated_ability_values = {
-        'unsolvable_riddle':    (1605, 20, 120),                #Increase agility by 1605 for 20 seconds, 2min cd
-        'demon_panther':        (1425, 20, 120),                #Increase agility by 1425 for 20 seconds, 2min cd
-        'potion_of_the_tolvir': (1200, 25, float('inf')),   #Increase agility by 1200 for 25 seconds, once per fight
+    activated_agi_boosts = {
+        'unsolvable_riddle':    (1605, 20, 120),                #Increase by 1605 for 20 seconds, 2min cd
+        'demon_panther':        (1425, 20, 120),                #Increase by 1425 for 20 seconds, 2min cd
+        'potion_of_the_tolvir': (1200, 25, None),               #Increase by 1200 for 25 seconds, once per fight
+    }
+
+    activated_haste_rating_boosts = {
+        'engineer_glove_enchant':   (340,12,60)                 #340 haste rating for 12 seconds, 1 minute cd
     }
     
     def __init__(self, *args):
@@ -196,3 +200,22 @@ class GearBuffs(object):
             return 1.05
         else:
             return 1
+            
+    def get_all_activated_agi_boosts(self):
+        agi_boosts = []
+        for bonus in activated_agi_boosts:
+            if self.getattr(bonus):
+                agi_boosts.append(activated_agi_boosts[bonus])
+
+        return agi_boosts
+
+    #This is haste rating because the conversion to haste requires a level.
+    #Too, if reported as a haste value, it must be added to the value from other rating correctly.
+    #This does too, but reinforces the fact that it's rating.
+    def get_all_activated_haste_rating_boosts(self):
+        haste_boosts = []
+        for bonus in activated_haste_boosts:
+            if self.getattr(bonus):
+                haste_boosts.append(activated_haste_boosts[bonus])
+
+        return haste_boosts
