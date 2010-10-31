@@ -149,7 +149,8 @@ class GearBuffs(object):
         'rogue_t11_2pc',                #Increase crit chance for BS, Mut, SS by 5%
         'engineer_glove_enchant',
         'unsolvable_riddle',
-        'demon_panther'
+        'demon_panther',
+        'potion_of_the_tolvir'
     ])
 
     def __init__(self, *args):
