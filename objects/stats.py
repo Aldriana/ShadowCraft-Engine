@@ -1,6 +1,6 @@
 class Stats(object):
     # For the moment, lets define this as raw stats from gear + race; AP is
-    # only AP boosts from gear and level.  Do not include multipliers like
+    # only AP bonuses from gear and level.  Do not include multipliers like
     # Vitality and Sinister Calling; this is just raw stats.  See calcs page
     # rows 1-9 from my WotLK spreadsheets to see how these are typically
     # defined, though the numbers will need to updated for level 85.
@@ -12,7 +12,6 @@ class Stats(object):
     HASTE_RATING_CONVERSION = {85:128.057006835937500}
     EXPERTISE_RATING_CONVERSION = {85:30.027200698852539 * 4}
     MASTERY_RATING_CONVERSION = {85:179.279998779296875}
-    AGI_CRIT_CONVERSION = {85:324.72}
 
     def __init__(self, str, agi, ap, crit, hit, exp, haste, mastery, mh, oh, ranged, procs, gear_buffs):
         # This will need to be adjusted if at any point we want to support
@@ -81,12 +80,6 @@ class Stats(object):
             return 1 + rating / (100 * self.HASTE_RATING_CONVERSION[level])
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
-
-    def get_crit_from_agi(self, agi=None, level=DEFAULT_LEVEL):
-        if level in self.AGI_CRIT_CONVERSION:
-            if agi is None:
-                agi = self.agi
-            return agi / (100 * Stats.AGI_CRIT_CONVERSION[level])
 
 class Weapon(object):
     allowed_melee_enchants = frozenset([

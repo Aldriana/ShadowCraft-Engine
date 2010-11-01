@@ -48,10 +48,10 @@ class Race(object):
 
     #Format is value, duration(sec), cooldown(sec)
     activated_racial_data = {
-        'blood_fury':       (0,15,120),     #level-based ap (or sp) increase
+        'blood_fury':       (None,15,120),     #level-based ap (or sp) increase
         'berserking':       (1.2,10,180),   #20% haste increase for 10 seconds, 3 minute cd
         'arcane_torrent':   (15,0,120),     #gain 15 energy (or 15 runic power or 6% mana), 2 minute cd
-        'rocket_barrage':   (0,0,120)       #deal level-based damage, 2 min cd
+        'rocket_barrage':   (None,0,120)       #deal level-based damage, 2 min cd
     }
 
     racials_by_race = {
