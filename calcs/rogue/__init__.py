@@ -46,12 +46,24 @@ class RogueDamageCalculator(DamageCalculator):
         if improved_ambush:
             base_modifier += .05 * (self.talents.subtlety.improved_ambush)
         if potent_poisons and self.talents.is_assassination_rogue():
-            base_modifier += .025 * self.stats.get_mastery_from_rating(mastery)
+            base_modifier += .035 * self.stats.get_mastery_from_rating(mastery)
         # Multiplicative modifiers may need to be handled in a more elegant way
         if assassins_resolve and self.talents.is_assassination_rogue() and (self.stats.mh.type == 'dagger'):
             base_modifier *= 1.15
 
         return base_modifier
+
+    def mh_damage(self, ap):
+        weapon_damage = self.stats.mh.damage(ap)
+        multiplier = talents_modifiers(assassins_resolve=True)
+        damage = weapon_damage * multiplier
+        return damage
+
+    def oh_damage(self, ap):
+        weapon_damage = self.stats.oh.damage(ap)
+        multiplier = talents_modifiers(assassins_resolve=True)
+        damage = self.oh_penalty() * weapon_damage * multiplier
+        return damage
 
     def backstab_damage(self, ap):
         weapon_damage = self.stats.mh.normalized_damage(ap)
@@ -130,33 +142,39 @@ class RogueDamageCalculator(DamageCalculator):
 
         return damage
 
+    def main_gauche(self, ap)
+        weapon_damage = self.stats.oh.normalized_damage(ap)
+
+        damage = self.oh_penalty() * weapon_damage
+
+        return damage
+
     def instant_poison_damage(self, ap, mastery):
-        multiplier = talents_modifiers(potent_poisons=True, vile_poisons = True,
+        multiplier = talents_modifiers(potent_poisons=True, vile_poisons=True,
                                        assassins_resolve=False, mastery)
 
         low_end_damage = (300 + 0.09 * ap) * multiplier
         high_end_damage = (400 + 0.09 * ap) * multiplier
-        average_damage = ((300 + 400) / 2 + 0.09 * ap) * multiplier
-        # pulled from the assassination spreadsheet; need values for lvl 85
+        average_damage = (low_end_damage + high_end_damage) / 2
+            # pulled from the assassination spreadsheet; need values for lvl 85
 
-        return low_end_damage, high_end_damage, average_damage
+        return average_damage
 
-    def deadly_poison_damage(self, ap, mastery):
-        # also dependancy on dp_stacks=5 but leaving it for now
+    def deadly_poison_damage(self, ap, mastery, dp_stacks=5):
         multiplier = talents_modifiers(potent_poisons=True, vile_poisons = True,
                                        assassins_resolve=False, mastery)
 
-        damage = (296 + ,108 * ap) * multiplier
-        # pulled from the assassination spreadsheet; need values for lvl 85
+        tick_damage = ((296 + .108 * ap) * dp_stacks / 4) * multiplier
+            # pulled from the assassination spreadsheet; need values for lvl 85
 
-        return damage
+        return tick_damage
 
     def wound_poison_damage(self, ap, mastery):
         multiplier = talents_modifiers(potent_poisons=True, vile_poisons = True,
                                        assassins_resolve=False, mastery)
 
-        damage = (231 + ,036 * ap) * multiplier
-        # pulled from the combat spreadsheet; need values for lvl 85
+        damage = (231 + .036 * ap) * multiplier
+            # pulled from the combat spreadsheet; need values for lvl 85
 
         return damage
 
@@ -189,9 +207,9 @@ class RogueDamageCalculator(DamageCalculator):
         ap_multiplier_tuple = (0, .091, .182, .273, .364, .455)
         low_end_damage = (183 + 536 * cp + ap_multiplier_tuple[cp] * ap) * multiplier
         high_end_damage = (549 + 536 * cp + ap_multiplier_tuple[cp] * ap) * multiplier
-        average_damage = ((183 + 549) / 2 + 536 * cp + ap_multiplier_tuple[cp] * ap) * multiplier
+        average_damage = (low_end_damage + high_end_damage) / 2
 
-        return low_end_damage, high_end_damage, average_damage
+        return average_damage
 
     def envenom_damage(self, ap, cp):
         # Envemom has a dependency on dp_charges too; but being unlikely to be used out of builds
