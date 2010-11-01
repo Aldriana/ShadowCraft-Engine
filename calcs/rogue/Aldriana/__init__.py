@@ -57,13 +57,14 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.envenom_energy_cost = 35 / self.one_hand_melee_hit_chance()
 
         self.baseline_energy_regen = 10 * self.stats.get_haste_multiplier_from_rating()
+        self.energy_regen_rupture_up = self.baseline_energy_regen + 1.5 * self.talents.assassination.venomous_wounds
 
         self.base_agility = (self.stats.agi + self.buffs.buff_agi()) * self.stats.gear_buffs.leather_specialization_multiplier() + self.race.racial_agi
         self.base_agility *= self.buffs.stat_multiplier()
         self.base_melee_crit_rate = self.melee_crit_rate(self.base_agility)
 
     def assassination_dps_breakdown_mutilate(self):
-        mutilate_energy_cost = 48 + 12/self.one_hand_melee_hit_chance() 
+        mutilate_energy_cost = 48 + 12 / self.one_hand_melee_hit_chance()
         if self.glyphs.mutilate:
             mutilate_energy_cost -= 5
 
@@ -76,7 +77,18 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.get_cp_distribution_for_cycle(cp_per_mut, self.settings.cycle.min_envenom_size_mutilate)
 
     def assassination_dps_breakdown_backstab(self):
-        pass
+        backstab_base_crit_rate = self.base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus() + .1 * self.talents.assassination.puncturing_wounds
+        if backstab_base_crit_rate > 1:
+            backstab_base_crit_rate = 1
+
+        backstab_energy_cost = 48 + 12 / self.one_hand_melee_hit_chance()
+        backstab_energy_cost -= 15 * self.talents.assassination.murderous_intent
+        if self.glyphs.backstab:
+            backstab_energy_cost -= 5 * backstab_base_crit_rate
+
+        seal_fate_proc_rate = backstab_base_crit_rate * .5 * self.talents.assassination.seal_fate
+        cp_per_backstab = {1: 1-seal_fate_proc_rate, 2: seal_fate_proc_rate}
+        self.get_cp_distribution_for_cycle(cp_per_backstab, self.settings.cycle.min_envenom_size_backstab)
 
     def get_cp_distribution_for_cycle(self, cp_distribution_per_move, target_cp_quantity):
         cur_min_cp = 0
