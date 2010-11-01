@@ -46,6 +46,7 @@ class Race(object):
         "time_is_money"             #Goblin
     ])
 
+    #Format is value, duration(sec), cooldown(sec)
     activated_racial_data = {
         'blood_fury':       (0,15,120),     #level-based ap (or sp) increase
         'berserking':       (1.2,10,180),   #20% haste increase for 10 seconds, 3 minute cd

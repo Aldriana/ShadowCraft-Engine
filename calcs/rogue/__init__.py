@@ -52,8 +52,8 @@ class RogueDamageCalculator(DamageCalculator):
 
         return mh_damage, oh_damage
 
-    def melee_crit_rate(self, agi, crit=None):
-        base_crit = self.AGI_CRIT_INTERCEPT + agi / self.AGI_PER_CRIT
+    def melee_crit_rate(self, agi=None, crit=None):
+        base_crit = self.AGI_CRIT_INTERCEPT + self.stats.get_crit_from_agi(agi)
         base_crit += self.stats.get_crit_from_rating(crit)
         return base_crit + self.buffs.buff_all_crit()
 

@@ -12,6 +12,7 @@ class Stats(object):
     HASTE_RATING_CONVERSION = {85:128.057006835937500}
     EXPERTISE_RATING_CONVERSION = {85:30.027200698852539 * 4}
     MASTERY_RATING_CONVERSION = {85:179.279998779296875}
+    AGI_CRIT_CONVERSION = {85:324.72}
 
     def __init__(self, str, agi, ap, crit, hit, exp, haste, mastery, mh, oh, ranged, procs, gear_buffs):
         # This will need to be adjusted if at any point we want to support
@@ -81,6 +82,12 @@ class Stats(object):
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
+    def get_crit_from_agi(self, agi=None, level=DEFAULT_LEVEL):
+        if level in self.AGI_CRIT_CONVERSION:
+            if agi is None:
+                agi = self.agi
+            return agi / (100 * Stats.AGI_CRIT_CONVERSION[level])
+
 class Weapon(object):
     allowed_melee_enchants = frozenset([
         'hurricane',
@@ -135,7 +142,28 @@ class Procs(object):
         'darkmoon_card_hurricane',
         'unheeded_warning',
         'fluid_death',                      #stacks on-hit, should be a proc
-        'essence_of_the_cyclone'
+        'essence_of_the_cyclone',
+        'heroic_left_eye_of_rajh',
+        'left_eye_of_rajh',
+        'heroic_key_to_the_endless_chamber',
+        'key_to_the_endless_chamber',
+    ])
+
+    #Format is (stat,value,duration,proc rate,trigger,ICD)
+    #None should be used to indicate unknown values
+    #Assumed heroic trinkets have same proc chance/ICD as non-heroic
+    proc_data = {
+        'essence_of_the_cyclone':               ('crit_rating', 1926, 10, None, 'melee_or_ranged_attack', None),
+        'heroic_left_eye_of_rajh':              ('agi', 1710, 10, None, 'melee_or_ranged_crit', None),
+        'left_eye_of_rajh':                     ('agi', 1512, 10, None, 'melee_or_ranged_crit', None),
+        'heroic_key_to_the_endless_chamber':    ('agi', 1710, 15, .1, 'melee_or_ranged_attack', 75),
+        'key_to_the_endless_chamber':           ('agi', 1290, 15, .1, 'melee_or_ranged_attack', 75),
+    }
+
+    proc_triggers = frozenset([
+        'melee_or_ranged_attack',
+        'melee_or_ranged_crit',
+        'auto_attack',
     ])
 
     def __init__(self, *args):
@@ -149,11 +177,23 @@ class Procs(object):
             return False
         object.__getattribute__(self, name)
 
+    def get_all_procs_for_stat(self,stat):
+        procs = []
+        for proc in Procs.proc_data:
+            if getattr(self,proc) and (Procs.proc_data[proc][0] == stat):
+                procs.append(Procs.proc_data[proc][1:])
+        return procs
+
+    def get_all_agi_procs(self):
+        return self.get_all_procs_for_stat('agi')
+
+    def get_all_crit_rating_procs(self):
+        return self.get_all_procs_for_stat('crit_rating')
+
 #Catch-all for non-proc gear based buffs (static or activated)
 class GearBuffs(object):
     allowed_buffs = frozenset([
         'leather_specialization',       #Increase %stat by 5%
-        'relentless_metagem',           #Increase critical damage by 3%
         'chaotic_metagem',              #Increase critical damage by 3%
         'rogue_t11_2pc',                #Increase crit chance for BS, Mut, SS by 5%
         'engineer_glove_enchant',
@@ -162,16 +202,14 @@ class GearBuffs(object):
         'potion_of_the_tolvir'
     ])
 
-    activated_agi_boosts = {
-        'unsolvable_riddle':    (1605, 20, 120),                #Increase by 1605 for 20 seconds, 2min cd
-        'demon_panther':        (1425, 20, 120),                #Increase by 1425 for 20 seconds, 2min cd
-        'potion_of_the_tolvir': (1200, 25, None),               #Increase by 1200 for 25 seconds, once per fight
+    #Format is (stat, value, duration, cool down) - duration and cool down in seconds
+    activated_boosts = {
+        'unsolvable_riddle':        ('agi', 1605, 20, 120),
+        'demon_panther':            ('agi', 1425, 20, 120),
+        'potion_of_the_tolvir':     ('agi', 1200, 25, None),
+        'engineer_glove_enchant':   ('haste_rating', 340, 12, 60)
     }
 
-    activated_haste_rating_boosts = {
-        'engineer_glove_enchant':   (340,12,60)                 #340 haste rating for 12 seconds, 1 minute cd
-    }
-    
     def __init__(self, *args):
         for arg in args:
             if arg in self.allowed_buffs:
@@ -200,22 +238,33 @@ class GearBuffs(object):
             return 1.05
         else:
             return 1
-            
-    def get_all_activated_agi_boosts(self):
-        agi_boosts = []
-        for bonus in activated_agi_boosts:
-            if self.getattr(bonus):
-                agi_boosts.append(activated_agi_boosts[bonus])
 
-        return agi_boosts
+    def get_all_activated_agi_boosts(self):
+        return self.get_all_activated_boosts_for_stat('agi')
+
+    def get_all_activated_boosts_for_stat(self,stat):
+        boosts = []
+        for boost in GearBuffs.activated_boosts:
+            if getattr(self,boost) and GearBuffs.activated_boosts[boost][0] == stat:
+                boosts.append(GearBuffs.activated_boosts[boost][1:])
+
+        return boosts
 
     #This is haste rating because the conversion to haste requires a level.
     #Too, if reported as a haste value, it must be added to the value from other rating correctly.
     #This does too, but reinforces the fact that it's rating.
     def get_all_activated_haste_rating_boosts(self):
-        haste_boosts = []
-        for bonus in activated_haste_boosts:
-            if self.getattr(bonus):
-                haste_boosts.append(activated_haste_boosts[bonus])
+        return self.get_all_activated_boosts_for_stat('haste_rating')
 
-        return haste_boosts
+if __name__ == "__main__":
+    test_buffs = GearBuffs('leather_specialization','unsolvable_riddle','demon_panther')
+    print test_buffs.get_all_activated_haste_rating_boosts()
+    print test_buffs.get_all_activated_agi_boosts()
+    print test_buffs.leather_specialization_multiplier()
+    print test_buffs.rogue_t11_2pc_crit_bonus()
+
+    test_procs = Procs('unheeded_warning', 'essence_of_the_cyclone', 'left_eye_of_rajh')
+    print test_procs.unheeded_warning
+    print test_procs.fluid_death
+    print test_procs.get_all_crit_rating_procs()
+    print test_procs.get_all_agi_procs()
