@@ -99,3 +99,4 @@ print calculator.backstab_damage(9001)
 print calculator.mutilate_damage(9001)
 
 calculator.init_assassination()
+calculator.assassination_dps_breakdown_mutilate()

@@ -59,11 +59,49 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.baseline_energy_regen = 10 * self.stats.get_haste_multiplier_from_rating()
 
         self.base_agility = (self.stats.agi + self.buffs.buff_agi()) * self.stats.gear_buffs.leather_specialization_multiplier() + self.race.racial_agi
+        self.base_agility *= self.buffs.stat_multiplier()
+        self.base_melee_crit_rate = self.melee_crit_rate(self.base_agility)
 
     def assassination_dps_breakdown_mutilate(self):
         mutilate_energy_cost = 48 + 12/self.one_hand_melee_hit_chance() 
         if self.glyphs.mutilate:
             mutilate_energy_cost -= 5
 
+        mutilate_base_crit_rate = self.base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus() + .05 * self.talents.assassination.puncturing_wounds
+        if mutilate_base_crit_rate > 1:
+            mutilate_base_crit_rate = 1.
+
+        seal_fate_proc_rate = 1 - (1 - mutilate_base_crit_rate * .5 * self.talents.assassination.seal_fate) ** 2
+        cp_per_mut = {2: 1 - seal_fate_proc_rate, 3: seal_fate_proc_rate}
+        self.get_cp_distribution_for_cycle(cp_per_mut, self.settings.cycle.min_envenom_size_mutilate)
+
     def assassination_dps_breakdown_backstab(self):
         pass
+
+    def get_cp_distribution_for_cycle(self, cp_distribution_per_move, target_cp_quantity):
+        cur_min_cp = 0
+        ruthlessness_chance = self.talents.assassination.ruthlessness * .2
+        cur_dist = {(0,0):(1-ruthlessness_chance), (1,0):ruthlessness_chance}
+        while cur_min_cp < target_cp_quantity:
+            cur_min_cp += 1
+
+            new_dist = {}
+            for (cps, moves), prob in cur_dist.items():
+                if cps >= cur_min_cp:
+                    if (cps, moves) in new_dist:
+                        new_dist[(cps, moves)] += prob
+                    else:
+                        new_dist[(cps, moves)] = prob
+                else:
+                    for (move_cp, move_prob) in cp_distribution_per_move.items():
+                        total_cps = cps + move_cp
+                        if total_cps > 5:
+                            total_cps = 5
+                        dist_entry = (total_cps, moves + 1)
+                        if dist_entry in new_dist:
+                            new_dist[dist_entry] += move_prob * prob
+                        else:
+                            new_dist[dist_entry] = move_prob * prob
+            cur_dist = new_dist
+
+        return cur_dist
