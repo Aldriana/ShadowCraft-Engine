@@ -89,17 +89,48 @@ class CombatTalents(talents.TalentTree):
         self.set_talent('killing_spree', values_list[18])
 
 class SubtletyTalents(talents.TalentTree):
-    # This should be filled out into a full tree at some point, but I don't
-    # need it yet so I'm going to be lazy.
-
     allowed_talents = {
+        'nightstalker': 2,
+        'improved_ambush': 3,
         'relentless_strikes': 3,
-        'opportunity': 3
+        'elusiveness': 2,
+        'waylay': 2,
+        'opportunity': 3,
+        'initiative': 2,
+        'energetic_recovery': 3,
+        'find_weakness': 2,
+        'hemorrhage': 1,
+        'honor_among_thieves': 3,
+        'premeditation': 1,
+        'enveloping_shadows': 3,
+        'cheat_death': 3,
+        'preparation': 1,
+        'sanguinary_vein': 2,
+        'slaughter_from_the_shadows': 3,
+        'serrated_blades': 2,
+        'shadow_dance': 1
     }
 
     def populate_talents_from_list(self, values_list):
-        self.set_talent('relentless_strikes', values_list[0])
-        self.set_talent('opportunity', values_list[1])
+        self.set_talent('nightstalker', values_list[0])
+        self.set_talent('improved_ambush', values_list[1])
+        self.set_talent('relentless_strikes', values_list[2])
+        self.set_talent('elusiveness', values_list[3])
+        self.set_talent('waylay', values_list[4])
+        self.set_talent('opportunity', values_list[5])
+        self.set_talent('initiative', values_list[6])
+        self.set_talent('energetic_recovery', values_list[7])
+        self.set_talent('find_weakness', values_list[8])
+        self.set_talent('hemorrhage', values_list[9])
+        self.set_talent('honor_among_thieves', values_list[10])
+        self.set_talent('premeditation', values_list[11])
+        self.set_talent('enveloping_shadows', values_list[12])
+        self.set_talent('cheat_death', values_list[13])
+        self.set_talent('preparation', values_list[14])
+        self.set_talent('sanguinary_vein', values_list[15])
+        self.set_talent('slaughter_from_the_shadows', values_list[16])
+        self.set_talent('serrated_blades', values_list[17])
+        self.set_talent('shadow_dance', values_list[18])
 
 class RogueTalents(object):
     # Might make sense to define a more general talent tree class that contains

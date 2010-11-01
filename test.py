@@ -64,12 +64,12 @@ assert test_stats.mastery == 666
 
 # Initialize talents and test.
 
-test_talents = rogue_talents.RogueTalents('0333230113022110321', '0020000000000000000', '33')
+test_talents = rogue_talents.RogueTalents('0333230113022110321', '0020000000000000000', '0030030000000000000')
 
 assert test_talents.assassination.master_poisoner == 1
 assert test_talents.combat.killing_spree == 0
 assert test_talents.subtlety.opportunity == 3
-
+assert test_talents.subtlety.shadow_dance == 0
 
 # Set up glyphs and test.
 glyph_list = ['backstab', 'mutilate', 'rupture']
