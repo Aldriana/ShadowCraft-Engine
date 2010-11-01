@@ -11,7 +11,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     # Will need to be adjusted when/if we add character level as an option.
     AGI_PER_CRIT = 324.72 * 100
-    AGI_CRIT_INTERCEPT = -.295
+    AGI_CRIT_INTERCEPT = -.00295
 
     def oh_penalty(self):
         if self.talents.is_combat_rogue():
@@ -52,12 +52,12 @@ class RogueDamageCalculator(DamageCalculator):
 
         return mh_damage, oh_damage
 
-    def melee_crit_rate(self, agi, crit):
+    def melee_crit_rate(self, agi, crit=None):
         base_crit = self.AGI_CRIT_INTERCEPT + agi / self.AGI_PER_CRIT
         base_crit += self.stats.get_crit_from_rating(crit)
         return base_crit + self.buffs.buff_all_crit()
 
-    def spell_crit_rate(self, crit):
+    def spell_crit_rate(self, crit=None):
         base_crit += self.stats.get_crit_from_rating(crit)
         return base_crit + self.buffs.buff_all_crit() + self.buffs.buff_spell_crit()
 
