@@ -93,7 +93,6 @@ test_settings = settings.Settings(test_cycle, response_time=1)
 calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings)
 
 assert calculator.oh_penalty() == .5
-assert calculator.assassins_resolve()
 
 print calculator.backstab_damage(9001)
 print calculator.mutilate_damage(9001)

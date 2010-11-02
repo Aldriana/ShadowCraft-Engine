@@ -19,13 +19,13 @@ class RogueDamageCalculator(DamageCalculator):
         else:
             return .5
 
-    def talents_modifiers(opportunity=False, coup_de_grace=False,
+    def talents_modifiers(self, opportunity=False, coup_de_grace=False,
                           executioner=False, aggression=False,
-                          improved_sinister_strike=False, vile_poisons=False
+                          improved_sinister_strike=False, vile_poisons=False,
                           improved_ambush=False, potent_poisons=False,
                           assassins_resolve=True, mastery=None):
-        # This funcion gets called in every ability affected by talents
-        # Parameters are boleans distinguisihing which talents affect the
+        # This function gets called in every ability affected by talents
+        # Parameters are booleans distinguishing which talents affect the
         # spell in question. It returns the final modifier for their
         # respective additive/multiplicative values
         base_modifier = 1
@@ -55,7 +55,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def mh_damage(self, ap):
         weapon_damage = self.stats.mh.damage(ap)
-        multiplier = talents_modifiers(assassins_resolve=True)
+        multiplier = self.talents_modifiers(assassins_resolve=True)
 
         damage = weapon_damage * multiplier
 
@@ -63,7 +63,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def oh_damage(self, ap):
         weapon_damage = self.stats.oh.damage(ap)
-        multiplier = talents_modifiers(assassins_resolve=True)
+        multiplier = self.talents_modifiers(assassins_resolve=True)
 
         damage = self.oh_penalty() * weapon_damage * multiplier
 
@@ -71,7 +71,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def backstab_damage(self, ap):
         weapon_damage = self.stats.mh.normalized_damage(ap)
-        multiplier = talents_modifiers(opportunity=True, aggression=True)
+        multiplier = self.talents_modifiers(opportunity=True, aggression=True)
         percentage_damage_bonus = 2
         if self.talents.is_subtlety_rogue():
             percentage_damage_bonus += .25
@@ -83,7 +83,7 @@ class RogueDamageCalculator(DamageCalculator):
     def mutilate_damage(self, ap, is_poisoned=True):
         mh_weapon_damage = self.stats.mh.normalized_damage(ap)
         oh_weapon_damage = self.stats.oh.normalized_damage(ap)
-        multiplier = talents_modifiers(opportunity=True)
+        multiplier = self.talents_modifiers(opportunity=True)
 
         mh_damage = 1.5 * (mh_weapon_damage + 201) * multiplier
         oh_damage = 1.5 * (self.oh_penalty() * oh_weapon_damage + 201) * multiplier
@@ -96,7 +96,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def sinister_strike_damage(self, ap):
         weapon_damage = self.stats.mh.normalized_damage(ap)
-        multiplier = talents_modifiers(aggression=True, improved_sinister_strike=True)
+        multiplier = self.talents_modifiers(aggression=True, improved_sinister_strike=True)
 
         damage = (weapon_damage + 200) * multiplier
 
@@ -122,7 +122,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def ambush_damage(self, ap):
         weapon_damage = self.stats.mh.normalized_damage(ap)
-        multiplier = talents_modifiers(opportunity=True, improved_ambush=True)
+        multiplier = self.talents_modifiers(opportunity=True, improved_ambush=True)
 
         if self.stats.mh.type == 'dagger':
             damage = (2.7493 * weapon_damage + 367 * 2.75) * multiplier
@@ -139,7 +139,7 @@ class RogueDamageCalculator(DamageCalculator):
         return damage
 
     def venomous_wounds_damage(self, ap, mastery):
-        multiplier = talents_modifiers(potent_poisons=True, assassins_resolve=False, mastery)
+        multiplier = self.talents_modifiers(potent_poisons=True, assassins_resolve=False, mastery=mastery)
 
         damage = (363 + .135 * ap) * multiplier
         # need values for lvl 85
@@ -154,8 +154,8 @@ class RogueDamageCalculator(DamageCalculator):
         return damage
 
     def instant_poison_damage(self, ap, mastery):
-        multiplier = talents_modifiers(potent_poisons=True, vile_poisons=True,
-                                       assassins_resolve=False, mastery)
+        multiplier = self.talents_modifiers(potent_poisons=True, vile_poisons=True,
+                                       assassins_resolve=False, mastery=mastery)
 
         low_end_damage = (300 + 0.09 * ap) * multiplier
         high_end_damage = (400 + 0.09 * ap) * multiplier
@@ -165,8 +165,8 @@ class RogueDamageCalculator(DamageCalculator):
         return average_damage
 
     def deadly_poison_damage(self, ap, mastery, dp_stacks=5):
-        multiplier = talents_modifiers(potent_poisons=True, vile_poisons = True,
-                                       assassins_resolve=False, mastery)
+        multiplier = self.talents_modifiers(potent_poisons=True, vile_poisons = True,
+                                       assassins_resolve=False, mastery=mastery)
 
         tick_damage = ((296 + .108 * ap) * dp_stacks / 4) * multiplier
             # pulled from the assassination spreadsheet; need values for lvl 85
@@ -174,8 +174,8 @@ class RogueDamageCalculator(DamageCalculator):
         return tick_damage
 
     def wound_poison_damage(self, ap, mastery):
-        multiplier = talents_modifiers(potent_poisons=True, vile_poisons = True,
-                                       assassins_resolve=False, mastery)
+        multiplier = self.talents_modifiers(potent_poisons=True, vile_poisons = True,
+                                       assassins_resolve=False, mastery=mastery)
 
         damage = (231 + .036 * ap) * multiplier
             # pulled from the combat spreadsheet; need values for lvl 85
@@ -183,7 +183,7 @@ class RogueDamageCalculator(DamageCalculator):
         return damage
 
     def garrote_damage(self, ap):
-        multiplier = talents_modifiers(opportunity=True, assassins_resolve=False)
+        multiplier = self.talents_modifiers(opportunity=True, assassins_resolve=False)
 
         damage = (133 +  ap * 1 * 0.07) * 6 * multiplier
 
@@ -193,7 +193,7 @@ class RogueDamageCalculator(DamageCalculator):
         # Assassasin's resolve was tested on melee, poisons, weapon strikes and
         # ap strikes, not bleeds. Although there's no reason to believe it doesn't
         # affect bleeds, I'm setting it to false until some testing is done
-        multiplier = talents_modifiers(executioner=True, assassins_resolve=False)
+        multiplier = self.talents_modifiers(executioner=True, assassins_resolve=False)
 
         duration = (6 + cp * 2)
         if self.glyphs.rupture():
@@ -206,7 +206,7 @@ class RogueDamageCalculator(DamageCalculator):
         return tick_damage, duration, damage
 
     def eviscerate_damage(self, ap, cp):
-        multiplier = talents_modifiers(coup_de_grace=True, aggression=True, executioner=True)
+        multiplier = self.talents_modifiers(coup_de_grace=True, aggression=True, executioner=True)
 
         ap_multiplier_tuple = (0, .091, .182, .273, .364, .455)
         low_end_damage = (183 + 536 * cp + ap_multiplier_tuple[cp] * ap) * multiplier
@@ -218,7 +218,7 @@ class RogueDamageCalculator(DamageCalculator):
     def envenom_damage(self, ap, cp):
         # Envemom has a dependency on dp_charges too; but being unlikely to be used out of builds
         # with master poisoner I'm not including that for the moment
-        multiplier = talents_modifiers(coup_de_grace=True, executioner=True, assassins_resolve=False)
+        multiplier = self.talents_modifiers(coup_de_grace=True, executioner=True, assassins_resolve=False)
 
         damage = (241 * cp + .09 * cp * ap) * multiplier
 
