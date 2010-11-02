@@ -22,13 +22,46 @@ class DamageCalculator(object):
     BASE_DODGE_CHANCE = .065
     BASE_PARRY_CHANCE = .14
 
-    def __init__(self, stats, talents, glyphs, buffs, race, settings=None):
+    def __init__(self, stats, talents, glyphs, buffs, race, settings=None, level=85):
         self.stats = stats
         self.talents = talents
         self.glyphs = glyphs
         self.buffs = buffs
         self.race = race
         self.settings = settings
+        self.level = level
+
+    def __getattr__(self, name):
+        # Any status we haven't assigned a value to, we don't have.
+        if name == 'calculating_ep':
+            return False
+        object.__getattribute__(self, name)
+
+    def ep_helper(self,stat):
+        if stat not in ('expertise','white_hit','spell_hit','yellow_hit'):
+            setattr(self.stats, stat, getattr(self.stats,stat) + 1)
+        else:
+            setattr(self,'calculating_ep',stat)
+        dps = DamageCalculator.get_dps(self)
+        if stat not in ('expertise','white_hit','spell_hit','yellow_hit'):
+            setattr(self.stats, stat, getattr(self.stats,stat) - 1)
+        else:
+            setattr(self, 'calculating_ep', False)
+
+        return dps
+
+    def get_ep(self):
+        ep_values = {'white_hit':0, 'spell_hit':0, 'yellow_hit':0,
+                     'str':0, 'agi':0, 'haste':0, 'crit':0,
+                     'mastery':0, 'expertise':0}
+        baseline_dps = DamageCalculator.get_dps(self)
+        ap_dps = self.ep_helper('ap')
+        ap_dps_difference = ap_dps - baseline_dps
+        for stat in ep_values.keys():
+            dps = self.ep_helper(stat)
+            ep_values[stat] = abs(dps - baseline_dps) / ap_dps_difference
+
+        return ep_values
 
     def get_dps(self):
         # Overwrite this function with your calculations/simulations/whatever;
@@ -45,35 +78,50 @@ class DamageCalculator(object):
         # damage value.
         return damage * self.armor_mitigation_multiplier(armor)
 
-    # These four hit functions need to be adjusted for the draenei racial at
-    # some point, but, as usual, I'm being lazy.
-    # Afaik this racial is removed with Cata? - Rac
-    # It's still a self-buff for draenei, and while rogues can't be draenei
-    # this is in the part of the code that other classes might someday use.
-    #
-    # It also just occurred to me that these need to be adjusted (and broken
-    # down by hand) to deal with the case where, for instance, a gnome is using
-    # a dagger in one hand and an axe in the other.  Won't matter for mutilate
-    # (which is what I'm doing first) but it could come up for, say, subtlety.
-    def melee_hit_chance(self, base_miss_chance, dodgeable, parryable, weapon_type):
-        miss_chance = base_miss_chance - (self.stats.get_melee_hit_from_rating() + self.race.get_racial_hit())
-        if miss_chance < 0:
-            miss_chance = 0.
+    def ep_min_miss_chance(self, base_miss_chance):
+        one_rating = self.stats.get_melee_hit_from_rating(1,self.level)
+        if self.calculating_ep == False:
+            min_miss_chance = 0
+        elif self.calculating_ep == 'yellow_hit':
+            if base_miss_chance == self.BASE_ONE_HAND_MISS_RATE:
+                min_miss_chance = one_rating
+            else:
+                min_miss_chance = self.BASE_DW_MISS_RATE - self.BASE_ONE_HAND_MISS_RATE + one_rating
+        elif self.calculating_ep == 'spell_hit':
+            if base_miss_chance == self.BASE_ONE_HAND_MISS_RATE:
+                min_miss_chance = 0
+            else:
+                min_miss_chance = self.BASE_DW_MISS_RATE - self.BASE_SPELL_MISS_RATE + one_rating
+        elif self.calculating_ep == 'white_hit':
+            if base_miss_chance == self.BASE_ONE_HAND_MISS_RATE:
+                min_miss_chance = 0
+            else:
+                min_miss_chance = one_rating
 
+        return min_miss_chance
+
+    def melee_hit_chance(self, base_miss_chance, dodgeable, parryable, weapon_type):
+        min_dodge_chance = 0
+        min_parry_chance = 0
+        min_miss_chance = self.ep_min_miss_chance(base_miss_chance)
+
+        if self.calculating_ep == 'expertise':
+            min_dodge_chance = self.stats.get_expertise_from_rating(1,self.level)
+            min_parry_chance = min_dodge_chance
+
+        hit_chance = (self.stats.get_melee_hit_from_rating() + self.race.get_racial_hit())
+        miss_chance = max(base_miss_chance - hit_chance,min_miss_chance)
+       
         #Expertise represented as the reduced chance to be dodged or parried, not true "Expertise"
         expertise = (self.stats.get_expertise_from_rating() + self.race.get_racial_expertise(weapon_type))
 
         if dodgeable:
-            dodge_chance = self.BASE_DODGE_CHANCE - expertise
-            if dodge_chance < 0:
-                dodge_chance = 0
+            dodge_chance = max(self.BASE_DODGE_CHANCE - expertise, min_dodge_chance)
         else:
             dodge_chance = 0
 
         if parryable:
-            parry_chance = self.BASE_PARRY_CHANCE - expertise
-            if parry_chance < 0:
-                parry_chance = 0
+            parry_chance = max(self.BASE_PARRY_CHANCE - expertise, min_parry_chance)
         else:
             parry_chance = 0
 
@@ -100,11 +148,12 @@ class DamageCalculator(object):
         return self.melee_hit_chance(self.BASE_DW_MISS_RATE, dodgeable, parryable, self.stats.oh.type)
 
     def spell_hit_chance(self):
-        miss_chance = self.BASE_SPELL_MISS_RATE - self.get_spell_hit_from_rating()
-        if miss_chance < 0:
-            return 0
+        if self.calculating_ep == 'spell_hit':
+            min_miss_chance = self.stats.get_spell_hit_from_rating(1,self.level)
         else:
-            return miss_chance
+            min_miss_chance = 0
+        miss_chance = max(self.BASE_SPELL_MISS_RATE - self.get_spell_hit_from_rating(),min_miss_chance)
+        return miss_chance
 
     def buff_melee_crit(self):
         return self.buffs.buff_all_crit()
@@ -114,4 +163,3 @@ class DamageCalculator(object):
 
     def target_armor(self):
         return self.buffs.armor_reduction_multiplier() * self.TARGET_BASE_ARMOR
-
