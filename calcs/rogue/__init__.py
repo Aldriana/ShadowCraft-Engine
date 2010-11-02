@@ -56,13 +56,17 @@ class RogueDamageCalculator(DamageCalculator):
     def mh_damage(self, ap):
         weapon_damage = self.stats.mh.damage(ap)
         multiplier = talents_modifiers(assassins_resolve=True)
+
         damage = weapon_damage * multiplier
+
         return damage
 
     def oh_damage(self, ap):
         weapon_damage = self.stats.oh.damage(ap)
         multiplier = talents_modifiers(assassins_resolve=True)
+
         damage = self.oh_penalty() * weapon_damage * multiplier
+
         return damage
 
     def backstab_damage(self, ap):
@@ -142,7 +146,7 @@ class RogueDamageCalculator(DamageCalculator):
 
         return damage
 
-    def main_gauche(self, ap)
+    def main_gauche(self, ap):
         weapon_damage = self.stats.oh.normalized_damage(ap)
 
         damage = self.oh_penalty() * weapon_damage
