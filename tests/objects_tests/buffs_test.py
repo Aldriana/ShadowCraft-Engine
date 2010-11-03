@@ -21,5 +21,7 @@ class TestBuffs(unittest.TestCase):
     
     def test_stat_multiplier(self):
         self.assertEqual(self.buffs.stat_multiplier(), 1.05)
-    
-    
+
+if __name__ == '__main__':
+    unittest.main()
+
