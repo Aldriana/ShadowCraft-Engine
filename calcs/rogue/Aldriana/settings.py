@@ -10,6 +10,9 @@ class Settings(object):
         self.oh_poison = oh_poison
         self.duration = duration
 
+        assert mh_poison != oh_poison
+        assert mh_poison in ['ip', 'dp']
+        assert oh_poison in ['dp', 'ip']
 
 class Cycle(object):
     # Base class for cycle objects.  Can't think of anything that particularly
