@@ -28,6 +28,12 @@ class DamageCalculatorTest(unittest.TestCase):
 
         self.calculator = calcs.DamageCalculator(test_stats, None, None, test_buffs, test_race)
 
+    def test_armor_mitigation_parameter(self):
+        self.assertEqual(self.calculator.ARMOR_MITIGATION_PARAMETER,
+            2167.5 * 85 - 158167.5)
+        self.calculator.level = 82
+        self.assertEqual(self.calculator.ARMOR_MITIGATION_PARAMETER,
+            2167.5 * 82 - 158167.5)
     
     def test_armor_mitigation_multiplier(self):
         pass
