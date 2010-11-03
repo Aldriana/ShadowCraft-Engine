@@ -67,14 +67,13 @@ class RogueDamageCalculator(DamageCalculator):
         else:
             crit_damage_bonus_modifier = 1
 
-        crit_damage_modifier = self.stats.metagem_crit_multiplier
+        crit_damage_modifier = self.stats.metagem_crit_multiplier()
 
         # The obscure formulae for the different crit enhancers can be found here
         # http://elitistjerks.com/f31/t13300-shaman_relentless_earthstorm_ele/#post404567
         total_modifier = 1 + (base_modifier * crit_damage_modifier - 1) * crit_damage_bonus_modifier
 
         return total_modifier
-
 
     def mh_damage(self, ap):
         weapon_damage = self.stats.mh.damage(ap)
