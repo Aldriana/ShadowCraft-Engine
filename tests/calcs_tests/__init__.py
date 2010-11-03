@@ -72,13 +72,17 @@ class DamageCalculatorTest(unittest.TestCase):
             1.0 - (0.27 - 0.01 * (1086 / 120.109001159667969)))
         self.calculator.stats.hit = 0
         self.calculator.stats.exp = 0
-        self.assertAlmostEqual(self.calculator.dual_wield_mh_hit_chance(dodgeable=False, parryable=False), 
+        self.assertAlmostEqual(
+            self.calculator.dual_wield_mh_hit_chance(dodgeable=False, parryable=False),
             1.0 - 0.27)
-        self.assertAlmostEqual(self.calculator.dual_wield_mh_hit_chance(dodgeable=True, parryable=False), 
+        self.assertAlmostEqual(
+            self.calculator.dual_wield_mh_hit_chance(dodgeable=True, parryable=False),
             1.0 - 0.27 - 0.065)
-        self.assertAlmostEqual(self.calculator.dual_wield_mh_hit_chance(dodgeable=True, parryable=True), 
+        self.assertAlmostEqual(
+            self.calculator.dual_wield_mh_hit_chance(dodgeable=True, parryable=True),
             1.0 - 0.27 - 0.065 - 0.14)
-        self.assertAlmostEqual(self.calculator.dual_wield_mh_hit_chance(dodgeable=False, parryable=True), 
+        self.assertAlmostEqual(
+            self.calculator.dual_wield_mh_hit_chance(dodgeable=False, parryable=True),
             1.0 - 0.27 - 0.14)
         
     
