@@ -45,20 +45,20 @@ class DamageCalculatorTest(unittest.TestCase):
         pass
     
     def test_one_hand_melee_hit_chance(self):
-        self.assertEqual(
+        self.assertAlmostEqual(
             self.calculator.one_hand_melee_hit_chance(dodgeable=False, parryable=False),
             1.0)
-        self.assertEqual(
+        self.assertAlmostEqual(
             self.calculator.one_hand_melee_hit_chance(dodgeable=True, parryable=False),
             1.0 - (0.065 - (641 / (30.027200698852539 * 4)) * 0.01))
         self.calculator.stats.exp = 0
-        self.assertEqual(
+        self.assertAlmostEqual(
             self.calculator.one_hand_melee_hit_chance(dodgeable=True, parryable=False),
             1.0 - 0.065)
-        self.assertEqual(
+        self.assertAlmostEqual(
             self.calculator.one_hand_melee_hit_chance(dodgeable=True, parryable=True),
             1.0 - 0.14 - 0.065)
-        self.assertEqual(
+        self.assertAlmostEqual(
             self.calculator.one_hand_melee_hit_chance(dodgeable=False, parryable=True),
             1.0 - 0.14)
         self.calculator.stats.hit = 0
@@ -67,15 +67,28 @@ class DamageCalculatorTest(unittest.TestCase):
             1.0 - 0.065 - 0.08)
     
     def test_dual_wield_mh_hit_chance(self):
-        pass
+        self.assertAlmostEqual(
+            self.calculator.dual_wield_mh_hit_chance(dodgeable=False, parryable=False),
+            1.0 - (0.27 - 0.01 * (1086 / 120.109001159667969)))
+        self.calculator.stats.hit = 0
+        self.calculator.stats.exp = 0
+        self.assertAlmostEqual(self.calculator.dual_wield_mh_hit_chance(dodgeable=False, parryable=False), 
+            1.0 - 0.27)
+        self.assertAlmostEqual(self.calculator.dual_wield_mh_hit_chance(dodgeable=True, parryable=False), 
+            1.0 - 0.27 - 0.065)
+        self.assertAlmostEqual(self.calculator.dual_wield_mh_hit_chance(dodgeable=True, parryable=True), 
+            1.0 - 0.27 - 0.065 - 0.14)
+        self.assertAlmostEqual(self.calculator.dual_wield_mh_hit_chance(dodgeable=False, parryable=True), 
+            1.0 - 0.27 - 0.14)
+        
     
     def test_dual_wield_oh_hit_chance(self):
         pass
     
     def test_spell_hit_chance(self):
-        self.assertEqual(self.calculator.spell_hit_chance(),
+        self.assertAlmostEqual(self.calculator.spell_hit_chance(),
             1.0 - (0.17 - 0.01 * (1086 / 102.445999145507812)))
-    
+            
     def test_buff_melee_crit(self):
         pass
     
