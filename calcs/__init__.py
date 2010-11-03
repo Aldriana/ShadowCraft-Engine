@@ -38,12 +38,12 @@ class DamageCalculator(object):
         object.__getattribute__(self, name)
 
     def ep_helper(self,stat):
-        if stat not in ('expertise','white_hit','spell_hit','yellow_hit'):
+        if stat not in ('dodge_cap','white_hit','spell_hit','yellow_hit','parry_cap'):
             setattr(self.stats, stat, getattr(self.stats,stat) + 1.)
         else:
             setattr(self,'calculating_ep',stat)
         dps = DamageCalculator.get_dps(self)
-        if stat not in ('expertise','white_hit','spell_hit','yellow_hit'):
+        if stat not in ('dodge_cap','white_hit','spell_hit','yellow_hit','parry_cap'):
             setattr(self.stats, stat, getattr(self.stats,stat) - 1.)
         else:
             setattr(self, 'calculating_ep', False)
@@ -53,7 +53,7 @@ class DamageCalculator(object):
     def get_ep(self):
         ep_values = {'white_hit':0, 'spell_hit':0, 'yellow_hit':0,
                      'str':0, 'agi':0, 'haste':0, 'crit':0,
-                     'mastery':0, 'expertise':0}
+                     'mastery':0, 'dodge_cap':0, 'parry_cap':0}
         baseline_dps = DamageCalculator.get_dps(self)
         ap_dps = self.ep_helper('ap')
         ap_dps_difference = ap_dps - baseline_dps
@@ -87,14 +87,14 @@ class DamageCalculator(object):
 
         if dodgeable:
             dodge_chance = max(self.BASE_DODGE_CHANCE - expertise, 0)
-            if self.calculating_ep == 'expertise':
+            if self.calculating_ep == 'dodge_cap':
                 dodge_chance += self.stats.get_expertise_from_rating(1,self.level)
         else:
             dodge_chance = 0
 
         if parryable:
             parry_chance = max(self.BASE_PARRY_CHANCE - expertise, 0)
-            if self.calculating_ep == 'expertise':
+            if self.calculating_ep in ('parry_cap','dodge_cap'):
                 parry__chance += self.stats.get_expertise_from_rating(1,self.level)
         else:
             parry_chance = 0
@@ -131,14 +131,10 @@ class DamageCalculator(object):
         return hit_chance
 
     def spell_hit_chance(self):
-        if self.calculating_ep == 'spell_hit':
-            min_miss_chance = self.stats.get_spell_hit_from_rating(1,self.level)
-        else:
-            min_miss_chance = 0
-        miss_chance = max(self.BASE_SPELL_MISS_RATE - self.get_spell_hit_from_rating(),min_miss_chance)
+        hit_chance = 1 - max(self.BASE_SPELL_MISS_RATE - self.get_spell_hit_from_rating(),0)
         if self.calculating_ep in ('yellow_hit', 'spell_hit'):
-            miss_chance += self.stats.get_spell_hit_from_rating(1,self.level)
-        return 1 - miss_chance
+            hit_chance -= self.stats.get_spell_hit_from_rating(1,self.level)
+        return hit_chance
 
     def buff_melee_crit(self):
         return self.buffs.buff_all_crit()
