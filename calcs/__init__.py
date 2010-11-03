@@ -131,7 +131,7 @@ class DamageCalculator(object):
         return hit_chance
 
     def spell_hit_chance(self):
-        hit_chance = 1 - max(self.BASE_SPELL_MISS_RATE - self.get_spell_hit_from_rating(),0)
+        hit_chance = 1 - max(self.BASE_SPELL_MISS_RATE - self.stats.get_spell_hit_from_rating(),0)
         if self.calculating_ep in ('yellow_hit', 'spell_hit'):
             hit_chance -= self.stats.get_spell_hit_from_rating(1,self.level)
         return hit_chance
