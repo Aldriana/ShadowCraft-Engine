@@ -58,6 +58,12 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         assert self.stats.mh.type == 'dagger'
         assert self.stats.oh.type == 'dagger'
 
+        # These talents have huge, hard-to-model implications on cycle and will
+        # always be taken in any serious DPS build.  Hence, I'm not going to
+        # worry about modeling them for the foreseeable future.
+        assert self.talents.assassination.master_poisoner == 1
+        assert self.talents.assassination.cut_to_the_chase == 3
+
         self.rupture_energy_cost = 25 / self.one_hand_melee_hit_chance()
         self.envenom_energy_cost = 35 / self.one_hand_melee_hit_chance()
 
