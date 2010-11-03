@@ -63,7 +63,7 @@ class RogueDamageCalculator(DamageCalculator):
             base_modifier = 2
 
         if lethality:
-            crit_damage_bonus_modifier = 1 + .1 * self.talents.asssassination.lethality
+            crit_damage_bonus_modifier = 1 + .1 * self.talents.assassination.lethality
         else:
             crit_damage_bonus_modifier = 1
 
