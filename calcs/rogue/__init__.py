@@ -52,7 +52,7 @@ class RogueDamageCalculator(DamageCalculator):
         # Passing Sanguinary Vein without talent parameter (it affects all damage)
         # nor is_bleeding since the target will most likely be bleeding from
         # refreshed ruptures in subtletly builds.
-        base_modifier *= (1 + .05 * self.talents.sanguinary_vein)
+        base_modifier *= (1 + .05 * self.talents.subtlety.sanguinary_vein)
 
         return base_modifier
 
@@ -111,24 +111,35 @@ class RogueDamageCalculator(DamageCalculator):
 
         return damage, crit_damage
 
-    def mutilate_damage(self, ap, is_poisoned=True):
+    def mh_ mutilate_damage(self, ap, is_poisoned=True):
         mh_weapon_damage = self.stats.mh.normalized_damage(ap)
-        oh_weapon_damage = self.stats.oh.normalized_damage(ap)
         multiplier = self.talents_modifiers(opportunity=True)
         multiplier *= self.buffs.physical_damage_multiplier()
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
 
         mh_damage = 1.5 * (mh_weapon_damage + 201) * multiplier
-        oh_damage = 1.5 * (self.oh_penalty() * oh_weapon_damage + 201) * multiplier
 
         if is_poisoned:
             mh_damage *= 1.2
-            oh_damage *= 1.2
 
         crit_mh_damage = mh_damage * crit_multiplier
+
+        return mh_damage, crit_mh_damage
+
+    def mutilate_damage(self, ap, is_poisoned=True):
+        oh_weapon_damage = self.stats.oh.normalized_damage(ap)
+        multiplier = self.talents_modifiers(opportunity=True)
+        multiplier *= self.buffs.physical_damage_multiplier()
+        crit_multiplier = self.crit_damage_modifiers(lethality=True)
+
+        oh_damage = 1.5 * (self.oh_penalty() * oh_weapon_damage + 201) * multiplier
+
+        if is_poisoned:
+            oh_damage *= 1.2
+
         crit_oh_damage = oh_damage * crit_multiplier
 
-        return mh_damage, crit_mh_damage, oh_damage, crit_oh_damage
+        return oh_damage, crit_oh_damage
 
     def sinister_strike_damage(self, ap):
         weapon_damage = self.stats.mh.normalized_damage(ap)
@@ -221,7 +232,7 @@ class RogueDamageCalculator(DamageCalculator):
 
         return average_damage, average_crit_damage
 
-    def deadly_poison_damage(self, ap, mastery, dp_stacks=5):
+    def deadly_poison_tick_damage(self, ap, mastery, dp_stacks=5):
         multiplier = self.talents_modifiers(potent_poisons=True, vile_poisons = True,
                                        assassins_resolve=False, mastery=mastery)
         multiplier *= self.buffs.spell_damage_multiplier()
@@ -255,7 +266,7 @@ class RogueDamageCalculator(DamageCalculator):
 
         return tick_damage, crit_tick_damage
 
-    def rupture_damage(self, ap, cp):
+    def rupture_tick_damage(self, ap, cp):
         # Assassasin's resolve was tested on melee, poisons, weapon strikes and
         # ap strikes, not bleeds. Although there's no reason to believe it doesn't
         # affect bleeds, I'm setting it to false until some testing is done
@@ -263,16 +274,18 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier *= self.buffs.bleed_damage_multiplier()
         crit_multiplier = self.crit_damage_modifiers()
 
-        duration = (6 + cp * 2)
-        if self.glyphs.rupture():
-            duration +=4
-
         ap_multiplier_tuple = (0, .015, .024, .03, .03428571, .0375)
         tick_damage = (142 + 20 * cp + ap_multiplier_tuple[cp] * ap) * multiplier
         crit_tick_damage = tick_damage * crit_multiplier
+
+        # leaving full duration damage formulas in comments just in case
+        # this value is usefull somehow somewhen somewhere
+        # duration = (6 + cp * 2)
+        # if self.glyphs.rupture():
+        #     duration +=4
         # damage = tick_damage * .5 * duration
 
-        return tick_damage, crit_tick_damage, duration
+        return tick_damage, crit_tick_damage
 
     def eviscerate_damage(self, ap, cp):
         multiplier = self.talents_modifiers(coup_de_grace=True, aggression=True, executioner=True)
