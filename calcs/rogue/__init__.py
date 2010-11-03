@@ -111,7 +111,7 @@ class RogueDamageCalculator(DamageCalculator):
 
         return damage, crit_damage
 
-    def mh_ mutilate_damage(self, ap, is_poisoned=True):
+    def mh_mutilate_damage(self, ap, is_poisoned=True):
         mh_weapon_damage = self.stats.mh.normalized_damage(ap)
         multiplier = self.talents_modifiers(opportunity=True)
         multiplier *= self.buffs.physical_damage_multiplier()
@@ -126,7 +126,7 @@ class RogueDamageCalculator(DamageCalculator):
 
         return mh_damage, crit_mh_damage
 
-    def mutilate_damage(self, ap, is_poisoned=True):
+    def oh_mutilate_damage(self, ap, is_poisoned=True):
         oh_weapon_damage = self.stats.oh.normalized_damage(ap)
         multiplier = self.talents_modifiers(opportunity=True)
         multiplier *= self.buffs.physical_damage_multiplier()
