@@ -56,7 +56,7 @@ class RogueDamageCalculator(DamageCalculator):
 
         return base_modifier
 
-    def crit_damage_modifiers(self, lethality=False, is_spell=False)
+    def crit_damage_modifiers(self, lethality=False, is_spell=False):
         if is_spell:
             base_modifier = 1.5
         else:
@@ -67,7 +67,7 @@ class RogueDamageCalculator(DamageCalculator):
         else:
             crit_damage_bonus_modifier = 1
 
-        crit_damage_modifier = self.stats.metagem_crit_multiplier()
+        crit_damage_modifier = self.stats.gear_buffs.metagem_crit_multiplier()
 
         # The obscure formulae for the different crit enhancers can be found here
         # http://elitistjerks.com/f31/t13300-shaman_relentless_earthstorm_ele/#post404567
