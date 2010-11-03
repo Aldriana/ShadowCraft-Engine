@@ -12,6 +12,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         else:
             assert False # Add a real error message at some point.
 
+    def get_dps_contribution(self, damage_tuple, crit_rate, frequency):
+        (base_damage, crit_damage) = damage_tuple
+        average_hit = base_damage * (1 - crit_rate) + crit_damage * crit_rate
+        return average_hit * frequency
+
     def assassination_dps_estimate(self):
         mutilate_dps = self.assassination_dps_estimate_mutilate() * (1 - self.settings.time_in_execute_range)
         backstab_dps = self.assassination_dps_estimate_backstab() * self.settings.time_in_execute_range
@@ -59,9 +64,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.baseline_energy_regen = 10 * self.stats.get_haste_multiplier_from_rating()
         self.energy_regen_rupture_up = self.baseline_energy_regen + 1.5 * self.talents.assassination.venomous_wounds
 
-        self.base_agility = (self.stats.agi + self.buffs.buff_agi()) * self.stats.gear_buffs.leather_specialization_multiplier() + self.race.racial_agi
-        self.base_agility *= self.buffs.stat_multiplier()
+        self.base_agility = self.stats.agi + self.buffs.buff_agi() + self.race.racial_agi
+        self.base_agility *= self.buffs.stat_multiplier() * self.stats.gear_buffs.leather_specialization_multiplier()
         self.base_melee_crit_rate = self.melee_crit_rate(self.base_agility)
+
+        self.base_strength = self.stats.str + self.buffs.buff_str() + self.race.racial_str
+        self.base_strength *= self.buffs.stat_multiplier()
+
+        self.base_ap = 140 + self.stats.ap + 2 * self.base_agility + self.base_strength
+        self.base_ap *= self.buffs.attack_power_multiplier()
 
         self.relentless_strikes_energy_return_per_cp = [0, 1.75, 3.5, 5][self.talents.subtlety.relentless_strikes]
 
@@ -86,9 +97,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         muts_per_finisher = 0
         cp_per_finisher = 0
+        finisher_size_breakdown = [0, 0, 0, 0, 0, 0]
         for (cps, muts), probability in cp_distribution.items():
             muts_per_finisher += muts * probability
             cp_per_finisher += cps * probability
+            finisher_size_breakdown[cps] += probability
 
         energy_for_rupture = muts_per_finisher * mutilate_energy_cost + self.rupture_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
         rupture_downtime = .5 * energy_for_rupture / self.baseline_energy_regen
@@ -103,8 +116,14 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         ruptures_per_second = 1 / average_cycle_length
         mutilates_per_second = (envenoms_per_second + ruptures_per_second) * muts_per_finisher
 
-        ticks_per_rupture = average_rupture_length / 2
-        venomous_wounds_per_second = ticks_per_rupture * ruptures_per_second * .3 * self.talents.assassination.venomous_wounds
+        envenom_size_breakdown = [finisher_chance * envenoms_per_second for finisher_chance in finisher_size_breakdown]
+        rupture_tick_counts = [0, 0, 0, 0, 0, 0]
+        for i in xrange(1, 6):
+            ticks_per_rupture = 4 + i + 2 * self.glyphs.rupture
+            rupture_tick_counts[i] = ticks_per_rupture * ruptures_per_second * finisher_size_breakdown[i]
+
+        total_rupture_ticks = sum(rupture_tick_counts)
+        venomous_wounds_per_second = total_rupture_ticks * .3 * self.talents.assassination.venomous_wounds
 
         mh_autoattacks_per_second = self.attack_speed_multiplier / self.stats.mh.speed
         oh_autoattacks_per_second = self.attack_speed_multiplier / self.stats.oh.speed
@@ -135,6 +154,44 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         ip_per_second = mh_poison_procs + oh_poison_procs
         dp_per_second = 1./3
+
+        damage_breakdown = {}
+
+        (mh_base_damage, mh_crit_damage) = self.mh_damage(self.base_ap)
+        glance_rate = .24
+        mh_crit_rate = min(self.dual_wield_mh_hit_chance() - glance_rate, self.base_melee_crit_rate)
+        mh_hit_rate = self.dual_wield_mh_hit_chance() - glance_rate - mh_crit_rate
+        average_mh_hit = glance_rate * .75 * mh_base_damage + mh_hit_rate * mh_base_damage + mh_crit_rate * mh_crit_damage
+        mh_dps = average_mh_hit * mh_autoattacks_per_second
+
+        (oh_base_damage, oh_crit_damage) = self.oh_damage(self.base_ap)
+        glance_rate = .24
+        oh_crit_rate = min(self.dual_wield_oh_hit_chance() - glance_rate, self.base_melee_crit_rate)
+        oh_hit_rate = self.dual_wield_oh_hit_chance() - glance_rate - oh_crit_rate
+        average_oh_hit = glance_rate * .75 * oh_base_damage + oh_hit_rate * oh_base_damage + oh_crit_rate * oh_crit_damage
+        oh_dps = average_oh_hit * oh_autoattacks_per_second
+
+        damage_breakdown['autoattack'] = mh_dps + oh_dps
+
+        mh_mutilate_dps = self.get_dps_contribution(self.mh_mutilate_damage(self.base_ap), mutilate_base_crit_rate, mutilates_per_second)
+        oh_mutilate_dps = self.get_dps_contribution(self.oh_mutilate_damage(self.base_ap), mutilate_base_crit_rate, mutilates_per_second)
+        damage_breakdown['mutilate'] = mh_mutilate_dps + oh_mutilate_dps
+
+        rupture_dps = 0
+        for i in xrange(1,6):
+            rupture_dps += self.get_dps_contribution(self.rupture_tick_damage(self.base_ap, i), self.base_melee_crit_rate, rupture_tick_counts[i])
+        damage_breakdown['rupture'] = rupture_dps
+
+        envenom_dps = 0
+        for i in xrange(1,6):
+            envenom_dps += self.get_dps_contribution(self.envenom_damage(self.base_ap, i), self.base_melee_crit_rate, envenom_size_breakdown[i])
+        damage_breakdown['envenom'] = envenom_dps
+
+        damage_breakdown['venomous_wounds'] = self.get_dps_contribution(self.venomous_wounds_damage(self.base_ap), self.spell_crit_rate(), venomous_wounds_per_second)
+        damage_breakdown['instant_poison'] = self.get_dps_contribution(self.instant_poison_damage(self.base_ap), self.spell_crit_rate(), ip_per_second)
+        damage_breakdown['deadly_poison'] = self.get_dps_contribution(self.deadly_poison_tick_damage(self.base_ap), self.spell_crit_rate(), dp_per_second)
+
+        return damage_breakdown
 
     def assassination_dps_breakdown_backstab(self):
         backstab_base_crit_rate = self.base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus() + .1 * self.talents.assassination.puncturing_wounds
