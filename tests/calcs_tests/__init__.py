@@ -68,7 +68,7 @@ class CalcsTest(unittest.TestCase):
     
     def test_spell_hit_chance(self):
         self.assertEqual(self.calculator.spell_hit_chance(),
-            1.0 - 0.01 * (1086 / 102.445999145507812))
+            1.0 - (0.17 - 0.01 * (1086 / 102.445999145507812)))
     
     def test_buff_melee_crit(self):
         pass
