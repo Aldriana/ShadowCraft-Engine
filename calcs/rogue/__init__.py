@@ -13,6 +13,9 @@ class RogueDamageCalculator(DamageCalculator):
     AGI_PER_CRIT = 324.72 * 100
     AGI_CRIT_INTERCEPT = -.00295
 
+    MELEE_CRIT_REDUCTION = .048
+    SPELL_CRIT_REDUCTION = .021
+
     def oh_penalty(self):
         if self.talents.is_combat_rogue():
             return .875
@@ -33,7 +36,7 @@ class RogueDamageCalculator(DamageCalculator):
             base_modifier += .1 * (self.talents.subtlety.opportunity)
         if coup_de_grace:
             cdg_tuple = (0, .07, .14, .2)
-            base_modifier += cdg_tuple[self.talents.asssassination.coup_de_grace]
+            base_modifier += cdg_tuple[self.talents.assassination.coup_de_grace]
         if executioner and self.talents.is_subtlety_rogue():
             base_modifier += .025 * self.stats.get_mastery_from_rating(mastery)
         if aggression:
@@ -42,7 +45,7 @@ class RogueDamageCalculator(DamageCalculator):
             base_modifier += .1 * (self.talents.combat.improved_sinister_strike)
         if vile_poisons:
             vp_tuple = (0, .07, .14, .2)
-            base_modifier += vp_tuple[self.talents.asssassination.vile_poisons]
+            base_modifier += vp_tuple[self.talents.assassination.vile_poisons]
         if improved_ambush:
             base_modifier += .05 * (self.talents.subtlety.improved_ambush)
         if potent_poisons and self.talents.is_assassination_rogue():
@@ -197,7 +200,7 @@ class RogueDamageCalculator(DamageCalculator):
 
         return damage, crit_damage
 
-    def venomous_wounds_damage(self, ap, mastery):
+    def venomous_wounds_damage(self, ap, mastery=None):
         multiplier = self.talents_modifiers(potent_poisons=True, assassins_resolve=False, mastery=mastery)
         multiplier *= self.buffs.spell_damage_multiplier()
         crit_multiplier = self.crit_damage_modifiers(is_spell=True)
@@ -218,7 +221,7 @@ class RogueDamageCalculator(DamageCalculator):
 
         return damage, crit_damage
 
-    def instant_poison_damage(self, ap, mastery):
+    def instant_poison_damage(self, ap, mastery=None):
         multiplier = self.talents_modifiers(potent_poisons=True, vile_poisons=True,
                                        assassins_resolve=False, mastery=mastery)
         multiplier *= self.buffs.spell_damage_multiplier()
@@ -232,7 +235,7 @@ class RogueDamageCalculator(DamageCalculator):
 
         return average_damage, average_crit_damage
 
-    def deadly_poison_tick_damage(self, ap, mastery, dp_stacks=5):
+    def deadly_poison_tick_damage(self, ap, mastery=None, dp_stacks=5):
         multiplier = self.talents_modifiers(potent_poisons=True, vile_poisons = True,
                                        assassins_resolve=False, mastery=mastery)
         multiplier *= self.buffs.spell_damage_multiplier()
@@ -244,7 +247,7 @@ class RogueDamageCalculator(DamageCalculator):
 
         return tick_damage, crit_tick_damage
 
-    def wound_poison_damage(self, ap, mastery):
+    def wound_poison_damage(self, ap, mastery=None):
         multiplier = self.talents_modifiers(potent_poisons=True, vile_poisons = True,
                                        assassins_resolve=False, mastery=mastery)
         multiplier *= self.buffs.spell_damage_multiplier()
@@ -317,11 +320,11 @@ class RogueDamageCalculator(DamageCalculator):
             agi = self.stats.agi
         base_crit = self.AGI_CRIT_INTERCEPT + agi / self.AGI_PER_CRIT
         base_crit += self.stats.get_crit_from_rating(crit)
-        return base_crit + self.buffs.buff_all_crit()
+        return base_crit + self.buffs.buff_all_crit() - self.MELEE_CRIT_REDUCTION
 
     def spell_crit_rate(self, crit=None):
-        base_crit += self.stats.get_crit_from_rating(crit)
-        return base_crit + self.buffs.buff_all_crit() + self.buffs.buff_spell_crit()
+        base_crit = self.stats.get_crit_from_rating(crit)
+        return base_crit + self.buffs.buff_all_crit() + self.buffs.buff_spell_crit() - self.SPELL_CRIT_REDUCTION
 
     # Not strictly speaking rogue-specific, but given that the base object
     # doesn't currently have any notion of whether you'd dual-wielding or not
