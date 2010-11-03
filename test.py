@@ -16,18 +16,23 @@ from objects.rogue import rogue_glyphs
 
 # Set up buffs and make sure things at least vaguely work.
 test_buffs = buffs.Buffs(
-    'stat_multiplier_buff',
-    'crit_chance_buff',
-    'melee_haste_buff',
-    'attack_power_buff',
-    'str_and_agi_buff',
-    'armor_debuff',
-    'spell_damage_debuff',
-    'spell_crit_debuff'
+        'stat_multiplier_buff',
+        'crit_chance_buff',
+        'all_damage_buff',
+        'melee_haste_buff',
+        'attack_power_buff',
+        'str_and_agi_buff',
+        'armor_debuff',
+        'physical_vulnerability_debuff',
+        'spell_damage_debuff',
+        'spell_crit_debuff',
+        'bleed_damage_debuff',
+        'agi_flask',
+        'guild_feast'
     )
 
 assert test_buffs.crit_chance_buff
-assert not test_buffs.bleed_damage_debuff
+assert not test_buffs.short_term_haste_buff
 
 
 # Set up weapons and make sure things at least vaguely work.
@@ -48,7 +53,7 @@ assert test_procs.darkmoon_card_hurricane
 assert not test_procs.fluid_death
 
 # Set up gear buffs and make sure things at leat vaguely work
-test_gear_buffs = stats.GearBuffs('chaotic_metagem')
+test_gear_buffs = stats.GearBuffs('chaotic_metagem', 'leather_specialization')
 assert test_gear_buffs.chaotic_metagem
 assert not test_gear_buffs.rogue_t11_2pc
 

@@ -123,7 +123,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             rupture_tick_counts[i] = ticks_per_rupture * ruptures_per_second * finisher_size_breakdown[i]
 
         total_rupture_ticks = sum(rupture_tick_counts)
-        venomous_wounds_per_second = total_rupture_ticks * .3 * self.talents.assassination.venomous_wounds
+        venomous_wounds_per_second = total_rupture_ticks * .3 * self.talents.assassination.venomous_wounds * self.spell_hit_chance()
 
         mh_autoattacks_per_second = self.attack_speed_multiplier / self.stats.mh.speed
         oh_autoattacks_per_second = self.attack_speed_multiplier / self.stats.oh.speed
@@ -152,7 +152,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             mh_poison_procs = avg_dp_proc_rate * total_mh_hits_per_second
             oh_poison_procs = avg_ip_proc_rate * total_oh_hits_per_second
 
-        ip_per_second = mh_poison_procs + oh_poison_procs
+        ip_per_second = (mh_poison_procs + oh_poison_procs) * self.spell_hit_chance()
         dp_per_second = 1./3
 
         damage_breakdown = {}
