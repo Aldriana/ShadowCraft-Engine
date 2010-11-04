@@ -149,11 +149,10 @@ class DamageCalculator(object):
         # This function wraps spell, bleed and physical debuffs from raid
         # along with all-damage buff and armor reduction. It should be called
         # from every damage dealing formula.
+        assert is_spell + is_bleed + is_physical == 1 # Eventually a real exception would be nice
         if is_spell:
             return self.buffs.spell_damage_multiplier()
         elif is_bleed:
             return self.buffs.bleed_damage_multiplier()
         elif is_physical:
             return self.buffs.physical_damage_multiplier() * self.armor_mitigation_multiplier(self.TARGET_BASE_ARMOR)
-        else:
-            return False #Error
