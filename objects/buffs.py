@@ -58,7 +58,7 @@ class Buffs(object):
         if self.bleed_damage_debuff:
             return 1.3 * self.physical_damage_multiplier()
         else:
-            return self.all_damage_multiplier()
+            return self.physical_damage_multiplier()
 
     def attack_power_multiplier(self):
         if self.attack_power_buff:
