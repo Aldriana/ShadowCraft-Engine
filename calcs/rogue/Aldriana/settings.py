@@ -30,7 +30,7 @@ class AssassinationCycle(Cycle):
 
     allowed_values = frozenset([1,2,3,4,5])
 
-    def __init__(self, min_envenom_size_mutilate=4, min_envenom_size_backstab=4, prioritize_rupture_uptime_mutilate=True, prioritize_rupture_uptime_backstab=True):
+    def __init__(self, min_envenom_size_mutilate=4, min_envenom_size_backstab=5, prioritize_rupture_uptime_mutilate=True, prioritize_rupture_uptime_backstab=True):
         assert min_envenom_size_mutilate in self.allowed_values
         self.min_envenom_size_mutilate = min_envenom_size_mutilate
 

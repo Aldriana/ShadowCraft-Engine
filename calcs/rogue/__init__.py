@@ -38,9 +38,10 @@ class RogueDamageCalculator(DamageCalculator):
             cdg_tuple = (0, .07, .14, .2)
             base_modifier += cdg_tuple[self.talents.assassination.coup_de_grace]
         if executioner and self.talents.is_subtlety_rogue():
-            base_modifier += .025 * self.stats.get_mastery_from_rating(mastery)
+            base_modifier += .02 * self.stats.get_mastery_from_rating(mastery)
         if aggression:
-            base_modifier += .05 * (self.talents.combat.aggression)
+            aggression_tuple = (0, .07, .14, .2)
+            base_modifier += aggression_tuple[self.talents.combat.aggression]
         if improved_sinister_strike:
             base_modifier += .1 * (self.talents.combat.improved_sinister_strike)
         if vile_poisons:
@@ -105,7 +106,7 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier = self.talents_modifiers(opportunity=True, aggression=True)
         multiplier *= self.buffs.physical_damage_multiplier()
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
-        percentage_damage_bonus = 2
+        percentage_damage_bonus = 1.5
         if self.talents.is_subtlety_rogue():
             percentage_damage_bonus += .25
 
@@ -205,8 +206,7 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier *= self.buffs.spell_damage_multiplier()
         crit_multiplier = self.crit_damage_modifiers(is_spell=True)
 
-        damage = (363 + .135 * ap) * multiplier
-            # need values for lvl 85
+        damage = (675 + .176 * ap) * multiplier
         crit_damage = damage * crit_multiplier
 
         return damage, crit_damage
@@ -227,10 +227,9 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier *= self.buffs.spell_damage_multiplier()
         crit_multiplier = self.crit_damage_modifiers(is_spell=True)
 
-        low_end_damage = (300 + 0.09 * ap) * multiplier
-        high_end_damage = (400 + 0.09 * ap) * multiplier
+        low_end_damage = (303 + 0.09 * ap) * multiplier
+        high_end_damage = (401 + 0.09 * ap) * multiplier
         average_damage = (low_end_damage + high_end_damage) / 2
-            # pulled from the assassination spreadsheet; need values for lvl 85
         average_crit_damage = average_damage * crit_multiplier
 
         return average_damage, average_crit_damage
@@ -241,8 +240,7 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier *= self.buffs.spell_damage_multiplier()
         crit_multiplier = self.crit_damage_modifiers(is_spell=True)
 
-        tick_damage = ((296 + .108 * ap) * dp_stacks / 4) * multiplier
-            # pulled from the assassination spreadsheet; need values for lvl 85
+        tick_damage = ((540 + .14 * ap) * dp_stacks / 4) * multiplier
         crit_tick_damage = tick_damage * crit_multiplier
 
         return tick_damage, crit_tick_damage

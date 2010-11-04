@@ -80,7 +80,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.base_agility = self.stats.agi + self.buffs.buff_agi() + self.race.racial_agi
         for value, duration, cooldown in self.stats.gear_buffs.get_all_activated_agi_boosts():
             if cooldown is not None:
-                self.base_agility += (value * duration) * 1.0 / cooldown
+                self.base_agility += (value * duration) * 1.0 / (cooldown + self.settings.response_time)
 
         self.base_agility *= self.buffs.stat_multiplier() * self.stats.gear_buffs.leather_specialization_multiplier()
         self.base_melee_crit_rate = self.melee_crit_rate(self.base_agility)
