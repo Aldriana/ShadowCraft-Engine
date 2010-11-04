@@ -71,7 +71,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.settings.tricks_on_cooldown and not self.glyphs.tricks_of_the_trade:
             self.baseline_energy_regen -= 15./(30+self.settings.response_time)
         if self.talents.assassination.cold_blood:
-            self.baseline_energy_regen += 24./(120+self.settings.response_time)
+            self.baseline_energy_regen += 25./(120+self.settings.response_time)
         if self.talents.assassination.overkill:
             overkill_regen = 60 * self.stats.get_haste_multiplier_from_rating() / (180. + self.settings.response_time)
             self.baseline_energy_regen += overkill_regen
