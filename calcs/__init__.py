@@ -144,3 +144,16 @@ class DamageCalculator(object):
 
     def target_armor(self):
         return self.buffs.armor_reduction_multiplier() * self.TARGET_BASE_ARMOR
+
+    def raid_settings_modifiers(self, is_spell=False, is_physical=False, is_bleed=False):
+        # This function wraps spell, bleed and physical debuffs from raid
+        # along with all-damage buff and armor reduction. It should be called
+        # from every damage dealing formula.
+        if is_spell:
+            return self.buffs.spell_damage_multiplier()
+        elif is_bleed:
+            return self.buffs.bleed_damage_multiplier()
+        elif is_physical:
+            return self.buffs.physical_damage_multiplier() * self.armor_mitigation_multiplier(self.TARGET_BASE_ARMOR)
+        else:
+            return False #Error
