@@ -42,7 +42,7 @@ class DamageCalculator(object):
             setattr(self.stats, stat, getattr(self.stats,stat) + 1.)
         else:
             setattr(self,'calculating_ep',stat)
-        dps = DamageCalculator.get_dps(self)
+        dps = self.get_dps()
         if stat not in ('dodge_cap','white_hit','spell_hit','yellow_hit','parry_cap'):
             setattr(self.stats, stat, getattr(self.stats,stat) - 1.)
         else:
@@ -54,7 +54,7 @@ class DamageCalculator(object):
         ep_values = {'white_hit':0, 'spell_hit':0, 'yellow_hit':0,
                      'str':0, 'agi':0, 'haste':0, 'crit':0,
                      'mastery':0, 'dodge_cap':0, 'parry_cap':0}
-        baseline_dps = DamageCalculator.get_dps(self)
+        baseline_dps = self.get_dps()
         ap_dps = self.ep_helper('ap')
         ap_dps_difference = ap_dps - baseline_dps
         for stat in ep_values.keys():
