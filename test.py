@@ -99,3 +99,4 @@ calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyph
 
 assert calculator.oh_penalty() == .5
 print calculator.get_dps()
+print calculator.get_ep()
