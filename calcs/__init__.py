@@ -67,6 +67,14 @@ class DamageCalculator(object):
         # Overwrite this function with your calculations/simulations/whatever;
         # this is what callers will (initially) be looking at.
         pass
+        
+    def get_spell_hit_from_talents(self):
+        # Override this in your subclass to implement talents that modify spell hit chance
+        return 0.
+
+    def get_melee_hit_from_talents(self):
+        # Override this in your subclass to implement talents that modify melee hit chance
+        return 0.
 
     def armor_mitigation_multiplier(self, armor):
         # Pass an armor value in to get the armor mitigation multiplier for
@@ -79,7 +87,7 @@ class DamageCalculator(object):
         return damage * self.armor_mitigation_multiplier(armor)
 
     def melee_hit_chance(self, base_miss_chance, dodgeable, parryable, weapon_type):
-        hit_chance = (self.stats.get_melee_hit_from_rating() + self.race.get_racial_hit() + .02 * self.talents.combat.precision)
+        hit_chance = (self.stats.get_melee_hit_from_rating() + self.race.get_racial_hit() + self.get_melee_hit_from_talents())
         miss_chance = max(base_miss_chance - hit_chance,0)
 
         #Expertise represented as the reduced chance to be dodged or parried, not true "Expertise"
@@ -131,7 +139,7 @@ class DamageCalculator(object):
         return hit_chance
 
     def spell_hit_chance(self):
-        hit_chance = 1 - max(self.BASE_SPELL_MISS_RATE - self.stats.get_spell_hit_from_rating() - .02 * self.talents.combat.precision, 0)
+        hit_chance = 1 - max(self.BASE_SPELL_MISS_RATE - self.stats.get_spell_hit_from_rating() - self.get_spell_hit_from_talents(), 0)
         if self.calculating_ep in ('yellow_hit', 'spell_hit'):
             hit_chance -= self.stats.get_spell_hit_from_rating(1,self.level)
         return hit_chance

@@ -15,7 +15,13 @@ class RogueDamageCalculator(DamageCalculator):
 
     MELEE_CRIT_REDUCTION = .048
     SPELL_CRIT_REDUCTION = .021
+    
+    def get_spell_hit_from_talents(self):
+        return .02 * self.talents.combat.precision
 
+    def get_melee_hit_from_talents(self):
+        return .02 * self.talents.combat.precision
+    
     def oh_penalty(self):
         if self.talents.is_combat_rogue():
             return .875
