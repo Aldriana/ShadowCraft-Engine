@@ -153,8 +153,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         mh_autoattacks_per_second = self.attack_speed_multiplier / self.stats.mh.speed
         oh_autoattacks_per_second = self.attack_speed_multiplier / self.stats.oh.speed
 
-        total_mh_hits_per_second = mh_autoattacks_per_second + mutilates_per_second + envenoms_per_second + ruptures_per_second
-        total_oh_hits_per_second = oh_autoattacks_per_second + mutilates_per_second
+        total_mh_hits_per_second = mh_autoattacks_per_second * self.dual_wield_mh_hit_chance() + mutilates_per_second + envenoms_per_second + ruptures_per_second
+        total_oh_hits_per_second = oh_autoattacks_per_second * self.dual_wield_oh_hit_chance() + mutilates_per_second
 
         if self.settings.mh_poison == 'ip':
             ip_base_proc_rate = .3 * self.stats.mh.speed / 1.4
@@ -274,8 +274,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         mh_autoattacks_per_second = self.attack_speed_multiplier / self.stats.mh.speed
         oh_autoattacks_per_second = self.attack_speed_multiplier / self.stats.oh.speed
 
-        total_mh_hits_per_second = mh_autoattacks_per_second + backstabs_per_second + envenoms_per_second + ruptures_per_second
-        total_oh_hits_per_second = oh_autoattacks_per_second
+        total_mh_hits_per_second = mh_autoattacks_per_second * self.dual_wield_mh_hit_chance() + backstabs_per_second + envenoms_per_second + ruptures_per_second
+        total_oh_hits_per_second = oh_autoattacks_per_second * self.dual_wield_oh_hit_chance()
 
         if self.settings.mh_poison == 'ip':
             ip_base_proc_rate = .3 * self.stats.mh.speed / 1.4
