@@ -109,7 +109,7 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier = self.talents_modifiers(opportunity=True, aggression=True)
         multiplier *= self.raid_settings_modifiers(is_physical=True)
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
-        percentage_damage_bonus = 1.5
+        percentage_damage_bonus = 2
         if self.talents.is_subtlety_rogue():
             percentage_damage_bonus += .25
 
