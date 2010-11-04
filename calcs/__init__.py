@@ -155,4 +155,4 @@ class DamageCalculator(object):
         elif is_bleed:
             return self.buffs.bleed_damage_multiplier()
         elif is_physical:
-            return self.buffs.physical_damage_multiplier() * self.armor_mitigation_multiplier(self.TARGET_BASE_ARMOR)
+            return self.buffs.physical_damage_multiplier() * self.armor_mitigation_multiplier(self.TARGET_BASE_ARMOR * self.buffs.armor_reduction_multiplier())
