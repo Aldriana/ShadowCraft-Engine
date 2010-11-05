@@ -153,10 +153,9 @@ class DamageCalculator(object):
     def target_armor(self, armor=None):
         # Passes base or overridden armor reduced by armor debuffs
         if armor is None:
-            armor_override = self.TARGET_BASE_ARMOR
+            return self.buffs.armor_reduction_multiplier() * self.TARGET_BASE_ARMOR
         else:
-            armor_override = armor
-        return self.buffs.armor_reduction_multiplier() * armor_override
+            return armor
 
     def raid_settings_modifiers(self, is_spell=False, is_physical=False, is_bleed=False, armor=None):
         # This function wraps spell, bleed and physical debuffs from raid
