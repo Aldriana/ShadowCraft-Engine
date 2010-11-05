@@ -150,17 +150,23 @@ class DamageCalculator(object):
     def buff_spell_crit(self):
         return self.buffs.buff_spell_crit() + self.buffs.buff_all_crit()
 
-    def target_armor(self):
-        return self.buffs.armor_reduction_multiplier() * self.TARGET_BASE_ARMOR
+    def target_armor(self, armor=None):
+        # Passes base or overridden armor reduced by armor debuffs
+        if armor is None:
+            armor_override = self.TARGET_BASE_ARMOR
+        else:
+            armor_override = armor
+        return self.buffs.armor_reduction_multiplier() * armor_override
 
-    def raid_settings_modifiers(self, is_spell=False, is_physical=False, is_bleed=False):
+    def raid_settings_modifiers(self, is_spell=False, is_physical=False, is_bleed=False, armor=None):
         # This function wraps spell, bleed and physical debuffs from raid
         # along with all-damage buff and armor reduction. It should be called
-        # from every damage dealing formula.
+        # from every damage dealing formula. Armor can be overridden if needed.
         assert is_spell + is_bleed + is_physical == 1 # Eventually a real exception would be nice
+        armor_override = self.target_armor(armor)
         if is_spell:
             return self.buffs.spell_damage_multiplier()
         elif is_bleed:
             return self.buffs.bleed_damage_multiplier()
         elif is_physical:
-            return self.buffs.physical_damage_multiplier() * self.armor_mitigation_multiplier(self.TARGET_BASE_ARMOR * self.buffs.armor_reduction_multiplier())
+            return self.buffs.physical_damage_multiplier() * self.armor_mitigation_multiplier(armor_override)
