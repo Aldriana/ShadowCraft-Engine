@@ -91,7 +91,7 @@ class RogueDamageCalculator(DamageCalculator):
     def mh_damage(self, ap, armor=None):
         weapon_damage = self.stats.mh.damage(ap)
         multiplier = self.talents_modifiers(assassins_resolve=True)
-        multiplier *= self.raid_settings_modifiers(is_physical=True)
+        multiplier *= self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
         damage = weapon_damage * multiplier
@@ -102,7 +102,7 @@ class RogueDamageCalculator(DamageCalculator):
     def oh_damage(self, ap, armor=None):
         weapon_damage = self.stats.oh.damage(ap)
         multiplier = self.talents_modifiers(assassins_resolve=True)
-        multiplier *= self.raid_settings_modifiers(is_physical=True)
+        multiplier *= self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
         damage = self.oh_penalty() * weapon_damage * multiplier
@@ -113,7 +113,7 @@ class RogueDamageCalculator(DamageCalculator):
     def backstab_damage(self, ap, armor=None):
         weapon_damage = self.stats.mh.normalized_damage(ap)
         multiplier = self.talents_modifiers(opportunity=True, aggression=True)
-        multiplier *= self.raid_settings_modifiers(is_physical=True)
+        multiplier *= self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
         percentage_damage_bonus = 2
         if self.talents.is_subtlety_rogue():
@@ -127,7 +127,7 @@ class RogueDamageCalculator(DamageCalculator):
     def mh_mutilate_damage(self, ap, is_poisoned=True, armor=None):
         mh_weapon_damage = self.stats.mh.normalized_damage(ap)
         multiplier = self.talents_modifiers(opportunity=True)
-        multiplier *= self.raid_settings_modifiers(is_physical=True)
+        multiplier *= self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
 
         mh_damage = 1.5 * (mh_weapon_damage + 201) * multiplier
@@ -142,7 +142,7 @@ class RogueDamageCalculator(DamageCalculator):
     def oh_mutilate_damage(self, ap, is_poisoned=True, armor=None):
         oh_weapon_damage = self.stats.oh.normalized_damage(ap)
         multiplier = self.talents_modifiers(opportunity=True)
-        multiplier *= self.raid_settings_modifiers(is_physical=True)
+        multiplier *= self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
 
         oh_damage = 1.5 * (self.oh_penalty() * oh_weapon_damage + 201) * multiplier
@@ -157,7 +157,7 @@ class RogueDamageCalculator(DamageCalculator):
     def sinister_strike_damage(self, ap, armor=None):
         weapon_damage = self.stats.mh.normalized_damage(ap)
         multiplier = self.talents_modifiers(aggression=True, improved_sinister_strike=True)
-        multiplier *= self.raid_settings_modifiers(is_physical=True)
+        multiplier *= self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
 
         damage = (weapon_damage + 200) * multiplier
@@ -167,7 +167,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def hemorrhage_damage(self, armor=None):
         weapon_damage = self.stats.mh.normalized_damage(ap)
-        multiplier = self.raid_settings_modifiers(is_physical=True)
+        multiplier = self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
 
         if self.stats.mh.type == 'dagger':
@@ -189,7 +189,7 @@ class RogueDamageCalculator(DamageCalculator):
     def ambush_damage(self, ap, armor=None):
         weapon_damage = self.stats.mh.normalized_damage(ap)
         multiplier = self.talents_modifiers(opportunity=True, improved_ambush=True)
-        multiplier *= self.raid_settings_modifiers(is_physical=True)
+        multiplier *= self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
         if self.stats.mh.type == 'dagger':
@@ -202,7 +202,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def revealing_strike_damage(self, ap, armor=None):
         weapon_damage = self.stats.mh.damage(ap)
-        multiplier = self.raid_settings_modifiers(is_physical=True)
+        multiplier = self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
         damage = 1.25 * weapon_damage * multiplier
@@ -222,7 +222,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def main_gauche(self, ap, armor=None):
         weapon_damage = self.stats.oh.normalized_damage(ap)
-        multiplier = self.raid_settings_modifiers(is_physical=True)
+        multiplier = self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
         damage = self.oh_penalty() * weapon_damage * multiplier
@@ -299,7 +299,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def eviscerate_damage(self, ap, cp, armor=None):
         multiplier = self.talents_modifiers(coup_de_grace=True, aggression=True, executioner=True)
-        multiplier *= self.raid_settings_modifiers(is_physical=True)
+        multiplier *= self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
         ap_multiplier_tuple = (0, .091, .182, .273, .364, .455)
