@@ -30,7 +30,7 @@ class Buffs(object):
         if name in self.allowed_buffs:
             return False
         object.__getattribute__(self, name)
-            
+
     def stat_multiplier(self):
         if self.stat_multiplier_buff:
             return 1.05

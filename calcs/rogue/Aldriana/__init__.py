@@ -12,6 +12,22 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         else:
             assert False # Add a real error message at some point.
 
+    def heroism_uptime_per_fight(self):
+        if not self.buffs.short_term_haste_buff:
+            return 0
+
+        total_uptime = 0
+        remaining_duration = self.settings.duration
+        while remaining_duration > 0:
+            total_uptime += min(remaining_duration, 40)
+            remaining_duration -= 600
+
+        return total_uptime * 1.0 / self.settings.duration
+
+    def get_heroism_haste_multiplier(self):
+        # Just average-casing for now.  Should fix that at some point.
+        return 1 + .3 * self.heroism_uptime_per_fight()
+
     def get_dps_contribution(self, damage_tuple, crit_rate, frequency):
         (base_damage, crit_damage) = damage_tuple
         average_hit = base_damage * (1 - crit_rate) + crit_damage * crit_rate
@@ -81,6 +97,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         for value, duration, cooldown in self.stats.gear_buffs.get_all_activated_agi_boosts():
             if cooldown is not None:
                 self.base_agility += (value * duration) * 1.0 / (cooldown + self.settings.response_time)
+            else:
+                self.base_agility += (value * duration) * 1.0 / self.settings.duration
 
         self.base_agility *= self.buffs.stat_multiplier() * self.stats.gear_buffs.leather_specialization_multiplier()
         self.base_melee_crit_rate = self.melee_crit_rate(self.base_agility)
@@ -93,7 +111,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         self.relentless_strikes_energy_return_per_cp = [0, 1.75, 3.5, 5][self.talents.subtlety.relentless_strikes]
 
-        self.attack_speed_multiplier = 1.4 * self.buffs.melee_haste_multiplier() * self.stats.get_haste_multiplier_from_rating()
+        self.attack_speed_multiplier = 1.4 * self.buffs.melee_haste_multiplier() * self.stats.get_haste_multiplier_from_rating() * self.get_heroism_haste_multiplier()
 
         if self.talents.assassination.vendetta:
             if self.glyphs.vendetta:
