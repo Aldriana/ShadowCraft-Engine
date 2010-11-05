@@ -37,7 +37,11 @@ class TestStats(unittest.TestCase):
         self.assertRaises(AssertionError, self.stats.get_haste_multiplier_from_rating, level=82)
         self.assertAlmostEqual(self.stats.get_haste_multiplier_from_rating(), 1 + .01 * 899/128.057006835937500)
         self.assertAlmostEqual(self.stats.get_haste_multiplier_from_rating(100), 1 + .01 * 100/128.057006835937500)
-        
+
+class TestProcs(unittest.TestCase):
+    def setUp(self):
+        pass
+
 if __name__ == '__main__':
     unittest.main()
 
