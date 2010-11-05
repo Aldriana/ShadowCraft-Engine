@@ -98,4 +98,20 @@ test_settings = settings.Settings(test_cycle, response_time=1)
 calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings)
 
 assert calculator.oh_penalty() == .5
-print calculator.get_dps()
+
+ep_values = calculator.get_ep().items()
+ep_values.sort(key=lambda entry: entry[1], reverse=True)
+for value in ep_values:
+    print value[0] + ':\t', value[1]
+
+print '---------'
+
+dps_breakdown = calculator.assassination_dps_breakdown().items()
+dps_breakdown.sort(key=lambda entry: entry[1], reverse=True)
+total_dps = sum(entry[1] for entry in dps_breakdown)
+for entry in dps_breakdown:
+    print entry[0] + ':\t', entry[1] / total_dps
+
+print '---------'
+
+print total_dps

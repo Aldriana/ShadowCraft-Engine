@@ -42,7 +42,7 @@ class DamageCalculator(object):
             setattr(self.stats, stat, getattr(self.stats,stat) + 1.)
         else:
             setattr(self,'calculating_ep',stat)
-        dps = DamageCalculator.get_dps(self)
+        dps = self.get_dps()
         if stat not in ('dodge_cap','white_hit','spell_hit','yellow_hit','parry_cap'):
             setattr(self.stats, stat, getattr(self.stats,stat) - 1.)
         else:
@@ -54,7 +54,7 @@ class DamageCalculator(object):
         ep_values = {'white_hit':0, 'spell_hit':0, 'yellow_hit':0,
                      'str':0, 'agi':0, 'haste':0, 'crit':0,
                      'mastery':0, 'dodge_cap':0, 'parry_cap':0}
-        baseline_dps = DamageCalculator.get_dps(self)
+        baseline_dps = self.get_dps()
         ap_dps = self.ep_helper('ap')
         ap_dps_difference = ap_dps - baseline_dps
         for stat in ep_values.keys():
@@ -67,6 +67,14 @@ class DamageCalculator(object):
         # Overwrite this function with your calculations/simulations/whatever;
         # this is what callers will (initially) be looking at.
         pass
+        
+    def get_spell_hit_from_talents(self):
+        # Override this in your subclass to implement talents that modify spell hit chance
+        return 0.
+
+    def get_melee_hit_from_talents(self):
+        # Override this in your subclass to implement talents that modify melee hit chance
+        return 0.
 
     def armor_mitigation_multiplier(self, armor):
         # Pass an armor value in to get the armor mitigation multiplier for
@@ -79,9 +87,9 @@ class DamageCalculator(object):
         return damage * self.armor_mitigation_multiplier(armor)
 
     def melee_hit_chance(self, base_miss_chance, dodgeable, parryable, weapon_type):
-        hit_chance = (self.stats.get_melee_hit_from_rating() + self.race.get_racial_hit())
+        hit_chance = (self.stats.get_melee_hit_from_rating() + self.race.get_racial_hit() + self.get_melee_hit_from_talents())
         miss_chance = max(base_miss_chance - hit_chance,0)
-       
+
         #Expertise represented as the reduced chance to be dodged or parried, not true "Expertise"
         expertise = (self.stats.get_expertise_from_rating() + self.race.get_racial_expertise(weapon_type))
 
@@ -95,7 +103,7 @@ class DamageCalculator(object):
         if parryable:
             parry_chance = max(self.BASE_PARRY_CHANCE - expertise, 0)
             if self.calculating_ep in ('parry_cap','dodge_cap'):
-                parry__chance += self.stats.get_expertise_from_rating(1,self.level)
+                parry_chance += self.stats.get_expertise_from_rating(1,self.level)
         else:
             parry_chance = 0
 
@@ -131,7 +139,7 @@ class DamageCalculator(object):
         return hit_chance
 
     def spell_hit_chance(self):
-        hit_chance = 1 - max(self.BASE_SPELL_MISS_RATE - self.stats.get_spell_hit_from_rating(),0)
+        hit_chance = 1 - max(self.BASE_SPELL_MISS_RATE - self.stats.get_spell_hit_from_rating() - self.get_spell_hit_from_talents(), 0)
         if self.calculating_ep in ('yellow_hit', 'spell_hit'):
             hit_chance -= self.stats.get_spell_hit_from_rating(1,self.level)
         return hit_chance
@@ -142,5 +150,22 @@ class DamageCalculator(object):
     def buff_spell_crit(self):
         return self.buffs.buff_spell_crit() + self.buffs.buff_all_crit()
 
-    def target_armor(self):
-        return self.buffs.armor_reduction_multiplier() * self.TARGET_BASE_ARMOR
+    def target_armor(self, armor=None):
+        # Passes base armor reduced by armor debuffs or overridden armor 
+        if armor is None:
+            return self.buffs.armor_reduction_multiplier() * self.TARGET_BASE_ARMOR
+        else:
+            return armor
+
+    def raid_settings_modifiers(self, is_spell=False, is_physical=False, is_bleed=False, armor=None):
+        # This function wraps spell, bleed and physical debuffs from raid
+        # along with all-damage buff and armor reduction. It should be called
+        # from every damage dealing formula. Armor can be overridden if needed.
+        assert is_spell + is_bleed + is_physical == 1 # Eventually a real exception would be nice
+        armor_override = self.target_armor(armor)
+        if is_spell:
+            return self.buffs.spell_damage_multiplier()
+        elif is_bleed:
+            return self.buffs.bleed_damage_multiplier()
+        elif is_physical:
+            return self.buffs.physical_damage_multiplier() * self.armor_mitigation_multiplier(armor_override)
