@@ -151,7 +151,7 @@ class DamageCalculator(object):
         return self.buffs.buff_spell_crit() + self.buffs.buff_all_crit()
 
     def target_armor(self, armor=None):
-        # Passes base or overridden armor reduced by armor debuffs
+        # Passes base armor reduced by armor debuffs or overridden armor 
         if armor is None:
             return self.buffs.armor_reduction_multiplier() * self.TARGET_BASE_ARMOR
         else:
