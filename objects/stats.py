@@ -1,4 +1,5 @@
 import procs
+import copy
 
 class Stats(object):
     # For the moment, lets define this as raw stats from gear + race; AP is
@@ -107,7 +108,10 @@ class Weapon(object):
 
         if enchant is not None:
             assert self.is_melee() and enchant in self.allowed_melee_enchants
-            setattr(self, enchant, True)
+            assert enchant in procs.ProcsList.allowed_procs
+            proc = copy.deepcopy(procs.ProcsList.allowed_procs[enchant])
+            proc.proc_chance = proc.proc_rate(self.speed)
+            setattr(self, enchant, proc)
 
     def __getattr__(self, name):
         # Any enchant we haven't assigned a value to, we don't have.
