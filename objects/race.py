@@ -82,7 +82,7 @@ class Race(object):
             self.stats = self.stat_set[level]
         else:
             #Unsupported level, throw error
-            assert False, "Unsupported class/level combination %(class)s/%{level}d" % {'class': self.character_class, 'level':level}
+            assert False, "Unsupported class/level combination %(class)s/%(level)d" % {'class': self.character_class, 'level':level}
         if self.race_name in Race.racial_stat_offset:
             self.stats = map(sum,zip(self.stats, Race.racial_stat_offset[race]))
         else:
