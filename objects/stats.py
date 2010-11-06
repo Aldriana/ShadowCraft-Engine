@@ -1,3 +1,5 @@
+import procs
+
 class Stats(object):
     # For the moment, lets define this as raw stats from gear + race; AP is
     # only AP bonuses from gear and level.  Do not include multipliers like
@@ -121,69 +123,6 @@ class Weapon(object):
 
     def normalized_damage(self, ap=0):
         return self.speed * self.weapon_dps + self._normalization_speed * ap/14.
-
-class Procs(object):
-    # For the moment I'm just going to take procs as a list of proc names;
-    # we can worry about a more robust proc system later.
-    #
-    # Activated racials moved to race.Race, gear-based buffs that aren't
-    # static stat increases moved to stats.GearBuffs. -Rac
-    #
-    # Will also need to build a decent list of procs to support at some point.
-    allowed_procs = frozenset([
-        'rogue_t11_4pc',
-        'darkmoon_card_hurricane',
-        'unheeded_warning',
-        'fluid_death',                      #stacks on-hit, should be a proc
-        'essence_of_the_cyclone',
-        'heroic_left_eye_of_rajh',
-        'left_eye_of_rajh',
-        'heroic_key_to_the_endless_chamber',
-        'key_to_the_endless_chamber',
-    ])
-
-    #Format is (stat,value,duration,proc rate,trigger,ICD)
-    #None should be used to indicate unknown values
-    #Assumed heroic trinkets have same proc chance/ICD as non-heroic
-    proc_data = {
-        'essence_of_the_cyclone':                  ('crit_rating', 1926, 10, None, 'melee_or_ranged_attack', None),
-        'heroic_left_eye_of_rajh':                 ('agi', 1710, 10, None, 'melee_or_ranged_crit', None),
-        'left_eye_of_rajh':                        ('agi', 1512, 10, None, 'melee_or_ranged_crit', None),
-        'heroic_key_to_the_endless_chamber':       ('agi', 1710, 15, .1, 'melee_or_ranged_attack', 75),
-        'key_to_the_endless_chamber':              ('agi', 1290, 15, .1, 'melee_or_ranged_attack', 75),
-        'prestors_talisman_of_machination':        ('haste_rating', 1926, 15, .1, 'melee_or_ranged_attack', 75),
-        'heroic_prestors_talisman_of_machination': ('haste_rating', 2178, 15, .1, 'melee_or_ranged_attack', 75)
-    }
-
-    proc_triggers = frozenset([
-        'melee_or_ranged_attack',
-        'melee_or_ranged_crit',
-        'auto_attack',
-    ])
-
-    def __init__(self, *args):
-        for arg in args:
-            if arg in self.allowed_procs:
-                setattr(self, arg, True)
-
-    def __getattr__(self, name):
-        # Any proc we haven't assigned a value to, we don't have.
-        if name in self.allowed_procs:
-            return False
-        object.__getattribute__(self, name)
-
-    def get_all_procs_for_stat(self,stat):
-        procs = []
-        for proc in Procs.proc_data:
-            if getattr(self,proc) and (Procs.proc_data[proc][0] == stat):
-                procs.append(Procs.proc_data[proc][1:])
-        return procs
-
-    def get_all_agi_procs(self):
-        return self.get_all_procs_for_stat('agi')
-
-    def get_all_crit_rating_procs(self):
-        return self.get_all_procs_for_stat('crit_rating')
 
 #Catch-all for non-proc gear based buffs (static or activated)
 class GearBuffs(object):

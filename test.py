@@ -10,6 +10,7 @@ from calcs.rogue.Aldriana import settings
 from objects import buffs
 from objects import race
 from objects import stats
+from objects import procs
 from objects.rogue import rogue_talents
 from objects.rogue import rogue_glyphs
 
@@ -47,7 +48,7 @@ assert test_mh.hurricane
 assert not test_oh.hurricane
 
 # Set up procs and make sure things at least vaguely work.
-test_procs = stats.Procs('darkmoon_card_hurricane')
+test_procs = procs.ProcsList('darkmoon_card_hurricane','heroic_left_eye_of_rajh')
 
 assert test_procs.darkmoon_card_hurricane
 assert not test_procs.fluid_death
@@ -115,3 +116,4 @@ for entry in dps_breakdown:
 print '---------'
 
 print total_dps
+
