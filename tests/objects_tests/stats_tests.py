@@ -38,9 +38,33 @@ class TestStats(unittest.TestCase):
         self.assertAlmostEqual(self.stats.get_haste_multiplier_from_rating(), 1 + .01 * 899/128.057006835937500)
         self.assertAlmostEqual(self.stats.get_haste_multiplier_from_rating(100), 1 + .01 * 100/128.057006835937500)
 
-class TestProcs(unittest.TestCase):
+class TestWeapon(unittest.TestCase):
     def setUp(self):
-        pass
+        self.mh = stats.Weapon(1000, 2.0, 'dagger', 'hurricane')
+        self.ranged = stats.Weapon(1104, 2.0, 'thrown')
+    
+    def test___init__(self):
+        self.assertAlmostEqual(self.mh._normalization_speed, 1.7)
+        self.assertAlmostEqual(self.mh.speed, 2.0)
+        self.assertAlmostEqual(self.mh.weapon_dps, 1000/2.0)
+        self.assertEqual(self.mh.type, 'dagger')
+        self.assertRaises(AssertionError, stats.Weapon, 1000, 2.0, 'thrown', 'fake_enchant')
+        self.assertAlmostEqual(self.ranged._normalization_speed, 2.1)
+
+    def test__getattr__(self):
+        self.assertTrue(self.mh.hurricane)
+        self.assertFalse(self.mh.landslide)
+        self.assertRaises(AttributeError, self.mh.__getattr__, 'fake_enchant')
+    
+    def test_is_melee(self):
+        self.assertTrue(self.mh.is_melee())
+        self.assertFalse(self.ranged.is_melee())
+    
+    def test_damage(self):
+        self.assertAlmostEqual(self.mh.damage(1000), 2.0 * (1000/2.0 + 1000/14.0))
+    
+    def test_normalized_damage(self):
+        self.assertAlmostEqual(self.mh.normalized_damage(1000), 1000 + (1.7 * 1000/14.0))
 
 if __name__ == '__main__':
     unittest.main()
