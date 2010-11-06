@@ -146,11 +146,13 @@ class Procs(object):
     #None should be used to indicate unknown values
     #Assumed heroic trinkets have same proc chance/ICD as non-heroic
     proc_data = {
-        'essence_of_the_cyclone':               ('crit_rating', 1926, 10, None, 'melee_or_ranged_attack', None),
-        'heroic_left_eye_of_rajh':              ('agi', 1710, 10, None, 'melee_or_ranged_crit', None),
-        'left_eye_of_rajh':                     ('agi', 1512, 10, None, 'melee_or_ranged_crit', None),
-        'heroic_key_to_the_endless_chamber':    ('agi', 1710, 15, .1, 'melee_or_ranged_attack', 75),
-        'key_to_the_endless_chamber':           ('agi', 1290, 15, .1, 'melee_or_ranged_attack', 75),
+        'essence_of_the_cyclone':                  ('crit_rating', 1926, 10, None, 'melee_or_ranged_attack', None),
+        'heroic_left_eye_of_rajh':                 ('agi', 1710, 10, None, 'melee_or_ranged_crit', None),
+        'left_eye_of_rajh':                        ('agi', 1512, 10, None, 'melee_or_ranged_crit', None),
+        'heroic_key_to_the_endless_chamber':       ('agi', 1710, 15, .1, 'melee_or_ranged_attack', 75),
+        'key_to_the_endless_chamber':              ('agi', 1290, 15, .1, 'melee_or_ranged_attack', 75),
+        'prestors_talisman_of_machination':        ('haste_rating', 1926, 15, .1, 'melee_or_ranged_attack', 75),
+        'heroic_prestors_talisman_of_machination': ('haste_rating', 2178, 15, .1, 'melee_or_ranged_attack', 75)
     }
 
     proc_triggers = frozenset([
