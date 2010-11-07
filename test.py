@@ -40,6 +40,8 @@ test_mh = stats.Weapon(737, 1.8, 'dagger', 'hurricane')
 test_oh = stats.Weapon(573, 1.4, 'dagger', 'hurricane')
 test_ranged = stats.Weapon(1104, 2.0, 'thrown')
 
+assert abs(test_mh.hurricane.proc_chance - 1 * 1.8 / 60) < 0.00000001
+assert abs(test_oh.hurricane.proc_chance - 1 * 1.4 / 60) < 0.00000001
 assert test_mh._normalization_speed == 1.7
 assert test_oh._normalization_speed == 1.7
 assert test_ranged._normalization_speed == 2.1
