@@ -85,10 +85,10 @@ class Stats(object):
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
 class Weapon(object):
-    allowed_melee_enchants = frozenset([
-        'hurricane',
-        'landslide'
-    ])
+    allowed_melee_enchants = {
+        'hurricane':    procs.PPMProc('haste', 450, 12, 1, 'all_spells_and_attacks', 0, 1),
+        'landslide':    procs.PPMProc('ap', 1000, 12, None, 'all_attacks', None, 1),
+    }
 
     def __init__(self, damage, speed, weapon_type, enchant=None):
         self.speed = speed
@@ -108,8 +108,7 @@ class Weapon(object):
 
         if enchant is not None:
             assert self.is_melee() and enchant in self.allowed_melee_enchants
-            assert enchant in procs.ProcsList.allowed_procs
-            proc = copy.deepcopy(procs.ProcsList.allowed_procs[enchant])
+            proc = self.allowed_melee_enchants[enchant]
             proc.proc_chance = proc.proc_rate(self.speed)
             setattr(self, enchant, proc)
 

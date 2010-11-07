@@ -1,5 +1,5 @@
 class Proc(object):
-    def __init__(self, stat, value, duration, proc_chance, trigger, icd, max_stacks, procs_off_debuff=False):
+    def __init__(self, stat, value, duration, proc_chance, trigger, icd, max_stacks):
         self.stat = stat
         self.value = value
         self.duration = duration
@@ -7,7 +7,6 @@ class Proc(object):
         self.trigger = trigger
         self.icd = icd
         self.max_stacks = max_stacks
-        self.procs_off_debuff = procs_off_debuff
 
     def procs_off_auto_attacks(self):
         if self.trigger in ('all_attacks', 'auto_attack', 'all_spells_and_attacks'):
@@ -52,7 +51,7 @@ class Proc(object):
             return False
 
     def procs_off_apply_debuff(self):
-        if self.procs_off_debuff:
+        if self.trigger in ('all_spells_and_attacks', 'all_attacks'):
             return True
         else:
             return False
@@ -63,7 +62,7 @@ class Proc(object):
 class PPMProc(Proc):
     # Calculate proc_rate for a ppm proc assuming self.proc_chance is the # procs/minute
     # and speed is the number of seconds between proc events. Result is percent chance of proc per event.
-    def __init__(self, stat, value, duration, ppm, trigger, icd, max_stacks, procs_off_debuff=False):
+    def __init__(self, stat, value, duration, ppm, trigger, icd, max_stacks):
         self.stat = stat
         self.value = value
         self.duration = duration
@@ -71,7 +70,6 @@ class PPMProc(Proc):
         self.trigger = trigger
         self.icd = icd
         self.max_stacks = max_stacks
-        self.procs_off_debuff = procs_off_debuff
 
     def proc_rate(self, speed):
         return self.ppm * speed / 60.
@@ -93,18 +91,17 @@ class ProcsList(object):
         'fluid_death':                              Proc('agi', 38, 15, None, 'all_attacks',None,10),
         'grace_of_the_herald':                      Proc('crit', 924, 10, None, 'all_attacks', None, 1),
         'heart_of_the_vile':                        Proc('crit', 924, 10, None, 'all_attacks', None, 1),
-        'hurricane':                                PPMProc('haste', 450, 12, 1, 'all_spells_and_attacks', 0, 1),
         'key_to_the_endless_chamber':               Proc('agi', 1290, 15, .1, 'all_attacks', 75, 1),
-        'landslide':                                PPMProc('ap', 1000, 12, None, 'all_attacks', None, 1),
         'left_eye_of_rajh':                         Proc('agi', 1512, 10, None, 'crits', None, 1),
         'prestors_talisman_of_machination':         Proc('haste', 1926, 15, .1, 'all_attacks', 75, 1),
-        'rogue_t11_4pc':                            Proc('weird_proc', 1, 15, .01, 'auto_attacks', None, None),
+        'rogue_t11_4pc':                            Proc('weird_proc', 1, 15, .01, 'auto_attacks', None, 1),
         'the_twilight_blade':                       Proc('crit', 185, 10, None, 'all_attacks', None, 3),
         'unheeded_warning':                         Proc('weird_proc', .25, 10, None, 'all_attacks', None, 1),
     }
 
 ##    proc_triggers = frozenset([
 ##        'all_spells_and_attacks',
+##        'all_damaging_attacks',
 ##        'all_attacks',
 ##        'strikes',
 ##        'crits',    # Never seen a proc-on-auto-attack-crits, so I'm assuming this is both strikes and aa
@@ -121,7 +118,7 @@ class ProcsList(object):
     def __init__(self, *args):
         for arg in args:
             if arg in self.allowed_procs:
-                setattr(self,arg,self.allowed_procs[arg])
+                setattr(self, arg, self.allowed_procs[arg])
             else:
                 # Throw invalid input exception here
                 assert False, "No data for proc '%(proc)s'" % {'proc': arg}
@@ -132,10 +129,10 @@ class ProcsList(object):
             return False
         object.__getattribute__(self, proc)
 
-    def get_all_procs_for_stat(self,stat=None):
+    def get_all_procs_for_stat(self, stat=None):
         procs = []
         for proc in self.allowed_procs:
-            if getattr(self,proc):
+            if getattr(self, proc):
                 if stat == None or self.allowed_procs[proc].stat == stat:
                     procs.append(self.allowed_procs[proc])
 
