@@ -35,7 +35,6 @@ test_buffs = buffs.Buffs(
 assert test_buffs.crit_chance_buff
 assert not test_buffs.short_term_haste_buff
 
-
 # Set up weapons and make sure things at least vaguely work.
 test_mh = stats.Weapon(737, 1.8, 'dagger', 'hurricane')
 test_oh = stats.Weapon(573, 1.4, 'dagger', 'hurricane')
@@ -90,13 +89,15 @@ test_race = race.Race('night_elf')
 assert test_race.racial_agi == 210
 assert not test_race.get_racial_expertise('1h_sword')
 
-
 # Set up settings.
 test_cycle = settings.AssassinationCycle()
 test_settings = settings.Settings(test_cycle, response_time=1)
 
+# Set up level 
+test_level = 85
+
 # Build a DPS object, and test some functions.
-calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings)
+calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings, test_level)
 
 assert calculator.oh_penalty() == .5
 
@@ -116,4 +117,3 @@ for entry in dps_breakdown:
 print '---------'
 
 print total_dps
-

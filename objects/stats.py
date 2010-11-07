@@ -9,12 +9,12 @@ class Stats(object):
     # defined, though the numbers will need to updated for level 85.
 
     DEFAULT_LEVEL = 85
-    MELEE_HIT_RATING_CONVERSION = {85:120.109001159667969}
-    SPELL_HIT_RATING_CONVERSION = {85:102.445999145507812}
-    CRIT_RATING_CONVERSION = {85:179.279998779296875}
-    HASTE_RATING_CONVERSION = {85:128.057006835937500}
-    EXPERTISE_RATING_CONVERSION = {85:30.027200698852539 * 4}
-    MASTERY_RATING_CONVERSION = {85:179.279998779296875}
+    MELEE_HIT_RATING_CONVERSION = {60:9.37931, 70:14.7905, 80:30.7548, 81:40.3836, 82:53.0304, 83:69.6653, 84:91.4738, 85:120.109001159667969}
+    SPELL_HIT_RATING_CONVERSION = {60:8, 70:12.6154, 80:26.232, 81:34.4448, 82:45.2318, 83:59.4204, 84:78.0218, 85:102.445999145507812}
+    CRIT_RATING_CONVERSION = {60:14, 70:22.0769, 80:45.906, 81:60.2784, 82:79.1556, 83:103.986, 84:136.53799, 85:179.279998779296875}
+    HASTE_RATING_CONVERSION = {60:10, 70:15.7692, 80:32.79, 81:43.056, 82:56.5397, 83:74.2755, 84:97.5272, 85:128.057006835937500}
+    EXPERTISE_RATING_CONVERSION = {60:2.34483 * 4, 70:3.69761 * 4, 80:7.68869 * 4, 81:10.0959 * 4, 82:13.2576 * 4, 83:17.4163 * 4, 84:22.8685 * 4, 85:30.027200698852539 * 4}
+    MASTERY_RATING_CONVERSION = {60:14, 70:22.0769, 80:45.906, 81:60.2784, 82:79.1556, 83:103.986, 84:136.53799, 85:179.279998779296875}
 
     def __init__(self, str, agi, ap, crit, hit, exp, haste, mastery, mh, oh, ranged, procs, gear_buffs):
         # This will need to be adjusted if at any point we want to support
@@ -36,7 +36,7 @@ class Stats(object):
 
     # As noted elsewhere, these asserts probably should be exceptions
     # once we have good agreement on how they will be caught/handled
-    def get_mastery_from_rating(self, rating=None, level=DEFAULT_LEVEL):
+    def get_mastery_from_rating(self, level, rating=None):
         if level in self.MASTERY_RATING_CONVERSION:
             if rating is None:
                 rating = self.mastery
@@ -44,7 +44,7 @@ class Stats(object):
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
-    def get_melee_hit_from_rating(self, rating=None, level=DEFAULT_LEVEL):
+    def get_melee_hit_from_rating(self, level, rating=None):
         if level in self.MELEE_HIT_RATING_CONVERSION:
             if rating is None:
                 rating = self.hit
@@ -52,7 +52,7 @@ class Stats(object):
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
-    def get_expertise_from_rating(self, rating=None, level=DEFAULT_LEVEL):
+    def get_expertise_from_rating(self, level, rating=None):
         if level in self.EXPERTISE_RATING_CONVERSION:
             if rating is None:
                 rating = self.exp
@@ -60,7 +60,7 @@ class Stats(object):
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
-    def get_spell_hit_from_rating(self, rating=None, level=DEFAULT_LEVEL):
+    def get_spell_hit_from_rating(self, level, rating=None):
         if level in self.SPELL_HIT_RATING_CONVERSION:
             if rating is None:
                 rating = self.hit
@@ -68,7 +68,7 @@ class Stats(object):
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
-    def get_crit_from_rating(self, rating=None, level=DEFAULT_LEVEL):
+    def get_crit_from_rating(self, level, rating=None):
         if level in self.CRIT_RATING_CONVERSION:
             if rating is None:
                 rating = self.crit
@@ -76,7 +76,7 @@ class Stats(object):
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
-    def get_haste_multiplier_from_rating(self, rating=None, level=DEFAULT_LEVEL):
+    def get_haste_multiplier_from_rating(self, level, rating=None):
         if level in self.HASTE_RATING_CONVERSION:
             if rating is None:
                 rating = self.haste
