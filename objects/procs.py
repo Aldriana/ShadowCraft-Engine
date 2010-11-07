@@ -132,8 +132,8 @@ class ProcsList(object):
     def get_all_procs_for_stat(self, stat=None):
         procs = []
         for proc_name in self.allowed_procs:
-            if hasattr(self, proc_name):
-                proc = self.proc_name
+            if getattr(self, proc_name):
+                proc = getattr(self, proc_name)
                 if stat == None or proc.stat == stat:
                     procs.append(proc)
 
@@ -142,8 +142,8 @@ class ProcsList(object):
     def get_all_damage_procs(self):
         procs = []
         for proc_name in self.allowed_procs:
-            if hasattr(self, proc_name):
-                proc = self.proc_name
+            if getattr(self, proc_name):
+                proc = getattr(self, proc_name)
                 if proc.stat in ('spell_damage', 'physical_damage'):
                     procs.append(proc)
 
