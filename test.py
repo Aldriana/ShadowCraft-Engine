@@ -10,6 +10,7 @@ from calcs.rogue.Aldriana import settings
 from objects import buffs
 from objects import race
 from objects import stats
+from objects import procs
 from objects.rogue import rogue_talents
 from objects.rogue import rogue_glyphs
 
@@ -37,17 +38,17 @@ assert not test_buffs.short_term_haste_buff
 
 # Set up weapons and make sure things at least vaguely work.
 test_mh = stats.Weapon(737, 1.8, 'dagger', 'hurricane')
-test_oh = stats.Weapon(573, 1.4, 'dagger', 'landslide')
+test_oh = stats.Weapon(573, 1.4, 'dagger', 'hurricane')
 test_ranged = stats.Weapon(1104, 2.0, 'thrown')
 
 assert test_mh._normalization_speed == 1.7
 assert test_oh._normalization_speed == 1.7
 assert test_ranged._normalization_speed == 2.1
 assert test_mh.hurricane
-assert not test_oh.hurricane
+# assert not test_oh.hurricane
 
 # Set up procs and make sure things at least vaguely work.
-test_procs = stats.Procs('darkmoon_card_hurricane')
+test_procs = procs.ProcsList('darkmoon_card_hurricane','heroic_left_eye_of_rajh')
 
 assert test_procs.darkmoon_card_hurricane
 assert not test_procs.fluid_death
@@ -115,3 +116,4 @@ for entry in dps_breakdown:
 print '---------'
 
 print total_dps
+
