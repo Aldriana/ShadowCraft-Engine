@@ -82,21 +82,21 @@ class ProcsList(object):
     # None should be used to indicate unknown values
     # Assumed heroic trinkets have same proc chance/ICD as non-heroic
     allowed_procs = {
-        'heroic_grace_of_the_herald':               Proc('crit', 1710, 10, None, 'all_attacks', None, 1),
-        'heroic_key_to_the_endless_chamber':        Proc('agi', 1710, 15, .1, 'all_attacks', 75, 1),
-        'heroic_left_eye_of_rajh':                  Proc('agi', 1710, 10, None, 'crits', None, 1),
-        'heroic_prestors_talisman_of_machination':  Proc('haste', 2178, 15, .1, 'all_attacks', 75, 1),
-        'darkmoon_card_hurricane':                  Proc('spell_damage', 5000, 0, None, 'all_attacks', None, 0),
-        'essence_of_the_cyclone':                   Proc('crit', 1926, 10, None, 'all_attacks', None, 1),
-        'fluid_death':                              Proc('agi', 38, 15, None, 'all_attacks',None,10),
-        'grace_of_the_herald':                      Proc('crit', 924, 10, None, 'all_attacks', None, 1),
-        'heart_of_the_vile':                        Proc('crit', 924, 10, None, 'all_attacks', None, 1),
-        'key_to_the_endless_chamber':               Proc('agi', 1290, 15, .1, 'all_attacks', 75, 1),
-        'left_eye_of_rajh':                         Proc('agi', 1512, 10, None, 'crits', None, 1),
-        'prestors_talisman_of_machination':         Proc('haste', 1926, 15, .1, 'all_attacks', 75, 1),
-        'rogue_t11_4pc':                            Proc('weird_proc', 1, 15, .01, 'auto_attacks', None, 1),
-        'the_twilight_blade':                       Proc('crit', 185, 10, None, 'all_attacks', None, 3),
-        'unheeded_warning':                         Proc('weird_proc', .25, 10, None, 'all_attacks', None, 1),
+        'heroic_grace_of_the_herald':               ('crit', 1710, 10, None, 'all_attacks', None, 1),
+        'heroic_key_to_the_endless_chamber':        ('agi', 1710, 15, .1, 'all_attacks', 75, 1),
+        'heroic_left_eye_of_rajh':                  ('agi', 1710, 10, None, 'crits', None, 1),
+        'heroic_prestors_talisman_of_machination':  ('haste', 2178, 15, .1, 'all_attacks', 75, 1),
+        'darkmoon_card_hurricane':                  ('spell_damage', 5000, 0, None, 'all_attacks', None, 0),
+        'essence_of_the_cyclone':                   ('crit', 1926, 10, None, 'all_attacks', None, 1),
+        'fluid_death':                              ('agi', 38, 15, None, 'all_attacks',None,10),
+        'grace_of_the_herald':                      ('crit', 924, 10, None, 'all_attacks', None, 1),
+        'heart_of_the_vile':                        ('crit', 924, 10, None, 'all_attacks', None, 1),
+        'key_to_the_endless_chamber':               ('agi', 1290, 15, .1, 'all_attacks', 75, 1),
+        'left_eye_of_rajh':                         ('agi', 1512, 10, None, 'crits', None, 1),
+        'prestors_talisman_of_machination':         ('haste', 1926, 15, .1, 'all_attacks', 75, 1),
+        'rogue_t11_4pc':                            ('weird_proc', 1, 15, .01, 'auto_attacks', None, 1),
+        'the_twilight_blade':                       ('crit', 185, 10, None, 'all_attacks', None, 3),
+        'unheeded_warning':                         ('weird_proc', .25, 10, None, 'all_attacks', None, 1),
     }
 
 ##    proc_triggers = frozenset([
@@ -118,7 +118,7 @@ class ProcsList(object):
     def __init__(self, *args):
         for arg in args:
             if arg in self.allowed_procs:
-                setattr(self, arg, self.allowed_procs[arg])
+                setattr(self, arg, Proc(*self.allowed_procs[arg]))
             else:
                 # Throw invalid input exception here
                 assert False, "No data for proc '%(proc)s'" % {'proc': arg}
@@ -131,18 +131,20 @@ class ProcsList(object):
 
     def get_all_procs_for_stat(self, stat=None):
         procs = []
-        for proc in self.allowed_procs:
-            if getattr(self, proc):
-                if stat == None or self.allowed_procs[proc].stat == stat:
-                    procs.append(self.allowed_procs[proc])
+        for proc_name in self.allowed_procs:
+            proc = getattr(self, proc_name)
+            if proc:
+                if stat == None or proc.stat == stat:
+                    procs.append(proc)
 
         return procs
 
     def get_all_damage_procs(self):
         procs = []
-        for proc in self.allowed_procs:
-            if getattr(self,proc):
-                if self.allowed_procs[proc].stat in ('spell_damage', 'physical_damage'):
-                    procs.append(self.allowed_procs[proc])
+        for proc_name in self.allowed_procs:
+            proc = getattr(self, proc_name)
+            if proc:
+                if proc.stat in ('spell_damage', 'physical_damage'):
+                    procs.append(proc)
 
         return procs

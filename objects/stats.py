@@ -1,5 +1,4 @@
 import procs
-import copy
 
 class Stats(object):
     # For the moment, lets define this as raw stats from gear + race; AP is
@@ -86,8 +85,8 @@ class Stats(object):
 
 class Weapon(object):
     allowed_melee_enchants = {
-        'hurricane':    procs.PPMProc('haste', 450, 12, 1, 'all_spells_and_attacks', 0, 1),
-        'landslide':    procs.PPMProc('ap', 1000, 12, None, 'all_attacks', None, 1),
+        'hurricane':    ('haste', 450, 12, 1, 'all_spells_and_attacks', 0, 1),
+        'landslide':    ('ap', 1000, 12, None, 'all_attacks', None, 1),
     }
 
     def __init__(self, damage, speed, weapon_type, enchant=None):
@@ -108,7 +107,7 @@ class Weapon(object):
 
         if enchant is not None:
             assert self.is_melee() and enchant in self.allowed_melee_enchants
-            proc = self.allowed_melee_enchants[enchant]
+            proc = procs.PPMProc(*self.allowed_melee_enchants[enchant])
             proc.proc_chance = proc.proc_rate(self.speed)
             setattr(self, enchant, proc)
 
