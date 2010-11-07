@@ -7,7 +7,7 @@ from calcs_tests.rogue_tests import TestRogueDamageCalculator
 from calcs_tests.rogue_tests.Aldriana_tests import TestAldrianasRogueDamageCalculator
 from objects_tests.buffs_tests import TestBuffsTrue, TestBuffsFalse
 from objects_tests.stats_tests import TestStats, TestWeapon
-from objects_tests.procs_tests import TestProcsList
+from objects_tests.procs_tests import TestProcsList, TestProc, TestPPMProc
 from objects_tests.rogue_tests.rogue_glyphs_tests import TestRogueGlyphs
 from objects_tests.rogue_tests.rogue_talents_tests import TestAssassinationTalents,\
 TestCombatTalents, TestSubtletyTalents, TestRogueTalents

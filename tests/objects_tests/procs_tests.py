@@ -24,3 +24,44 @@ class TestProcsList(unittest.TestCase):
         self.assertEqual(len(self.procsList.get_all_damage_procs()), 1)
         self.procsList = procs.ProcsList()
         self.assertEqual(len(self.procsList.get_all_damage_procs()), 0)
+
+class TestProc(unittest.TestCase):
+    def setUp(self):
+        self.proc = procs.Proc('haste', 1926, 15, .1, 'all_attacks', 75, 1)
+    
+    def test__init__(self):
+        self.assertEqual(self.proc.stat, 'haste')
+        self.assertEqual(self.proc.value, 1926)
+        self.assertEqual(self.proc.duration, 15)
+        self.assertEqual(self.proc.proc_chance, .1)
+        self.assertEqual(self.proc.trigger, 'all_attacks')
+        self.assertEqual(self.proc.icd, 75)
+        self.assertEqual(self.proc.max_stacks, 1)
+    
+    def test_procs_off_auto_attacks(self):
+        self.assertTrue(self.proc.procs_off_auto_attacks())
+    
+    def test_procs_off_strikes(self):
+        self.assertTrue(self.proc.procs_off_strikes())
+    
+    def test_procs_off_harmful_spells(self):
+        self.assertFalse(self.proc.procs_off_harmful_spells())
+    
+    def test_is_ppm(self):
+        self.assertFalse(self.proc.is_ppm())
+
+class TestPPMProc(unittest.TestCase):
+    def setUp(self):
+        self.proc = procs.PPMProc('haste', 450, 12, 1, 'all_spells_and_attacks', 0, 1)
+    
+    def test__init__(self):
+        self.assertEqual(self.proc.stat, 'haste')
+        self.assertEqual(self.proc.value, 450)
+        self.assertEqual(self.proc.duration, 12)
+        self.assertEqual(self.proc.ppm, 1)
+        self.assertEqual(self.proc.trigger, 'all_spells_and_attacks')
+        self.assertEqual(self.proc.icd, 0)
+        self.assertEqual(self.proc.max_stacks, 1)
+
+    def test_is_ppm(self):
+        self.assertTrue(self.proc.is_ppm())
