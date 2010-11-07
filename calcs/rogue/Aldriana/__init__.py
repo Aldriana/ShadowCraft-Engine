@@ -74,6 +74,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         assert self.stats.mh.type == 'dagger'
         assert self.stats.oh.type == 'dagger'
 
+        assert self.settings.mh_poison != self.settings.oh_poison
+        assert self.settings.mh_poison in ['ip', 'dp']
+        assert self.settings.oh_poison in ['dp', 'ip']
+
         # These talents have huge, hard-to-model implications on cycle and will
         # always be taken in any serious DPS build.  Hence, I'm not going to
         # worry about modeling them for the foreseeable future.
