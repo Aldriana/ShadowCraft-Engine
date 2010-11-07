@@ -4,6 +4,7 @@ import unittest
 from objects import buffs
 from objects import race
 from objects import stats
+from objects import procs
 
 class DamageCalculatorTest(unittest.TestCase):
     
@@ -19,9 +20,9 @@ class DamageCalculatorTest(unittest.TestCase):
             'spell_crit_debuff'
             )
         test_mh = stats.Weapon(737, 1.8, 'dagger', 'hurricane')
-        test_oh = stats.Weapon(573, 1.4, 'dagger', 'landslide')
+        test_oh = stats.Weapon(573, 1.4, 'dagger', 'hurricane')
         test_ranged = stats.Weapon(1104, 2.0, 'thrown')
-        test_procs = stats.Procs('darkmoon_card_hurricane')
+        test_procs = procs.ProcsList('darkmoon_card_hurricane')
         test_gear_buffs = stats.GearBuffs('chaotic_metagem')        
         test_stats = stats.Stats(20, 3485, 190, 1517, 1086, 641, 899, 666, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
         test_race = race.Race('night_elf')
