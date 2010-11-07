@@ -5,8 +5,9 @@ its pretty important to get the framework roughed out so people can start
 building off it; however, once the initial flurry settles down, I will start
 enforcing these a bit more strenuously.
 
-0) We are not using Python 3.x.  I haven't looked at what's changed in 2.7
-   closely enough to know if we're using that, but it'll be 2.6 or 2.7.
+0) Assume for the moment that we're using Python 2.6.  If there's some 2.7 
+   feature that you feel would be a real asset for something you're doing,
+   let me know and we can discuss it.  We are not using 3.x.
 1) Indents are 4 spaces.  Tabs are strictly forbidden.
 2) Avoid trailing whitespace in all cases.  And I do mean all cases.
 3) Line length: Try to keep comments to 80 characters.  For general code I'm

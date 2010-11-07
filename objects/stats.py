@@ -1,3 +1,6 @@
+import procs
+import copy
+
 class Stats(object):
     # For the moment, lets define this as raw stats from gear + race; AP is
     # only AP bonuses from gear and level.  Do not include multipliers like
@@ -6,12 +9,12 @@ class Stats(object):
     # defined, though the numbers will need to updated for level 85.
 
     DEFAULT_LEVEL = 85
-    MELEE_HIT_RATING_CONVERSION = {85:120.109001159667969}
-    SPELL_HIT_RATING_CONVERSION = {85:102.445999145507812}
-    CRIT_RATING_CONVERSION = {85:179.279998779296875}
-    HASTE_RATING_CONVERSION = {85:128.057006835937500}
-    EXPERTISE_RATING_CONVERSION = {85:30.027200698852539 * 4}
-    MASTERY_RATING_CONVERSION = {85:179.279998779296875}
+    MELEE_HIT_RATING_CONVERSION = {60:9.37931, 70:14.7905, 80:30.7548, 81:40.3836, 82:53.0304, 83:69.6653, 84:91.4738, 85:120.109001159667969}
+    SPELL_HIT_RATING_CONVERSION = {60:8, 70:12.6154, 80:26.232, 81:34.4448, 82:45.2318, 83:59.4204, 84:78.0218, 85:102.445999145507812}
+    CRIT_RATING_CONVERSION = {60:14, 70:22.0769, 80:45.906, 81:60.2784, 82:79.1556, 83:103.986, 84:136.53799, 85:179.279998779296875}
+    HASTE_RATING_CONVERSION = {60:10, 70:15.7692, 80:32.79, 81:43.056, 82:56.5397, 83:74.2755, 84:97.5272, 85:128.057006835937500}
+    EXPERTISE_RATING_CONVERSION = {60:2.34483 * 4, 70:3.69761 * 4, 80:7.68869 * 4, 81:10.0959 * 4, 82:13.2576 * 4, 83:17.4163 * 4, 84:22.8685 * 4, 85:30.027200698852539 * 4}
+    MASTERY_RATING_CONVERSION = {60:14, 70:22.0769, 80:45.906, 81:60.2784, 82:79.1556, 83:103.986, 84:136.53799, 85:179.279998779296875}
 
     def __init__(self, str, agi, ap, crit, hit, exp, haste, mastery, mh, oh, ranged, procs, gear_buffs):
         # This will need to be adjusted if at any point we want to support
@@ -33,7 +36,7 @@ class Stats(object):
 
     # As noted elsewhere, these asserts probably should be exceptions
     # once we have good agreement on how they will be caught/handled
-    def get_mastery_from_rating(self, rating=None, level=DEFAULT_LEVEL):
+    def get_mastery_from_rating(self, level, rating=None):
         if level in self.MASTERY_RATING_CONVERSION:
             if rating is None:
                 rating = self.mastery
@@ -41,7 +44,7 @@ class Stats(object):
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
-    def get_melee_hit_from_rating(self, rating=None, level=DEFAULT_LEVEL):
+    def get_melee_hit_from_rating(self, level, rating=None):
         if level in self.MELEE_HIT_RATING_CONVERSION:
             if rating is None:
                 rating = self.hit
@@ -49,7 +52,7 @@ class Stats(object):
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
-    def get_expertise_from_rating(self, rating=None, level=DEFAULT_LEVEL):
+    def get_expertise_from_rating(self, level, rating=None):
         if level in self.EXPERTISE_RATING_CONVERSION:
             if rating is None:
                 rating = self.exp
@@ -57,7 +60,7 @@ class Stats(object):
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
-    def get_spell_hit_from_rating(self, rating=None, level=DEFAULT_LEVEL):
+    def get_spell_hit_from_rating(self, level, rating=None):
         if level in self.SPELL_HIT_RATING_CONVERSION:
             if rating is None:
                 rating = self.hit
@@ -65,7 +68,7 @@ class Stats(object):
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
-    def get_crit_from_rating(self, rating=None, level=DEFAULT_LEVEL):
+    def get_crit_from_rating(self, level, rating=None):
         if level in self.CRIT_RATING_CONVERSION:
             if rating is None:
                 rating = self.crit
@@ -73,7 +76,7 @@ class Stats(object):
         else:
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
-    def get_haste_multiplier_from_rating(self, rating=None, level=DEFAULT_LEVEL):
+    def get_haste_multiplier_from_rating(self, level, rating=None):
         if level in self.HASTE_RATING_CONVERSION:
             if rating is None:
                 rating = self.haste
@@ -82,10 +85,10 @@ class Stats(object):
             assert False, "No conversion factor available for level %(level)d" % {'level': level}
 
 class Weapon(object):
-    allowed_melee_enchants = frozenset([
-        'hurricane',
-        'landslide'
-    ])
+    allowed_melee_enchants = {
+        'hurricane':    procs.PPMProc('haste', 450, 12, 1, 'all_spells_and_attacks', 0, 1),
+        'landslide':    procs.PPMProc('ap', 1000, 12, None, 'all_attacks', None, 1),
+    }
 
     def __init__(self, damage, speed, weapon_type, enchant=None):
         self.speed = speed
@@ -105,7 +108,9 @@ class Weapon(object):
 
         if enchant is not None:
             assert self.is_melee() and enchant in self.allowed_melee_enchants
-            setattr(self, enchant, True)
+            proc = self.allowed_melee_enchants[enchant]
+            proc.proc_chance = proc.proc_rate(self.speed)
+            setattr(self, enchant, proc)
 
     def __getattr__(self, name):
         # Any enchant we haven't assigned a value to, we don't have.
@@ -121,69 +126,6 @@ class Weapon(object):
 
     def normalized_damage(self, ap=0):
         return self.speed * self.weapon_dps + self._normalization_speed * ap/14.
-
-class Procs(object):
-    # For the moment I'm just going to take procs as a list of proc names;
-    # we can worry about a more robust proc system later.
-    #
-    # Activated racials moved to race.Race, gear-based buffs that aren't
-    # static stat increases moved to stats.GearBuffs. -Rac
-    #
-    # Will also need to build a decent list of procs to support at some point.
-    allowed_procs = frozenset([
-        'rogue_t11_4pc',
-        'darkmoon_card_hurricane',
-        'unheeded_warning',
-        'fluid_death',                      #stacks on-hit, should be a proc
-        'essence_of_the_cyclone',
-        'heroic_left_eye_of_rajh',
-        'left_eye_of_rajh',
-        'heroic_key_to_the_endless_chamber',
-        'key_to_the_endless_chamber',
-    ])
-
-    #Format is (stat,value,duration,proc rate,trigger,ICD)
-    #None should be used to indicate unknown values
-    #Assumed heroic trinkets have same proc chance/ICD as non-heroic
-    proc_data = {
-        'essence_of_the_cyclone':                  ('crit_rating', 1926, 10, None, 'melee_or_ranged_attack', None),
-        'heroic_left_eye_of_rajh':                 ('agi', 1710, 10, None, 'melee_or_ranged_crit', None),
-        'left_eye_of_rajh':                        ('agi', 1512, 10, None, 'melee_or_ranged_crit', None),
-        'heroic_key_to_the_endless_chamber':       ('agi', 1710, 15, .1, 'melee_or_ranged_attack', 75),
-        'key_to_the_endless_chamber':              ('agi', 1290, 15, .1, 'melee_or_ranged_attack', 75),
-        'prestors_talisman_of_machination':        ('haste_rating', 1926, 15, .1, 'melee_or_ranged_attack', 75),
-        'heroic_prestors_talisman_of_machination': ('haste_rating', 2178, 15, .1, 'melee_or_ranged_attack', 75)
-    }
-
-    proc_triggers = frozenset([
-        'melee_or_ranged_attack',
-        'melee_or_ranged_crit',
-        'auto_attack',
-    ])
-
-    def __init__(self, *args):
-        for arg in args:
-            if arg in self.allowed_procs:
-                setattr(self, arg, True)
-
-    def __getattr__(self, name):
-        # Any proc we haven't assigned a value to, we don't have.
-        if name in self.allowed_procs:
-            return False
-        object.__getattribute__(self, name)
-
-    def get_all_procs_for_stat(self,stat):
-        procs = []
-        for proc in Procs.proc_data:
-            if getattr(self,proc) and (Procs.proc_data[proc][0] == stat):
-                procs.append(Procs.proc_data[proc][1:])
-        return procs
-
-    def get_all_agi_procs(self):
-        return self.get_all_procs_for_stat('agi')
-
-    def get_all_crit_rating_procs(self):
-        return self.get_all_procs_for_stat('crit_rating')
 
 #Catch-all for non-proc gear based buffs (static or activated)
 class GearBuffs(object):
