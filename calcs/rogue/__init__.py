@@ -65,13 +65,6 @@ class RogueDamageCalculator(DamageCalculator):
         except KeyError as e:
             assert False, "No %(spell_name)s formula available for level %(level)d" % {'spell_name': e.message, 'level': self.level}
             
-    
-    def level_check(self, level, level_dict, spell_name):
-        if level not in level_dict:
-            assert False, "No %(spell_name)s formula available for level %(level)d" % {'spell_name': spell_name, 'level': level}
-        else:
-            return True
-                
     def get_spell_hit_from_talents(self):
         return .02 * self.talents.combat.precision
 
