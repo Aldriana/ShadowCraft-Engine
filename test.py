@@ -34,10 +34,6 @@ test_buffs = buffs.Buffs(
 
 assert test_buffs.crit_chance_buff
 assert not test_buffs.short_term_haste_buff
-test_buffs.level = 80
-assert test_buffs.buff_agi() == 155 + 90 + 300
-test_buffs.level = 85
-assert test_buffs.buff_agi() == 549 + 90 + 300
 
 
 # Set up weapons and make sure things at least vaguely work.
@@ -104,6 +100,13 @@ test_level = 85
 
 # Build a DPS object, and test some functions.
 calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings, test_level)
+
+assert calculator.stats.level == calculator.race.level == calculator.buffs.level == calculator.level == 85
+assert test_buffs.buff_agi() == 549 + 90 + 300
+calculator.level = 80
+assert calculator.stats.level == calculator.race.level == calculator.buffs.level == calculator.level == 80
+assert calculator.buffs.buff_agi() == 155 + 90 + 300
+calculator.level = 85
 
 assert calculator.oh_penalty() == .5
 
