@@ -28,8 +28,8 @@ class RogueDamageCalculator(DamageCalculator):
     evis_base_low_dmg_values =    {80:165, 81:167, 82:170, 83:172, 84:175, 85:177}
     evis_bonus_dmg_values =       {80:481, 81:488, 82:495, 83:503, 84:510, 85:517}
     env_bonus_dmg_values =        {80:216, 81:221, 82:226, 83:231, 84:236, 85:241}
-    AGI_PER_CRIT =                {80:83.15 * 100, 81:109.18 * 100, 82:143.37 * 100, 83:188.34 * 100, 84:247.3 * 100, 85:324.72 * 100}
-    AGI_CRIT_INTERCEPT =          {80:-.00295, 85:-.00295}    # missing lvl-80 data
+    agi_per_crit_values =         {80:83.15 * 100, 81:109.18 * 100, 82:143.37 * 100, 83:188.34 * 100, 84:247.3 * 100, 85:324.72 * 100}
+    agi_crit_intercept_values =   {80:-.00295, 85:-.00295}    # missing lvl-80 data
     MELEE_CRIT_REDUCTION =        .048
     SPELL_CRIT_REDUCTION =        .021
 
@@ -60,6 +60,8 @@ class RogueDamageCalculator(DamageCalculator):
             self.evis_base_low_dmg =     self.evis_base_low_dmg_values[self.level]
             self.evis_bonus_dmg =        self.evis_bonus_dmg_values[self.level]
             self.env_bonus_dmg =         self.env_bonus_dmg_values[self.level]
+            self.agi_per_crit =          self.agi_per_crit_values[self.level]
+            self.agi_crit_intercept =    self.agi_crit_intercept_values[self.level]
         except KeyError as e:
             assert False, "No %(spell_name)s formula available for level %(level)d" % {'spell_name': e.message, 'level': self.level}
             
@@ -378,7 +380,7 @@ class RogueDamageCalculator(DamageCalculator):
     def melee_crit_rate(self, agi=None, crit=None):
         if agi == None:
             agi = self.stats.agi
-        base_crit = self.AGI_CRIT_INTERCEPT[self.level] + agi / self.AGI_PER_CRIT[self.level]
+        base_crit = self.agi_crit_intercept + agi / self.agi_per_crit
         base_crit += self.stats.get_crit_from_rating(crit)
         return base_crit + self.buffs.buff_all_crit() - self.MELEE_CRIT_REDUCTION
 
