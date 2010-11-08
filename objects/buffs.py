@@ -37,11 +37,11 @@ class Buffs(object):
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
         if name == 'level':
-            if value not in (80, 85):
-                assert False, "No conversion factor available for level %(level)d" % {'level': self.level}
             self._set_constants_for_level()
     
     def _set_constants_for_level(self):
+        if self.level not in (80, 85):
+            assert False, "No conversion factor available for level %(level)d" % {'level': self.level}
         self.str_and_agi_buff_bonus = self.str_and_agi_buff_values[self.level]
     
     def stat_multiplier(self):

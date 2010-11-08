@@ -90,11 +90,11 @@ class Race(object):
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
         if name == 'level':
-            if value not in (80, 85):
-                assert False, "Unsupported class/level combination %(class)s/%(level)d" % {'class': self.character_class, 'level':level}
             self._set_constants_for_level()
     
     def _set_constants_for_level(self):
+        if self.level not in (80, 85):
+            assert False, "Unsupported class/level combination %(class)s/%(level)d" % {'class': self.character_class, 'level':level}
         self.stats = self.stat_set[self.level]
         self.stats = map(sum,zip(self.stats, Race.racial_stat_offset[self.race_name]))
 
