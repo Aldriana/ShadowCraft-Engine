@@ -73,27 +73,31 @@ class Race(object):
     def __init__(self, race, character_class="rogue", level=85):
         self.character_class = str.lower(character_class)
         self.race_name = str.lower(race)
+        if self.race_name not in Race.racial_stat_offset:
+             assert False, "Unsupported race %(race)s" % {'race':self.race_name}
         if self.character_class == "rogue":
             self.stat_set = Race.rogue_base_stats
         else:
-            #Unsupported class, throw error
             assert False, "Unsupported class %(class)s" % {'class': character_class}
-        if level in self.stat_set:
-            self.stats = self.stat_set[level]
-        else:
-            #Unsupported level, throw error
-            assert False, "Unsupported class/level combination %(class)s/%(level)d" % {'class': self.character_class, 'level':level}
-        if self.race_name in Race.racial_stat_offset:
-            self.stats = map(sum,zip(self.stats, Race.racial_stat_offset[race]))
-        else:
-            #Non-existant race
-            assert False, "Unsupported race %(race)s" % {'race':self.race_name}
+        self.level = level
         self.set_racials()
 
     def set_racials(self):
         racials = Race.racials_by_race[self.race_name]
         for racial in racials:
             setattr(self, racial, True)
+
+    def __setattr__(self, name, value):
+        object.__setattr__(self, name, value)
+        if name == 'level':
+            self._set_constants_for_level()
+    
+    def _set_constants_for_level(self):
+        try:
+            self.stats = self.stat_set[self.level]
+            self.stats = map(sum, zip(self.stats, Race.racial_stat_offset[self.race_name]))
+        except KeyError as e:
+            assert False, "Unsupported class/level combination %(class)s/%(level)d" % {'class': self.character_class, 'level': e.message}
 
     def __getattr__(self, name):
         # Any racial we haven't assigned a value to, we don't have.

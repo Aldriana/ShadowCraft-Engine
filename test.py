@@ -68,7 +68,6 @@ test_stats = stats.Stats(20, 3485, 190, 1517, 1086, 641, 899, 666, test_mh, test
 
 assert test_stats.mastery == 666
 
-
 # Initialize talents and test.
 
 test_talents = rogue_talents.RogueTalents('0333230113022110321', '0020000000000000000', '0030030000000000000')
@@ -100,6 +99,13 @@ test_level = 85
 
 # Build a DPS object, and test some functions.
 calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings, test_level)
+
+assert calculator.stats.level == calculator.race.level == calculator.buffs.level == calculator.level == 85
+assert test_buffs.buff_agi() == 549 + 90 + 300
+calculator.level = 80
+assert calculator.stats.level == calculator.race.level == calculator.buffs.level == calculator.level == 80
+assert calculator.buffs.buff_agi() == 155 + 90 + 300
+calculator.level = 85
 
 assert calculator.oh_penalty() == .5
 
