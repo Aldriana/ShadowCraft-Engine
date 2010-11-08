@@ -15,8 +15,7 @@ class RogueDamageCalculator(DamageCalculator):
     ambush_bonus_dmg_values =     {80:330, 81:338, 82:345, 83:353, 84:360, 85:368}
     vw_base_dmg_values =          {80:363, 85:675}
     vw_percentage_dmg_values =    {80:.135, 85:.176}
-    ip_low_base_dmg_values =      {80:300, 85:303}
-    ip_high_base_dmg_values =     {80:400, 85:401}
+    ip_base_dmg_values =          {80:350, 85:352}
     dp_base_dmg_values =          {80:296, 85:540}
     dp_percentage_dmg_values =    {80:.108, 85:.14}
     wp_base_dmg_values =          {80:231, 85:231}            # missing lvl-85 data
@@ -46,8 +45,7 @@ class RogueDamageCalculator(DamageCalculator):
             self.ambush_bonus_dmg =      self.ambush_bonus_dmg_values[self.level]
             self.vw_base_dmg =           self.vw_base_dmg_values[self.level]
             self.vw_percentage_dmg =     self.vw_percentage_dmg_values[self.level]
-            self.ip_low_base_dmg =       self.ip_low_base_dmg_values[self.level]
-            self.ip_high_base_dmg =      self.ip_high_base_dmg_values[self.level]
+            self.ip_base_dmg =           self.ip_base_dmg_values[self.level]
             self.dp_base_dmg =           self.dp_base_dmg_values[self.level]
             self.dp_percentage_dmg =     self.dp_percentage_dmg_values[self.level]
             self.wp_base_dmg =           self.wp_base_dmg_values[self.level]
@@ -55,7 +53,7 @@ class RogueDamageCalculator(DamageCalculator):
             self.garrote_base_dmg =      self.garrote_base_dmg_values[self.level]
             self.rup_base_dmg =          self.rup_base_dmg_values[self.level]
             self.rup_bonus_dmg =         self.rup_bonus_dmg_values[self.level]
-            self.evis_basedmg =          self.evis_base_dmg_values[self.level]
+            self.evis_base_dmg =          self.evis_base_dmg_values[self.level]
             self.evis_bonus_dmg =        self.evis_bonus_dmg_values[self.level]
             self.env_bonus_dmg =         self.env_bonus_dmg_values[self.level]
             self.agi_per_crit =          self.agi_per_crit_values[self.level]
@@ -282,12 +280,10 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier *= self.raid_settings_modifiers(is_spell=True)
         crit_multiplier = self.crit_damage_modifiers(is_spell=True)
 
-        low_end_damage = (self.ip_low_base_dmg + 0.09 * ap) * multiplier
-        high_end_damage = (self.ip_high_base_dmg + 0.09 * ap) * multiplier
-        average_damage = (low_end_damage + high_end_damage) / 2
-        average_crit_damage = average_damage * crit_multiplier
+        damage = (self.ip_base_dmg + 0.09 * ap) * multiplier
+        crit_damage = damage * crit_multiplier
 
-        return average_damage, average_crit_damage
+        return damage, crit_damage
 
     def deadly_poison_tick_damage(self, ap, mastery=None, dp_stacks=5):
         multiplier = self.talents_modifiers(potent_poisons=True, vile_poisons=True,
@@ -348,10 +344,10 @@ class RogueDamageCalculator(DamageCalculator):
         crit_multiplier = self.crit_damage_modifiers()
 
         ap_multiplier_tuple = (0, .091, .182, .273, .364, .455)
-        average_damage = (self.evis_base_dmg + self.evis_bonus_dmg * cp + ap_multiplier_tuple[cp] * ap) * multiplier
-        average_crit_damage = average_damage * crit_multiplier
+        damage = (self.evis_base_dmg + self.evis_bonus_dmg * cp + ap_multiplier_tuple[cp] * ap) * multiplier
+        crit_damage = damage * crit_multiplier
 
-        return average_damage, average_crit_damage
+        return damage, crit_damage
 
     def envenom_damage(self, ap, cp):
         # Envemom has a dependency on dp_charges too; but being unlikely to be used out of builds
