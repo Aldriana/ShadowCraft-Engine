@@ -95,7 +95,7 @@ class Race(object):
     def _set_constants_for_level(self):
         try:
             self.stats = self.stat_set[self.level]
-            self.stats = map(sum,zip(self.stats, Race.racial_stat_offset[self.race_name]))
+            self.stats = map(sum, zip(self.stats, Race.racial_stat_offset[self.race_name]))
         except KeyError as e:
             assert False, "Unsupported class/level combination %(class)s/%(level)d" % {'class': self.character_class, 'level': e.message}
 

@@ -97,11 +97,11 @@ class DamageCalculator(object):
         return damage * self.armor_mitigation_multiplier(armor)
 
     def melee_hit_chance(self, base_miss_chance, dodgeable, parryable, weapon_type):
-        hit_chance = (self.stats.get_melee_hit_from_rating() + self.race.get_racial_hit() + self.get_melee_hit_from_talents())
+        hit_chance = self.stats.get_melee_hit_from_rating() + self.race.get_racial_hit() + self.get_melee_hit_from_talents()
         miss_chance = max(base_miss_chance - hit_chance,0)
 
         #Expertise represented as the reduced chance to be dodged or parried, not true "Expertise"
-        expertise = (self.stats.get_expertise_from_rating() + self.race.get_racial_expertise(weapon_type))
+        expertise = self.stats.get_expertise_from_rating() + self.race.get_racial_expertise(weapon_type)
 
         if dodgeable:
             dodge_chance = max(self.BASE_DODGE_CHANCE - expertise, 0)
