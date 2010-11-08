@@ -68,7 +68,7 @@ class RogueDamageCalculator(DamageCalculator):
             cdg_tuple = (0, .07, .14, .2)
             base_modifier += cdg_tuple[self.talents.assassination.coup_de_grace]
         if executioner and self.talents.is_subtlety_rogue():
-            base_modifier += .02 * self.stats.get_mastery_from_rating(self.level, mastery)
+            base_modifier += .02 * self.stats.get_mastery_from_rating(mastery)
         if aggression:
             aggression_tuple = (0, .07, .14, .2)
             base_modifier += aggression_tuple[self.talents.combat.aggression]
@@ -80,7 +80,7 @@ class RogueDamageCalculator(DamageCalculator):
         if improved_ambush:
             base_modifier += .05 * (self.talents.subtlety.improved_ambush)
         if potent_poisons and self.talents.is_assassination_rogue():
-            base_modifier += .035 * self.stats.get_mastery_from_rating(self.level, mastery)
+            base_modifier += .035 * self.stats.get_mastery_from_rating(mastery)
         if assassins_resolve and self.talents.is_assassination_rogue() and (self.stats.mh.type == 'dagger'):
             base_modifier *= 1.15
         # Passing Sanguinary Vein without talent parameter (it affects all damage)
@@ -371,11 +371,11 @@ class RogueDamageCalculator(DamageCalculator):
         if agi == None:
             agi = self.stats.agi
         base_crit = self.AGI_CRIT_INTERCEPT[self.level] + agi / self.AGI_PER_CRIT[self.level]
-        base_crit += self.stats.get_crit_from_rating(self.level, crit)
+        base_crit += self.stats.get_crit_from_rating(crit)
         return base_crit + self.buffs.buff_all_crit() - self.MELEE_CRIT_REDUCTION
 
     def spell_crit_rate(self, crit=None):
-        base_crit = self.stats.get_crit_from_rating(self.level, crit)
+        base_crit = self.stats.get_crit_from_rating(crit)
         return base_crit + self.buffs.buff_all_crit() + self.buffs.buff_spell_crit() - self.SPELL_CRIT_REDUCTION
 
     # Not strictly speaking rogue-specific, but given that the base object
