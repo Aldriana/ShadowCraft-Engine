@@ -50,32 +50,32 @@ class Stats(object):
 
     # As noted elsewhere, these asserts probably should be exceptions
     # once we have good agreement on how they will be caught/handled
-    def get_mastery_from_rating(self, level, rating=None):
+    def get_mastery_from_rating(self, rating=None):
         if rating is None:
             rating = self.mastery
         return 8 + rating / self.mastery_rating_conversion
 
-    def get_melee_hit_from_rating(self, level, rating=None):
+    def get_melee_hit_from_rating(self, rating=None):
         if rating is None:
             rating = self.hit
         return rating / (100 * self.melee_hit_rating_conversion)
 
-    def get_expertise_from_rating(self, level, rating=None):
+    def get_expertise_from_rating(self, rating=None):
         if rating is None:
             rating = self.exp
         return rating / (100 * self.expertise_rating_conversion)
 
-    def get_spell_hit_from_rating(self, level, rating=None):
+    def get_spell_hit_from_rating(self, rating=None):
         if rating is None:
             rating = self.hit
         return rating / (100 * self.spell_hit_rating_conversion)
 
-    def get_crit_from_rating(self, level, rating=None):
+    def get_crit_from_rating(self, rating=None):
         if rating is None:
             rating = self.crit
         return rating / (100 * self.crit_rating_conversion)
 
-    def get_haste_multiplier_from_rating(self, level, rating=None):
+    def get_haste_multiplier_from_rating(self, rating=None):
         if rating is None:
             rating = self.haste
         return 1 + rating / (100 * self.haste_rating_conversion)
