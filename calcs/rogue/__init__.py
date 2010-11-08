@@ -24,8 +24,7 @@ class RogueDamageCalculator(DamageCalculator):
     garrote_base_dmg_values =     {80:119, 81:122, 82:125, 83:127, 84:130, 85:133}
     rup_base_dmg_values =         {80:127, 81:130, 82:133, 83:136, 84:139, 85:142}
     rup_bonus_dmg_values =        {80:18, 81:19, 82:19, 83:19, 84:20, 85:20}
-    evis_base_high_dmg_values =   {80:493, 81:501, 82:508, 83:516, 84:523, 85:531}
-    evis_base_low_dmg_values =    {80:165, 81:167, 82:170, 83:172, 84:175, 85:177}
+    evis_base_dmg_values =        {80:329, 81:334, 82:339, 83:344, 84:349, 85:354}
     evis_bonus_dmg_values =       {80:481, 81:488, 82:495, 83:503, 84:510, 85:517}
     env_bonus_dmg_values =        {80:216, 81:221, 82:226, 83:231, 84:236, 85:241}
     agi_per_crit_values =         {80:83.15 * 100, 81:109.18 * 100, 82:143.37 * 100, 83:188.34 * 100, 84:247.3 * 100, 85:324.72 * 100}
@@ -56,8 +55,7 @@ class RogueDamageCalculator(DamageCalculator):
             self.garrote_base_dmg =      self.garrote_base_dmg_values[self.level]
             self.rup_base_dmg =          self.rup_base_dmg_values[self.level]
             self.rup_bonus_dmg =         self.rup_bonus_dmg_values[self.level]
-            self.evis_base_high_dmg =    self.evis_base_high_dmg_values[self.level]
-            self.evis_base_low_dmg =     self.evis_base_low_dmg_values[self.level]
+            self.evis_basedmg =          self.evis_base_dmg_values[self.level]
             self.evis_bonus_dmg =        self.evis_bonus_dmg_values[self.level]
             self.env_bonus_dmg =         self.env_bonus_dmg_values[self.level]
             self.agi_per_crit =          self.agi_per_crit_values[self.level]
@@ -350,9 +348,7 @@ class RogueDamageCalculator(DamageCalculator):
         crit_multiplier = self.crit_damage_modifiers()
 
         ap_multiplier_tuple = (0, .091, .182, .273, .364, .455)
-        low_end_damage = (self.evis_base_low_dmg + self.evis_bonus_dmg * cp + ap_multiplier_tuple[cp] * ap) * multiplier
-        high_end_damage = (self.evis_base_high_dmg + self.evis_bonus_dmg * cp + ap_multiplier_tuple[cp] * ap) * multiplier
-        average_damage = (low_end_damage + high_end_damage) / 2
+        average_damage = (self.evis_base_dmg + self.evis_bonus_dmg * cp + ap_multiplier_tuple[cp] * ap) * multiplier
         average_crit_damage = average_damage * crit_multiplier
 
         return average_damage, average_crit_damage
