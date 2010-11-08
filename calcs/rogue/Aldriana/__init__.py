@@ -87,13 +87,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.rupture_energy_cost = 25 / self.one_hand_melee_hit_chance()
         self.envenom_energy_cost = 35 / self.one_hand_melee_hit_chance()
 
-        self.baseline_energy_regen = 10 * self.stats.get_haste_multiplier_from_rating(self.level)
+        self.baseline_energy_regen = 10 * self.stats.get_haste_multiplier_from_rating()
         if self.settings.tricks_on_cooldown and not self.glyphs.tricks_of_the_trade:
             self.baseline_energy_regen -= 15./(30+self.settings.response_time)
         if self.talents.assassination.cold_blood:
             self.baseline_energy_regen += 25./(120+self.settings.response_time)
         if self.talents.assassination.overkill:
-            overkill_regen = 60 * self.stats.get_haste_multiplier_from_rating(self.level) / (180. + self.settings.response_time)
+            overkill_regen = 60 * self.stats.get_haste_multiplier_from_rating() / (180. + self.settings.response_time)
             self.baseline_energy_regen += overkill_regen
         self.energy_regen_rupture_up = self.baseline_energy_regen + 1.5 * self.talents.assassination.venomous_wounds
 
@@ -115,7 +115,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         self.relentless_strikes_energy_return_per_cp = [0, 1.75, 3.5, 5][self.talents.subtlety.relentless_strikes]
 
-        self.attack_speed_multiplier = 1.4 * self.buffs.melee_haste_multiplier() * self.stats.get_haste_multiplier_from_rating(self.level) * self.get_heroism_haste_multiplier()
+        self.attack_speed_multiplier = 1.4 * self.buffs.melee_haste_multiplier() * self.stats.get_haste_multiplier_from_rating() * self.get_heroism_haste_multiplier()
 
         if self.talents.assassination.vendetta:
             if self.glyphs.vendetta:

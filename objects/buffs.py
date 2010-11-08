@@ -18,19 +18,32 @@ class Buffs(object):
         'agi_flask',                        # Flask of the Winds
         'guild_feast'                       # Seafood Magnifique Feast
     ])
+    
+    str_and_agi_buff_values = {80:155, 85:549}
 
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
         for buff in args:
             # A real exception would be good here as well.
             assert buff in self.allowed_buffs
             setattr(self, buff, True)
+        self.level = kwargs.get('level', 85)
 
     def __getattr__(self, name):
         # Any buff we haven't assigned a value to, we don't have.
         if name in self.allowed_buffs:
             return False
         object.__getattribute__(self, name)
-
+    
+    def __setattr__(self, name, value):
+        object.__setattr__(self, name, value)
+        if name == 'level':
+            self._set_constants_for_level()
+    
+    def _set_constants_for_level(self):
+        if self.level not in (80, 85):
+            assert False, "No conversion factor available for level %(level)d" % {'level': self.level}
+        self.str_and_agi_buff_bonus = self.str_and_agi_buff_values[self.level]
+    
     def stat_multiplier(self):
         if self.stat_multiplier_buff:
             return 1.05
@@ -74,7 +87,7 @@ class Buffs(object):
 
     def buff_str(self):
         if self.str_and_agi_buff:
-            return 549
+            return self.str_and_agi_buff_bonus
         else:
             return 0
 
@@ -90,7 +103,7 @@ class Buffs(object):
             food_agi = 0
 
         if self.str_and_agi_buff:
-            return 549 + food_agi + flask_agi
+            return self.str_and_agi_buff_bonus + food_agi + flask_agi
         else:
             return 0 + food_agi + flask_agi
 
