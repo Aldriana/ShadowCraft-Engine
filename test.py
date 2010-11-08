@@ -34,6 +34,11 @@ test_buffs = buffs.Buffs(
 
 assert test_buffs.crit_chance_buff
 assert not test_buffs.short_term_haste_buff
+test_buffs.level = 80
+assert test_buffs.buff_agi() == 155 + 90 + 300
+test_buffs.level = 85
+assert test_buffs.buff_agi() == 549 + 90 + 300
+
 
 # Set up weapons and make sure things at least vaguely work.
 test_mh = stats.Weapon(737, 1.8, 'dagger', 'hurricane')
@@ -67,7 +72,6 @@ assert not test_gear_buffs.rogue_t11_2pc
 test_stats = stats.Stats(20, 3485, 190, 1517, 1086, 641, 899, 666, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
 
 assert test_stats.mastery == 666
-
 
 # Initialize talents and test.
 
