@@ -45,7 +45,7 @@ class Stats(object):
         object.__setattr__(self, name, value)
         if name == 'level':
             if (value < 80 or value > 85):
-                assert False, "No conversion factor available for level %(level)d" % {'level': level}
+                assert False, "No conversion factor available for level %(level)d" % {'level': self.level}
             self._set_constants_for_level()
 
     # As noted elsewhere, these asserts probably should be exceptions
