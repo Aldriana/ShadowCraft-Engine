@@ -93,10 +93,11 @@ class Race(object):
             self._set_constants_for_level()
     
     def _set_constants_for_level(self):
-        if self.level not in (80, 85):
-            assert False, "Unsupported class/level combination %(class)s/%(level)d" % {'class': self.character_class, 'level':level}
-        self.stats = self.stat_set[self.level]
-        self.stats = map(sum,zip(self.stats, Race.racial_stat_offset[self.race_name]))
+        try:
+            self.stats = self.stat_set[self.level]
+            self.stats = map(sum,zip(self.stats, Race.racial_stat_offset[self.race_name]))
+        except KeyError as e:
+            assert False, "Unsupported class/level combination %(class)s/%(level)d" % {'class': self.character_class, 'level': e.message}
 
     def __getattr__(self, name):
         # Any racial we haven't assigned a value to, we don't have.

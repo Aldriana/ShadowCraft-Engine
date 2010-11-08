@@ -35,7 +35,6 @@ test_buffs = buffs.Buffs(
 assert test_buffs.crit_chance_buff
 assert not test_buffs.short_term_haste_buff
 
-
 # Set up weapons and make sure things at least vaguely work.
 test_mh = stats.Weapon(737, 1.8, 'dagger', 'hurricane')
 test_oh = stats.Weapon(573, 1.4, 'dagger', 'hurricane')

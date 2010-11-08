@@ -40,9 +40,10 @@ class Buffs(object):
             self._set_constants_for_level()
     
     def _set_constants_for_level(self):
-        if self.level not in (80, 85):
-            assert False, "No conversion factor available for level %(level)d" % {'level': self.level}
-        self.str_and_agi_buff_bonus = self.str_and_agi_buff_values[self.level]
+        try:
+            self.str_and_agi_buff_bonus = self.str_and_agi_buff_values[self.level]
+        except KeyError as e:
+            assert False, "No conversion factor available for level %(level)d" % {'level': e.message}
     
     def stat_multiplier(self):
         if self.stat_multiplier_buff:
