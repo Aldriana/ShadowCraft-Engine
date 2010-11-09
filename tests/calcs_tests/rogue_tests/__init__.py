@@ -24,20 +24,20 @@ class TestRogueDamageCalculator(unittest.TestCase):
         test_race = race.Race('night_elf')
         test_talents = rogue_talents.RogueTalents('0333230113022110321', '0020000000000000000', '0030030000000000000')
 
-        self.calc = RogueDamageCalculator(test_stats, test_talents, None, test_buffs, test_race)
+        self.calculator = RogueDamageCalculator(test_stats, test_talents, None, test_buffs, test_race)
     
     def test_get_spell_hit_from_talents(self):
-        self.assertEqual(self.calc.get_spell_hit_from_talents(), .04)
-        self.calc.talents.combat.precision = 0
-        self.assertEqual(self.calc.get_spell_hit_from_talents(), .0)
+        self.assertEqual(self.calculator.get_spell_hit_from_talents(), .04)
+        self.calculator.talents.combat.precision = 0
+        self.assertEqual(self.calculator.get_spell_hit_from_talents(), .0)
     
     def test_get_melee_hit_from_talents(self):
-        self.assertEqual(self.calc.get_melee_hit_from_talents(), .04)
-        self.calc.talents.combat.precision = 3
-        self.assertEqual(self.calc.get_melee_hit_from_talents(), .06)
+        self.assertEqual(self.calculator.get_melee_hit_from_talents(), .04)
+        self.calculator.talents.combat.precision = 3
+        self.assertEqual(self.calculator.get_melee_hit_from_talents(), .06)
     
     def test_oh_penalty(self):
-        self.assertEqual(self.calc.oh_penalty(), 0.5)
+        self.assertEqual(self.calculator.oh_penalty(), 0.5)
     
     def test_talents_modifiers(self):
         pass
@@ -46,22 +46,21 @@ class TestRogueDamageCalculator(unittest.TestCase):
         pass
     
     def test_mh_damage(self):
-        self.assertTrue(self.calc.mh_damage(0) < self.calc.mh_damage(1))
+        self.assertTrue(self.calculator.mh_damage(0) < self.calculator.mh_damage(1))
     
     def test_oh_damage(self):
-        self.assertTrue(self.calc.oh_damage(0) < self.calc.oh_damage(1))
+        self.assertTrue(self.calculator.oh_damage(0) < self.calculator.oh_damage(1))
     
     def test_eviscerate_damage(self):
-        self.assertTrue(self.calc.eviscerate_damage(0, 1) < self.calc.eviscerate_damage(1, 1))
-        self.assertTrue(self.calc.eviscerate_damage(0, 1) < self.calc.eviscerate_damage(0, 2))
-        self.assertRaises(IndexError, self.calc.eviscerate_damage, 0, 6)
+        self.assertTrue(self.calculator.eviscerate_damage(0, 1) < self.calculator.eviscerate_damage(1, 1))
+        self.assertTrue(self.calculator.eviscerate_damage(0, 1) < self.calculator.eviscerate_damage(0, 2))
+        self.assertRaises(IndexError, self.calculator.eviscerate_damage, 0, 6)
     
     def test_instant_poison_damage(self):
-        self.assertTrue(self.calc.instant_poison_damage(0) < self.calc.instant_poison_damage(1))
-        self.assertTrue(self.calc.instant_poison_damage(0, mastery=0) < self.calc.instant_poison_damage(0, mastery=1))
+        self.assertTrue(self.calculator.instant_poison_damage(0) < self.calculator.instant_poison_damage(1))
+        self.assertTrue(self.calculator.instant_poison_damage(0, mastery=0) < self.calculator.instant_poison_damage(0, mastery=1))
 
 class TestRogueDamageCalculatorLevels(TestRogueDamageCalculator):
     def setUp(self):
         super(TestRogueDamageCalculatorLevels, self).setUp()
-        self.calc.level = 80
-    
+        self.calculator.level = 80
