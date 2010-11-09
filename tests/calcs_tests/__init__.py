@@ -26,7 +26,7 @@ class DamageCalculatorTest(unittest.TestCase):
         test_gear_buffs = stats.GearBuffs('chaotic_metagem')        
         test_stats = stats.Stats(20, 3485, 190, 1517, 1086, 641, 899, 666, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
         test_race = race.Race('night_elf')
-
+        
         self.calculator = calcs.DamageCalculator(test_stats, None, None, test_buffs, test_race)
 
     def test_armor_mitigation_parameter(self):
