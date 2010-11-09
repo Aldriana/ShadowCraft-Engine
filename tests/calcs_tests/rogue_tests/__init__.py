@@ -56,6 +56,9 @@ class TestRogueDamageCalculator(unittest.TestCase):
         self.assertTrue(self.calc.eviscerate_damage(0, 1) < self.calc.eviscerate_damage(0, 2))
         self.assertRaises(IndexError, self.calc.eviscerate_damage, 0, 6)
     
+    def test_instant_poison_damage(self):
+        self.assertTrue(self.calc.instant_poison_damage(0) < self.calc.instant_poison_damage(1))
+        self.assertTrue(self.calc.instant_poison_damage(0, mastery=0) < self.calc.instant_poison_damage(0, mastery=1))
 
 class TestRogueDamageCalculatorLevels(TestRogueDamageCalculator):
     def setUp(self):
