@@ -2,7 +2,7 @@ import unittest
 import sys
 sys.path.append(".")
 
-from calcs_tests import DamageCalculatorTest
+from calcs_tests import TestDamageCalculator
 from calcs_tests.rogue_tests import TestRogueDamageCalculator, TestRogueDamageCalculatorLevels
 from calcs_tests.rogue_tests.Aldriana_tests import TestAldrianasRogueDamageCalculator
 from objects_tests.buffs_tests import TestBuffsTrue, TestBuffsFalse

@@ -6,7 +6,7 @@ from objects import race
 from objects import stats
 from objects import procs
 
-class DamageCalculatorTest(unittest.TestCase):
+class TestDamageCalculator(unittest.TestCase):
     
     def setUp(self):
         test_buffs = buffs.Buffs(
