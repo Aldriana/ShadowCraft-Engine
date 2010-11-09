@@ -50,6 +50,12 @@ class TestRogueDamageCalculator(unittest.TestCase):
     
     def test_oh_damage(self):
         self.assertTrue(self.calc.oh_damage(0) < self.calc.oh_damage(1))
+    
+    def test_eviscerate_damage(self):
+        self.assertTrue(self.calc.eviscerate_damage(0, 1) < self.calc.eviscerate_damage(1, 1))
+        self.assertTrue(self.calc.eviscerate_damage(0, 1) < self.calc.eviscerate_damage(0, 2))
+        self.assertRaises(IndexError, self.calc.eviscerate_damage, 0, 6)
+    
 
 class TestRogueDamageCalculatorLevels(TestRogueDamageCalculator):
     def setUp(self):
