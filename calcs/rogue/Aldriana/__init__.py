@@ -1,3 +1,4 @@
+from gettext import gettext as _
 from calcs.rogue import RogueDamageCalculator
 
 class AldrianasRogueDamageCalculator(RogueDamageCalculator):
@@ -218,16 +219,16 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         average_oh_hit = glance_rate * .75 * oh_base_damage + oh_hit_rate * oh_base_damage + oh_crit_rate * oh_crit_damage
         oh_dps = average_oh_hit * oh_autoattacks_per_second
 
-        damage_breakdown['autoattack'] = (mh_dps + oh_dps) * self.vendetta_mult
+        damage_breakdown[_('autoattack')] = (mh_dps + oh_dps) * self.vendetta_mult
 
         mh_mutilate_dps = self.get_dps_contribution(self.mh_mutilate_damage(self.base_ap), mutilate_base_crit_rate, mutilates_per_second)
         oh_mutilate_dps = self.get_dps_contribution(self.oh_mutilate_damage(self.base_ap), mutilate_base_crit_rate, mutilates_per_second)
-        damage_breakdown['mutilate'] = (mh_mutilate_dps + oh_mutilate_dps) * self.vendetta_mult
+        damage_breakdown[_('mutilate')] = (mh_mutilate_dps + oh_mutilate_dps) * self.vendetta_mult
 
         rupture_dps = 0
         for i in xrange(1,6):
             rupture_dps += self.get_dps_contribution(self.rupture_tick_damage(self.base_ap, i), self.base_melee_crit_rate, rupture_tick_counts[i])
-        damage_breakdown['rupture'] = rupture_dps * self.vendetta_mult
+        damage_breakdown[_('rupture')] = rupture_dps * self.vendetta_mult
 
         envenom_dps = 0
         envenom_crit_rate = self.base_melee_crit_rate
@@ -237,11 +238,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         for i in xrange(1,6):
             envenom_dps += self.get_dps_contribution(self.envenom_damage(self.base_ap, i), envenom_crit_rate, envenom_size_breakdown[i])
-        damage_breakdown['envenom'] = envenom_dps * self.vendetta_mult
+        damage_breakdown[_('envenom')] = envenom_dps * self.vendetta_mult
 
-        damage_breakdown['venomous_wounds'] = self.get_dps_contribution(self.venomous_wounds_damage(self.base_ap), self.spell_crit_rate(), venomous_wounds_per_second) * self.vendetta_mult
-        damage_breakdown['instant_poison'] = self.get_dps_contribution(self.instant_poison_damage(self.base_ap), self.spell_crit_rate(), ip_per_second) * self.vendetta_mult
-        damage_breakdown['deadly_poison'] = self.get_dps_contribution(self.deadly_poison_tick_damage(self.base_ap), self.spell_crit_rate(), dp_per_second) * self.vendetta_mult
+        damage_breakdown[_('venomous_wounds')] = self.get_dps_contribution(self.venomous_wounds_damage(self.base_ap), self.spell_crit_rate(), venomous_wounds_per_second) * self.vendetta_mult
+        damage_breakdown[_('instant_poison')] = self.get_dps_contribution(self.instant_poison_damage(self.base_ap), self.spell_crit_rate(), ip_per_second) * self.vendetta_mult
+        damage_breakdown[_('deadly_poison')] = self.get_dps_contribution(self.deadly_poison_tick_damage(self.base_ap), self.spell_crit_rate(), dp_per_second) * self.vendetta_mult
 
         return damage_breakdown
 
@@ -339,13 +340,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         average_oh_hit = glance_rate * .75 * oh_base_damage + oh_hit_rate * oh_base_damage + oh_crit_rate * oh_crit_damage
         oh_dps = average_oh_hit * oh_autoattacks_per_second
 
-        damage_breakdown['autoattack'] = (mh_dps + oh_dps) * self.vendetta_mult
-        damage_breakdown['backstab'] = self.get_dps_contribution(self.backstab_damage(self.base_ap), backstab_base_crit_rate, backstabs_per_second) * self.vendetta_mult
+        damage_breakdown[_('autoattack')] = (mh_dps + oh_dps) * self.vendetta_mult
+        damage_breakdown[_('backstab')] = self.get_dps_contribution(self.backstab_damage(self.base_ap), backstab_base_crit_rate, backstabs_per_second) * self.vendetta_mult
 
         rupture_dps = 0
         for i in xrange(1,6):
             rupture_dps += self.get_dps_contribution(self.rupture_tick_damage(self.base_ap, i), self.base_melee_crit_rate, rupture_tick_counts[i])
-        damage_breakdown['rupture'] = rupture_dps * self.vendetta_mult
+        damage_breakdown[_('rupture')] = rupture_dps * self.vendetta_mult
 
         envenom_dps = 0
         envenom_crit_rate = self.base_melee_crit_rate
@@ -355,11 +356,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         for i in xrange(1,6):
             envenom_dps += self.get_dps_contribution(self.envenom_damage(self.base_ap, i), envenom_crit_rate, envenom_size_breakdown[i])
-        damage_breakdown['envenom'] = envenom_dps * self.vendetta_mult
+        damage_breakdown[_('envenom')] = envenom_dps * self.vendetta_mult
 
-        damage_breakdown['venomous_wounds'] = self.get_dps_contribution(self.venomous_wounds_damage(self.base_ap), self.spell_crit_rate(), venomous_wounds_per_second) * self.vendetta_mult
-        damage_breakdown['instant_poison'] = self.get_dps_contribution(self.instant_poison_damage(self.base_ap), self.spell_crit_rate(), ip_per_second) * self.vendetta_mult
-        damage_breakdown['deadly_poison'] = self.get_dps_contribution(self.deadly_poison_tick_damage(self.base_ap), self.spell_crit_rate(), dp_per_second) * self.vendetta_mult
+        damage_breakdown[_('venomous_wounds')] = self.get_dps_contribution(self.venomous_wounds_damage(self.base_ap), self.spell_crit_rate(), venomous_wounds_per_second) * self.vendetta_mult
+        damage_breakdown[_('instant_poison')] = self.get_dps_contribution(self.instant_poison_damage(self.base_ap), self.spell_crit_rate(), ip_per_second) * self.vendetta_mult
+        damage_breakdown[_('deadly_poison')] = self.get_dps_contribution(self.deadly_poison_tick_damage(self.base_ap), self.spell_crit_rate(), dp_per_second) * self.vendetta_mult
 
         return damage_breakdown
 
