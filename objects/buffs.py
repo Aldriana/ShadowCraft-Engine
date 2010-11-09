@@ -1,3 +1,5 @@
+from gettext import gettext as _
+
 class Buffs(object):
     # Will need to add the caster/tank (de)buffs at some point if we want to
     # support other classes with this framework.
@@ -43,7 +45,7 @@ class Buffs(object):
         try:
             self.str_and_agi_buff_bonus = self.str_and_agi_buff_values[self.level]
         except KeyError as e:
-            assert False, "No conversion factor available for level %(level)d" % {'level': e.message}
+            assert False, _("No conversion factor available for level %(level)d") % {'level': e.message}
     
     def stat_multiplier(self):
         if self.stat_multiplier_buff:
