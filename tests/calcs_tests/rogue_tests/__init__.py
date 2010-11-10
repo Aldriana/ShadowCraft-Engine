@@ -83,18 +83,69 @@ class TestRogueDamageCalculator(unittest.TestCase):
         poisoned = self.calculator.oh_mutilate_damage(1)
         self.assertAlmostEqual(not_poisoned[0] * 1.2, poisoned[0])
         self.assertAlmostEqual(not_poisoned[1] * 1.2, poisoned[1])
+
+    def test_sinister_strike_damage(self):
+        self.assertTrue(self.calculator.sinister_strike_damage(0) < self.calculator.sinister_strike_damage(1))
     
+    def test_hemorrhage_damage(self):
+        self.assertTrue(self.calculator.hemorrhage_damage(0) < self.calculator.hemorrhage_damage(1))
+    
+    def test_ambush_damage(self):
+        self.assertTrue(self.calculator.ambush_damage(0) < self.calculator.ambush_damage(1))
+    
+    def test_revealing_strike_damage(self):
+        self.assertTrue(self.calculator.revealing_strike_damage(0) < self.calculator.revealing_strike_damage(1))
+    
+    def test_venomous_wounds_damage(self):
+        self.assertTrue(self.calculator.venomous_wounds_damage(0) < self.calculator.venomous_wounds_damage(1))
+    
+    def test_main_gauche(self):
+        self.assertTrue(self.calculator.main_gauche(0) < self.calculator.main_gauche(1))
+
+    def test_instant_poison_damage(self):
+        self.assertTrue(self.calculator.instant_poison_damage(0) < self.calculator.instant_poison_damage(1))
+        self.assertTrue(self.calculator.instant_poison_damage(0, mastery=0) < self.calculator.instant_poison_damage(0, mastery=1))
+
+    def test_deadly_poison_tick_damage(self):
+        # test mastery
+        self.assertTrue(self.calculator.deadly_poison_tick_damage(0) < self.calculator.deadly_poison_tick_damage(1))
+        self.assertTrue(self.calculator.deadly_poison_tick_damage(0, dp_stacks=1) < self.calculator.deadly_poison_tick_damage(0, dp_stacks=2))
+        
+    def test_wound_poison_damage(self):
+        self.assertTrue(self.calculator.wound_poison_damage(0) < self.calculator.wound_poison_damage(1))
+        self.assertTrue(self.calculator.wound_poison_damage(0, mastery=0) < self.calculator.wound_poison_damage(0, mastery=1))
+
+    def test_garrote_tick_damage(self):
+        self.assertTrue(self.calculator.garrote_tick_damage(0) < self.calculator.garrote_tick_damage(1))
+
+    def test_rupture_tick_damage(self):
+        self.assertTrue(self.calculator.rupture_tick_damage(0, 1) < self.calculator.rupture_tick_damage(1, 1))
+        self.assertTrue(self.calculator.rupture_tick_damage(0, 1) < self.calculator.rupture_tick_damage(0, 2))
+        self.assertRaises(IndexError, self.calculator.rupture_tick_damage, 0, 6)
+
     def test_eviscerate_damage(self):
         self.assertTrue(self.calculator.eviscerate_damage(0, 1) < self.calculator.eviscerate_damage(1, 1))
         self.assertTrue(self.calculator.eviscerate_damage(0, 1) < self.calculator.eviscerate_damage(0, 2))
         self.assertRaises(IndexError, self.calculator.eviscerate_damage, 0, 6)
-    
-    def test_instant_poison_damage(self):
-        self.assertTrue(self.calculator.instant_poison_damage(0) < self.calculator.instant_poison_damage(1))
-        self.assertTrue(self.calculator.instant_poison_damage(0, mastery=0) < self.calculator.instant_poison_damage(0, mastery=1))
+
+    def test_envenom_damage(self):
+        self.assertTrue(self.calculator.envenom_damage(0, 1) < self.calculator.envenom_damage(1, 1))
+        self.assertTrue(self.calculator.envenom_damage(0, 1) < self.calculator.envenom_damage(0, 2))
+
+    def test_melee_crit_rate(self):
+        pass
+
+    def test_spell_crit_rate(self):
+        pass
+
+    def test_crit_cap(self):
+        pass
 
 
 class TestRogueDamageCalculatorLevels(TestRogueDamageCalculator):
     def setUp(self):
         super(TestRogueDamageCalculatorLevels, self).setUp()
         self.calculator.level = 80
+    
+    def test_set_constants_for_level(self):
+        self.assertRaises(AssertionError, self.calculator.__setattr__, 'level', 86)
