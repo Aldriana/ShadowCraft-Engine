@@ -25,6 +25,7 @@ class TestProcsList(unittest.TestCase):
         self.procsList = procs.ProcsList()
         self.assertEqual(len(self.procsList.get_all_damage_procs()), 0)
 
+
 class TestProc(unittest.TestCase):
     def setUp(self):
         self.proc = procs.Proc('haste', 1926, 15, .1, 'all_attacks', 75, 1)
@@ -49,6 +50,7 @@ class TestProc(unittest.TestCase):
     
     def test_is_ppm(self):
         self.assertFalse(self.proc.is_ppm())
+
 
 class TestPPMProc(unittest.TestCase):
     def setUp(self):

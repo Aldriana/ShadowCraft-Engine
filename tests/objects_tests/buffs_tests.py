@@ -30,6 +30,7 @@ class TestBuffsTrue(unittest.TestCase):
     def test_all_damage_multiplier(self):
         self.assertEqual(self.buffs.all_damage_multiplier(), 1.03)
 
+
 class TestBuffsFalse(unittest.TestCase):
     def setUp(self):
         self.buffs = buffs.Buffs()
@@ -43,7 +44,3 @@ class TestBuffsFalse(unittest.TestCase):
     
     def test_all_damage_multiplier(self):
         self.assertEqual(self.buffs.all_damage_multiplier(), 1.0)
-
-
-if __name__ == '__main__':
-    unittest.main()

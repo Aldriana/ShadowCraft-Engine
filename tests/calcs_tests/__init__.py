@@ -1,13 +1,11 @@
 import calcs
 import unittest
-
 from objects import buffs
 from objects import race
 from objects import stats
 from objects import procs
 
 class TestDamageCalculator(unittest.TestCase):
-    
     def setUp(self):
         test_buffs = buffs.Buffs()
         test_mh = stats.Weapon(737, 1.8, 'dagger', 'hurricane')
@@ -15,7 +13,6 @@ class TestDamageCalculator(unittest.TestCase):
         test_ranged = stats.Weapon(1104, 2.0, 'thrown')
         test_stats = stats.Stats(20, 3485, 190, 1517, 1086, 641, 899, 666, test_mh, test_oh, test_ranged, None, None)
         test_race = race.Race('night_elf')
-        
         self.calculator = calcs.DamageCalculator(test_stats, None, None, test_buffs, test_race)
 
     def test_armor_mitigation_parameter(self):
@@ -72,7 +69,6 @@ class TestDamageCalculator(unittest.TestCase):
             self.calculator.dual_wield_mh_hit_chance(dodgeable=False, parryable=True),
             1.0 - 0.27 - 0.14)
         
-    
     def test_dual_wield_oh_hit_chance(self):
         pass
     
@@ -88,6 +84,3 @@ class TestDamageCalculator(unittest.TestCase):
     
     def test_target_armor(self):
         pass
-
-if __name__ == '__main__':
-    unittest.main()

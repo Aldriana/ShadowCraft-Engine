@@ -1,6 +1,9 @@
 import unittest
 from calcs.rogue import RogueDamageCalculator
-from objects import buffs, stats, procs, race
+from objects import buffs
+from objects import race
+from objects import stats
+from objects import procs
 from objects.rogue import rogue_talents
 
 class TestRogueDamageCalculator(unittest.TestCase):
@@ -23,7 +26,6 @@ class TestRogueDamageCalculator(unittest.TestCase):
         test_stats = stats.Stats(20, 3485, 190, 1517, 1086, 641, 899, 666, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
         test_race = race.Race('night_elf')
         test_talents = rogue_talents.RogueTalents('0333230113022110321', '0020000000000000000', '0030030000000000000')
-
         self.calculator = RogueDamageCalculator(test_stats, test_talents, None, test_buffs, test_race)
     
     def test_get_spell_hit_from_talents(self):
@@ -59,6 +61,7 @@ class TestRogueDamageCalculator(unittest.TestCase):
     def test_instant_poison_damage(self):
         self.assertTrue(self.calculator.instant_poison_damage(0) < self.calculator.instant_poison_damage(1))
         self.assertTrue(self.calculator.instant_poison_damage(0, mastery=0) < self.calculator.instant_poison_damage(0, mastery=1))
+
 
 class TestRogueDamageCalculatorLevels(TestRogueDamageCalculator):
     def setUp(self):
