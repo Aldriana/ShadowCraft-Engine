@@ -1,5 +1,3 @@
-from gettext import gettext as _
-
 class Race(object):
     rogue_base_stats = {
         80:(113,189,105,43,67),

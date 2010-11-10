@@ -4,10 +4,7 @@
 # framework should be written - particularly if anyone else ever wants to build
 # off this - but for the moment, this will suffice.
 
-# This is how the import, install package and the on-the-fly languaje change looks like
-#import gettext
-#gettext.install('ShadowCraft-Engine', './locale', unicode=False)
-#self.presLan_es = gettext.translation("ShadowCraft-Engine", "./locale", languages=['es'])
+from core import setup
 
 from calcs.rogue.Aldriana import AldrianasRogueDamageCalculator
 from calcs.rogue.Aldriana import settings

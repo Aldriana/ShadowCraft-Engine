@@ -1,5 +1,3 @@
-from gettext import gettext as _
-
 class DamageCalculator(object):
     # This method holds the general interface for a damage calculator - the
     # sorts of parameters and calculated values that will be need by many (or

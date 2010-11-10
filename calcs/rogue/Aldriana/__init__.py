@@ -1,4 +1,3 @@
-from gettext import gettext as _
 from calcs.rogue import RogueDamageCalculator
 
 class AldrianasRogueDamageCalculator(RogueDamageCalculator):

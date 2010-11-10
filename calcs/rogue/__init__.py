@@ -1,4 +1,3 @@
-from gettext import gettext as _
 from calcs import DamageCalculator
 
 class RogueDamageCalculator(DamageCalculator):

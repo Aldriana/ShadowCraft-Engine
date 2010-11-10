@@ -1,5 +1,3 @@
-from gettext import gettext as _
-
 class Proc(object):
     def __init__(self, stat, value, duration, proc_chance, trigger, icd, max_stacks):
         self.stat = stat

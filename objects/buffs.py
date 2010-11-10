@@ -1,5 +1,3 @@
-from gettext import gettext as _
-
 class Buffs(object):
     # Will need to add the caster/tank (de)buffs at some point if we want to
     # support other classes with this framework.

@@ -1,4 +1,3 @@
-from gettext import gettext as _
 import procs
 
 class Stats(object):
