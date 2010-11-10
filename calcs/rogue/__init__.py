@@ -214,7 +214,7 @@ class RogueDamageCalculator(DamageCalculator):
 
         return damage, crit_damage
 
-    def hemorrhage_damage(self, armor=None):
+    def hemorrhage_damage(self, ap, armor=None):
         weapon_damage = self.stats.mh.normalized_damage(ap)
         multiplier = self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
