@@ -121,7 +121,7 @@ class ProcsList(object):
                 setattr(self, arg, Proc(*self.allowed_procs[arg]))
             else:
                 # Throw invalid input exception here
-                assert False, "No data for proc '%(proc)s'" % {'proc': arg}
+                assert False, _("No data for proc '%(proc)s'") % {'proc': arg}
 
     def __getattr__(self, proc):
         # Any proc we haven't assigned a value to, we don't have.

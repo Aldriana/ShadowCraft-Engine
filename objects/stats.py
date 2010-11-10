@@ -42,7 +42,7 @@ class Stats(object):
             self.expertise_rating_conversion = self.expertise_rating_conversion_values[self.level]
             self.mastery_rating_conversion = self.mastery_rating_conversion_values[self.level]
         except KeyError:
-            assert False, "No conversion factor available for level %(level)d" % {'level': self.level}
+            assert False, _("No conversion factor available for level %(level)d") % {'level': self.level}
     
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)

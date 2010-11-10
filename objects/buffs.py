@@ -43,7 +43,7 @@ class Buffs(object):
         try:
             self.str_and_agi_buff_bonus = self.str_and_agi_buff_values[self.level]
         except KeyError as e:
-            assert False, "No conversion factor available for level %(level)d" % {'level': e.message}
+            assert False, _("No conversion factor available for level %(level)d") % {'level': e.message}
     
     def stat_multiplier(self):
         if self.stat_multiplier_buff:

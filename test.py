@@ -14,6 +14,11 @@ from objects import procs
 from objects.rogue import rogue_talents
 from objects.rogue import rogue_glyphs
 
+# If you want i18n, add something that looks vaguely like this.  Better sample
+# code should probably be written at some point.
+#
+# gettext.install('ShadowCraft-Engine', './locale', unicode=False)
+# self.presLan_es = gettext.translation("ShadowCraft-Engine", "./locale", languages=['es'])
 
 # Set up buffs and make sure things at least vaguely work.
 test_buffs = buffs.Buffs(

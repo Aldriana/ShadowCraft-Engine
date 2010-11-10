@@ -74,11 +74,11 @@ class Race(object):
         self.character_class = str.lower(character_class)
         self.race_name = str.lower(race)
         if self.race_name not in Race.racial_stat_offset:
-             assert False, "Unsupported race %(race)s" % {'race':self.race_name}
+             assert False, _("Unsupported race %(race)s") % {'race':self.race_name}
         if self.character_class == "rogue":
             self.stat_set = Race.rogue_base_stats
         else:
-            assert False, "Unsupported class %(class)s" % {'class': character_class}
+            assert False, _("Unsupported class %(class)s") % {'class': character_class}
         self.level = level
         self.set_racials()
 
@@ -97,7 +97,7 @@ class Race(object):
             self.stats = self.stat_set[self.level]
             self.stats = map(sum, zip(self.stats, Race.racial_stat_offset[self.race_name]))
         except KeyError as e:
-            assert False, "Unsupported class/level combination %(class)s/%(level)d" % {'class': self.character_class, 'level': e.message}
+            assert False, _("Unsupported class/level combination %(class)s/%(level)d") % {'class': self.character_class, 'level': e.message}
 
     def __getattr__(self, name):
         # Any racial we haven't assigned a value to, we don't have.
