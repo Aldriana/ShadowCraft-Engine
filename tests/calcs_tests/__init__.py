@@ -9,22 +9,11 @@ from objects import procs
 class TestDamageCalculator(unittest.TestCase):
     
     def setUp(self):
-        test_buffs = buffs.Buffs(
-            'stat_multiplier_buff',
-            'crit_chance_buff',
-            'melee_haste_buff',
-            'attack_power_buff',
-            'str_and_agi_buff',
-            'armor_debuff',
-            'spell_damage_debuff',
-            'spell_crit_debuff'
-            )
+        test_buffs = buffs.Buffs()
         test_mh = stats.Weapon(737, 1.8, 'dagger', 'hurricane')
         test_oh = stats.Weapon(573, 1.4, 'dagger', 'hurricane')
         test_ranged = stats.Weapon(1104, 2.0, 'thrown')
-        test_procs = procs.ProcsList('darkmoon_card_hurricane')
-        test_gear_buffs = stats.GearBuffs('chaotic_metagem')        
-        test_stats = stats.Stats(20, 3485, 190, 1517, 1086, 641, 899, 666, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
+        test_stats = stats.Stats(20, 3485, 190, 1517, 1086, 641, 899, 666, test_mh, test_oh, test_ranged, None, None)
         test_race = race.Race('night_elf')
         
         self.calculator = calcs.DamageCalculator(test_stats, None, None, test_buffs, test_race)
