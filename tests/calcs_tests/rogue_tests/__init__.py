@@ -99,8 +99,8 @@ class TestRogueDamageCalculator(unittest.TestCase):
     def test_venomous_wounds_damage(self):
         self.assertTrue(self.calculator.venomous_wounds_damage(0) < self.calculator.venomous_wounds_damage(1))
     
-    def test_main_gauche(self):
-        self.assertTrue(self.calculator.main_gauche(0) < self.calculator.main_gauche(1))
+    def test_main_gauche_damage(self):
+        self.assertTrue(self.calculator.main_gauche_damage(0) < self.calculator.main_gauche_damage(1))
 
     def test_instant_poison_damage(self):
         self.assertTrue(self.calculator.instant_poison_damage(0) < self.calculator.instant_poison_damage(1))
