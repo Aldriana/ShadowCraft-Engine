@@ -88,7 +88,7 @@ class RogueDamageCalculator(DamageCalculator):
         # respective additive/multiplicative values
         base_modifier = 1
         if opportunity:
-            base_modifier += .1 * (self.talents.subtlety.opportunity)
+            base_modifier += .1 * self.talents.subtlety.opportunity
         if coup_de_grace:
             cdg_tuple = (0, .07, .14, .2)
             base_modifier += cdg_tuple[self.talents.assassination.coup_de_grace]
@@ -98,12 +98,12 @@ class RogueDamageCalculator(DamageCalculator):
             aggression_tuple = (0, .07, .14, .2)
             base_modifier += aggression_tuple[self.talents.combat.aggression]
         if improved_sinister_strike:
-            base_modifier += .1 * (self.talents.combat.improved_sinister_strike)
+            base_modifier += .1 * self.talents.combat.improved_sinister_strike
         if vile_poisons:
             vp_tuple = (0, .07, .14, .2)
             base_modifier += vp_tuple[self.talents.assassination.vile_poisons]
         if improved_ambush:
-            base_modifier += .05 * (self.talents.subtlety.improved_ambush)
+            base_modifier += .05 * self.talents.subtlety.improved_ambush
         if potent_poisons and self.talents.is_assassination_rogue():
             base_modifier += .035 * self.stats.get_mastery_from_rating(mastery)
         if assassins_resolve and self.talents.is_assassination_rogue() and (self.stats.mh.type == 'dagger'):
