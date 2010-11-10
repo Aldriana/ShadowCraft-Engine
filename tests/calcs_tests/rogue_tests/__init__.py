@@ -133,10 +133,14 @@ class TestRogueDamageCalculator(unittest.TestCase):
         self.assertTrue(self.calculator.envenom_damage(0, 1) < self.calculator.envenom_damage(0, 2))
 
     def test_melee_crit_rate(self):
-        pass
+        agi_per_crit = self.calculator.level == 80 and 83.15 or 324.72
+        crit_rating_per_crit = self.calculator.level == 80 and 45.906 or 179.279998779296875
+        self.assertAlmostEqual(self.calculator.melee_crit_rate(agi=1000), 
+            0.01 * (1000 / agi_per_crit - 0.295) + 0.01 * (1517 / crit_rating_per_crit) + 0.05 - 0.048)
+        self.assertTrue(self.calculator.spell_crit_rate(0) < self.calculator.spell_crit_rate(1))
 
     def test_spell_crit_rate(self):
-        pass
+        self.assertTrue(self.calculator.melee_crit_rate(0) < self.calculator.melee_crit_rate(1))
 
     def test_crit_cap(self):
         pass
