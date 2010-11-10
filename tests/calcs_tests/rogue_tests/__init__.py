@@ -29,29 +29,60 @@ class TestRogueDamageCalculator(unittest.TestCase):
         self.calculator = RogueDamageCalculator(test_stats, test_talents, None, test_buffs, test_race)
     
     def test_get_spell_hit_from_talents(self):
-        self.assertEqual(self.calculator.get_spell_hit_from_talents(), .04)
+        self.assertAlmostEqual(self.calculator.get_spell_hit_from_talents(), .04)
         self.calculator.talents.combat.precision = 0
-        self.assertEqual(self.calculator.get_spell_hit_from_talents(), .0)
+        self.assertAlmostEqual(self.calculator.get_spell_hit_from_talents(), .0)
     
     def test_get_melee_hit_from_talents(self):
-        self.assertEqual(self.calculator.get_melee_hit_from_talents(), .04)
+        self.assertAlmostEqual(self.calculator.get_melee_hit_from_talents(), .04)
         self.calculator.talents.combat.precision = 3
-        self.assertEqual(self.calculator.get_melee_hit_from_talents(), .06)
+        self.assertAlmostEqual(self.calculator.get_melee_hit_from_talents(), .06)
     
     def test_oh_penalty(self):
-        self.assertEqual(self.calculator.oh_penalty(), 0.5)
+        self.assertAlmostEqual(self.calculator.oh_penalty(), 0.5)
+    
+    def test_talents_modifiers_assassins_resolve(self):
+        self.assertAlmostEqual(self.calculator.talents_modifiers(assassins_resolve=False), 1.0)
+        self.assertAlmostEqual(self.calculator.talents_modifiers(), 1.15)
+        self.calculator.stats.mh.type = '1h_axe'
+        self.assertAlmostEqual(self.calculator.talents_modifiers(), 1.0)
     
     def test_talents_modifiers(self):
-        pass
+        self.assertAlmostEqual(self.calculator.talents_modifiers(opportunity=True), 1.15 * 1.3)
     
     def test_crit_damage_modifiers(self):
-        pass
+        self.assertAlmostEqual(self.calculator.crit_damage_modifiers(), 1 + (2 * 1.03 - 1) * 1)
+        self.assertAlmostEqual(self.calculator.crit_damage_modifiers(is_spell=True), 1 + (1.5 * 1.03 - 1) * 1)
+        self.assertAlmostEqual(self.calculator.crit_damage_modifiers(lethality=True), 1 + (2 * 1.03 - 1) * 1.3)        
+    
+    # Just do some basic checks for the individual abilities, increasing AP
+    # should increase damage and similar for combo points.
+    # The optional armor argument isn't tested for now.
+    # Should probably compare damage and crit_damage individually so it can  
+    # catch some error where crit_damage is lower even with higher AP.
     
     def test_mh_damage(self):
         self.assertTrue(self.calculator.mh_damage(0) < self.calculator.mh_damage(1))
     
     def test_oh_damage(self):
         self.assertTrue(self.calculator.oh_damage(0) < self.calculator.oh_damage(1))
+    
+    def test_backstab_damage(self):
+        self.assertTrue(self.calculator.backstab_damage(0) < self.calculator.backstab_damage(1))
+    
+    def test_mh_mutilate_damage(self):
+        self.assertTrue(self.calculator.mh_mutilate_damage(0) < self.calculator.mh_mutilate_damage(1))
+        not_poisoned = self.calculator.mh_mutilate_damage(1, is_poisoned=False)
+        poisoned = self.calculator.mh_mutilate_damage(1)
+        self.assertAlmostEqual(not_poisoned[0] * 1.2, poisoned[0])
+        self.assertAlmostEqual(not_poisoned[1] * 1.2, poisoned[1])
+
+    def test_oh_mutilate_damage(self):
+        self.assertTrue(self.calculator.oh_mutilate_damage(0) < self.calculator.oh_mutilate_damage(1))
+        not_poisoned = self.calculator.oh_mutilate_damage(1, is_poisoned=False)
+        poisoned = self.calculator.oh_mutilate_damage(1)
+        self.assertAlmostEqual(not_poisoned[0] * 1.2, poisoned[0])
+        self.assertAlmostEqual(not_poisoned[1] * 1.2, poisoned[1])
     
     def test_eviscerate_damage(self):
         self.assertTrue(self.calculator.eviscerate_damage(0, 1) < self.calculator.eviscerate_damage(1, 1))
