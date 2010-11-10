@@ -5,6 +5,7 @@
 # off this - but for the moment, this will suffice.
 
 from core import Setup
+Setup().init_shadowcraft()
 
 from calcs.rogue.Aldriana import AldrianasRogueDamageCalculator
 from calcs.rogue.Aldriana import settings
