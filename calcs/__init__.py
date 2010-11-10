@@ -1,3 +1,8 @@
+import gettext
+import __builtin__
+
+__builtin__._ = gettext.gettext
+
 class DamageCalculator(object):
     # This method holds the general interface for a damage calculator - the
     # sorts of parameters and calculated values that will be need by many (or
@@ -61,9 +66,9 @@ class DamageCalculator(object):
         return dps
 
     def get_ep(self):
-        ep_values = {_('white_hit'):0, _('spell_hit'):0, _('yellow_hit'):0,
-                     _('str'):0, _('agi'):0, _('haste'):0, _('crit'):0,
-                     _('mastery'):0, _('dodge_cap'):0, _('parry_cap'):0}
+        ep_values = {'white_hit':0, 'spell_hit':0, 'yellow_hit':0,
+                     'str':0, 'agi':0, 'haste':0, 'crit':0,
+                     'mastery':0, 'dodge_cap':0, 'parry_cap':0}
         baseline_dps = self.get_dps()
         ap_dps = self.ep_helper('ap')
         ap_dps_difference = ap_dps - baseline_dps

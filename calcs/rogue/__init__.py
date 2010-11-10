@@ -1,3 +1,8 @@
+import gettext
+import __builtin__
+
+__builtin__._ = gettext.gettext
+
 from calcs import DamageCalculator
 
 class RogueDamageCalculator(DamageCalculator):
