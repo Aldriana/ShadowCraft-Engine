@@ -4,7 +4,7 @@
 # framework should be written - particularly if anyone else ever wants to build
 # off this - but for the moment, this will suffice.
 
-from core import setup
+from core import Setup
 
 from calcs.rogue.Aldriana import AldrianasRogueDamageCalculator
 from calcs.rogue.Aldriana import settings
