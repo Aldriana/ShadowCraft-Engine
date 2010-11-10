@@ -4,6 +4,13 @@ import __builtin__
 __builtin__._ = gettext.gettext
 
 from calcs.rogue import RogueDamageCalculator
+from core import exceptions
+
+
+class InputsNotModeledException(exceptions.InvalidInputException):
+    # I'll return these when inputs don't make sense to the model.
+    pass
+
 
 class AldrianasRogueDamageCalculator(RogueDamageCalculator):
     def get_dps(self):
@@ -15,7 +22,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         elif self.talents.is_subtlety_rogue():
             return self.subtlety_dps_estimate()
         else:
-            assert False # Add a real error message at some point.
+            raise InputNotModeledException(_('You must have 31 points in at least one talent tree.'))
 
     def heroism_uptime_per_fight(self):
         if not self.buffs.short_term_haste_buff:
@@ -75,19 +82,21 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         # breakdown or other sub-result, make sure to call this, as it
         # initializes many values that are needed to perform the calculations.
 
-        assert self.settings.cycle._cycle_type == 'assassination'
-        assert self.stats.mh.type == 'dagger'
-        assert self.stats.oh.type == 'dagger'
+        if self.settings.cycle._cycle_type != 'assassination':
+            raise InputNotModeledException(_('You must specify an assassination cycle to match your assination spec.'))
+        if self.stats.mh.type != 'dagger' or self.stats.oh.type != 'dagger':
+            raise InputNotModeledException(_('Assassination modeling requires daggers in both hands'))
 
-        assert self.settings.mh_poison != self.settings.oh_poison
-        assert self.settings.mh_poison in ['ip', 'dp']
-        assert self.settings.oh_poison in ['dp', 'ip']
+        if self.settings.mh_poison + self.settings.oh_poison not in ['ipdp', 'dpip']:
+            raise InputNotModeledException(_('Assassination modeling requires instant poison on one weapon and deadly on the other'))
 
         # These talents have huge, hard-to-model implications on cycle and will
         # always be taken in any serious DPS build.  Hence, I'm not going to
         # worry about modeling them for the foreseeable future.
-        assert self.talents.assassination.master_poisoner == 1
-        assert self.talents.assassination.cut_to_the_chase == 3
+        if self.talents.assassination.master_poisoner != 1:
+            raise InputNotModeledException(_('Assassination modeling requires one point in Master Poisoner'))
+        if self.talents.assassination.cut_to_the_chase != 3:
+            raise InputNotModeledException(_('Assassination modeling requires three points in Cut to the Chase'))
 
         self.rupture_energy_cost = 25 / self.one_hand_melee_hit_chance()
         self.envenom_energy_cost = 35 / self.one_hand_melee_hit_chance()
