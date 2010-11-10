@@ -269,7 +269,7 @@ class RogueDamageCalculator(DamageCalculator):
 
         return damage, crit_damage
 
-    def main_gauche(self, ap, armor=None):
+    def main_gauche_damage(self, ap, armor=None):
         weapon_damage = self.stats.oh.normalized_damage(ap)
         multiplier = self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
