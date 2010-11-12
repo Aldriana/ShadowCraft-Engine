@@ -26,6 +26,8 @@ class DamageCalculator(object):
     BASE_SPELL_MISS_RATE = .17
     BASE_DODGE_CHANCE = .065
     BASE_PARRY_CHANCE = .14
+    GLANCE_RATE = .24
+    GLANCE_MULTIPLIER = .75
 
     def __init__(self, stats, talents, glyphs, buffs, race, settings=None, level=85):
         self.stats = stats
