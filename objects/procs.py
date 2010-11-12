@@ -96,7 +96,7 @@ class ProcsList(object):
         'prestors_talisman_of_machination':         ('haste', 1926, 15, .1, 'all_attacks', 75, 1),
         'rogue_t11_4pc':                            ('weird_proc', 1, 15, .01, 'auto_attacks', None, 1),
         'the_twilight_blade':                       ('crit', 185, 10, None, 'all_attacks', None, 3),            # Behavior still needs to be tested.  I expect 1 PPM with no ICD, but should be tested.
-        'unheeded_warning':                         ('weird_proc', .25, 10, None, 'all_attacks', None, 1),      # Behavior still needs to be tested.  I expect 1 PPM with no ICD, but should be tested.
+        'unheeded_warning':                         ('weird_proc', .25, 10, None, 'all_attacks', None, 1),      # Behavior still needs to be tested.
     }
 
 ##    proc_triggers = frozenset([
