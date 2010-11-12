@@ -82,21 +82,21 @@ class ProcsList(object):
     # None should be used to indicate unknown values
     # Assumed heroic trinkets have same proc chance/ICD as non-heroic
     allowed_procs = {
-        'heroic_grace_of_the_herald':               ('crit', 1710, 10, None, 'all_attacks', None, 1),
+        'heroic_grace_of_the_herald':               ('crit', 1710, 10, .1, 'all_attacks', 45, 1),               # ICD is a guess and should be verified.
         'heroic_key_to_the_endless_chamber':        ('agi', 1710, 15, .1, 'all_attacks', 75, 1),
-        'heroic_left_eye_of_rajh':                  ('agi', 1710, 10, None, 'crits', None, 1),
+        'heroic_left_eye_of_rajh':                  ('agi', 1710, 10, .3, 'crits', None, 1),                    # ICD is a guess and should be verified.
         'heroic_prestors_talisman_of_machination':  ('haste', 2178, 15, .1, 'all_attacks', 75, 1),
-        'darkmoon_card_hurricane':                  ('spell_damage', 5000, 0, None, 'all_attacks', None, 0),
-        'essence_of_the_cyclone':                   ('crit', 1926, 10, None, 'all_attacks', None, 1),
-        'fluid_death':                              ('agi', 38, 15, None, 'all_attacks',None,10),
-        'grace_of_the_herald':                      ('crit', 924, 10, None, 'all_attacks', None, 1),
-        'heart_of_the_vile':                        ('crit', 924, 10, None, 'all_attacks', None, 1),
+        'darkmoon_card_hurricane':                  ('spell_damage', 5000, 0, None, 'all_attacks', None, 0),    # Behavior still needs to be tested.  I expect 1 PPM with no ICD, but should be tested.
+        'essence_of_the_cyclone':                   ('crit', 1926, 10, .1, 'all_attacks', 45, 1),               # ICD is a guess and should be verified.
+        'fluid_death':                              ('agi', 38, 15, 1, 'all_attacks', None, 10),
+        'grace_of_the_herald':                      ('crit', 924, 10, .1, 'all_attacks', 45, 1),                # ICD is a guess and should be verified.
+        'heart_of_the_vile':                        ('crit', 924, 10, .1, 'all_attacks', 45, 1),                # ICD is a guess and should be verified.
         'key_to_the_endless_chamber':               ('agi', 1290, 15, .1, 'all_attacks', 75, 1),
-        'left_eye_of_rajh':                         ('agi', 1512, 10, None, 'crits', None, 1),
+        'left_eye_of_rajh':                         ('agi', 1512, 10, .3, 'crits', None, 1),                    # ICD is a guess and should be verified.
         'prestors_talisman_of_machination':         ('haste', 1926, 15, .1, 'all_attacks', 75, 1),
         'rogue_t11_4pc':                            ('weird_proc', 1, 15, .01, 'auto_attacks', None, 1),
-        'the_twilight_blade':                       ('crit', 185, 10, None, 'all_attacks', None, 3),
-        'unheeded_warning':                         ('weird_proc', .25, 10, None, 'all_attacks', None, 1),
+        'the_twilight_blade':                       ('crit', 185, 10, None, 'all_attacks', None, 3),            # Behavior still needs to be tested.  I expect 1 PPM with no ICD, but should be tested.
+        'unheeded_warning':                         ('weird_proc', .25, 10, None, 'all_attacks', None, 1),      # Behavior still needs to be tested.  I expect 1 PPM with no ICD, but should be tested.
     }
 
 ##    proc_triggers = frozenset([
