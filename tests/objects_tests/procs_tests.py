@@ -48,6 +48,21 @@ class TestProc(unittest.TestCase):
     def test_procs_off_harmful_spells(self):
         self.assertFalse(self.proc.procs_off_harmful_spells())
     
+    def test_procs_off_heals(self):
+        self.assertFalse(self.proc.procs_off_heals())
+    
+    def test_procs_off_periodic_spell_damage(self):
+        self.assertFalse(self.proc.procs_off_periodic_spell_damage())
+    
+    def test_procs_off_periodic_heals(self):
+        self.assertFalse(self.proc.procs_off_periodic_heals())
+    
+    def test_procs_off_apply_debuff(self):
+        self.assertTrue(self.proc.procs_off_apply_debuff())
+    
+    def test_procs_off_bleeds(self):
+        self.assertFalse(self.proc.procs_off_bleeds())
+
     def test_is_ppm(self):
         self.assertFalse(self.proc.is_ppm())
 
