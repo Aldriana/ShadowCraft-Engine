@@ -54,7 +54,7 @@ assert test_mh.hurricane
 # assert not test_oh.hurricane
 
 # Set up procs and make sure things at least vaguely work.
-test_procs = procs.ProcsList('darkmoon_card_hurricane','heroic_left_eye_of_rajh')
+test_procs = procs.ProcsList('darkmoon_card_hurricane','heroic_key_to_the_endless_chamber')
 
 assert test_procs.darkmoon_card_hurricane
 assert not test_procs.fluid_death
