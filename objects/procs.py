@@ -16,20 +16,8 @@ class Proc(object):
         else:
             return False
 
-    def procs_off_crit_auto_attacks(self):
-        if self.trigger in ('all_attacks', 'auto_attack', 'all_spells_and_attacks') and self.on_crit:
-            return True
-        else:
-            return False
-
     def procs_off_strikes(self):
         if self.trigger in ('all_attacks', 'strikes', 'all_spells_and_attacks'):
-            return True
-        else:
-            return False
-
-    def procs_off_crit_strikes(self):
-        if self.trigger in ('all_attacks', 'strikes', 'all_spells_and_attacks') and self.on_crit:
             return True
         else:
             return False
@@ -40,20 +28,8 @@ class Proc(object):
         else:
             return False
 
-    def procs_off_crit_harmful_spells(self):
-        if self.trigger in ('all_spells', 'damaging_spells', 'all_spells_and_attacks') and self.on_crit:
-            return True
-        else:
-            return False
-
     def procs_off_heals(self):
         if self.trigger in ('all_spells', 'healing_spells', 'all_spells_and_attacks'):
-            return True
-        else:
-            return False
-
-    def procs_off_crit_heals(self):
-        if self.trigger in ('all_spells', 'healing_spells', 'all_spells_and_attacks') and self.on_crit:
             return True
         else:
             return False
@@ -64,20 +40,8 @@ class Proc(object):
         else:
             return False
 
-    def procs_off_crit_periodic_spell_damage(self):
-        if self.trigger in ('all_periodic_damage', 'periodic_spell_damage') and self.on_crit:
-            return True
-        else:
-            return False
-
     def procs_off_periodic_heals(self):
         if self.trigger == 'hots':
-            return True
-        else:
-            return False
-
-    def procs_off_crit_periodic_heals(self):
-        if self.trigger == 'hots' and self.on_crit:
             return True
         else:
             return False
@@ -88,8 +52,8 @@ class Proc(object):
         else:
             return False
 
-    def procs_off_crit_bleeds(self):
-        if self.trigger in ('all_periodic_damage', 'bleeds') and self.on_crit:
+    def procs_off_crit_only(self):
+        if self.on_crit:
             return True
         else:
             return False
