@@ -170,17 +170,42 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         return damage_breakdown
 
-    def set_uptime(self, proc, attacks_per_second):
+    def get_mh_procs_per_second(self, proc, attacks_per_second):
         triggers_per_second = 0
         if proc.procs_off_auto_attacks():
-            triggers_per_second += attacks_per_second['mh_autoattack_hits'] + attacks_per_second['oh_autoattack_hits']
+            triggers_per_second += attacks_per_second['mh_autoattack_hits']
         if proc.procs_off_strikes():
             if 'mutilate' in attacks_per_second:
-                triggers_per_second += 2 * attacks_per_second['mutilate']
+                triggers_per_second += attacks_per_second['mutilate']
             if 'backstab' in attacks_per_second:
                 triggers_per_second += attacks_per_second['backstab']
             if 'envenom' in attacks_per_second:
                 triggers_per_second += sum(attacks_per_second['envenom'])
+        if proc.procs_off_apply_debuff():
+            if 'rupture' in attacks_per_second:
+                triggers_per_second += attacks_per_second['rupture']
+
+        if proc.is_ppm():
+            return triggers_per_second * proc.ppm * self.stats.mh.speed / 60.
+        else:
+            return triggers_per_second * proc.proc_chance
+
+    def get_oh_procs_per_second(self, proc, attacks_per_second):
+        triggers_per_second = 0
+        if proc.procs_off_auto_attacks():
+            triggers_per_second += attacks_per_second['oh_autoattack_hits']
+        if proc.procs_off_strikes():
+            if 'mutilate' in attacks_per_second:
+                triggers_per_second += attacks_per_second['mutilate']
+
+        if proc.is_ppm():
+            return triggers_per_second * proc.ppm * self.stats.oh.speed / 60.
+        else:
+            return triggers_per_second * proc.proc_chance
+
+    def get_other_procs_per_second(self, proc, attacks_per_second):
+        triggers_per_second = 0
+
         if proc.procs_off_harmful_spells():
             if 'instant_poison' in attacks_per_second:
                 triggers_per_second += attacks_per_second['instant_poison']
@@ -192,17 +217,30 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if proc.procs_off_bleeds():
             if 'rupture_ticks' in attacks_per_second:
                 triggers_per_second += sum(attacks_per_second['rupture_ticks'])
-        if proc.procs_off_apply_debuff():
-            if 'rupture' in attacks_per_second:
-                triggers_per_second += attacks_per_second['rupture']
+
+        if proc.is_ppm():
+            if triggers_per_second == 0:
+                return 0
+            else:
+                raise InputsNotModeledException(_('PPMs that also proc off spells are not yet modeled.'))
+        else:
+            return triggers_per_second * proc.proc_chance
+
+    def set_uptime(self, proc, attacks_per_second):
+        if getattr(self, 'only_mh', False):
+            procs_per_second = self.get_mh_procs_per_second(proc, attacks_per_second)
+        elif getattr(self, 'only_oh', False):
+            procs_per_second = self.get_oh_procs_per_second(proc, attacks_per_second)
+        else:
+            procs_per_second = self.get_mh_procs_per_second(proc, attacks_per_second) + self.get_oh_procs_per_second(proc, attacks_per_second) + self.get_other_procs_per_second(proc, attacks_per_second)
 
         if proc.icd:
-            proc.uptime = proc.duration / (proc.icd + 1. / (triggers_per_second * proc.proc_chance))
+            proc.uptime = proc.duration / (proc.icd + 1. / procs_per_second)
         else:
             # See http://elitistjerks.com/f31/t20747-advanced_rogue_mechanics_discussion/#post621369
             # for the derivation of this formula.
-            q = 1 - proc.proc_chance
-            Q = q ** (proc.duration * triggers_per_second)
+            q = 1 - procs_per_second
+            Q = q ** proc.duration
             P = 1 - Q
             proc.uptime = P * (1 - P ** proc.max_stacks) / Q
 
