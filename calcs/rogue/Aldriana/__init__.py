@@ -248,10 +248,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         # TODO: Crit procs aren't yet modeled.  Partly because the proc
         # object isn't really exposing that functionality yet.
         #
-        # TODO: PPMs
-        #
-        # TODO: Weapon enchants
-        #
         # TODO: Damage Procs
         #
         # TODO: Wierd procs.
@@ -273,6 +269,26 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         for proc_info in self.stats.procs.get_all_procs_for_stat():
             if proc_info.stat in current_stats and not proc_info.is_ppm():
                 active_procs.append(proc_info)
+
+        mh_landslide = self.stats.mh.landslide
+        if mh_landslide:
+            mh_landslide.mh_only = True
+            active_procs.append(mh_landslide)
+
+        mh_hurricane = self.stats.mh.hurricane
+        if mh_hurricane:
+            mh_hurricane.mh_only = True
+            active_procs.append(mh_hurricane)
+
+        oh_landslide = self.stats.oh.landslide
+        if oh_landslide:
+            oh_landslide.oh_only = True
+            active_procs.append(oh_landslide)
+
+        oh_hurricane = self.stats.oh.hurricane
+        if oh_hurricane:
+            oh_hurricane.oh_only = True
+            active_procs.append(oh_hurricane)
 
         while True:
             attacks_per_second, crit_rates = attack_counts_function(current_stats)

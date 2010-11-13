@@ -41,17 +41,16 @@ assert test_buffs.crit_chance_buff
 assert not test_buffs.short_term_haste_buff
 
 # Set up weapons and make sure things at least vaguely work.
-test_mh = stats.Weapon(737, 1.8, 'dagger', 'hurricane')
-test_oh = stats.Weapon(573, 1.4, 'dagger', 'hurricane')
+test_mh = stats.Weapon(737, 1.8, 'dagger', 'landslide')
+test_oh = stats.Weapon(573, 1.4, 'dagger', 'landslide')
 test_ranged = stats.Weapon(1104, 2.0, 'thrown')
 
-assert abs(test_mh.hurricane.proc_chance - 1 * 1.8 / 60) < 0.00000001
-assert abs(test_oh.hurricane.proc_chance - 1 * 1.4 / 60) < 0.00000001
+assert abs(test_mh.landslide.proc_chance - 1 * 1.8 / 60) < 0.00000001
+assert abs(test_oh.landslide.proc_chance - 1 * 1.4 / 60) < 0.00000001
 assert test_mh._normalization_speed == 1.7
 assert test_oh._normalization_speed == 1.7
 assert test_ranged._normalization_speed == 2.1
-assert test_mh.hurricane
-# assert not test_oh.hurricane
+assert test_mh.landslide
 
 # Set up procs and make sure things at least vaguely work.
 test_procs = procs.ProcsList('darkmoon_card_hurricane','heroic_key_to_the_endless_chamber')
