@@ -30,8 +30,8 @@ class TestRace(unittest.TestCase):
             self.assertEqual(getattr(night_elf, stat), racial_stats[i])
 
     def test_get_racial_expertise(self):
-        self.assertTrue(self.race.get_racial_expertise('1h_sword') - 0.0075 < 0.00000001)
-        self.assertEqual(self.race.get_racial_expertise('1h_xe'), 0)
+        self.assertTrue(abs(self.race.get_racial_expertise('1h_sword') - 0.0075) < 0.00000001)
+        self.assertEqual(self.race.get_racial_expertise('1h_axe'), 0)
 
     def test_get_racial_crit(self):
         for weapon in ('thrown', 'gun', 'bow'):
