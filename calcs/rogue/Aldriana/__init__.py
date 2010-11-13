@@ -207,10 +207,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             proc.uptime = P * (1 - P ** proc.max_stacks) / Q
 
     def compute_damage(self, attack_counts_function):
-        # TODO: We're not accounting for procs with ICDs correctly here -
-        # they're increasing their own proc rate, which is clearly bad.
-        # But this will do for the first round of estimates.
-        #
         # TODO: Crit procs aren't yet modeled.  Partly because the proc
         # object isn't really exposing that functionality yet.
         #
@@ -253,13 +249,21 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             }
 
             for proc in active_procs:
-                self.set_uptime(proc, attacks_per_second)
-                current_stats[proc.stat] += proc.uptime * proc.value
+                if not proc.icd:
+                    self.set_uptime(proc, attacks_per_second)
+                    current_stats[proc.stat] += proc.uptime * proc.value
 
             current_stats['agi'] *= self.agi_multiplier
 
             if self.are_close_enough(old_stats, current_stats):
                 break
+
+        for proc in active_procs:
+            if proc.icd:
+                self.set_uptime(proc, attacks_per_second)
+                current_stats[proc.stat] += proc.uptime * proc.value
+
+        attacks_per_second, crit_rates = attack_counts_function(current_stats)
 
         return self.get_damage_breakdown(current_stats, attacks_per_second, crit_rates)
 
