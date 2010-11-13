@@ -28,7 +28,7 @@ class TestProcsList(unittest.TestCase):
 
 class TestProc(unittest.TestCase):
     def setUp(self):
-        self.proc = procs.Proc('haste', 1926, 15, .1, 'all_attacks', 75, 1)
+        self.proc = procs.Proc(*procs.ProcsList.allowed_procs['prestors_talisman_of_machination'])
     
     def test__init__(self):
         self.assertEqual(self.proc.stat, 'haste')
