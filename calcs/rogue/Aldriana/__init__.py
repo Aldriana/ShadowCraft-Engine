@@ -261,7 +261,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         for proc in active_procs:
             if proc.icd:
                 self.set_uptime(proc, attacks_per_second)
-                current_stats[proc.stat] += proc.uptime * proc.value
+                if proc.stat == 'agi':
+                    current_stats[proc.stat] += proc.uptime * proc.value * self.agi_multiplier
+                else:
+                    current_stats[proc.stat] += proc.uptime * proc.value
 
         attacks_per_second, crit_rates = attack_counts_function(current_stats)
 
