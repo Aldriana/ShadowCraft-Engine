@@ -62,6 +62,9 @@ class TestProc(unittest.TestCase):
     
     def test_procs_off_bleeds(self):
         self.assertFalse(self.proc.procs_off_bleeds())
+    
+    def test_procs_off_crit_only(self):
+        self.assertFalse(self.proc.procs_off_crit_only())
 
     def test_is_ppm(self):
         self.assertFalse(self.proc.is_ppm())
