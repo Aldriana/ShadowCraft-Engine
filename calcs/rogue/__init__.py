@@ -376,13 +376,3 @@ class RogueDamageCalculator(DamageCalculator):
     def spell_crit_rate(self, crit=None):
         base_crit = self.stats.get_crit_from_rating(crit)
         return base_crit + self.buffs.buff_all_crit() + self.buffs.buff_spell_crit() - self.SPELL_CRIT_REDUCTION
-
-    # Not strictly speaking rogue-specific, but given that the base object
-    # doesn't currently have any notion of whether you'd dual-wielding or not
-    # (and this calculation depends on that), I'm going to leave this here
-    # until we figure out how to handle that.
-    #
-    # Also has a dependency on (target_level - attacker_level), but ignoring
-    # that for now.
-    def crit_cap(self):
-        return self.dual_wield_melee_hit_chance - .24
