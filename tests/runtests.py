@@ -11,6 +11,7 @@ from core_tests.exceptions_tests import TestInvalidInputException
 from objects_tests.buffs_tests import TestBuffsTrue, TestBuffsFalse, TestBuffsLevel
 from objects_tests.stats_tests import TestStats, TestWeapon
 from objects_tests.procs_tests import TestProcsList, TestProc, TestPPMProc
+from objects_tests.race_tests import TestRace
 from objects_tests.rogue_tests.rogue_glyphs_tests import TestRogueGlyphs
 from objects_tests.rogue_tests.rogue_talents_tests import TestAssassinationTalents
 from objects_tests.rogue_tests.rogue_talents_tests import TestCombatTalents
