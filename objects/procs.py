@@ -92,7 +92,7 @@ class ProcsList(object):
     allowed_procs = {
         'heroic_grace_of_the_herald':               ('crit', 1710, 10, .1, 'all_attacks', 45, 1, False, 'Herald of Doom'),                 # ICD is a guess and should be verified.
         'heroic_key_to_the_endless_chamber':        ('agi', 1710, 15, .1, 'all_attacks', 75, 1, False, 'Final Key'),
-        'heroic_left_eye_of_rajh':                  ('agi', 1710, 10, .3, 'strikes', None, 1, True, 'Eye of Vengeance'),                   # ICD is a guess and should be verified.
+        'heroic_left_eye_of_rajh':                  ('agi', 1710, 10, .3, 'all_attacks', None, 1, True, 'Eye of Vengeance'),               # ICD is a guess and should be verified.
         'heroic_prestors_talisman_of_machination':  ('haste', 2178, 15, .1, 'all_attacks', 75, 1, False, 'Nefarious Plot'),
         'heroic_tias_grace':                        ('agi', 34, 15, None, 'all_attacks', None, 10, False, 'Grace'),
         'darkmoon_card_hurricane':                  ('spell_damage', 5000, 0, None, 'all_attacks', None, 0, False, 'Lightning Strike'),    # Behavior still needs to be tested.  I expect 1 PPM with no ICD, but should be tested.
@@ -101,7 +101,7 @@ class ProcsList(object):
         'grace_of_the_herald':                      ('crit', 924, 10, .1, 'all_attacks', 45, 1, False, 'Herald of Doom'),                  # ICD is a guess and should be verified.
         'heart_of_the_vile':                        ('crit', 924, 10, .1, 'all_attacks', 45, 1, False, 'Herald of Doom'),                  # ICD is a guess and should be verified.
         'key_to_the_endless_chamber':               ('agi', 1290, 15, .1, 'all_attacks', 75, 1, False, 'Final Key'),
-        'left_eye_of_rajh':                         ('agi', 1512, 10, .3, 'strikes', None, 1, True, 'Eye of Vengeance'),                   # ICD is a guess and should be verified.
+        'left_eye_of_rajh':                         ('agi', 1512, 10, .3, 'all_attacks', None, 1, True, 'Eye of Vengeance'),               # ICD is a guess and should be verified.
         'prestors_talisman_of_machination':         ('haste', 1926, 15, .1, 'all_attacks', 75, 1, False, 'Nefarious Plot'),
         'rogue_t11_4pc':                            ('weird_proc', 1, 15, .01, 'auto_attacks', None, 1, False, 'Deadly Scheme'),
         'the_twilight_blade':                       ('crit', 185, 10, None, 'all_attacks', None, 3, False, 'The Deepest Night'),           # Behavior still needs to be tested.  I expect 1 PPM with no ICD, but should be tested.
