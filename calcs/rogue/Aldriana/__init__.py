@@ -227,9 +227,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             return triggers_per_second * proc.proc_chance
 
     def set_uptime(self, proc, attacks_per_second):
-        if getattr(self, 'only_mh', False):
+        if getattr(proc, 'mh_only', False):
             procs_per_second = self.get_mh_procs_per_second(proc, attacks_per_second)
-        elif getattr(self, 'only_oh', False):
+        elif getattr(proc, 'oh_only', False):
             procs_per_second = self.get_oh_procs_per_second(proc, attacks_per_second)
         else:
             procs_per_second = self.get_mh_procs_per_second(proc, attacks_per_second) + self.get_oh_procs_per_second(proc, attacks_per_second) + self.get_other_procs_per_second(proc, attacks_per_second)
@@ -336,7 +336,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         # initializes many values that are needed to perform the calculations.
 
         if self.settings.cycle._cycle_type != 'assassination':
-            raise InputNotModeledException(_('You must specify an assassination cycle to match your assination spec.'))
+            raise InputNotModeledException(_('You must specify an assassination cycle to match your assassination spec.'))
         if self.stats.mh.type != 'dagger' or self.stats.oh.type != 'dagger':
             raise InputNotModeledException(_('Assassination modeling requires daggers in both hands'))
 
@@ -476,7 +476,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         attacks_per_second['rupture_ticks'] = [0, 0, 0, 0, 0, 0]
         for i in xrange(1, 6):
-            ticks_per_rupture = 4 + i + 2 * self.glyphs.rupture
+            ticks_per_rupture = 3 + i + 2 * self.glyphs.rupture
             attacks_per_second['rupture_ticks'][i] = ticks_per_rupture * attacks_per_second['rupture'] * finisher_size_breakdown[i]
 
         total_rupture_ticks = sum(attacks_per_second['rupture_ticks'])
@@ -499,7 +499,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         ip_envenom_proc_rate = ip_base_proc_rate * 1.5
 
         dp_base_proc_rate = .5
-        dp_envenom_proc_rate = dp_base_proc_rate * 1.5
+        dp_envenom_proc_rate = dp_base_proc_rate + .15
 
         envenom_uptime = min(sum([(1+cps) * attacks_per_second['envenom'][cps] for cps in xrange(1,6)]), 1)
         avg_ip_proc_rate = ip_base_proc_rate * (1 - envenom_uptime) + ip_envenom_proc_rate * envenom_uptime
@@ -588,7 +588,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         attacks_per_second['rupture_ticks'] = [0, 0, 0, 0, 0, 0]
         for i in xrange(1, 6):
-            ticks_per_rupture = 4 + i + 2 * self.glyphs.rupture
+            ticks_per_rupture = 3 + i + 2 * self.glyphs.rupture
             attacks_per_second['rupture_ticks'][i] = ticks_per_rupture * attacks_per_second['rupture'] * finisher_size_breakdown[i]
 
         total_rupture_ticks = sum(attacks_per_second['rupture_ticks'])
@@ -611,7 +611,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         ip_envenom_proc_rate = ip_base_proc_rate * 1.5
 
         dp_base_proc_rate = .5
-        dp_envenom_proc_rate = dp_base_proc_rate * 1.5
+        dp_envenom_proc_rate = dp_base_proc_rate + .15
 
         envenom_uptime = min(sum([(1+cps) * attacks_per_second['envenom'][cps] for cps in xrange(1,6)]), 1)
         avg_ip_proc_rate = ip_base_proc_rate * (1 - envenom_uptime) + ip_envenom_proc_rate * envenom_uptime

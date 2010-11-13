@@ -359,7 +359,7 @@ class RogueDamageCalculator(DamageCalculator):
         # with master poisoner I'm not including that for the moment
         multiplier = self.talents_modifiers(coup_de_grace=True, executioner=True, assassins_resolve=False)
         multiplier *= self.raid_settings_modifiers(is_spell=True)
-        crit_multiplier = self.crit_damage_modifiers(is_spell=True)
+        crit_multiplier = self.crit_damage_modifiers()
 
         damage = (self.env_bonus_dmg * cp + .09 * cp * ap) * multiplier
         crit_damage = damage * crit_multiplier
