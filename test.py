@@ -58,7 +58,7 @@ test_procs = procs.ProcsList('darkmoon_card_hurricane','heroic_key_to_the_endles
 assert test_procs.darkmoon_card_hurricane
 assert not test_procs.fluid_death
 
-# Set up gear buffs and make sure things at leat vaguely work
+# Set up gear buffs and make sure things at least vaguely work
 test_gear_buffs = stats.GearBuffs('chaotic_metagem', 'leather_specialization')
 assert test_gear_buffs.chaotic_metagem
 assert not test_gear_buffs.rogue_t11_2pc
