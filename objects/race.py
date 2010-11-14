@@ -80,7 +80,7 @@ class Race(object):
         self.character_class = str.lower(character_class)
         self.race_name = str.lower(race)
         if self.race_name not in Race.racial_stat_offset:
-             raise InvalidRaceException(_('Unsupported race {race}').format(race=self.race_name))
+            raise InvalidRaceException(_('Unsupported race {race}').format(race=self.race_name))
         if self.character_class == "rogue":
             self.stat_set = Race.rogue_base_stats
         else:
