@@ -38,6 +38,8 @@ class TestProc(unittest.TestCase):
         self.assertEqual(self.proc.trigger, 'all_attacks')
         self.assertEqual(self.proc.icd, 75)
         self.assertEqual(self.proc.max_stacks, 1)
+        self.assertEqual(self.proc.on_crit, False)
+        self.assertEqual(self.proc.proc_name, 'Nefarious Plot')
     
     def test_procs_off_auto_attacks(self):
         self.assertTrue(self.proc.procs_off_auto_attacks())
@@ -82,6 +84,8 @@ class TestPPMProc(unittest.TestCase):
         self.assertEqual(self.proc.trigger, 'all_spells_and_attacks')
         self.assertEqual(self.proc.icd, 0)
         self.assertEqual(self.proc.max_stacks, 1)
+        self.assertEqual(self.proc.on_crit, False)
+        self.assertEqual(self.proc.proc_name, 'Hurricane')
 
     def test_is_ppm(self):
         self.assertTrue(self.proc.is_ppm())
