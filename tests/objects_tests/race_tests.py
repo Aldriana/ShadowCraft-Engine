@@ -10,8 +10,7 @@ class TestRace(unittest.TestCase):
         self.assertEqual(self.race.character_class, 'rogue')
 
     def test_set_racials(self):
-        tauren = race.Race('tauren')
-        self.assertTrue(tauren.endurance)
+        self.assertTrue(self.race.sword_1h_specialization)
         self.assertFalse(self.race.blood_fury)
 
     def test_exceptions(self):
@@ -20,7 +19,6 @@ class TestRace(unittest.TestCase):
         self.assertRaises(AssertionError, self.race.__init__, 'undead', 'demon_hunter')
         
     def test__getattr__(self):
-        human = race.Race('human')
         racial_stats = (122, 206, 114, 46, 73)
         for i, stat in enumerate(['racial_str', 'racial_agi', 'racial_sta', 'racial_int', 'racial_spi']):
             self.assertEqual(getattr(self.race, stat), racial_stats[i])
