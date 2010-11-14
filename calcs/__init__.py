@@ -55,12 +55,12 @@ class DamageCalculator(object):
         self.race.level = self.level
 
     def ep_helper(self,stat):
-        if stat not in ('dodge_cap', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_cap'):
+        if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp'):
             setattr(self.stats, stat, getattr(self.stats, stat) + 1.)
         else:
             setattr(self, 'calculating_ep', stat)
         dps = self.get_dps()
-        if stat not in ('dodge_cap', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_cap'):
+        if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp'):
             setattr(self.stats, stat, getattr(self.stats, stat) - 1.)
         else:
             setattr(self, 'calculating_ep', False)
@@ -70,7 +70,7 @@ class DamageCalculator(object):
     def get_ep(self):
         ep_values = {'white_hit':0, 'spell_hit':0, 'yellow_hit':0,
                      'str':0, 'agi':0, 'haste':0, 'crit':0,
-                     'mastery':0, 'dodge_cap':0, 'parry_cap':0}
+                     'mastery':0, 'dodge_exp':0, 'parry_exp':0}
         baseline_dps = self.get_dps()
         ap_dps = self.ep_helper('ap')
         ap_dps_difference = ap_dps - baseline_dps
@@ -112,14 +112,14 @@ class DamageCalculator(object):
 
         if dodgeable:
             dodge_chance = max(self.BASE_DODGE_CHANCE - expertise, 0)
-            if self.calculating_ep == 'dodge_cap':
+            if self.calculating_ep == 'dodge_exp':
                 dodge_chance += self.stats.get_expertise_from_rating(1)
         else:
             dodge_chance = 0
 
         if parryable:
             parry_chance = max(self.BASE_PARRY_CHANCE - expertise, 0)
-            if self.calculating_ep in ('parry_cap', 'dodge_cap'):
+            if self.calculating_ep in ('parry_exp', 'dodge_exp'):
                 parry_chance += self.stats.get_expertise_from_rating(1)
         else:
             parry_chance = 0
