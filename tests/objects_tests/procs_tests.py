@@ -72,7 +72,7 @@ class TestProc(unittest.TestCase):
 
 class TestPPMProc(unittest.TestCase):
     def setUp(self):
-        self.proc = procs.PPMProc('haste', 450, 12, 1, 'all_spells_and_attacks', 0, 1)
+        self.proc = procs.PPMProc('haste', 450, 12, 1, 'all_spells_and_attacks', 0, 1, False, 'Hurricane')
     
     def test__init__(self):
         self.assertEqual(self.proc.stat, 'haste')
