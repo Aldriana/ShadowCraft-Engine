@@ -181,7 +181,7 @@ class DamageCalculator(object):
         # along with all-damage buff and armor reduction. It should be called
         # from every damage dealing formula. Armor can be overridden if needed.
         if is_spell + is_bleed + is_physical != 1:
-            raise exceptions.InvalidInputException(_('Exactly one of is_physical, is_bleed, is_spell needs to be True'))
+            raise exceptions.InvalidInputException(_('Attacks cannot benefit from more than one type of raid damage multiplier'))
         armor_override = self.target_armor(armor)
         if is_spell:
             return self.buffs.spell_damage_multiplier()
