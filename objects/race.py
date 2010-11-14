@@ -55,7 +55,7 @@ class Race(object):
     }
 
     racials_by_race = {
-                "human":        ["mace_expertise_racial","sword_1h_expertise_racial","sword_2h_specialization","human_spirit"],
+                "human":        ["mace_specialization","sword_1h_specialization","sword_2h_specialization","human_spirit"],
                 "night_elf":    ["quickness"],
                 "dwarf":        ["stoneform","gun_specialization","mace_specialization"],
                 "gnome":        ["expansive_mind","dagger_specialization","sword_1h_specialization"],

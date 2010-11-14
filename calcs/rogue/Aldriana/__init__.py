@@ -239,10 +239,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         else:
             # See http://elitistjerks.com/f31/t20747-advanced_rogue_mechanics_discussion/#post621369
             # for the derivation of this formula.
-            q = 1 - procs_per_second
-            Q = q ** proc.duration
-            P = 1 - Q
-            proc.uptime = P * (1 - P ** proc.max_stacks) / Q
+            if procs_per_second >= 1 and proc.duration >= 1:
+                proc.uptime = proc.max_stacks
+            else:
+                q = 1 - procs_per_second
+                Q = q ** proc.duration
+                P = 1 - Q
+                proc.uptime = P * (1 - P ** proc.max_stacks) / Q
 
     def compute_damage(self, attack_counts_function):
         # TODO: Crit procs aren't yet modeled.  Partly because the proc
