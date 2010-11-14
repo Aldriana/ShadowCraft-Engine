@@ -70,7 +70,7 @@ class Proc(object):
 class PPMProc(Proc):
     # Calculate proc_rate for a ppm proc assuming self.proc_chance is the # procs/minute
     # and speed is the number of seconds between proc events. Result is percent chance of proc per event.
-    def __init__(self, stat, value, duration, ppm, trigger, icd, max_stacks):
+    def __init__(self, stat, value, duration, ppm, trigger, icd, max_stacks, on_crit, proc_name):
         self.stat = stat
         self.value = value
         self.duration = duration
@@ -78,6 +78,8 @@ class PPMProc(Proc):
         self.trigger = trigger
         self.icd = icd
         self.max_stacks = max_stacks
+        self.on_crit = on_crit
+        self.proc_name = proc_name
 
     def proc_rate(self, speed):
         return self.ppm * speed / 60.
