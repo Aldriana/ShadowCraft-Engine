@@ -72,3 +72,39 @@ class TestWeapon(unittest.TestCase):
     def test_normalized_damage(self):
         self.assertAlmostEqual(self.mh.normalized_damage(1000), 1000 + (1.7 * 1000 / 14.0))
 
+
+class TestGearBuffs(unittest.TestCase):
+    def setUp(self):
+        self.gear = stats.GearBuffs('chaotic_metagem', 'leather_specialization', 'rogue_t11_2pc', 'potion_of_the_tolvir', 'engineer_glove_enchant')
+        self.gear_none = stats.GearBuffs()
+
+    def test__getattr__(self):
+        self.assertTrue(self.gear.chaotic_metagem)
+        self.assertTrue(self.gear.leather_specialization)
+        self.assertFalse(self.gear.unsolvable_riddle)
+        self.assertRaises(AttributeError, self.gear.__getattr__, 'fake_gear_buff')
+
+    def test_metagem_crit_multiplier(self):
+        self.assertAlmostEqual(self.gear.metagem_crit_multiplier(), 1.03)
+        self.assertAlmostEqual(self.gear_none.metagem_crit_multiplier(), 1.0)
+
+    def test_rogue_t11_2pc_crit_bonus(self):
+        self.assertAlmostEqual(self.gear.rogue_t11_2pc_crit_bonus(), 0.05)
+        self.assertAlmostEqual(self.gear_none.rogue_t11_2pc_crit_bonus(), 0.0)
+
+    def test_leather_specialization_multiplier(self):
+        self.assertAlmostEqual(self.gear.leather_specialization_multiplier(), 1.05)
+        self.assertAlmostEqual(self.gear_none.leather_specialization_multiplier(), 1.0)
+
+    def test_get_all_activated_agi_boosts(self):
+        self.assertEqual(len(self.gear.get_all_activated_agi_boosts()), 1)
+        self.assertEqual(len(self.gear_none.get_all_activated_agi_boosts()), 0)
+
+    def test_get_all_activated_boosts_for_stat(self):
+        self.assertEqual(len(self.gear.get_all_activated_boosts_for_stat('agi')), 1)
+        self.assertEqual(len(self.gear.get_all_activated_boosts_for_stat('haste_rating')), 1)
+        self.assertEqual(len(self.gear.get_all_activated_boosts_for_stat('crit_rating')), 0)
+
+    def test_get_all_activated_haste_rating_boosts(self):
+        self.assertEqual(len(self.gear.get_all_activated_haste_rating_boosts()), 1)
+        self.assertEqual(len(self.gear_none.get_all_activated_haste_rating_boosts()), 0)
