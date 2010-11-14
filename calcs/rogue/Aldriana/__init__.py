@@ -33,12 +33,19 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
     # General object manipulation functions that we'll use multiple places.
     ###########################################################################
 
-    PRECISION_REQUIRED = 10 ** -5
+    PRECISION_REQUIRED = 10 ** -7
 
-    def are_close_enough(self, old_stats, new_stats):
-        for stat in old_stats.keys():
-            if abs(new_stats[stat] - old_stats[stat]) > self.PRECISION_REQUIRED:
+    def are_close_enough(self, old_dist, new_dist):
+        for item in new_dist.keys():
+            if item not in old_dist:
                 return False
+            elif not hasattr(new_dist[item], '__iter__'):
+                if abs(new_dist[item] - old_dist[item]) > self.PRECISION_REQUIRED:
+                    return False
+            else:
+                for index in range(len(new_dist[item])):
+                    if abs(new_dist[item][index] - old_dist[item][index]) > self.PRECISION_REQUIRED:
+                        return False
         return True
 
     def get_dps_contribution(self, damage_tuple, crit_rate, frequency):
@@ -272,8 +279,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 proc.uptime = P * (1 - P ** proc.max_stacks) / Q
 
     def compute_damage(self, attack_counts_function):
-        # TODO: Crit procs aren't yet modeled.
-        #
         # TODO: Damage Procs
         #
         # TODO: Wierd procs.
@@ -316,10 +321,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             oh_hurricane.oh_only = True
             active_procs.append(oh_hurricane)
 
-        while True:
-            attacks_per_second, crit_rates = attack_counts_function(current_stats)
-            old_stats = current_stats
+        attacks_per_second, crit_rates = attack_counts_function(current_stats)
 
+        while True:
             current_stats = {
                 'agi': self.base_agility,
                 'ap': self.stats.ap + 140,
@@ -335,7 +339,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
             current_stats['agi'] *= self.agi_multiplier
 
-            if self.are_close_enough(old_stats, current_stats):
+            old_attacks_per_second = attacks_per_second
+            attacks_per_second, crit_rates = attack_counts_function(current_stats)
+
+            if self.are_close_enough(old_attacks_per_second, attacks_per_second):
                 break
 
         for proc in active_procs:
