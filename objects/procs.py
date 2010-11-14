@@ -1,3 +1,9 @@
+from core import exceptions
+
+class InvalidProcException(exceptions.InvalidInputException):
+    pass
+
+
 class Proc(object):
     def __init__(self, stat, value, duration, proc_chance, trigger, icd, max_stacks, on_crit, proc_name):
         self.stat = stat
@@ -133,7 +139,7 @@ class ProcsList(object):
                 setattr(self, arg, Proc(*self.allowed_procs[arg]))
             else:
                 # Throw invalid input exception here
-                assert False, _("No data for proc '%(proc)s'") % {'proc': arg}
+                raise InvalidProcException(_('No data for proc {proc}').format(proc=arg))
 
     def __getattr__(self, proc):
         # Any proc we haven't assigned a value to, we don't have.

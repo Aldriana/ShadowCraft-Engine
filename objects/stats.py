@@ -1,4 +1,5 @@
 import procs
+from core import exceptions
 
 class Stats(object):
     # For the moment, lets define this as raw stats from gear + race; AP is
@@ -42,15 +43,13 @@ class Stats(object):
             self.expertise_rating_conversion = self.expertise_rating_conversion_values[self.level]
             self.mastery_rating_conversion = self.mastery_rating_conversion_values[self.level]
         except KeyError:
-            assert False, _("No conversion factor available for level %(level)d") % {'level': self.level}
+            raise exceptions.InvalidLevelException(_('No conversion factor available for level {level}').format(level=self.level))
     
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
         if name == 'level':
             self._set_constants_for_level()
 
-    # As noted elsewhere, these asserts probably should be exceptions
-    # once we have good agreement on how they will be caught/handled
     def get_mastery_from_rating(self, rating=None):
         if rating is None:
             rating = self.mastery

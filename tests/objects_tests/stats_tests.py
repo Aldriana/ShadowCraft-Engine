@@ -1,4 +1,5 @@
 import unittest
+from core import exceptions
 from objects import stats
     
 class TestStats(unittest.TestCase):
@@ -9,7 +10,7 @@ class TestStats(unittest.TestCase):
         self.assertEqual(self.stats.agi, 3485)
     
     def test_set_constants_for_level(self):
-        self.assertRaises(AssertionError, self.stats.__setattr__, 'level', 86)
+        self.assertRaises(exceptions.InvalidLevelException, self.stats.__setattr__, 'level', 86)
     
     def test_get_mastery_from_rating(self):
         self.assertAlmostEqual(self.stats.get_mastery_from_rating(), 8 + 666 / 179.279998779296875)

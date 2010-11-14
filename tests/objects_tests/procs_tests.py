@@ -6,7 +6,7 @@ class TestProcsList(unittest.TestCase):
         self.procsList = procs.ProcsList('darkmoon_card_hurricane','heroic_left_eye_of_rajh')
     
     def test__init__(self):
-        self.assertRaises(AssertionError, procs.ProcsList, 'fake_proc')
+        self.assertRaises(procs.InvalidProcException, procs.ProcsList, 'fake_proc')
         self.procsList = procs.ProcsList('darkmoon_card_hurricane')
         self.assertEqual(len(self.procsList.get_all_procs_for_stat(stat=None)), 1)
     

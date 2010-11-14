@@ -1,3 +1,9 @@
+from core import exceptions
+
+class InvalidBuffException(exceptions.InvalidInputException):
+    pass
+
+
 class Buffs(object):
     # Will need to add the caster/tank (de)buffs at some point if we want to
     # support other classes with this framework.
@@ -23,8 +29,8 @@ class Buffs(object):
 
     def __init__(self, *args, **kwargs):
         for buff in args:
-            # A real exception would be good here as well.
-            assert buff in self.allowed_buffs
+            if buff not in self.allowed_buffs:
+                raise InvalidBuffException(_('Invalid buff {buff}').format(buff=buff))
             setattr(self, buff, True)
         self.level = kwargs.get('level', 85)
 
@@ -43,7 +49,8 @@ class Buffs(object):
         try:
             self.str_and_agi_buff_bonus = self.str_and_agi_buff_values[self.level]
         except KeyError as e:
-            assert False, _("No conversion factor available for level %(level)d") % {'level': e.message}
+            raise exceptions.InvalidLevelException(_('No conversion factor available for level {level}').format(level=self.level))
+
     
     def stat_multiplier(self):
         if self.stat_multiplier_buff:

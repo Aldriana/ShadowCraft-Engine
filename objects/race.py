@@ -1,3 +1,9 @@
+from core import exceptions
+
+class InvalidRaceException(exceptions.InvalidInputException):
+    pass
+
+
 class Race(object):
     rogue_base_stats = {
         80:(113,189,105,43,67),
@@ -74,11 +80,11 @@ class Race(object):
         self.character_class = str.lower(character_class)
         self.race_name = str.lower(race)
         if self.race_name not in Race.racial_stat_offset:
-             assert False, _("Unsupported race %(race)s") % {'race':self.race_name}
+             raise InvalidRaceException(_('Unsupported race {race}').format(race=self.race_name))
         if self.character_class == "rogue":
             self.stat_set = Race.rogue_base_stats
         else:
-            assert False, _("Unsupported class %(class)s") % {'class': character_class}
+            raise InvalidRaceException(_('Unsupported class {character_class}').format(character_class=self.character_class))
         self.level = level
         self.set_racials()
 
@@ -97,7 +103,7 @@ class Race(object):
             self.stats = self.stat_set[self.level]
             self.stats = map(sum, zip(self.stats, Race.racial_stat_offset[self.race_name]))
         except KeyError as e:
-            assert False, _("Unsupported class/level combination %(class)s/%(level)d") % {'class': self.character_class, 'level': e.message}
+            raise InvalidRaceException(_('Unsupported class/level combination {character_class}/{level}').format(character_class=self.character_class, level=self.level))
 
     def __getattr__(self, name):
         # Any racial we haven't assigned a value to, we don't have.

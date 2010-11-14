@@ -145,10 +145,10 @@ class RogueTalents(object):
         self.combat = CombatTalents(combat_string)
         self.subtlety = SubtletyTalents(subtlety_string)
 
-        # Should be a real exception and not an assert, and may need to be
-        # adjusted if we're going to allow calculations at multiple character
-        # levels, but this will do for the moment.
-        assert self.assassination.talents_in_tree() + self.combat.talents_in_tree() + self.subtlety.talents_in_tree() <= 41
+        # May need to be adjusted if we're going to allow calculations at
+        # multiple character levels, but this will do for the moment.
+        if self.assassination.talents_in_tree() + self.combat.talents_in_tree() + self.subtlety.talents_in_tree() > 41:
+            raise talents.InvalidTalentException(_('Total number of talentpoints has to be 41 or less'))
 
     def is_assassination_rogue(self):
         return self.assassination.talents_in_tree() >= 31

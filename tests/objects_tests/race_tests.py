@@ -14,9 +14,9 @@ class TestRace(unittest.TestCase):
         self.assertFalse(self.race.blood_fury)
 
     def test_exceptions(self):
-        self.assertRaises(AssertionError, self.race.__setattr__, 'level', 81)
-        self.assertRaises(AssertionError, self.race.__init__, 'murloc')
-        self.assertRaises(AssertionError, self.race.__init__, 'undead', 'demon_hunter')
+        self.assertRaises(race.InvalidRaceException, self.race.__setattr__, 'level', 81)
+        self.assertRaises(race.InvalidRaceException, self.race.__init__, 'murloc')
+        self.assertRaises(race.InvalidRaceException, self.race.__init__, 'undead', 'demon_hunter')
         
     def test__getattr__(self):
         racial_stats = (122, 206, 114, 46, 73)

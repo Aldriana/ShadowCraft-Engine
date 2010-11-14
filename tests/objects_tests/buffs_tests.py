@@ -1,9 +1,13 @@
 import unittest
+from core import exceptions
 from objects import buffs
     
 class TestBuffsTrue(unittest.TestCase):
     def setUp(self):
         self.buffs = buffs.Buffs(*buffs.Buffs.allowed_buffs)
+    
+    def test_exception(self):
+        self.assertRaises(buffs.InvalidBuffException, buffs.Buffs, 'fake_buff')
     
     def test__getattr__(self):
         self.assertRaises(AttributeError, self.buffs.__getattr__, 'fake_buff')
@@ -100,3 +104,6 @@ class TestBuffsLevel(unittest.TestCase):
         self.buffs.level = 80
         self.assertEqual(self.buffs.buff_agi(), 155)
         self.assertEqual(self.buffs.buff_str(), 155)
+
+    def test_exception(self):
+        self.assertRaises(exceptions.InvalidLevelException, self.buffs.__setattr__, 'level', 86)
