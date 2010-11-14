@@ -170,53 +170,77 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         return damage_breakdown
 
-    def get_mh_procs_per_second(self, proc, attacks_per_second):
+    def get_mh_procs_per_second(self, proc, attacks_per_second, crit_rates):
         triggers_per_second = 0
         if proc.procs_off_auto_attacks():
-            triggers_per_second += attacks_per_second['mh_autoattack_hits']
+            if proc.procs_off_crit_only():
+                triggers_per_second += attacks_per_second['mh_autoattack_hits'] * crit_rates['mh_autoattacks']
+            else:
+                triggers_per_second += attacks_per_second['mh_autoattack_hits']
         if proc.procs_off_strikes():
-            if 'mutilate' in attacks_per_second:
-                triggers_per_second += attacks_per_second['mutilate']
-            if 'backstab' in attacks_per_second:
-                triggers_per_second += attacks_per_second['backstab']
-            if 'envenom' in attacks_per_second:
-                triggers_per_second += sum(attacks_per_second['envenom'])
+            for ability in ('mutilate', 'backstab', 'revealing_strike', 'sinister_strike', 'ambush', 'hemorrhage'):
+                if ability in attacks_per_second:
+                    if proc.procs_off_crit_only():
+                        triggers_per_second += attacks_per_second[ability] * crit_rates[ability]
+                    else:
+                        triggers_per_second += attacks_per_second[ability]
+            for ability in ('envenom', 'eviscerate'):
+                if ability in attacks_per_second:
+                    if proc.procs_off_crit_only():
+                        triggers_per_second += sum(attacks_per_second[ability]) * crit_rates[ability]
+                    else:
+                        triggers_per_second += sum(attacks_per_second[ability])
         if proc.procs_off_apply_debuff():
             if 'rupture' in attacks_per_second:
-                triggers_per_second += attacks_per_second['rupture']
+                if not proc.procs_off_crit_only():
+                    triggers_per_second += attacks_per_second['rupture']
 
         if proc.is_ppm():
             return triggers_per_second * proc.ppm * self.stats.mh.speed / 60.
         else:
             return triggers_per_second * proc.proc_chance
 
-    def get_oh_procs_per_second(self, proc, attacks_per_second):
+    def get_oh_procs_per_second(self, proc, attacks_per_second, crit_rates):
         triggers_per_second = 0
         if proc.procs_off_auto_attacks():
-            triggers_per_second += attacks_per_second['oh_autoattack_hits']
+            if proc.procs_off_crit_only():
+                triggers_per_second += attacks_per_second['oh_autoattack_hits'] * crit_rates['oh_autoattacks']
+            else:
+                triggers_per_second += attacks_per_second['oh_autoattack_hits']
         if proc.procs_off_strikes():
             if 'mutilate' in attacks_per_second:
-                triggers_per_second += attacks_per_second['mutilate']
+                if proc.procs_off_crit_only():
+                    triggers_per_second += attacks_per_second['mutilate'] * crit_rates['mutilate']
+                else:
+                    triggers_per_second += attacks_per_second['mutilate']
 
         if proc.is_ppm():
             return triggers_per_second * proc.ppm * self.stats.oh.speed / 60.
         else:
             return triggers_per_second * proc.proc_chance
 
-    def get_other_procs_per_second(self, proc, attacks_per_second):
+    def get_other_procs_per_second(self, proc, attacks_per_second, crit_rates):
         triggers_per_second = 0
 
         if proc.procs_off_harmful_spells():
-            if 'instant_poison' in attacks_per_second:
-                triggers_per_second += attacks_per_second['instant_poison']
-            if 'venomous_wounds' in attacks_per_second:
-                triggers_per_second += attacks_per_second['venomous_wounds']
+            for ability in ('instant_poison', 'wound_poison', 'venomous_wounds'):
+                if ability in attacks_per_second:
+                    if proc.procs_off_crit_only():
+                        triggers_per_second += attacks_per_second[ability] * crit_rates[ability]
+                    else:
+                        triggers_per_second += attacks_per_second[ability]
         if proc.procs_off_periodic_spell_damage():
             if 'deadly_poison' in attacks_per_second:
-                triggers_per_second += attacks_per_second['deadly_poison']
+                if proc.procs_off_crit_only():
+                    triggers_per_second += attacks_per_second['deadly_poison'] * crit_rates['deadly_poison']
+                else:
+                    triggers_per_second += attacks_per_second['deadly_poison']
         if proc.procs_off_bleeds():
             if 'rupture_ticks' in attacks_per_second:
-                triggers_per_second += sum(attacks_per_second['rupture_ticks'])
+                if proc.procs_off_crit_only():
+                    triggers_per_second += sum(attacks_per_second['rupture_ticks']) * crit_rates['rupture']
+                else:
+                    triggers_per_second += sum(attacks_per_second['rupture_ticks'])
 
         if proc.is_ppm():
             if triggers_per_second == 0:
@@ -226,13 +250,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         else:
             return triggers_per_second * proc.proc_chance
 
-    def set_uptime(self, proc, attacks_per_second):
+    def set_uptime(self, proc, attacks_per_second, crit_rates):
         if getattr(proc, 'mh_only', False):
-            procs_per_second = self.get_mh_procs_per_second(proc, attacks_per_second)
+            procs_per_second = self.get_mh_procs_per_second(proc, attacks_per_second, crit_rates)
         elif getattr(proc, 'oh_only', False):
-            procs_per_second = self.get_oh_procs_per_second(proc, attacks_per_second)
+            procs_per_second = self.get_oh_procs_per_second(proc, attacks_per_second, crit_rates)
         else:
-            procs_per_second = self.get_mh_procs_per_second(proc, attacks_per_second) + self.get_oh_procs_per_second(proc, attacks_per_second) + self.get_other_procs_per_second(proc, attacks_per_second)
+            procs_per_second = self.get_mh_procs_per_second(proc, attacks_per_second, crit_rates) + self.get_oh_procs_per_second(proc, attacks_per_second, crit_rates) + self.get_other_procs_per_second(proc, attacks_per_second, crit_rates)
 
         if proc.icd:
             proc.uptime = proc.duration / (proc.icd + 1. / procs_per_second)
@@ -248,8 +272,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 proc.uptime = P * (1 - P ** proc.max_stacks) / Q
 
     def compute_damage(self, attack_counts_function):
-        # TODO: Crit procs aren't yet modeled.  Partly because the proc
-        # object isn't really exposing that functionality yet.
+        # TODO: Crit procs aren't yet modeled.
         #
         # TODO: Damage Procs
         #
@@ -307,7 +330,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
             for proc in active_procs:
                 if not proc.icd:
-                    self.set_uptime(proc, attacks_per_second)
+                    self.set_uptime(proc, attacks_per_second, crit_rates)
                     current_stats[proc.stat] += proc.uptime * proc.value
 
             current_stats['agi'] *= self.agi_multiplier
@@ -317,7 +340,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         for proc in active_procs:
             if proc.icd:
-                self.set_uptime(proc, attacks_per_second)
+                self.set_uptime(proc, attacks_per_second, crit_rates)
                 if proc.stat == 'agi':
                     current_stats[proc.stat] += proc.uptime * proc.value * self.agi_multiplier
                 else:
