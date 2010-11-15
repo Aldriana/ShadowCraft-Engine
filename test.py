@@ -12,11 +12,11 @@ from objects import procs
 from objects.rogue import rogue_talents
 from objects.rogue import rogue_glyphs
 
-# If you want i18n, add something that looks vaguely like this.  Better sample
-# code should probably be written at some point.
-#
-# gettext.install('ShadowCraft-Engine', './locale', unicode=False)
-# self.presLan_es = gettext.translation("ShadowCraft-Engine", "./locale", languages=['es'])
+from core import i18n
+
+# Set up language.
+test_language = 'local'
+i18n.set_language(test_language)
 
 # Set up buffs.
 test_buffs = buffs.Buffs(
@@ -89,4 +89,5 @@ for entry in dps_breakdown:
 
 print '-' * (max_len + 15)
 
-print ' ' * (max_len + 1), total_dps
+print ' ' * (max_len + 1), total_dps, _("total damage per second.")
+
