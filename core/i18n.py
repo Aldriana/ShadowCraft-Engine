@@ -25,8 +25,7 @@ def set_language(language):
         if (lang):
             languages_list += lang.split(":")
         languages_list += SUPPORTED_LANGUAGES
-        gettext.translation(TRANSLATION_DOMAIN, LOCALE_DIR, languages=languages_list).install()
+        gettext.translation(TRANSLATION_DOMAIN, LOCALE_DIR, languages=languages_list).install(unicode=True)
 
     elif language in SUPPORTED_LANGUAGES:
-        gettext.translation(TRANSLATION_DOMAIN, LOCALE_DIR, languages=[language]).install()
-
+        gettext.translation(TRANSLATION_DOMAIN, LOCALE_DIR, languages=[language]).install(unicode=True)
