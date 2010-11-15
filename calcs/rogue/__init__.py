@@ -4,6 +4,7 @@ import __builtin__
 __builtin__._ = gettext.gettext
 
 from calcs import DamageCalculator
+from core import exceptions
 
 class RogueDamageCalculator(DamageCalculator):
     # Functions of general use to rogue damage calculation go here. If a
@@ -63,7 +64,7 @@ class RogueDamageCalculator(DamageCalculator):
             self.env_bonus_dmg =         self.env_bonus_dmg_values[self.level]
             self.agi_per_crit =          self.agi_per_crit_values[self.level]
         except KeyError as e:
-            assert False, _("No %(spell_name)s formula available for level %(level)d") % {'spell_name': e.message, 'level': self.level}
+            raise exceptions.InvalidLevelException(_('No {spell_name} formula available for level {level}').format(spell_name=str(e), level=self.level))
             
     def get_spell_hit_from_talents(self):
         return .02 * self.talents.combat.precision

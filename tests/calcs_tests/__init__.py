@@ -1,5 +1,6 @@
 import calcs
 import unittest
+from core import exceptions
 from objects import buffs
 from objects import race
 from objects import stats
@@ -84,3 +85,6 @@ class TestDamageCalculator(unittest.TestCase):
     
     def test_target_armor(self):
         pass
+
+    def test_raid_settings_modifiers(self):
+        self.assertRaises(exceptions.InvalidInputException, self.calculator.raid_settings_modifiers)

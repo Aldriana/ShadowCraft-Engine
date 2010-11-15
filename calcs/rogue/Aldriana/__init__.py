@@ -7,7 +7,7 @@ from calcs.rogue import RogueDamageCalculator
 from core import exceptions
 
 
-class InputsNotModeledException(exceptions.InvalidInputException):
+class InputNotModeledException(exceptions.InvalidInputException):
     # I'll return these when inputs don't make sense to the model.
     pass
 
@@ -253,7 +253,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             if triggers_per_second == 0:
                 return 0
             else:
-                raise InputsNotModeledException(_('PPMs that also proc off spells are not yet modeled.'))
+                raise InputNotModeledException(_('PPMs that also proc off spells are not yet modeled.'))
         else:
             return triggers_per_second * proc.proc_chance
 

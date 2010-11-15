@@ -1,3 +1,9 @@
+from core import exceptions
+
+class InvalidTalentException(exceptions.InvalidInputException):
+    pass
+
+
 class TalentTree(object):
     # Base class for talent trees.  Any general property of that any talent 
     # tree will need to have should be defined here.  Note that constructing
@@ -16,15 +22,10 @@ class TalentTree(object):
         object.__getattribute__(self, name)
 
     def set_talent(self, talent_name, talent_value):
-        # The asserts in this function are sort of a placeholder.  Once we
-        # figure out how we're going to communicate errors between the front
-        # end the back end, these should probably raise real exceptions with
-        # useful information in them instead, but for now this is fine.
-
-        assert talent_name in self.allowed_talents.keys()
-        assert talent_value == int(talent_value)
-        assert talent_value >= 0
-        assert talent_value <= self.allowed_talents[talent_name]
+        if talent_name not in self.allowed_talents.keys():
+            raise InvalidTalentException(_('Invalid talent name {talent_name}').format(talent_name=talent_name))
+        if talent_value < 0 or talent_value > self.allowed_talents[talent_name]:
+            raise InvalidTalentException(_('Invalid value {talent_value} for talent {talent_name}').format(talent_value=talent_value, talent_name=talent_name))
 
         setattr(self, talent_name, int(talent_value))
 
@@ -33,8 +34,8 @@ class TalentTree(object):
             for talent_name in kwargs.keys():
                 self.set_talent(talent_name, kwargs[talent_name])
         else:
-            # Another lazy sanity-check assert.  Should be replaced at some point.
-            assert len(talent_string) == len(self.allowed_talents)
+            if len(talent_string) != len(self.allowed_talents):
+                raise InvalidTalentException(_('Invalid talent string {talent_string}').format(talent_string=talent_string))
             self.populate_talents_from_list([int(c) for c in list(talent_string)])
 
     def talents_in_tree(self):

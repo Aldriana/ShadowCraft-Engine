@@ -7,3 +7,7 @@ class InvalidInputException(Exception):
 
     def __str__(self):
         return str(self.error_msg)
+
+
+class InvalidLevelException(InvalidInputException):
+    pass

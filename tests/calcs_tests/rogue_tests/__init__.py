@@ -1,5 +1,6 @@
 import unittest
 from calcs.rogue import RogueDamageCalculator
+from core import exceptions
 from objects import buffs
 from objects import race
 from objects import stats
@@ -152,4 +153,4 @@ class TestRogueDamageCalculatorLevels(TestRogueDamageCalculator):
         self.calculator.level = 80
     
     def test_set_constants_for_level(self):
-        self.assertRaises(AssertionError, self.calculator.__setattr__, 'level', 86)
+        self.assertRaises(exceptions.InvalidLevelException, self.calculator.__setattr__, 'level', 86)
