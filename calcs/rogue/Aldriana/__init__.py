@@ -277,6 +277,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             return triggers_per_second * proc.proc_chance
 
     def get_procs_per_second(self, proc, attacks_per_second, crit_rates):
+        # TODO: Include damaging proc hits in figuring out how often everything else procs.
         if getattr(proc, 'mh_only', False):
             procs_per_second = self.get_mh_procs_per_second(proc, attacks_per_second, crit_rates)
         elif getattr(proc, 'oh_only', False):
@@ -309,8 +310,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second[proc.proc_name] = self.get_procs_per_second(proc, attacks_per_second, crit_rates) * self.one_hand_melee_hit_chance()
 
     def compute_damage(self, attack_counts_function):
-        # TODO: Damage Procs
-        #
         # TODO: Wierd procs.
         #
         # TODO: Crit cap
