@@ -28,4 +28,4 @@ def set_language(language):
         gettext.translation(TRANSLATION_DOMAIN, LOCALE_DIR, languages=languages_list).install(unicode=True)
 
     elif language in SUPPORTED_LANGUAGES:
-        gettext.translation(TRANSLATION_DOMAIN, LOCALE_DIR, languages=[language]).install(unicode=True)
+        gettext.translation(TRANSLATION_DOMAIN, LOCALE_DIR, fallback=True, languages=[language]).install(unicode=True)
