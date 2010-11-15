@@ -127,7 +127,23 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         self.base_speed_multiplier = 1.4 * self.buffs.melee_haste_multiplier() * self.get_heroism_haste_multiplier()
 
-    def get_damage_breakdown(self, current_stats, attacks_per_second, crit_rates):
+    def get_proc_damage_contribution(self, proc, proc_count, current_stats):
+        base_damage = proc.value
+
+        if proc.stat == 'spell_damage':
+            multiplier = self.raid_settings_modifiers(is_spell=True)
+            crit_multiplier = self.crit_damage_modifiers(is_spell=True)
+            crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
+        elif proc.stat == 'physical_damage':
+            multiplier = self.raid_settings_modifiers(is_physical=True)
+            crit_multiplier = self.crit_damage_modifiers(is_physical=True)
+            crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
+        else:
+            return 0
+
+        return base_damage * multiplier * (1 + crit_rate * (crit_multiplier - 1)) * proc_count
+
+    def get_damage_breakdown(self, current_stats, attacks_per_second, crit_rates, damage_procs):
         # Vendetta may want to be handled elsewhere.
         average_ap = current_stats['ap'] + 2 * current_stats['agi'] + self.base_strength
         average_ap *= self.buffs.attack_power_multiplier()
@@ -174,6 +190,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         if 'deadly_poison' in attacks_per_second:
             damage_breakdown['deadly_poison'] = self.get_dps_contribution(self.deadly_poison_tick_damage(average_ap), crit_rates['deadly_poison'], attacks_per_second['deadly_poison']) * self.vendetta_mult
+
+        for proc in damage_procs:
+            damage_breakdown[proc.proc_name] = self.get_proc_damage_contribution(proc, attacks_per_second[proc.proc_name], current_stats)
 
         return damage_breakdown
 
@@ -257,13 +276,18 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         else:
             return triggers_per_second * proc.proc_chance
 
-    def set_uptime(self, proc, attacks_per_second, crit_rates):
+    def get_procs_per_second(self, proc, attacks_per_second, crit_rates):
         if getattr(proc, 'mh_only', False):
             procs_per_second = self.get_mh_procs_per_second(proc, attacks_per_second, crit_rates)
         elif getattr(proc, 'oh_only', False):
             procs_per_second = self.get_oh_procs_per_second(proc, attacks_per_second, crit_rates)
         else:
             procs_per_second = self.get_mh_procs_per_second(proc, attacks_per_second, crit_rates) + self.get_oh_procs_per_second(proc, attacks_per_second, crit_rates) + self.get_other_procs_per_second(proc, attacks_per_second, crit_rates)
+
+        return procs_per_second
+
+    def set_uptime(self, proc, attacks_per_second, crit_rates):
+        procs_per_second = self.get_procs_per_second(proc, attacks_per_second, crit_rates)
 
         if proc.icd:
             proc.uptime = proc.duration / (proc.icd + 1. / procs_per_second)
@@ -277,6 +301,12 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 Q = q ** proc.duration
                 P = 1 - Q
                 proc.uptime = P * (1 - P ** proc.max_stacks) / Q
+
+    def update_with_damaging_proc(self, proc, attacks_per_second, crit_rates):
+        if proc.stat == 'spell_damage':
+            attacks_per_second[proc.proc_name] = self.get_procs_per_second(proc, attacks_per_second, crit_rates) * self.spell_hit_chance()
+        elif proc.stat == 'physical_damage':
+            attacks_per_second[proc.proc_name] = self.get_procs_per_second(proc, attacks_per_second, crit_rates) * self.one_hand_melee_hit_chance()
 
     def compute_damage(self, attack_counts_function):
         # TODO: Damage Procs
@@ -296,10 +326,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         }
 
         active_procs = []
+        damage_procs = []
 
         for proc_info in self.stats.procs.get_all_procs_for_stat():
             if proc_info.stat in current_stats and not proc_info.is_ppm():
                 active_procs.append(proc_info)
+            if proc_info.stat in ('spell_damage', 'physical_damage'):
+                damage_procs.append(proc_info)
 
         mh_landslide = self.stats.mh.landslide
         if mh_landslide:
@@ -332,6 +365,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 'mastery': self.stats.mastery
             }
 
+            for proc in damage_procs:
+                if not proc.icd:
+                    self.update_with_damaging_proc(proc, attacks_per_second, crit_rates)
+
             for proc in active_procs:
                 if not proc.icd:
                     self.set_uptime(proc, attacks_per_second, crit_rates)
@@ -355,7 +392,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         attacks_per_second, crit_rates = attack_counts_function(current_stats)
 
-        return self.get_damage_breakdown(current_stats, attacks_per_second, crit_rates)
+        for proc in damage_procs:
+            self.update_with_damaging_proc(proc, attacks_per_second, crit_rates)
+
+        return self.get_damage_breakdown(current_stats, attacks_per_second, crit_rates ,damage_procs)
 
     ###########################################################################
     # Assassination DPS functions
