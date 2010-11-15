@@ -31,12 +31,12 @@ class TestRogueDamageCalculator(unittest.TestCase):
     
     def test_get_spell_hit_from_talents(self):
         self.assertAlmostEqual(self.calculator.get_spell_hit_from_talents(), .04)
-        self.calculator.talents.combat.precision = 0
+        self.calculator.talents.precision = 0
         self.assertAlmostEqual(self.calculator.get_spell_hit_from_talents(), .0)
     
     def test_get_melee_hit_from_talents(self):
         self.assertAlmostEqual(self.calculator.get_melee_hit_from_talents(), .04)
-        self.calculator.talents.combat.precision = 3
+        self.calculator.talents.precision = 3
         self.assertAlmostEqual(self.calculator.get_melee_hit_from_talents(), .06)
     
     def test_oh_penalty(self):

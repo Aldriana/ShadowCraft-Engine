@@ -53,3 +53,57 @@ class TalentTree(object):
         # Again, this should probably fail more elegantly with an actual error
         # message, but again, I'm being lazy.
         assert False
+
+class ClassTalents(object):
+    # override in subclasses to return a list of three TalentTree classes
+    # available to this class
+    @classmethod
+    def treeClasses(cls):
+        NotImplemented
+
+    # Might make sense to define a more general talent tree class that contains
+    # some of this logic (as well as, for instance, a customized __getattr__
+    # and __setattr__ functions to let you access talents by name without
+    # needing to know what tree they're in) and then just extend it here;
+    # not going to worry about it yet but it might be a sensible piece of 
+    # cleanup if someone wants to tackle it.
+
+    def __init__(self, string1, string2, string3):
+        self.trees = list()
+        self.spec = None
+
+        # instantiate the three trees using the specified strings. while we're
+        # at it, count up the total talents as a sanity check, and find the
+        # tree with the most talents to determine spec. since the specced tree
+        # always has either 1) all the talents, or 2) at least 31 talents while
+        # the other two have fewer than 31 talents, this works.
+        maxTalents = 0
+        totalTalents = 0
+        for (treeClass, string) in zip(self.treeClasses(), [string1, string2, string3]):
+            tree = treeClass(string)
+            if maxTalents < tree.talents_in_tree():
+                maxTalents = tree.talents_in_tree()
+                self.spec = treeClass
+            totalTalents += tree.talents_in_tree()
+            self.trees.append(tree)
+
+        # build up a dict of talents to trees for quicker access in __getattr__
+        self.treeForTalent = dict()
+        for tree in self.trees:
+            for name in tree.__class__.allowed_talents.keys():
+                self.treeForTalent[name] = tree
+
+        # Should be a real exception and not an assert, and may need to be
+        # adjusted if we're going to allow calculations at multiple character
+        # levels, but this will do for the moment.
+        assert totalTalents <= 41
+
+    def is_specced(self, treeClass):
+        return self.spec == treeClass
+
+    def __getattr__(self, name):
+        # If someone tries to access a talent defined on one of the trees,
+        # access it through that tree.
+        if name in self.treeForTalent.keys():
+            return self.treeForTalent[name].__getattribute__(name)
+        object.__getattribute__(self, name)
