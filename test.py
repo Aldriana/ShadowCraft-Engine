@@ -14,7 +14,7 @@ from objects.rogue import rogue_glyphs
 
 from core import i18n
 
-# Set up language.
+# Set up language. Use 'en_US', 'es_ES', 'fr' for specific languages.
 test_language = 'local'
 i18n.set_language(test_language)
 
