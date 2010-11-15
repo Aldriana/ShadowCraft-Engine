@@ -76,7 +76,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
     def get_cp_distribution_for_cycle(self, cp_distribution_per_move, target_cp_quantity):
         cur_min_cp = 0
-        ruthlessness_chance = self.talents.assassination.ruthlessness * .2
+        ruthlessness_chance = self.talents.ruthlessness * .2
         cur_dist = {(0,0):(1-ruthlessness_chance), (1,0):ruthlessness_chance}
         while cur_min_cp < target_cp_quantity:
             cur_min_cp += 1
@@ -123,7 +123,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.base_strength = self.stats.str + self.buffs.buff_str() + self.race.racial_str
         self.base_strength *= self.buffs.stat_multiplier()
 
-        self.relentless_strikes_energy_return_per_cp = [0, 1.75, 3.5, 5][self.talents.subtlety.relentless_strikes]
+        self.relentless_strikes_energy_return_per_cp = [0, 1.75, 3.5, 5][self.talents.relentless_strikes]
 
         self.base_speed_multiplier = 1.4 * self.buffs.melee_haste_multiplier() * self.get_heroism_haste_multiplier()
 
@@ -418,9 +418,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         # These talents have huge, hard-to-model implications on cycle and will
         # always be taken in any serious DPS build.  Hence, I'm not going to
         # worry about modeling them for the foreseeable future.
-        if self.talents.assassination.master_poisoner != 1:
+        if self.talents.master_poisoner != 1:
             raise InputNotModeledException(_('Assassination modeling requires one point in Master Poisoner'))
-        if self.talents.assassination.cut_to_the_chase != 3:
+        if self.talents.cut_to_the_chase != 3:
             raise InputNotModeledException(_('Assassination modeling requires three points in Cut to the Chase'))
 
         self.set_constants()
@@ -428,13 +428,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.rupture_energy_cost = 25 / self.one_hand_melee_hit_chance()
         self.envenom_energy_cost = 35 / self.one_hand_melee_hit_chance()
 
-        if self.talents.assassination.overkill:
+        if self.talents.overkill:
             self.base_energy_regen += 60 / (180. + self.settings.response_time)
 
-        if self.talents.assassination.cold_blood:
+        if self.talents.cold_blood:
             self.bonus_energy_regen += 25./(120+self.settings.response_time)
 
-        if self.talents.assassination.vendetta:
+        if self.talents.vendetta:
             if self.glyphs.vendetta:
                 self.vendetta_mult = 1.06
             else:
@@ -490,11 +490,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         energy_regen = self.base_energy_regen * haste_multiplier
         energy_regen += self.bonus_energy_regen
-        energy_regen_with_rupture = energy_regen + 1.5 * self.talents.assassination.venomous_wounds
+        energy_regen_with_rupture = energy_regen + 1.5 * self.talents.venomous_wounds
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
 
-        mutilate_crit_rate = base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus() + .05 * self.talents.assassination.puncturing_wounds
+        mutilate_crit_rate = base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus() + .05 * self.talents.puncturing_wounds
         if mutilate_crit_rate > 1:
             mutilate_crit_rate = 1.
 
@@ -509,7 +509,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'deadly_poison': base_spell_crit_rate
         }
 
-        seal_fate_proc_rate = 1 - (1 - mutilate_crit_rate * .5 * self.talents.assassination.seal_fate) ** 2
+        seal_fate_proc_rate = 1 - (1 - mutilate_crit_rate * .5 * self.talents.seal_fate) ** 2
         cp_per_mut = {2: 1 - seal_fate_proc_rate, 3: seal_fate_proc_rate}
         cp_distribution = self.get_cp_distribution_for_cycle(cp_per_mut, self.settings.cycle.min_envenom_size_mutilate)
 
@@ -540,7 +540,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attacks_per_second['rupture'] = 1 / average_cycle_length
         attacks_per_second['mutilate'] = (envenoms_per_second + attacks_per_second['rupture']) * muts_per_finisher
 
-        if self.talents.assassination.cold_blood:
+        if self.talents.cold_blood:
             envenoms_per_cold_blood = 120 * envenoms_per_second
             crit_rates['envenom'] = ((envenoms_per_cold_blood - 1) * crit_rates['envenom'] + 1) / envenoms_per_cold_blood
 
@@ -552,7 +552,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second['rupture_ticks'][i] = ticks_per_rupture * attacks_per_second['rupture'] * finisher_size_breakdown[i]
 
         total_rupture_ticks = sum(attacks_per_second['rupture_ticks'])
-        attacks_per_second['venomous_wounds'] = total_rupture_ticks * .3 * self.talents.assassination.venomous_wounds * self.spell_hit_chance()
+        attacks_per_second['venomous_wounds'] = total_rupture_ticks * .3 * self.talents.venomous_wounds * self.spell_hit_chance()
 
         attacks_per_second['mh_autoattacks'] = attack_speed_multiplier / self.stats.mh.speed
         attacks_per_second['oh_autoattacks'] = attack_speed_multiplier / self.stats.oh.speed
@@ -597,11 +597,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         energy_regen = self.base_energy_regen * haste_multiplier
         energy_regen += self.bonus_energy_regen
-        energy_regen_with_rupture = energy_regen + 1.5 * self.talents.assassination.venomous_wounds
+        energy_regen_with_rupture = energy_regen + 1.5 * self.talents.venomous_wounds
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
 
-        backstab_crit_rate = base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus() + .1 * self.talents.assassination.puncturing_wounds
+        backstab_crit_rate = base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus() + .1 * self.talents.puncturing_wounds
         if backstab_crit_rate > 1:
             backstab_crit_rate = 1.
 
@@ -617,11 +617,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         }
 
         backstab_energy_cost = 48 + 12 / self.one_hand_melee_hit_chance()
-        backstab_energy_cost -= 15 * self.talents.assassination.murderous_intent
+        backstab_energy_cost -= 15 * self.talents.murderous_intent
         if self.glyphs.backstab:
             backstab_energy_cost -= 5 * backstab_crit_rate
 
-        seal_fate_proc_rate = backstab_crit_rate * .5 * self.talents.assassination.seal_fate
+        seal_fate_proc_rate = backstab_crit_rate * .5 * self.talents.seal_fate
         cp_per_backstab = {1: 1-seal_fate_proc_rate, 2: seal_fate_proc_rate}
         cp_distribution = self.get_cp_distribution_for_cycle(cp_per_backstab, self.settings.cycle.min_envenom_size_backstab)
 
@@ -652,7 +652,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attacks_per_second['rupture'] = 1 / average_cycle_length
         attacks_per_second['backstab'] = (envenoms_per_second + attacks_per_second['rupture']) * bs_per_finisher
 
-        if self.talents.assassination.cold_blood:
+        if self.talents.cold_blood:
             envenoms_per_cold_blood = 120 * envenoms_per_second
             crit_rates['envenom'] = ((envenoms_per_cold_blood - 1) * crit_rates['envenom'] + 1) / envenoms_per_cold_blood
 
@@ -664,7 +664,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second['rupture_ticks'][i] = ticks_per_rupture * attacks_per_second['rupture'] * finisher_size_breakdown[i]
 
         total_rupture_ticks = sum(attacks_per_second['rupture_ticks'])
-        attacks_per_second['venomous_wounds'] = total_rupture_ticks * .3 * self.talents.assassination.venomous_wounds * self.spell_hit_chance()
+        attacks_per_second['venomous_wounds'] = total_rupture_ticks * .3 * self.talents.venomous_wounds * self.spell_hit_chance()
 
         attacks_per_second['mh_autoattacks'] = attack_speed_multiplier / self.stats.mh.speed
         attacks_per_second['oh_autoattacks'] = attack_speed_multiplier / self.stats.oh.speed

@@ -67,10 +67,10 @@ class RogueDamageCalculator(DamageCalculator):
             raise exceptions.InvalidLevelException(_('No {spell_name} formula available for level {level}').format(spell_name=str(e), level=self.level))
             
     def get_spell_hit_from_talents(self):
-        return .02 * self.talents.combat.precision
+        return .02 * self.talents.precision
 
     def get_melee_hit_from_talents(self):
-        return .02 * self.talents.combat.precision
+        return .02 * self.talents.precision
     
     def oh_penalty(self):
         if self.talents.is_combat_rogue():
@@ -89,22 +89,22 @@ class RogueDamageCalculator(DamageCalculator):
         # respective additive/multiplicative values
         base_modifier = 1
         if opportunity:
-            base_modifier += .1 * self.talents.subtlety.opportunity
+            base_modifier += .1 * self.talents.opportunity
         if coup_de_grace:
             cdg_tuple = (0, .07, .14, .2)
-            base_modifier += cdg_tuple[self.talents.assassination.coup_de_grace]
+            base_modifier += cdg_tuple[self.talents.coup_de_grace]
         if executioner and self.talents.is_subtlety_rogue():
             base_modifier += .02 * self.stats.get_mastery_from_rating(mastery)
         if aggression:
             aggression_tuple = (0, .07, .14, .2)
-            base_modifier += aggression_tuple[self.talents.combat.aggression]
+            base_modifier += aggression_tuple[self.talents.aggression]
         if improved_sinister_strike:
-            base_modifier += .1 * self.talents.combat.improved_sinister_strike
+            base_modifier += .1 * self.talents.improved_sinister_strike
         if vile_poisons:
             vp_tuple = (0, .07, .14, .2)
-            base_modifier += vp_tuple[self.talents.assassination.vile_poisons]
+            base_modifier += vp_tuple[self.talents.vile_poisons]
         if improved_ambush:
-            base_modifier += .05 * self.talents.subtlety.improved_ambush
+            base_modifier += .05 * self.talents.improved_ambush
         if potent_poisons and self.talents.is_assassination_rogue():
             base_modifier += .035 * self.stats.get_mastery_from_rating(mastery)
         if assassins_resolve and self.talents.is_assassination_rogue() and (self.stats.mh.type == 'dagger'):
@@ -112,7 +112,7 @@ class RogueDamageCalculator(DamageCalculator):
         # Passing Sanguinary Vein without talent parameter (it affects all damage)
         # nor is_bleeding since the target will most likely be bleeding from
         # refreshed ruptures in subtletly builds.
-        base_modifier *= (1 + .05 * self.talents.subtlety.sanguinary_vein)
+        base_modifier *= (1 + .05 * self.talents.sanguinary_vein)
 
         return base_modifier
 
@@ -126,7 +126,7 @@ class RogueDamageCalculator(DamageCalculator):
             base_modifier = 2
 
         if lethality:
-            crit_damage_bonus_modifier = 1 + .1 * self.talents.assassination.lethality
+            crit_damage_bonus_modifier = 1 + .1 * self.talents.lethality
         else:
             crit_damage_bonus_modifier = 1
 

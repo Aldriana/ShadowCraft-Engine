@@ -1,6 +1,6 @@
 from objects import talents
 
-class AssassinationTalents(talents.TalentTree):
+class Assassination(talents.TalentTree):
     allowed_talents = {
         'deadly_momentum': 2,
         'coup_de_grace': 3,
@@ -44,7 +44,7 @@ class AssassinationTalents(talents.TalentTree):
         self.set_talent('venomous_wounds', values_list[17])
         self.set_talent('vendetta', values_list[18])
 
-class CombatTalents(talents.TalentTree):
+class Combat(talents.TalentTree):
     allowed_talents = {
         'improved_recuperate': 2,
         'improved_sinister_strike': 3,
@@ -88,7 +88,7 @@ class CombatTalents(talents.TalentTree):
         self.set_talent('restless_blades', values_list[17])
         self.set_talent('killing_spree', values_list[18])
 
-class SubtletyTalents(talents.TalentTree):
+class Subtlety(talents.TalentTree):
     allowed_talents = {
         'nightstalker': 2,
         'improved_ambush': 3,
@@ -132,29 +132,16 @@ class SubtletyTalents(talents.TalentTree):
         self.set_talent('serrated_blades', values_list[17])
         self.set_talent('shadow_dance', values_list[18])
 
-class RogueTalents(object):
-    # Might make sense to define a more general talent tree class that contains
-    # some of this logic (as well as, for instance, a customized __getattr__
-    # and __setattr__ functions to let you access talents by name without
-    # needing to know what tree they're in) and then just extend it here;
-    # not going to worry about it yet but it might be a sensible piece of 
-    # cleanup if someone wants to tackle it.
-
-    def __init__(self, assassination_string, combat_string, subtlety_string):
-        self.assassination = AssassinationTalents(assassination_string)
-        self.combat = CombatTalents(combat_string)
-        self.subtlety = SubtletyTalents(subtlety_string)
-
-        # May need to be adjusted if we're going to allow calculations at
-        # multiple character levels, but this will do for the moment.
-        if self.assassination.talents_in_tree() + self.combat.talents_in_tree() + self.subtlety.talents_in_tree() > 41:
-            raise talents.InvalidTalentException(_('Total number of talentpoints has to be 41 or less'))
+class RogueTalents(talents.ClassTalents):
+    @classmethod
+    def treeClasses(cls):
+        return [ Assassination, Combat, Subtlety ]
 
     def is_assassination_rogue(self):
-        return self.assassination.talents_in_tree() >= 31
-    
+        return self.is_specced(Assassination)
+
     def is_combat_rogue(self):
-        return self.combat.talents_in_tree() >= 31
+        return self.is_specced(Combat)
 
     def is_subtlety_rogue(self):
-        return self.subtlety.talents_in_tree() >= 31
+        return self.is_specced(Subtlety)
