@@ -61,13 +61,6 @@ class ClassTalents(object):
     def treeClasses(cls):
         NotImplemented
 
-    # Might make sense to define a more general talent tree class that contains
-    # some of this logic (as well as, for instance, a customized __getattr__
-    # and __setattr__ functions to let you access talents by name without
-    # needing to know what tree they're in) and then just extend it here;
-    # not going to worry about it yet but it might be a sensible piece of 
-    # cleanup if someone wants to tackle it.
-
     def __init__(self, string1, string2, string3):
         self.trees = list()
         self.spec = None
@@ -90,13 +83,13 @@ class ClassTalents(object):
         # build up a dict of talents to trees for quicker access in __getattr__
         self.treeForTalent = dict()
         for tree in self.trees:
-            for name in tree.__class__.allowed_talents.keys():
+            for name in tree.allowed_talents.keys():
                 self.treeForTalent[name] = tree
 
-        # Should be a real exception and not an assert, and may need to be
-        # adjusted if we're going to allow calculations at multiple character
-        # levels, but this will do for the moment.
-        assert totalTalents <= 41
+        # May need to be adjusted if we're going to allow calculations at
+        # multiple character levels, but this will do for the moment.
+        if totalTalents > 41:
+            raise InvalidTalentException(_('Total number of talentpoints has to be 41 or less'))
 
     def is_specced(self, treeClass):
         return self.spec == treeClass
@@ -105,5 +98,5 @@ class ClassTalents(object):
         # If someone tries to access a talent defined on one of the trees,
         # access it through that tree.
         if name in self.treeForTalent.keys():
-            return self.treeForTalent[name].__getattribute__(name)
+            return getattr(self.treeForTalent[name], name)
         object.__getattribute__(self, name)

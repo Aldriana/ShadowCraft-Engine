@@ -5,15 +5,15 @@ from objects.rogue import rogue_talents
 class TestAssassinationTalents(unittest.TestCase):
     # Tests for the abstract class objects.talents.TalentTree
     def setUp(self):
-        self.talents = rogue_talents.AssassinationTalents('0333230113022110321')
+        self.talents = rogue_talents.Assassination('0333230113022110321')
 
     def test__getattr__(self):
         self.assertRaises(AttributeError, self.talents.__getattr__, 'fake_talent')
-        talents = rogue_talents.AssassinationTalents()
+        talents = rogue_talents.Assassination()
         self.assertEqual(talents.vendetta, 0)
 
     def test__init__kwargs(self):
-        talents = rogue_talents.AssassinationTalents(vendetta=1)
+        talents = rogue_talents.Assassination(vendetta=1)
         self.assertEqual(talents.vendetta, 1)
         self.assertEqual(talents.cold_blood, 0)
         self.assertRaises(AttributeError, talents.__getattr__, 'fake_talent')
@@ -24,7 +24,7 @@ class TestAssassinationTalents(unittest.TestCase):
         self.assertRaises(talents.InvalidTalentException, self.talents.set_talent, 'vendetta', -2)
     
     def test_exceptions(self):
-        self.assertRaises(talents.InvalidTalentException, rogue_talents.AssassinationTalents, '10333230113022110321')
+        self.assertRaises(talents.InvalidTalentException, rogue_talents.Assassination, '10333230113022110321')
 
 class TestCombatTalents(unittest.TestCase):
     pass
@@ -39,11 +39,11 @@ class TestRogueTalents(unittest.TestCase):
         self.talents = rogue_talents.RogueTalents('0333230113022110321', '0020000000000000000', '2030030000000000000')
 
     def test(self):
-        self.assertEqual(self.talents.assassination.vendetta, 1)
-        self.assertEqual(self.talents.assassination.cold_blood, 1)
-        self.assertEqual(self.talents.subtlety.relentless_strikes, 3)
-        self.assertEqual(self.talents.combat.precision, 2)
-        self.assertEqual(self.talents.combat.killing_spree, 0)
+        self.assertEqual(self.talents.vendetta, 1)
+        self.assertEqual(self.talents.cold_blood, 1)
+        self.assertEqual(self.talents.relentless_strikes, 3)
+        self.assertEqual(self.talents.precision, 2)
+        self.assertEqual(self.talents.killing_spree, 0)
 
     def test_is_assassination_rogue(self):
         self.assertTrue(self.talents.is_assassination_rogue())
