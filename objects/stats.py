@@ -140,7 +140,7 @@ class GearBuffs(object):
         'unsolvable_riddle':        ('agi', 1605, 20, 120),
         'demon_panther':            ('agi', 1425, 20, 120),
         'potion_of_the_tolvir':     ('agi', 1200, 25, None),
-        'engineer_glove_enchant':   ('haste_rating', 340, 12, 60)
+        'engineer_glove_enchant':   ('haste', 340, 12, 60)
     }
 
     def __init__(self, *args):
@@ -175,10 +175,10 @@ class GearBuffs(object):
     def get_all_activated_agi_boosts(self):
         return self.get_all_activated_boosts_for_stat('agi')
 
-    def get_all_activated_boosts_for_stat(self,stat):
+    def get_all_activated_boosts_for_stat(self, stat):
         boosts = []
         for boost in GearBuffs.activated_boosts:
-            if getattr(self,boost) and GearBuffs.activated_boosts[boost][0] == stat:
+            if getattr(self, boost) and GearBuffs.activated_boosts[boost][0] == stat:
                 boosts.append(GearBuffs.activated_boosts[boost][1:])
 
         return boosts

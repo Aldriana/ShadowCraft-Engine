@@ -80,6 +80,7 @@ for value in ep_values:
 print '---------'
 
 # Compute DPS Breakdown.
+calculator.init_assassination()
 dps_breakdown = calculator.assassination_dps_breakdown().items()
 dps_breakdown.sort(key=lambda entry: entry[1], reverse=True)
 max_len = max(len(entry[0]) for entry in dps_breakdown)

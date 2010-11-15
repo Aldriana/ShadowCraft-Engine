@@ -103,20 +103,25 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         return cur_dist
 
     def set_constants(self):
-        # General setup that we'll use in all 3 cycles.  Called from 
-        # init_<spec>().
-        self.base_energy_regen = 10
-
+        # General setup that we'll use in all 3 cycles.
         self.bonus_energy_regen = 0
         if self.settings.tricks_on_cooldown and not self.glyphs.tricks_of_the_trade:
             self.bonus_energy_regen -= 15./(30+self.settings.response_time)
 
-        self.base_agility = self.stats.agi + self.buffs.buff_agi() + self.race.racial_agi
-        for value, duration, cooldown in self.stats.gear_buffs.get_all_activated_agi_boosts():
-            if cooldown is not None:
-                self.base_agility += (value * duration) * 1.0 / (cooldown + self.settings.response_time)
-            else:
-                self.base_agility += (value * duration) * 1.0 / self.settings.duration
+        self.base_stats = {
+            'agi': self.stats.agi + self.buffs.buff_agi() + self.race.racial_agi,
+            'ap': self.stats.ap + 140,
+            'crit': self.stats.crit,
+            'haste': self.stats.haste,
+            'mastery': self.stats.mastery
+        }
+
+        for stat in self.base_stats:
+            for value, duration, cooldown in self.stats.gear_buffs.get_all_activated_boosts_for_stat(stat):
+                if cooldown is not None:
+                    self.base_stats[stat] += (value * duration) * 1.0 / (cooldown + self.settings.response_time)
+                else:
+                    self.base_stats[stat] += (value * duration) * 1.0 / self.settings.duration
 
         self.agi_multiplier = self.buffs.stat_multiplier() * self.stats.gear_buffs.leather_specialization_multiplier()
 
@@ -317,11 +322,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         # TODO: Hit/Exp procs
 
         current_stats = {
-            'agi': self.base_agility * self.agi_multiplier,
-            'ap': self.stats.ap + 140,
-            'crit': self.stats.crit,
-            'haste': self.stats.haste,
-            'mastery': self.stats.mastery
+            'agi': self.base_stats['agi'] * self.agi_multiplier,
+            'ap': self.base_stats['ap'],
+            'crit': self.base_stats['crit'],
+            'haste': self.base_stats['haste'],
+            'mastery': self.base_stats['mastery']
         }
 
         active_procs = []
@@ -357,11 +362,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         while True:
             current_stats = {
-                'agi': self.base_agility,
-                'ap': self.stats.ap + 140,
-                'crit': self.stats.crit,
-                'haste': self.stats.haste,
-                'mastery': self.stats.mastery
+                'agi': self.base_stats['agi'],
+                'ap': self.base_stats['ap'],
+                'crit': self.base_stats['crit'],
+                'haste': self.base_stats['haste'],
+                'mastery': self.base_stats['mastery']
             }
 
             for proc in damage_procs:
@@ -428,6 +433,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.rupture_energy_cost = 25 / self.one_hand_melee_hit_chance()
         self.envenom_energy_cost = 35 / self.one_hand_melee_hit_chance()
 
+        self.base_energy_regen = 10
         if self.talents.overkill:
             self.base_energy_regen += 60 / (180. + self.settings.response_time)
 
