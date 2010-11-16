@@ -98,7 +98,7 @@ class DamageCalculator(object):
     def armor_mitigation_multiplier(self, armor):
         # Pass an armor value in to get the armor mitigation multiplier for
         # that armor value.
-        return self.ARMOR_MITIGATION_PARAMETER / (self.ARMOR_MITIGATION_PARAMETER + armor)
+        return armor / (self.ARMOR_MITIGATION_PARAMETER + armor)
 
     def armor_mitigate(self, damage, armor):
         # Pass in raw physical damage and armor value, get armor-mitigated
