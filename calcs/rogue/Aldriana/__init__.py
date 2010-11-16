@@ -755,7 +755,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
     def combat_dps_breakdown(self):
         if self.settings.cycle._cycle_type != 'combat':
-            raise InputNotModeledException(_('You must specify an combat cycle to match your combat spec.'))
+            raise InputNotModeledException(_('You must specify a combat cycle to match your combat spec.'))
 
         if self.settings.cycle.use_revealing_strike not in ('sometimes', 'always', 'never'):
             raise InputNotModeledException(_('Revealing strike usage must be set to always, sometimes, or never'))
