@@ -114,7 +114,7 @@ class ProcsList(object):
         'rogue_t11_4pc':                            ('weird_proc', 1, 15, .01, 'auto_attacks', None, 1, False, 'Deadly Scheme'),
         'the_twilight_blade':                       ('crit', 185, 10, None, 'all_attacks', None, 3, False, 'The Deepest Night'),           # Behavior still needs to be tested.  I expect 1 PPM with no ICD, but should be tested.
         'tias_grace':                               ('agi', 30, 15, None, 'all_attacks', None, 10, False, 'Grace'),
-        'unheeded_warning':                         ('weird_proc', .25, 10, None, 'all_attacks', None, 1, False, 'Heedless Carnage'),      # Behavior still needs to be tested.
+        'unheeded_warning':                         ('weird_proc', .25, 10, .1, 'all_attacks', 45, 1, False, 'Heedless Carnage'),      # ICD is a guess and should be verified.
     }
 
 ##    proc_triggers = frozenset([

@@ -116,6 +116,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'mastery': self.stats.mastery
         }
 
+        # TODO: Include activated racial abilities.
         for stat in self.base_stats:
             for value, duration, cooldown in self.stats.gear_buffs.get_all_activated_boosts_for_stat(stat):
                 if cooldown is not None:
@@ -314,8 +315,17 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         elif proc.stat == 'physical_damage':
             attacks_per_second[proc.proc_name] = self.get_procs_per_second(proc, attacks_per_second, crit_rates) * self.one_hand_melee_hit_chance()
 
+    def unheeded_warning_multiplier(self, attacks_per_second, crit_rates):
+        proc = self.stats.procs.unheeded_warning
+        if not proc:
+            return 1
+
+        self.set_uptime(proc, attacks_per_second, crit_rates)
+        return 1 + proc.value * proc.uptime
+
+
     def compute_damage(self, attack_counts_function):
-        # TODO: Wierd procs.
+        # TODO: 4pc T11
         #
         # TODO: Crit cap
         #
@@ -399,7 +409,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         for proc in damage_procs:
             self.update_with_damaging_proc(proc, attacks_per_second, crit_rates)
 
-        return self.get_damage_breakdown(current_stats, attacks_per_second, crit_rates ,damage_procs)
+        damage_breakdown = self.get_damage_breakdown(current_stats, attacks_per_second, crit_rates ,damage_procs)
+        damage_breakdown['autoattack'] *= self.unheeded_warning_multiplier(attacks_per_second, crit_rates)
+        return damage_breakdown
 
     ###########################################################################
     # Assassination DPS functions
