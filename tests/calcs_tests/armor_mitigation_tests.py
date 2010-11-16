@@ -18,8 +18,14 @@ class TestArmorMitigation(unittest.TestCase):
         self.assertAlmostEqual(15232.5, armor_mitigation.parameter(80))
         self.assertAlmostEqual(26070.0, armor_mitigation.parameter(85))
 
+    def test_mitigation_spot_checks(self):
+        self.assertAlmostEqual(0.4441, armor_mitigation.mitigation(4700,  60), 4)
+        self.assertAlmostEqual(0.4217, armor_mitigation.mitigation(7700,  70), 4)
+        self.assertAlmostEqual(0.4109, armor_mitigation.mitigation(10623, 80), 4)
+        self.assertAlmostEqual(0.3148, armor_mitigation.mitigation(11977, 85), 4)
+
     def test_multiplier_spot_checks(self):
-        self.assertAlmostEqual(0.4441, armor_mitigation.multiplier(4700,  60), 4)
-        self.assertAlmostEqual(0.4217, armor_mitigation.multiplier(7700,  70), 4)
-        self.assertAlmostEqual(0.4109, armor_mitigation.multiplier(10623, 80), 4)
-        self.assertAlmostEqual(0.3148, armor_mitigation.multiplier(11977, 85), 4)
+        self.assertAlmostEqual(1 - 0.4441, armor_mitigation.multiplier(4700,  60), 4)
+        self.assertAlmostEqual(1 - 0.4217, armor_mitigation.multiplier(7700,  70), 4)
+        self.assertAlmostEqual(1 - 0.4109, armor_mitigation.multiplier(10623, 80), 4)
+        self.assertAlmostEqual(1 - 0.3148, armor_mitigation.multiplier(11977, 85), 4)

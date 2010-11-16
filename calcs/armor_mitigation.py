@@ -20,5 +20,12 @@ def parameter(level=85):
     parameters = lookup_parameters(level)
     return level * parameters[1] - parameters[2]
 
+# this is the fraction of damage reduced by the armor
+def mitigation(armor, level=85):
+    k = parameter(level)
+    return armor / (armor + k)
+
+# this is the fraction of damage retained despite the armor, 1 - mitigation. 
 def multiplier(armor, level=85):
-    return armor / (armor + parameter(level))
+    k = parameter(level)
+    return k / (armor + k)
