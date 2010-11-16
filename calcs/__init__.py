@@ -139,6 +139,17 @@ class DamageCalculator(object):
             hit_chance -= self.stats.get_melee_hit_from_rating(1)
         return hit_chance
 
+    def off_hand_melee_hit_chance(self, dodgeable=True, parryable=False, weapon=None):
+        # Most attacks by DPS aren't parryable due to positional negation. But
+        # if you ever want to attacking from the front, you can just set that
+        # to True.
+        if weapon == None:
+            weapon = self.stats.oh
+        hit_chance = self.melee_hit_chance(self.BASE_ONE_HAND_MISS_RATE, dodgeable, parryable, weapon.type)
+        if self.calculating_ep == 'yellow_hit':
+            hit_chance -= self.stats.get_melee_hit_from_rating(1)
+        return hit_chance
+
     def dual_wield_mh_hit_chance(self, dodgeable=True, parryable=False):
         # Most attacks by DPS aren't parryable due to positional negation. But
         # if you ever want to attacking from the front, you can just set that
