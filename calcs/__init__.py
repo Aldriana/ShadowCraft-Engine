@@ -4,6 +4,7 @@ import __builtin__
 __builtin__._ = gettext.gettext
 
 from core import exceptions
+from calcs import armor_mitigation
 
 class DamageCalculator(object):
     # This method holds the general interface for a damage calculator - the
@@ -14,14 +15,9 @@ class DamageCalculator(object):
     # calcs.<class>.<Class>DamageCalculator instead - for an example, see
     # calcs.rogue.RogueDamageCalculator
 
-    # If someone wants to have __init__ take a player level as well and use it
+    # If someone wants to have __init__ take a target level as well and use it
     # to initialize these to a level-dependent value, they're welcome to.  At
     # the moment I'm hardcoding them to level 85 values.
-
-    ARMOR_MITIGATION_PARAMETER = 26070.
-
-    # Similarly, if you want to include an opponents level and initialize these
-    # in a level-dependant way, go ahead.
     TARGET_BASE_ARMOR = 11977.
     BASE_ONE_HAND_MISS_RATE = .08
     BASE_DW_MISS_RATE = .27
@@ -55,6 +51,8 @@ class DamageCalculator(object):
         self.buffs.level = self.level
         self.stats.level = self.level
         self.race.level = self.level
+        # calculate and cache the level-dependent armor mitigation parameter
+        self.armor_mitigation_parameter = armor_mitigation.parameter(self.level)
 
     def ep_helper(self,stat):
         if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp'):
@@ -96,9 +94,7 @@ class DamageCalculator(object):
         return 0.
 
     def armor_mitigation_multiplier(self, armor):
-        # Pass an armor value in to get the armor mitigation multiplier for
-        # that armor value.
-        return self.ARMOR_MITIGATION_PARAMETER / (self.ARMOR_MITIGATION_PARAMETER + armor)
+        return armor_mitigation.multiplier(armor, parameter=self.armor_mitigation_parameter)
 
     def armor_mitigate(self, damage, armor):
         # Pass in raw physical damage and armor value, get armor-mitigated
