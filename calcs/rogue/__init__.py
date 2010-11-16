@@ -59,7 +59,7 @@ class RogueDamageCalculator(DamageCalculator):
             self.garrote_base_dmg =      self.garrote_base_dmg_values[self.level]
             self.rup_base_dmg =          self.rup_base_dmg_values[self.level]
             self.rup_bonus_dmg =         self.rup_bonus_dmg_values[self.level]
-            self.evis_base_dmg =          self.evis_base_dmg_values[self.level]
+            self.evis_base_dmg =         self.evis_base_dmg_values[self.level]
             self.evis_bonus_dmg =        self.evis_bonus_dmg_values[self.level]
             self.env_bonus_dmg =         self.env_bonus_dmg_values[self.level]
             self.agi_per_crit =          self.agi_per_crit_values[self.level]
@@ -279,6 +279,26 @@ class RogueDamageCalculator(DamageCalculator):
         crit_damage = damage * crit_multiplier
 
         return damage, crit_damage
+
+    def mh_killing_spree_damage(self, ap, armor=None):
+        mh_weapon_damage = self.stats.mh.normalized_damage(ap)
+        multiplier = self.raid_settings_modifiers(is_physical=True, armor=armor)
+        crit_multiplier = self.crit_damage_modifiers()
+
+        mh_damage = mh_weapon_damage * multiplier
+        crit_mh_damage = mh_damage * crit_multiplier
+
+        return mh_damage, crit_mh_damage
+
+    def oh_killing_spree_damage(self, ap, armor=None):
+        oh_weapon_damage = self.stats.oh.normalized_damage(ap)
+        multiplier = self.raid_settings_modifiers(is_physical=True, armor=armor)
+        crit_multiplier = self.crit_damage_modifiers()
+
+        oh_damage = self.oh_penalty() * oh_weapon_damage * multiplier
+        crit_oh_damage = oh_damage * crit_multiplier
+
+        return oh_damage, crit_oh_damage
 
     def instant_poison_damage(self, ap, mastery=None):
         multiplier = self.talents_modifiers(potent_poisons=True, vile_poisons=True,
