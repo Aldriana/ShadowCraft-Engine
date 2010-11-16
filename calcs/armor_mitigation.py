@@ -21,13 +21,13 @@ def parameter(level=85):
     return level * parameters[1] - parameters[2]
 
 # this is the fraction of damage reduced by the armor
-def mitigation(armor, level=85, parameter=None):
-    if parameter == None:
-        parameter = armor_mitigation.parameter(level)
-    return armor / (armor + parameter)
+def mitigation(armor, level=85, cached_parameter=None):
+    if cached_parameter == None:
+        cached_parameter = parameter(level)
+    return armor / (armor + cached_parameter)
 
 # this is the fraction of damage retained despite the armor, 1 - mitigation. 
-def multiplier(armor, level=85, parameter=None):
-    if parameter == None:
-        parameter = armor_mitigation.parameter(level)
-    return parameter / (armor + parameter)
+def multiplier(armor, level=85, cached_parameter=None):
+    if cached_parameter == None:
+        cached_parameter = parameter(level)
+    return cached_parameter / (armor + cached_parameter)
