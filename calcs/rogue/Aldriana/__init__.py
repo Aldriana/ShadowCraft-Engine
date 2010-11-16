@@ -153,6 +153,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         # Vendetta may want to be handled elsewhere.
         average_ap = current_stats['ap'] + 2 * current_stats['agi'] + self.base_strength
         average_ap *= self.buffs.attack_power_multiplier()
+        if self.talents.is_combat_rogue():
+            average_ap *= 1.2
+        average_ap *= (1 + .01 * self.talents.savage_combat)
 
         damage_breakdown = {}
 
@@ -783,8 +786,12 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                     damage_breakdown[key] *= self.bandits_guile_multiplier * (1.2 + .1 * self.glyphs.killing_spree)
                 else:
                     damage_breakdown[key] *= self.max_bandits_guile_buff * (1.2 + .1 * self.glyphs.killing_spree)
-            elif key in ('sinister_strike', 'revealing_strike', 'eviscerate'):
+            elif key in ('sinister_strike', 'revealing_strike'):
                 damage_breakdown[key] *= self.bandits_guile_multiplier
+            elif key == 'eviscerate':
+                damage_breakdown[key] *= self.bandits_guile_multiplier * self.revealing_strike_multiplier
+            elif key == 'rupture':
+                damage_breakdown[key] *= self.bandits_guile_multiplier * self.ksp_multiplier * self.revealing_strike_multiplier
             else:
                 damage_breakdown[key] *= self.bandits_guile_multiplier * self.ksp_multiplier
 
@@ -798,7 +805,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         haste_multiplier = self.stats.get_haste_multiplier_from_rating(current_stats['haste'])
 
-        attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
+        attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier * (1 + .02 * self.talents.lightning_reflexes)
 
         attacks_per_second['mh_autoattacks'] = attack_speed_multiplier / self.stats.mh.speed
         attacks_per_second['oh_autoattacks'] = attack_speed_multiplier / self.stats.oh.speed
@@ -878,6 +885,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 actual_cps = min(cps + 1, 5)
                 cp_per_finisher += actual_cps * probability
                 finisher_size_breakdown[actual_cps] += probability
+
+        self.revealing_strike_multiplier = (1 + (.2 + .1 * self.glyphs.revealing_strike) * rvs_per_finisher)
 
         energy_cost_to_generate_cps = rvs_per_finisher * revealing_strike_energy_cost + ss_per_finisher * sinister_strike_energy_cost
         total_eviscerate_cost = energy_cost_to_generate_cps + eviscerate_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
