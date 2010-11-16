@@ -35,6 +35,8 @@ class DamageCalculator(object):
         self.race = race
         self.settings = settings
         self.level = level
+        # calculate and cache the level-dependent armor mitigation parameter
+        self.armor_mitigation_parameter = armor_mitigation.parameter(self.level)
     
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
@@ -91,10 +93,13 @@ class DamageCalculator(object):
         # Override this in your subclass to implement talents that modify melee hit chance
         return 0.
 
+    def armor_mitigation_multiplier(self, armor):
+        return damage * armor_mitigation.multiplier(armor, parameter=self.armor_mitigation_parameter)
+
     def armor_mitigate(self, damage, armor):
         # Pass in raw physical damage and armor value, get armor-mitigated
         # damage value.
-        return damage * armor_mitigation.multiplier(armor, self.level)
+        return damage * armor_mitigation_multiplier(armor)
 
     def melee_hit_chance(self, base_miss_chance, dodgeable, parryable, weapon_type):
         hit_chance = self.stats.get_melee_hit_from_rating() + self.race.get_racial_hit() + self.get_melee_hit_from_talents()
@@ -179,4 +184,4 @@ class DamageCalculator(object):
         elif is_bleed:
             return self.buffs.bleed_damage_multiplier()
         elif is_physical:
-            return self.buffs.physical_damage_multiplier() * armor_mitigation.multiplier(armor_override, self.level)
+            return self.buffs.physical_damage_multiplier() * armor_mitigation_multiplier(armor_override)
