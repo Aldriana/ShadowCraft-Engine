@@ -1,4 +1,4 @@
-# Ésta es la traducción española de ShadowCraft-Engine.
+# This is the ShadowCraft-Engine English translation
 # Copyright (C) 2010 elitistjerks
 # This file is distributed under the same license as the ShadowCraft-Engine package.
 # Dazer <nextorniquete@gmail.com>, 2010.
@@ -14,88 +14,87 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: Spanish\n"
-"X-Poedit-Country: SPAIN\n"
+"X-Poedit-Language: English\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
 #: test.py:93
 msgid "total damage per second."
-msgstr "daño total por segundo."
+msgstr "total damage per second (translated test string)."
 
 #: calcs/__init__.py:184
 msgid "Attacks cannot benefit from more than one type of raid damage multiplier"
-msgstr "Los ataques no se pueden beneficiar de más de un multiplicador de daño de banda."
+msgstr "Attacks cannot benefit from more than one type of raid damage multiplier"
 
 #: calcs/rogue/__init__.py:67
 msgid "No {spell_name} formula available for level {level}"
-msgstr "No hay fórmula disponible para la habilidad {spell_name} a nivel {level}"
+msgstr "No {spell_name} formula available for level {level}"
 
 #: calcs/rogue/Aldriana/__init__.py:30
 msgid "You must have 31 points in at least one talent tree."
-msgstr "Debes tener 31 puntos en al menos una rama de talentos."
+msgstr "You must have 31 points in at least one talent tree."
 
 #: calcs/rogue/Aldriana/__init__.py:281
 msgid "PPMs that also proc off spells are not yet modeled."
-msgstr "Los efectos de proc por minuto que se activan mediante hechizos aún no están modelados"
+msgstr "PPMs that also proc off spells are not yet modeled."
 
 #: calcs/rogue/Aldriana/__init__.py:428
 msgid "You must specify an assassination cycle to match your assassination spec."
-msgstr "Debes especificar un ciclo de asesinato que concuerde con tu especialización de asesinato."
+msgstr "You must specify an assassination cycle to match your assassination spec."
 
 #: calcs/rogue/Aldriana/__init__.py:430
 msgid "Assassination modeling requires daggers in both hands"
-msgstr "El modelo de asesinato requiere dagas en ambas manos."
+msgstr "Assassination modeling requires daggers in both hands"
 
 #: calcs/rogue/Aldriana/__init__.py:433
 msgid "Assassination modeling requires instant poison on one weapon and deadly on the other"
-msgstr "El modelo de asesinato requiere veneno instantáneo en un arma y mortal en la otra."
+msgstr "Assassination modeling requires instant poison on one weapon and deadly on the other"
 
 #: calcs/rogue/Aldriana/__init__.py:439
 msgid "Assassination modeling requires one point in Master Poisoner"
-msgstr "El modelo de asesinato requiere un punto en Maestro Envenenador."
+msgstr "Assassination modeling requires one point in Master Poisoner"
 
 #: calcs/rogue/Aldriana/__init__.py:441
 msgid "Assassination modeling requires three points in Cut to the Chase"
-msgstr "El modelo de asesinato requiere tres puntos en Acortar."
+msgstr "Assassination modeling requires three points in Cut to the Chase"
 
 #: objects/buffs.py:33
 msgid "Invalid buff {buff}"
-msgstr "{buff} no es un bufo válido."
+msgstr "Invalid buff {buff}"
 
 #: objects/buffs.py:52
 #: objects/stats.py:46
 msgid "No conversion factor available for level {level}"
-msgstr "No hay factor de conversión disponible para nivel {level}"
+msgstr "No conversion factor available for level {level}"
 
 #: objects/procs.py:142
 msgid "No data for proc {proc}"
-msgstr "No hay datos para el proc {proc}"
+msgstr "No data for proc {proc}"
 
 #: objects/race.py:83
 msgid "Unsupported race {race}"
-msgstr "La raza {race} no se admite."
+msgstr "Unsupported race {race}"
 
 #: objects/race.py:87
 msgid "Unsupported class {character_class}"
-msgstr "La clase {character_class} no se admite."
+msgstr "Unsupported class {character_class}"
 
 #: objects/race.py:106
 msgid "Unsupported class/level combination {character_class}/{level}"
-msgstr "La combinación de clase: {character_class} / nivel: {level} no se admite."
+msgstr "Unsupported class/level combination {character_class}/{level}"
 
 #: objects/talents.py:26
 msgid "Invalid talent name {talent_name}"
-msgstr "{talent_name} no es un nombre de talento válido."
+msgstr "Invalid talent name {talent_name}"
 
 #: objects/talents.py:28
 msgid "Invalid value {talent_value} for talent {talent_name}"
-msgstr "EL valor{talent_value} no es válido para {talent_name}"
+msgstr "Invalid value {talent_value} for talent {talent_name}"
 
 #: objects/talents.py:38
 msgid "Invalid talent string {talent_string}"
-msgstr "{talent_string} no corresponde a ningún talento válido."
+msgstr "Invalid talent string {talent_string}"
 
 #: objects/talents.py:92
 msgid "Total number of talentpoints has to be 41 or less"
-msgstr "El número de puntos de talentos ha de ser igual a 41 o menor"
+msgstr "Total number of talentpoints has to be 41 or less"
 

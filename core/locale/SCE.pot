@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-15 02:04+0100\n"
+"POT-Creation-Date: 2010-11-16 02:07+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,67 +16,86 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: test.py:96
+#: test.py:93
 msgid "total damage per second."
 msgstr ""
 
-#: calcs/rogue/__init__.py:66
-#, possible-python-format
-msgid "No %(spell_name)s formula available for level %(level)d"
+#: calcs/__init__.py:184
+msgid ""
+"Attacks cannot benefit from more than one type of raid damage multiplier"
+msgstr ""
+
+#: calcs/rogue/__init__.py:67
+msgid "No {spell_name} formula available for level {level}"
 msgstr ""
 
 #: calcs/rogue/Aldriana/__init__.py:30
 msgid "You must have 31 points in at least one talent tree."
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:256
+#: calcs/rogue/Aldriana/__init__.py:281
 msgid "PPMs that also proc off spells are not yet modeled."
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:372
+#: calcs/rogue/Aldriana/__init__.py:428
 msgid ""
 "You must specify an assassination cycle to match your assassination spec."
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:374
+#: calcs/rogue/Aldriana/__init__.py:430
 msgid "Assassination modeling requires daggers in both hands"
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:377
+#: calcs/rogue/Aldriana/__init__.py:433
 msgid ""
 "Assassination modeling requires instant poison on one weapon and deadly on "
 "the other"
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:383
+#: calcs/rogue/Aldriana/__init__.py:439
 msgid "Assassination modeling requires one point in Master Poisoner"
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:385
+#: calcs/rogue/Aldriana/__init__.py:441
 msgid "Assassination modeling requires three points in Cut to the Chase"
 msgstr ""
 
-#: objects/buffs.py:46 objects/stats.py:45
-#, possible-python-format
-msgid "No conversion factor available for level %(level)d"
+#: objects/buffs.py:33
+msgid "Invalid buff {buff}"
 msgstr ""
 
-#: objects/procs.py:136
-#, possible-python-format
-msgid "No data for proc '%(proc)s'"
+#: objects/buffs.py:52 objects/stats.py:46
+msgid "No conversion factor available for level {level}"
 msgstr ""
 
-#: objects/race.py:77
-#, possible-python-format
-msgid "Unsupported race %(race)s"
+#: objects/procs.py:142
+msgid "No data for proc {proc}"
 msgstr ""
 
-#: objects/race.py:81
-#, possible-python-format
-msgid "Unsupported class %(class)s"
+#: objects/race.py:83
+msgid "Unsupported race {race}"
 msgstr ""
 
-#: objects/race.py:100
-#, possible-python-format
-msgid "Unsupported class/level combination %(class)s/%(level)d"
+#: objects/race.py:87
+msgid "Unsupported class {character_class}"
+msgstr ""
+
+#: objects/race.py:106
+msgid "Unsupported class/level combination {character_class}/{level}"
+msgstr ""
+
+#: objects/talents.py:26
+msgid "Invalid talent name {talent_name}"
+msgstr ""
+
+#: objects/talents.py:28
+msgid "Invalid value {talent_value} for talent {talent_name}"
+msgstr ""
+
+#: objects/talents.py:38
+msgid "Invalid talent string {talent_string}"
+msgstr ""
+
+#: objects/talents.py:92
+msgid "Total number of talentpoints has to be 41 or less"
 msgstr ""
