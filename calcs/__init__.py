@@ -4,6 +4,7 @@ import __builtin__
 __builtin__._ = gettext.gettext
 
 from core import exceptions
+from calcs import armor_mitigation
 
 class DamageCalculator(object):
     # This method holds the general interface for a damage calculator - the
@@ -14,14 +15,9 @@ class DamageCalculator(object):
     # calcs.<class>.<Class>DamageCalculator instead - for an example, see
     # calcs.rogue.RogueDamageCalculator
 
-    # If someone wants to have __init__ take a player level as well and use it
+    # If someone wants to have __init__ take a target level as well and use it
     # to initialize these to a level-dependent value, they're welcome to.  At
     # the moment I'm hardcoding them to level 85 values.
-
-    ARMOR_MITIGATION_PARAMETER = 26070.
-
-    # Similarly, if you want to include an opponents level and initialize these
-    # in a level-dependant way, go ahead.
     TARGET_BASE_ARMOR = 11977.
     BASE_ONE_HAND_MISS_RATE = .08
     BASE_DW_MISS_RATE = .27
@@ -95,15 +91,10 @@ class DamageCalculator(object):
         # Override this in your subclass to implement talents that modify melee hit chance
         return 0.
 
-    def armor_mitigation_multiplier(self, armor):
-        # Pass an armor value in to get the armor mitigation multiplier for
-        # that armor value.
-        return armor / (self.ARMOR_MITIGATION_PARAMETER + armor)
-
     def armor_mitigate(self, damage, armor):
         # Pass in raw physical damage and armor value, get armor-mitigated
         # damage value.
-        return damage * self.armor_mitigation_multiplier(armor)
+        return damage * armor_mitigation.multiplier(armor, self.level)
 
     def melee_hit_chance(self, base_miss_chance, dodgeable, parryable, weapon_type):
         hit_chance = self.stats.get_melee_hit_from_rating() + self.race.get_racial_hit() + self.get_melee_hit_from_talents()
@@ -188,4 +179,4 @@ class DamageCalculator(object):
         elif is_bleed:
             return self.buffs.bleed_damage_multiplier()
         elif is_physical:
-            return self.buffs.physical_damage_multiplier() * self.armor_mitigation_multiplier(armor_override)
+            return self.buffs.physical_damage_multiplier() * armor_mitigation.multiplier(armor_override, self.level)

@@ -16,16 +16,6 @@ class TestDamageCalculator(unittest.TestCase):
         test_race = race.Race('night_elf')
         self.calculator = calcs.DamageCalculator(test_stats, None, None, test_buffs, test_race)
 
-    def test_armor_mitigation_parameter(self):
-        self.assertEqual(self.calculator.ARMOR_MITIGATION_PARAMETER,
-            2167.5 * 85 - 158167.5)
-        
-    def test_armor_mitigation_multiplier(self):
-        pass
-    
-    def test_armor_mitigate(self):
-        pass
-    
     def test_melee_hit_chance(self):
         pass
     
