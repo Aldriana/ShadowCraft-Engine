@@ -25,7 +25,7 @@ class Cycle(object):
 class AssassinationCycle(Cycle):
     _cycle_type = 'assassination'
 
-    allowed_values = frozenset([1,2,3,4,5])
+    allowed_values = (1,2,3,4,5)
 
     def __init__(self, min_envenom_size_mutilate=4, min_envenom_size_backstab=5, prioritize_rupture_uptime_mutilate=True, prioritize_rupture_uptime_backstab=True):
         assert min_envenom_size_mutilate in self.allowed_values
@@ -46,3 +46,12 @@ class AssassinationCycle(Cycle):
         # actually better.
         self.prioritize_rupture_uptime_mutilate = prioritize_rupture_uptime_mutilate
         self.prioritize_rupture_uptime_backstab = prioritize_rupture_uptime_backstab
+
+
+class CombatCycle(Cycle):
+    _cycle_type = 'combat'
+
+    def __init__(self, use_rupture=True, use_revealing_strike='sometimes', ksp_immediately=False):
+        self.use_rupture = bool(use_rupture)
+        self.use_revealing_strike = use_revealing_strike # Allowed values are 'always' (on all damaging finishers), 'sometimes' (only at 4 cp), and 'never' (guess).
+        self.ksp_immediately = bool(ksp_immediately) # Determines whether to KSp the instant it comes off cool or wait until Bandit's Guile stacks up.'
