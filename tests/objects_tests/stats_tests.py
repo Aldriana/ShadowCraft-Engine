@@ -103,8 +103,8 @@ class TestGearBuffs(unittest.TestCase):
 
     def test_get_all_activated_boosts_for_stat(self):
         self.assertEqual(len(self.gear.get_all_activated_boosts_for_stat('agi')), 1)
-        self.assertEqual(len(self.gear.get_all_activated_boosts_for_stat('haste_rating')), 1)
-        self.assertEqual(len(self.gear.get_all_activated_boosts_for_stat('crit_rating')), 0)
+        self.assertEqual(len(self.gear.get_all_activated_boosts_for_stat('haste')), 1)
+        self.assertEqual(len(self.gear.get_all_activated_boosts_for_stat('crit')), 0)
 
     def test_get_all_activated_haste_rating_boosts(self):
         self.assertEqual(len(self.gear.get_all_activated_haste_rating_boosts()), 1)

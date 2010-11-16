@@ -187,7 +187,7 @@ class GearBuffs(object):
     #Too, if reported as a haste value, it must be added to the value from other rating correctly.
     #This does too, but reinforces the fact that it's rating.
     def get_all_activated_haste_rating_boosts(self):
-        return self.get_all_activated_boosts_for_stat('haste_rating')
+        return self.get_all_activated_boosts_for_stat('haste')
 
 if __name__ == "__main__":
     test_buffs = GearBuffs('leather_specialization','unsolvable_riddle','demon_panther')
