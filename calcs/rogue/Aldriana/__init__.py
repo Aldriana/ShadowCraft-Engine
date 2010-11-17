@@ -189,6 +189,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if 'revealing_strike' in attacks_per_second:
             damage_breakdown['revealing_strike'] = self.get_dps_contribution(self.revealing_strike_damage(average_ap), crit_rates['revealing_strike'], attacks_per_second['revealing_strike'])
 
+        if 'main_gauche' in attacks_per_second:
+            damage_breakdown['main_gauche'] = self.get_dps_contribution(self.main_gauche_damage(average_ap), crit_rates['main_gauche'], attacks_per_second['main_gauche'])
+
         if 'mh_killing_spree' in attacks_per_second:
             damage_breakdown['killing_spree'] = (self.get_dps_contribution(self.mh_killing_spree_damage(average_ap), crit_rates['mh_killing_spree'], attacks_per_second['mh_killing_spree']) +
                                                  self.get_dps_contribution(self.oh_killing_spree_damage(average_ap), crit_rates['oh_killing_spree'], attacks_per_second['oh_killing_spree']))
