@@ -996,7 +996,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         elif self.settings.mh_poison == 'wp':
             mh_proc_rate = self.stats.mh.speed / 2.8
         else: # Deadly Poison
-            mh_proc_rate = self.stats.mh.speed * .3
+            mh_proc_rate = .3
 
         if self.settings.oh_poison == 'ip':
             oh_proc_rate = self.stats.oh.speed / 7.
