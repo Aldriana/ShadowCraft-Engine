@@ -171,6 +171,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         damage_breakdown['autoattack'] = mh_dps + oh_dps
 
+        for key in attacks_per_second.keys():
+            if not attacks_per_second[key]:
+                del attacks_per_second[key]
+
         if 'mutilate' in attacks_per_second:
             mh_mutilate_dps = self.get_dps_contribution(self.mh_mutilate_damage(average_ap), crit_rates['mutilate'], attacks_per_second['mutilate'])
             oh_mutilate_dps = self.get_dps_contribution(self.oh_mutilate_damage(average_ap), crit_rates['mutilate'], attacks_per_second['mutilate'])
@@ -958,6 +962,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             else:
                 self.ksp_multiplier = 1 + ksp_uptime * ksp_buff * self.max_bandits_guile_buff / self.bandits_guile_multiplier
         else:
+            attacks_per_second['mh_killing_spree'] = 0
+            attacks_per_second['oh_killing_spree'] = 0
             self.ksp_multiplier = 1
 
         attacks_per_second['eviscerate'] = [finisher_chance * total_evis_per_second for finisher_chance in finisher_size_breakdown]
