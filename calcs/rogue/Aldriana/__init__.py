@@ -912,7 +912,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         avg_rupture_gap = (total_rupture_cost - .5 * total_eviscerate_cost) / energy_regen
         avg_rupture_duration = 2 * (3 + 2 * self.glyphs.rupture + cp_per_finisher)
-        attacks_per_second['rupture'] = 1 / (avg_rupture_duration + avg_rupture_gap)
+        if self.settings.cycle.use_rupture:
+            attacks_per_second['rupture'] = 1 / (avg_rupture_duration + avg_rupture_gap)
+        else:
+            attacks_per_second['rupture'] = 0
         energy_spent_on_rupture = total_rupture_cost * attacks_per_second['rupture']
 
         energy_available_for_evis = energy_regen - energy_spent_on_snd - energy_spent_on_rupture
