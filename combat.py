@@ -35,7 +35,7 @@ test_buffs = buffs.Buffs(
     )
 
 # Set up weapons.
-test_mh = stats.Weapon(1356.5, 1.8, '1h_axe', 'landslide')
+test_mh = stats.Weapon(1356.5, 2.6, '1h_axe', 'landslide')
 test_oh = stats.Weapon(730.5, 1.4, 'dagger', 'landslide')
 test_ranged = stats.Weapon(1371.5, 2.2, 'thrown')
 
@@ -52,7 +52,7 @@ test_stats = stats.Stats(20, 4755, 190, 1034, 1333, 778, 1447, 936, test_mh, tes
 test_talents = rogue_talents.RogueTalents('0232000000000000000', '0332230310032012321', '0030000000000000000')
 
 # Set up glyphs.
-glyph_list = ['sinister_strike', 'slice_and_dice', 'rupture']
+glyph_list = ['sinister_strike', 'adrenaline_rush', 'rupture']
 test_glyphs = rogue_glyphs.RogueGlyphs(*glyph_list)
 
 # Set up race.

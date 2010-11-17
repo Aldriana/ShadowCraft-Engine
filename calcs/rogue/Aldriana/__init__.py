@@ -763,6 +763,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.settings.cycle.use_revealing_strike not in ('sometimes', 'always', 'never'):
             raise InputNotModeledException(_('Revealing strike usage must be set to always, sometimes, or never'))
 
+        if not self.talents.revealing_strike and self.settings.cycle.use_revealing_strike != 'never':
+            raise InputNotModeledException(_('Cannot specify revealing strike usage in cycle without taking the talent.'))
+
         self.set_constants()
 
         if self.talents.bandits_guile:
@@ -830,7 +833,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'main_gauche': base_melee_crit_rate,
             'sinister_strike': base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus(),
             'revealing_strike': base_melee_crit_rate,
-            'eviscerate': base_melee_crit_rate,
+            'eviscerate': base_melee_crit_rate + .1 * self.glyphs.eviscerate,
             'mh_killing_spree': base_melee_crit_rate,
             'oh_killing_spree': base_melee_crit_rate,
             'rupture_ticks': base_melee_crit_rate,
@@ -913,7 +916,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         cp_spent_on_damage_finishers_per_second = (attacks_per_second['rupture'] + evis_per_second) * cp_per_finisher
 
-        ar_duration = 15 + 5 * self.glyphs.adrenaline_rush
+        if self.talents.adrenaline_rush:
+            ar_duration = 15 + 5 * self.glyphs.adrenaline_rush
+        else:
+            ar_duration = 0
+
         ar_bonus_cp_regen = autoattack_cp_regen * .2
         ar_bonus_energy = ar_duration * (autoattack_cp_regen + 10 * haste_multiplier)
         ar_bonus_evis = ar_bonus_energy / total_eviscerate_cost
@@ -930,7 +937,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attacks_per_second['main_gauche'] += (attacks_per_second['sinister_strike'] + attacks_per_second['rupture'] + total_evis_per_second + attacks_per_second['rupture']) * main_gauche_proc_rate
 
         if self.talents.bandits_guile:
-            time_at_level = 9 / (attacks_per_second['sinister_strike'] * self.talents.bandits_guile)
+            time_at_level = 9 / ((attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike']) * self.talents.bandits_guile)
             cycle_duration = 3 * time_at_level + 15
             if not self.settings.cycle.ksp_immediately:
                 avg_wait_till_full_stack = 1.5 * time_at_level / cycle_duration
