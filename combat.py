@@ -46,7 +46,7 @@ test_procs = procs.ProcsList('heroic_prestors_talisman_of_machination', 'fluid_d
 test_gear_buffs = stats.GearBuffs('rogue_t11_2pc', 'leather_specialization', 'potion_of_the_tolvir')
 
 # Set up a calcs object..
-test_stats = stats.Stats(20, 4755, 190, 1034, 1333, 778, 1447, 936, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
+test_stats = stats.Stats(20, 4745, 190, 1100, 782, 754, 2116, 776, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
 
 # Initialize talents..
 test_talents = rogue_talents.RogueTalents('0232000000000000000', '0332230310032012321', '0030000000000000000')
