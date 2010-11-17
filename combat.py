@@ -68,8 +68,6 @@ test_level = 85
 # Build a DPS object.
 calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings, test_level)
 
-print 'WARNING: This module contains bugs.  Probably a lot of them. Don\'t even *think* about trying to draw meaningful decisions from the results at this stage.'
-
 # Compute EP values.
 ep_values = calculator.get_ep().items()
 ep_values.sort(key=lambda entry: entry[1], reverse=True)
