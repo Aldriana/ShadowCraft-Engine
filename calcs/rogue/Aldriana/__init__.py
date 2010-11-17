@@ -932,12 +932,18 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             ar_duration = 0
 
         ar_bonus_cp_regen = autoattack_cp_regen * .2
-        ar_bonus_energy = ar_duration * (autoattack_cp_regen + 10 * haste_multiplier)
+        ar_bonus_energy = ar_duration * (ar_bonus_cp_regen + 10 * haste_multiplier)
         ar_bonus_evis = ar_bonus_energy / total_eviscerate_cost
         ar_cooldown_self_reduction = ar_bonus_evis * cp_per_finisher * self.talents.restless_blades
 
         ar_actual_cooldown = (180 - ar_cooldown_self_reduction) / (1 + cp_spent_on_damage_finishers_per_second * self.talents.restless_blades) + self.settings.response_time
         total_evis_per_second = evis_per_second + ar_bonus_evis / ar_actual_cooldown
+
+        ar_uptime = ar_duration / ar_actual_cooldown
+        ar_autoattack_multiplier = 1 + .2 * ar_uptime
+
+        for attack in ('mh_autoattacks', 'mh_autoattack_hits', 'oh_autoattacks', 'oh_autoattack_hits', 'main_gauche'):
+            attacks_per_second[attack] *= ar_autoattack_multiplier
 
         total_restless_blades_benefit = (total_evis_per_second + attacks_per_second['rupture']) * cp_per_finisher * self.talents.restless_blades
         ksp_cooldown = 120 / total_restless_blades_benefit + self.settings.response_time
