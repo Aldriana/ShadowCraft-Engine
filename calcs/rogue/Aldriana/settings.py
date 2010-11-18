@@ -55,3 +55,9 @@ class CombatCycle(Cycle):
         self.use_rupture = bool(use_rupture)
         self.use_revealing_strike = use_revealing_strike # Allowed values are 'always' (on all damaging finishers), 'sometimes' (only at 4 cp), and 'never' (guess).
         self.ksp_immediately = bool(ksp_immediately) # Determines whether to KSp the instant it comes off cool or wait until Bandit's Guile stacks up.'
+
+class SubtletyCycle(Cycle):
+    _cycle_type = 'subtlety'
+
+    def __init__(self, raid_crits_per_second):
+        self.raid_crits_per_second = raid_crits_per_second

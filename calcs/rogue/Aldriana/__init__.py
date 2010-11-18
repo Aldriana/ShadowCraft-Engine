@@ -1021,3 +1021,76 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second['instant_poison'] = oh_poison_procs
 
         return attacks_per_second, crit_rates
+
+    ###########################################################################
+    # Subtlety DPS functions
+    ###########################################################################
+
+    def subtlety_dps_estimate(self):
+        return sum(self.subtlety_dps_breakdown().values())
+
+    def subtlety_dps_breakdown(self):
+        if self.settings.cycle._cycle_type != 'subtlety':
+            raise InputNotModeledException(_('You must specify a subtlety cycle to match your subtlety spec.'))
+
+        if self.stats.mh.type != 'dagger':
+            raise InputNotModeledException(_('Subtlety modeling currently requires a MH dagger'))
+
+        self.set_constants()
+
+        self.strike_hit_chance = self.one_hand_melee_hit_chance()
+
+        self.base_eviscerate_energy_cost = 35 / self.strike_hit_chance
+        self.base_hemo_cost = 28 + 7 / self.strike_hit_chance - 2 * self.talents.slaughter_from_the_shadows
+
+        cost_reduction = (0, 7, 14, 20)[self.talents.slaughter_from_the_shadows]
+        self.base_backstab_energy_cost = 48 + 12 / self.strike_hit_chance - cost_reduction
+        self.base_ambush_energy_cost = 48 + 12 / self.strike_hit_chance - cost_reduction
+
+        self.base_energy_regen = 10
+
+        self.agi_multiplier *= 1.25
+
+        return self.compute_damage(self.subtlety_attack_counts_backstab)
+
+    def subtlety_attack_counts_backstab(self, current_stats):
+        attacks_per_second = {}
+
+        base_melee_crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
+        base_spell_crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
+
+        haste_multiplier = self.stats.get_haste_multiplier_from_rating(current_stats['haste'])
+
+        attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
+
+        attacks_per_second['mh_autoattacks'] = attack_speed_multiplier / self.stats.mh.speed
+        attacks_per_second['oh_autoattacks'] = attack_speed_multiplier / self.stats.oh.speed
+
+        attacks_per_second['mh_autoattack_hits'] = attacks_per_second['mh_autoattacks'] * self.dual_wield_mh_hit_chance()
+        attacks_per_second['oh_autoattack_hits'] = attacks_per_second['oh_autoattacks'] * self.dual_wield_oh_hit_chance()
+
+        backstab_crit_rate = base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus() + .1 * self.talents.puncturing_wounds
+        if backstab_crit_rate > 1:
+            backstab_crit_rate = 1.
+
+        crit_rates = {
+            'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
+            'oh_autoattacks': min(base_melee_crit_rate, self.dual_wield_oh_hit_chance() - self.GLANCE_RATE),
+            'eviscerate': base_melee_crit_rate + .1 * self.glyphs.eviscerate,
+            'backstab': backstab_crit_rate,
+            'rupture_ticks': base_melee_crit_rate,
+            'instant_poison': base_spell_crit_rate,
+            'deadly_poison': base_spell_crit_rate,
+            'wound_poison': base_spell_crit_rate
+        }
+
+        backstab_energy_cost = 48 + 12 / self.one_hand_melee_hit_chance()
+        backstab_energy_cost -= 15 * self.talents.murderous_intent
+        if self.glyphs.backstab:
+            backstab_energy_cost -= 5 * backstab_crit_rate
+
+        if self.talents.honor_among_thieves:
+            hat_triggers_per_second = self.settings.raid_crits_per_second * self.talents.honor_among_thieves / 3.
+            hat_cp_gen = 1 / (5 - self.talents.honor_among_thieves + 1 / hat_triggers_per_second)
+        else:
+            hat_cp_gen = 0
