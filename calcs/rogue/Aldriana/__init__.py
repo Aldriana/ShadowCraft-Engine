@@ -253,10 +253,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 if not proc.procs_off_crit_only():
                     triggers_per_second += attacks_per_second['rupture']
 
-        if proc.is_ppm():
-            return triggers_per_second * proc.ppm * self.stats.mh.speed / 60.
-        else:
-            return triggers_per_second * proc.proc_chance
+        return triggers_per_second * proc.proc_rate(self.stats.mh.speed)
 
     def get_oh_procs_per_second(self, proc, attacks_per_second, crit_rates):
         triggers_per_second = 0
@@ -273,10 +270,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                     else:
                         triggers_per_second += attacks_per_second[ability]
 
-        if proc.is_ppm():
-            return triggers_per_second * proc.ppm * self.stats.oh.speed / 60.
-        else:
-            return triggers_per_second * proc.proc_chance
+        return triggers_per_second * proc.proc_rate(self.stats.oh.speed)
 
     def get_other_procs_per_second(self, proc, attacks_per_second, crit_rates):
         triggers_per_second = 0
@@ -307,7 +301,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             else:
                 raise InputNotModeledException(_('PPMs that also proc off spells are not yet modeled.'))
         else:
-            return triggers_per_second * proc.proc_chance
+            return triggers_per_second * proc.proc_rate()
 
     def get_procs_per_second(self, proc, attacks_per_second, crit_rates):
         # TODO: Include damaging proc hits in figuring out how often everything else procs.

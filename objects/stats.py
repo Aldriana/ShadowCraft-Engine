@@ -81,9 +81,25 @@ class Stats(object):
         return 1 + rating / (100 * self.haste_rating_conversion)
 
 class Weapon(object):
-    allowed_melee_enchants = {
-        'hurricane':    ('haste', 450, 12, 1, 'all_spells_and_attacks', 0, 1, False, 'Hurricane'),      # Completely guessing at proc behavior.  Also at the proc name.
-        'landslide':    ('ap', 1000, 12, 1, 'all_attacks', 0, 1, False, 'Landslide'),                   # Completely guessing at proc behavior.
+    allowed_melee_enchants = {  # Completely guessing at proc behavior.  Also at the proc name.
+        'hurricane': {
+            'stat': 'haste',
+            'value': 450,
+            'duration': 12,
+            'icd': 0,
+            'ppm': 1,
+            'trigger': 'all_spells_and_attacks',
+            'proc_name': 'Hurricane'
+        },
+        'landslide': {          # Completely guessing at proc behavior.
+            'stat':'ap',
+            'value': 1000,
+            'duration': 12,
+            'icd': 0,
+            'ppm': 1,
+            'trigger': 'all_attacks',
+            'proc_name': 'Landslide'
+        }
     }
 
     def __init__(self, damage, speed, weapon_type, enchant=None):
@@ -104,8 +120,7 @@ class Weapon(object):
 
         if enchant is not None:
             assert self.is_melee() and enchant in self.allowed_melee_enchants
-            proc = procs.PPMProc(*self.allowed_melee_enchants[enchant])
-            proc.proc_chance = proc.proc_rate(self.speed)
+            proc = procs.Proc(**self.allowed_melee_enchants[enchant])
             setattr(self, enchant, proc)
 
     def __getattr__(self, name):
