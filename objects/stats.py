@@ -81,7 +81,7 @@ class Stats(object):
         return 1 + rating / (100 * self.haste_rating_conversion)
 
 class Weapon(object):
-    allowed_melee_enchants = {
+    allowed_melee_enchants = {  # Completely guessing at proc behavior.  Also at the proc name.
         'hurricane': {
             'stat': 'haste',
             'value': 450,
@@ -90,8 +90,8 @@ class Weapon(object):
             'ppm': 1,
             'trigger': 'all_spells_and_attacks',
             'proc_name': 'Hurricane'
-        },                 # Completely guessing at proc behavior.  Also at the proc name.
-        'landslide': {
+        },
+        'landslide': {          # Completely guessing at proc behavior.
             'stat':'ap',
             'value': 1000,
             'duration': 12,
@@ -99,7 +99,7 @@ class Weapon(object):
             'ppm': 1,
             'trigger': 'all_attacks',
             'proc_name': 'Landslide'
-        }                  # Completely guessing at proc behavior.
+        }
     }
 
     def __init__(self, damage, speed, weapon_type, enchant=None):
