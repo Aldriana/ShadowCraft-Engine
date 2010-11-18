@@ -82,10 +82,24 @@ class Stats(object):
 
 class Weapon(object):
     allowed_melee_enchants = {
-        'hurricane':    {'stat': 'haste', 'value': 450, 'duration': 12, 'icd': 0,
-                        'ppm': 1, 'trigger': 'all_spells_and_attacks', 'proc_name': 'Hurricane'},      # Completely guessing at proc behavior.  Also at the proc name.
-        'landslide':    {'stat':'ap', 'value': 1000, 'duration': 12, 'icd': 0,
-                        'ppm': 1, 'trigger': 'all_attacks', 'proc_name': 'Landslide'}                  # Completely guessing at proc behavior.
+        'hurricane': {
+            'stat': 'haste',
+            'value': 450,
+            'duration': 12,
+            'icd': 0,
+            'ppm': 1,
+            'trigger': 'all_spells_and_attacks',
+            'proc_name': 'Hurricane'
+        },                 # Completely guessing at proc behavior.  Also at the proc name.
+        'landslide': {
+            'stat':'ap',
+            'value': 1000,
+            'duration': 12,
+            'icd': 0,
+            'ppm': 1,
+            'trigger': 'all_attacks',
+            'proc_name': 'Landslide'
+        }                  # Completely guessing at proc behavior.
     }
 
     def __init__(self, damage, speed, weapon_type, enchant=None):
