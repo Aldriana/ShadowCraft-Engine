@@ -1,6 +1,7 @@
 import unittest
 from core import exceptions
 from objects import stats
+from objects import procs
     
 class TestStats(unittest.TestCase):
     def setUp(self):
@@ -72,6 +73,9 @@ class TestWeapon(unittest.TestCase):
     
     def test_normalized_damage(self):
         self.assertAlmostEqual(self.mh.normalized_damage(1000), 1000 + (1.7 * 1000 / 14.0))
+    
+    def test_weapon_enchant_proc_rate_exception(self):
+        self.assertRaises(procs.InvalidProcException, self.mh.hurricane.proc_rate)
 
 
 class TestGearBuffs(unittest.TestCase):

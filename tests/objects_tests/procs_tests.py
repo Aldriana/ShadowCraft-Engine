@@ -40,6 +40,7 @@ class TestProc(unittest.TestCase):
         self.assertEqual(self.proc.max_stacks, 1)
         self.assertEqual(self.proc.on_crit, False)
         self.assertEqual(self.proc.proc_name, 'Nefarious Plot')
+        self.assertEqual(self.proc.ppm, False)
     
     def test_procs_off_auto_attacks(self):
         self.assertTrue(self.proc.procs_off_auto_attacks())
@@ -70,4 +71,6 @@ class TestProc(unittest.TestCase):
 
     def test_is_ppm(self):
         self.assertFalse(self.proc.is_ppm())
-    
+
+    def test_proc_rate(self):
+        self.assertEqual(self.proc.proc_rate(), self.proc.proc_chance)
