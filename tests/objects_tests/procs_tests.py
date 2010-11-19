@@ -28,7 +28,7 @@ class TestProcsList(unittest.TestCase):
 
 class TestProc(unittest.TestCase):
     def setUp(self):
-        self.proc = procs.Proc(*procs.ProcsList.allowed_procs['prestors_talisman_of_machination'])
+        self.proc = procs.Proc(**procs.ProcsList.allowed_procs['prestors_talisman_of_machination'])
     
     def test__init__(self):
         self.assertEqual(self.proc.stat, 'haste')
@@ -70,22 +70,4 @@ class TestProc(unittest.TestCase):
 
     def test_is_ppm(self):
         self.assertFalse(self.proc.is_ppm())
-
-
-class TestPPMProc(unittest.TestCase):
-    def setUp(self):
-        self.proc = procs.PPMProc('haste', 450, 12, 1, 'all_spells_and_attacks', 0, 1, False, 'Hurricane')
     
-    def test__init__(self):
-        self.assertEqual(self.proc.stat, 'haste')
-        self.assertEqual(self.proc.value, 450)
-        self.assertEqual(self.proc.duration, 12)
-        self.assertEqual(self.proc.ppm, 1)
-        self.assertEqual(self.proc.trigger, 'all_spells_and_attacks')
-        self.assertEqual(self.proc.icd, 0)
-        self.assertEqual(self.proc.max_stacks, 1)
-        self.assertEqual(self.proc.on_crit, False)
-        self.assertEqual(self.proc.proc_name, 'Hurricane')
-
-    def test_is_ppm(self):
-        self.assertTrue(self.proc.is_ppm())

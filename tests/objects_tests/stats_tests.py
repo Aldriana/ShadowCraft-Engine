@@ -53,10 +53,10 @@ class TestWeapon(unittest.TestCase):
         self.assertRaises(AssertionError, stats.Weapon, 1000, 2.0, 'thrown', 'fake_enchant')
         self.assertAlmostEqual(self.ranged._normalization_speed, 2.1)
         mh = stats.Weapon(1000, 1.8, 'dagger', 'hurricane')
-        self.assertAlmostEqual(mh.hurricane.proc_chance, 1 * 1.8 / 60)
+        self.assertAlmostEqual(mh.hurricane.proc_rate(speed=1.8), 1 * 1.8 / 60)
         oh = stats.Weapon(1000, 1.4, 'dagger', 'hurricane')
-        self.assertAlmostEqual(mh.hurricane.proc_chance, 1 * 1.8 / 60)
-        self.assertAlmostEqual(oh.hurricane.proc_chance, 1 * 1.4 / 60)
+        self.assertAlmostEqual(mh.hurricane.proc_rate(speed=1.8), 1 * 1.8 / 60)
+        self.assertAlmostEqual(oh.hurricane.proc_rate(speed=1.4), 1 * 1.4 / 60)
 
     def test__getattr__(self):
         self.assertTrue(self.mh.hurricane)
