@@ -109,6 +109,10 @@ class RogueDamageCalculator(DamageCalculator):
             base_modifier += .035 * self.stats.get_mastery_from_rating(mastery)
         if assassins_resolve and self.talents.is_assassination_rogue() and (self.stats.mh.type == 'dagger'):
             base_modifier *= 1.15
+        # TODO: This probably wants to be updated to default to this behavior but still
+        # allow it to be overridden - I'd prefer to make as few assumptions as possible
+        # about what the cycle looks like, so the modeler can figure that out for themself.
+        #
         # Passing Sanguinary Vein without talent parameter (it affects all damage)
         # nor is_bleeding since the target will most likely be bleeding from
         # refreshed ruptures in subtletly builds.
