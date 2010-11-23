@@ -104,7 +104,7 @@ class Weapon(object):
 
     def __init__(self, damage, speed, weapon_type, enchant=None):
         self.speed = speed
-        self.weapon_dps = damage/speed
+        self.weapon_dps = damage * 1.0 / speed
         self.type = weapon_type
 
         if self.type == 'thrown':
