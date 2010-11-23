@@ -59,5 +59,6 @@ class CombatCycle(Cycle):
 class SubtletyCycle(Cycle):
     _cycle_type = 'subtlety'
 
-    def __init__(self, raid_crits_per_second):
+    def __init__(self, raid_crits_per_second, clip_recuperate=False):
         self.raid_crits_per_second = raid_crits_per_second
+        self.clip_recuperate = clip_recuperate # Determines if you clip the previous recuperate or wait for it to drop before reapplying.

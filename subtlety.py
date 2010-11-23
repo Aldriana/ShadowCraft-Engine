@@ -1,4 +1,4 @@
-# Simple test program to debug + play with combat models.
+# Simple test program to debug + play with subtlety models.
 
 from calcs.rogue.Aldriana import AldrianasRogueDamageCalculator
 from calcs.rogue.Aldriana import settings
@@ -35,7 +35,7 @@ test_buffs = buffs.Buffs(
     )
 
 # Set up weapons.
-test_mh = stats.Weapon(1356.5, 2.6, '1h_axe', 'landslide')
+test_mh = stats.Weapon(939.5, 1.8, 'dagger', 'landslide')
 test_oh = stats.Weapon(730.5, 1.4, 'dagger', 'landslide')
 test_ranged = stats.Weapon(1371.5, 2.2, 'thrown')
 
@@ -49,17 +49,17 @@ test_gear_buffs = stats.GearBuffs('rogue_t11_2pc', 'leather_specialization', 'po
 test_stats = stats.Stats(20, 4745, 190, 1100, 782, 754, 2116, 776, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
 
 # Initialize talents..
-test_talents = rogue_talents.RogueTalents('0232000000000000000', '0332230310032012321', '0030000000000000000')
+test_talents = rogue_talents.RogueTalents('0230030000000000000', '0020000000000000000', '0332031321310012321')
 
 # Set up glyphs.
-glyph_list = ['sinister_strike', 'adrenaline_rush', 'rupture']
+glyph_list = ['backstab', 'slice_and_dice', 'eviscerate']
 test_glyphs = rogue_glyphs.RogueGlyphs(*glyph_list)
 
 # Set up race.
 test_race = race.Race('night_elf')
 
 # Set up settings.
-test_cycle = settings.CombatCycle()
+test_cycle = settings.SubtletyCycle(5)
 test_settings = settings.Settings(test_cycle, response_time=1)
 
 # Set up level 

@@ -1,6 +1,4 @@
-# This program basically exists to give a sample implementation using the
-# framework that's been developed, and to allow me to test and debug my
-# calculations as I go along.
+# Simple test program to debug + play with assassination models.
 
 from calcs.rogue.Aldriana import AldrianasRogueDamageCalculator
 from calcs.rogue.Aldriana import settings
@@ -80,8 +78,7 @@ for value in ep_values:
 print '---------'
 
 # Compute DPS Breakdown.
-calculator.init_assassination()
-dps_breakdown = calculator.assassination_dps_breakdown().items()
+dps_breakdown = calculator.get_dps_breakdown().items()
 dps_breakdown.sort(key=lambda entry: entry[1], reverse=True)
 max_len = max(len(entry[0]) for entry in dps_breakdown)
 total_dps = sum(entry[1] for entry in dps_breakdown)
