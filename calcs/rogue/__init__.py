@@ -379,10 +379,10 @@ class RogueDamageCalculator(DamageCalculator):
 
         return damage, crit_damage
 
-    def envenom_damage(self, ap, cp):
+    def envenom_damage(self, ap, cp, mastery=None):
         # Envemom has a dependency on dp_charges too; but being unlikely to be used out of builds
         # with master poisoner I'm not including that for the moment
-        multiplier = self.talents_modifiers(coup_de_grace=True, executioner=True, assassins_resolve=True)
+        multiplier = self.talents_modifiers(coup_de_grace=True, executioner=True, assassins_resolve=True, potent_poisons=True, mastery=mastery)
         multiplier *= self.raid_settings_modifiers(is_spell=True)
         crit_multiplier = self.crit_damage_modifiers()
 

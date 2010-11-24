@@ -224,7 +224,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if 'envenom' in attacks_per_second:
             damage_breakdown['envenom'] = 0
             for i in xrange(1,6):
-                damage_breakdown['envenom'] += self.get_dps_contribution(self.envenom_damage(average_ap, i), crit_rates['envenom'], attacks_per_second['envenom'][i])
+                damage_breakdown['envenom'] += self.get_dps_contribution(self.envenom_damage(average_ap, i, current_stats['mastery']), crit_rates['envenom'], attacks_per_second['envenom'][i])
 
         if 'eviscerate' in attacks_per_second:
             damage_breakdown['eviscerate'] = 0
