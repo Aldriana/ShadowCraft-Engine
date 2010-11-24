@@ -19,7 +19,7 @@ class Proc(object):
         self.ppm = ppm
 
     def procs_off_auto_attacks(self):
-        if self.trigger in ('all_attacks', 'auto_attack', 'all_spells_and_attacks'):
+        if self.trigger in ('all_attacks', 'auto_attacks', 'all_spells_and_attacks'):
             return True
         else:
             return False

@@ -364,6 +364,21 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.set_uptime(proc, attacks_per_second, crit_rates)
         return 1 + proc.value * proc.uptime
 
+    def update_crit_rates_for_4pc_t11(self, attacks_per_second, crit_rates):
+        t11_4pc_bonus = self.stats.procs.rogue_t11_4pc
+        if t11_4pc_bonus:
+            direct_damage_finisher = ''
+            for key in ('envenom', 'eviscerate'):
+                if key in attacks_per_second and sum(attacks_per_second[key]) != 0:
+                    if direct_damage_finisher:
+                        raise InputNotModeledException(_('Unable to model the 4pc T11 set bonus in a cycle that uses both eviscerate and envenom'))
+                    direct_damage_finisher = key
+
+            if direct_damage_finisher:
+                procs_per_second = self.get_procs_per_second(t11_4pc_bonus, attacks_per_second, crit_rates)
+                finisher_spacing = min(1 / sum(attacks_per_second[direct_damage_finisher]), t11_4pc_bonus.duration)
+                p = 1 - (1-procs_per_second) ** finisher_spacing
+                crit_rates[direct_damage_finisher] = p + (1 - p) * crit_rates[direct_damage_finisher]
 
     def compute_damage(self, attack_counts_function):
         # TODO: 4pc T11
@@ -420,6 +435,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 'mastery': self.base_stats['mastery']
             }
 
+            self.update_crit_rates_for_4pc_t11(attacks_per_second, crit_rates)
+
             for proc in damage_procs:
                 if not proc.icd:
                     self.update_with_damaging_proc(proc, attacks_per_second, crit_rates)
@@ -446,6 +463,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                     current_stats[proc.stat] += proc.uptime * proc.value
 
         attacks_per_second, crit_rates = attack_counts_function(current_stats)
+
+        self.update_crit_rates_for_4pc_t11(attacks_per_second, crit_rates)
 
         for proc in damage_procs:
             self.update_with_damaging_proc(proc, attacks_per_second, crit_rates)

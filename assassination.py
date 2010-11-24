@@ -40,13 +40,13 @@ test_oh = stats.Weapon(730.5, 1.4, 'dagger', 'landslide')
 test_ranged = stats.Weapon(1371.5, 2.2, 'thrown')
 
 # Set up procs.
-test_procs = procs.ProcsList('heroic_prestors_talisman_of_machination', 'fluid_death')
+test_procs = procs.ProcsList('heroic_prestors_talisman_of_machination', 'fluid_death', 'rogue_t11_4pc')
 
 # Set up gear buffs.
-test_gear_buffs = stats.GearBuffs('rogue_t11_2pc', 'leather_specialization', 'potion_of_the_tolvir')
+test_gear_buffs = stats.GearBuffs('rogue_t11_2pc', 'leather_specialization', 'potion_of_the_tolvir', 'chaotic_metagem')
 
 # Set up a calcs object..
-test_stats = stats.Stats(20, 4755, 190, 1034, 1333, 778, 1447, 936, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
+test_stats = stats.Stats(20, 4756, 190, 1022, 1329, 597, 1189, 1377, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
 
 # Initialize talents..
 test_talents = rogue_talents.RogueTalents('0333230113022110321', '0020000000000000000', '2030030000000000000')
