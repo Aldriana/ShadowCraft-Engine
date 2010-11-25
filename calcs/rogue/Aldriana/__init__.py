@@ -151,8 +151,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.base_speed_multiplier = 1.4 * self.buffs.melee_haste_multiplier() * self.get_heroism_haste_multiplier()
 
         self.strike_hit_chance = self.one_hand_melee_hit_chance()
-        self.base_rupture_energy_cost = 25 / self.strike_hit_chance
-        self.base_eviscerate_energy_cost = 35 / self.strike_hit_chance
+        self.base_rupture_energy_cost = 20 + 5 / self.strike_hit_chance
+        self.base_eviscerate_energy_cost = 28 + 7 / self.strike_hit_chance
 
     def get_proc_damage_contribution(self, proc, proc_count, current_stats):
         base_damage = proc.value
@@ -539,7 +539,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         self.set_constants()
 
-        self.envenom_energy_cost = 35 / self.strike_hit_chance
+        self.envenom_energy_cost = 28 + 7 / self.strike_hit_chance
 
         self.base_energy_regen = 10
         if self.talents.overkill:
