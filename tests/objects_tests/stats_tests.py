@@ -113,4 +113,16 @@ class TestGearBuffs(unittest.TestCase):
     def test_get_all_activated_haste_rating_boosts(self):
         self.assertEqual(len(self.gear.get_all_activated_haste_rating_boosts()), 1)
         self.assertEqual(len(self.gear_none.get_all_activated_haste_rating_boosts()), 0)
-        self.assertEqual(self.gear.get_all_activated_haste_rating_boosts()[0], (340, 12, 60))
+        haste_boost = self.gear.get_all_activated_haste_rating_boosts()[0]
+        self.assertEqual(haste_boost['value'], 340)
+        self.assertEqual(haste_boost['duration'], 12)
+        self.assertEqual(haste_boost['cooldown'], 60)
+
+    def test_get_all_activated_boosts(self):
+        self.assertEqual(len(self.gear.get_all_activated_boosts()), 2)
+        self.assertEqual(len(self.gear_none.get_all_activated_boosts()), 0)
+        boosts = self.gear.get_all_activated_boosts()
+        if(boosts[0]['stat'] == 'haste'):
+            self.assertEquals(boosts[0]['cooldown'], 60)
+        else:
+            self.assertEquals(boosts[0]['value'], 1200)

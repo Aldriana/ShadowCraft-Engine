@@ -135,11 +135,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         # TODO: Include activated racial abilities.
         for stat in self.base_stats:
-            for value, duration, cooldown in self.stats.gear_buffs.get_all_activated_boosts_for_stat(stat):
-                if cooldown is not None:
-                    self.base_stats[stat] += (value * duration) * 1.0 / (cooldown + self.settings.response_time)
+            for boost in self.stats.gear_buffs.get_all_activated_boosts_for_stat(stat):
+                if boost['cooldown'] is not None:
+                    self.base_stats[stat] += (boost['value'] * boost['duration']) * 1.0 / (boost['cooldown'] + self.settings.response_time)
                 else:
-                    self.base_stats[stat] += (value * duration) * 1.0 / self.settings.duration
+                    self.base_stats[stat] += (boost['value'] * boost['duration']) * 1.0 / self.settings.duration
 
         self.agi_multiplier = self.buffs.stat_multiplier() * self.stats.gear_buffs.leather_specialization_multiplier()
 
