@@ -396,8 +396,8 @@ class RogueDamageCalculator(DamageCalculator):
             agi = self.stats.agi
         base_crit = self.AGI_CRIT_INTERCEPT + agi / self.agi_per_crit
         base_crit += self.stats.get_crit_from_rating(crit)
-        return base_crit + self.buffs.buff_all_crit() - self.MELEE_CRIT_REDUCTION
+        return base_crit + self.buffs.buff_all_crit() + self.race.get_racial_crit() - self.MELEE_CRIT_REDUCTION
 
     def spell_crit_rate(self, crit=None):
         base_crit = self.stats.get_crit_from_rating(crit)
-        return base_crit + self.buffs.buff_all_crit() + self.buffs.buff_spell_crit() - self.SPELL_CRIT_REDUCTION
+        return base_crit + self.buffs.buff_all_crit() + self.buffs.buff_spell_crit() + self.race.get_racial_crit() - self.SPELL_CRIT_REDUCTION

@@ -50,7 +50,7 @@ class DamageCalculator(object):
         if name == 'calculating_ep':
             return False
         object.__getattribute__(self, name)
-   
+
     def _set_constants_for_level(self):
         self.buffs.level = self.level
         self.stats.level = self.level
@@ -96,6 +96,11 @@ class DamageCalculator(object):
     def get_melee_hit_from_talents(self):
         # Override this in your subclass to implement talents that modify melee hit chance
         return 0.
+
+    def get_all_activated_stat_boosts(self):
+        racial_boosts = self.race.get_racial_stat_boosts()
+        gear_boosts = self.stats.gear_buffs.get_all_activated_boosts()
+        return racial_boosts + gear_boosts
 
     def armor_mitigation_multiplier(self, armor):
         return armor_mitigation.multiplier(armor, cached_parameter=self.armor_mitigation_parameter)
@@ -169,7 +174,7 @@ class DamageCalculator(object):
         return hit_chance
 
     def spell_hit_chance(self):
-        hit_chance = 1 - max(self.BASE_SPELL_MISS_RATE - self.stats.get_spell_hit_from_rating() - self.get_spell_hit_from_talents(), 0)
+        hit_chance = 1 - max(self.BASE_SPELL_MISS_RATE - self.stats.get_spell_hit_from_rating() - self.get_spell_hit_from_talents() - self.race.get_racial_hit(), 0)
         if self.calculating_ep in ('yellow_hit', 'spell_hit'):
             hit_chance -= self.stats.get_spell_hit_from_rating(1)
         return hit_chance
@@ -183,9 +188,8 @@ class DamageCalculator(object):
     def target_armor(self, armor=None):
         # Passes base armor reduced by armor debuffs or overridden armor
         if armor is None:
-            return self.buffs.armor_reduction_multiplier() * self.TARGET_BASE_ARMOR
-        else:
-            return armor
+            armor = self.TARGET_BASE_ARMOR
+        return self.buffs.armor_reduction_multiplier() * armor
 
     def raid_settings_modifiers(self, is_spell=False, is_physical=False, is_bleed=False, armor=None):
         # This function wraps spell, bleed and physical debuffs from raid

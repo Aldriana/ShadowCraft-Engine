@@ -8,7 +8,7 @@ from objects import procs
 from objects import glyphs
 
 class TestDamageCalculator(unittest.TestCase):
-    def make_calculator(self, buffs_list, gear_buffs_list):
+    def make_calculator(self, buffs_list=[], gear_buffs_list=[], race_name='night_elf'):
         test_buffs = buffs.Buffs(*buffs_list)
         test_gear_buffs = stats.GearBuffs(*gear_buffs_list)
         test_procs = procs.ProcsList()
@@ -16,13 +16,13 @@ class TestDamageCalculator(unittest.TestCase):
         test_oh = stats.Weapon(573, 1.4, 'dagger', 'hurricane')
         test_ranged = stats.Weapon(1104, 2.0, 'thrown')
         test_stats = stats.Stats(20, 3485, 190, 1517, 1086, 641, 899, 666, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
-        test_race = race.Race('night_elf')
+        test_race = race.Race(race_name)
         test_talents = None
         test_glyphs = glyphs.Glyphs()
         return calcs.DamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race)
 
     def setUp(self):
-        self.calculator = self.make_calculator([], [])
+        self.calculator = self.make_calculator()
 
     def test_melee_hit_chance(self):
         pass
@@ -88,13 +88,25 @@ class TestDamageCalculator(unittest.TestCase):
         self.assertRaises(exceptions.InvalidInputException, self.calculator.raid_settings_modifiers)
 
     def test_mixology_no_flask(self):
-        test_calculator = self.make_calculator([], ['mixology'])
+        test_calculator = self.make_calculator(gear_buffs_list=['mixology'])
         self.assertEqual(test_calculator.stats.agi, self.calculator.stats.agi)
 
     def test_mixology(self):
-        test_calculator = self.make_calculator(['agi_flask'], ['mixology'])
+        test_calculator = self.make_calculator(buffs_list=['agi_flask'], gear_buffs_list=['mixology'])
         self.assertEqual(test_calculator.stats.agi, self.calculator.stats.agi + 80)
 
     def test_master_of_anatomy(self):
-        test_calculator = self.make_calculator([], ['master_of_anatomy'])
+        test_calculator = self.make_calculator(gear_buffs_list=['master_of_anatomy'])
         self.assertEqual(test_calculator.stats.crit, self.calculator.stats.crit + 80)
+
+    def test_get_all_activated_stat_boosts(self):
+        calculator = self.make_calculator(gear_buffs_list=['leather_specialization', 'potion_of_the_tolvir'], race_name='orc')
+        boosts = calculator.get_all_activated_stat_boosts()
+        self.assertEqual(len(boosts), 3) # blood fury sp, blood fury ap, potion of the tolvir
+        for boost in boosts:
+            if boost['stat'] == 'ap':
+                self.assertEqual(boost['value'], 1170)
+            elif boost['stat'] == 'sp':
+                self.assertEqual(boost['value'], 585)
+            elif boost['stat'] == 'agi':
+                self.assertEqual(boost['value'], 1200)

@@ -155,11 +155,11 @@ class GearBuffs(object):
 
     # Format is (stat, value, duration, cool down) - duration and cool down in seconds
     activated_boosts = {
-        'unsolvable_riddle':        ('agi', 1605, 20, 120),
-        'demon_panther':            ('agi', 1425, 20, 120),
-        'potion_of_the_tolvir':     ('agi', 1200, 25, None),
-        'engineer_glove_enchant':   ('haste', 340, 12, 60),
-        'lifeblood':                ('haste', 480, 20, 120),
+        'unsolvable_riddle':        {'stat': 'agi', 'value': 1605, 'duration': 20, 'cooldown': 120},
+        'demon_panther':            {'stat': 'agi', 'value': 1425, 'duration': 20, 'cooldown': 120},
+        'potion_of_the_tolvir':     {'stat': 'agi', 'value': 1200, 'duration': 25, 'cooldown': None}, #Cooldown = fight length
+        'engineer_glove_enchant':   {'stat': 'haste', 'value': 340, 'duration': 12, 'cooldown': 60},
+        'lifeblood':                {'stat': 'haste', 'value': 480, 'duration': 20, 'cooldown': 120},
     }
 
     def __init__(self, *args):
@@ -194,29 +194,19 @@ class GearBuffs(object):
     def get_all_activated_agi_boosts(self):
         return self.get_all_activated_boosts_for_stat('agi')
 
-    def get_all_activated_boosts_for_stat(self, stat):
+    def get_all_activated_boosts_for_stat(self, stat=None):
         boosts = []
         for boost in GearBuffs.activated_boosts:
-            if getattr(self, boost) and GearBuffs.activated_boosts[boost][0] == stat:
-                boosts.append(GearBuffs.activated_boosts[boost][1:])
+            if getattr(self, boost) and (stat is None or GearBuffs.activated_boosts[boost]['stat'] == stat):
+                boosts.append(GearBuffs.activated_boosts[boost])
 
         return boosts
+
+    def get_all_activated_boosts(self):
+        return self.get_all_activated_boosts_for_stat()
 
     #This is haste rating because the conversion to haste requires a level.
     #Too, if reported as a haste value, it must be added to the value from other rating correctly.
     #This does too, but reinforces the fact that it's rating.
     def get_all_activated_haste_rating_boosts(self):
         return self.get_all_activated_boosts_for_stat('haste')
-
-if __name__ == "__main__":
-    test_buffs = GearBuffs('leather_specialization','unsolvable_riddle','demon_panther')
-    print test_buffs.get_all_activated_haste_rating_boosts()
-    print test_buffs.get_all_activated_agi_boosts()
-    print test_buffs.leather_specialization_multiplier()
-    print test_buffs.rogue_t11_2pc_crit_bonus()
-
-    test_procs = Procs('unheeded_warning', 'essence_of_the_cyclone', 'left_eye_of_rajh')
-    print test_procs.unheeded_warning
-    print test_procs.fluid_death
-    print test_procs.get_all_crit_rating_procs()
-    print test_procs.get_all_agi_procs()
