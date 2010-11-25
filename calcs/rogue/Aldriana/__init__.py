@@ -88,7 +88,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
     def get_cp_distribution_for_cycle(self, cp_distribution_per_move, target_cp_quantity):
         cur_min_cp = 0
         ruthlessness_chance = self.talents.ruthlessness * .2
-        cur_dist = {(0,0):(1-ruthlessness_chance), (1,0):ruthlessness_chance}
+        cur_dist = {(0, 0): (1-ruthlessness_chance), (1, 0): ruthlessness_chance}
         while cur_min_cp < target_cp_quantity:
             cur_min_cp += 1
 
@@ -123,7 +123,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         # General setup that we'll use in all 3 cycles.
         self.bonus_energy_regen = 0
         if self.settings.tricks_on_cooldown and not self.glyphs.tricks_of_the_trade:
-            self.bonus_energy_regen -= 15./(30+self.settings.response_time)
+            self.bonus_energy_regen -= 15. / (30 + self.settings.response_time)
 
         self.base_stats = {
             'agi': self.stats.agi + self.buffs.buff_agi() + self.race.racial_agi,
@@ -218,17 +218,17 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         if 'rupture_ticks' in attacks_per_second:
             damage_breakdown['rupture'] = 0
-            for i in xrange(1,6):
+            for i in xrange(1, 6):
                 damage_breakdown['rupture'] += self.get_dps_contribution(self.rupture_tick_damage(average_ap, i), crit_rates['rupture_ticks'], attacks_per_second['rupture_ticks'][i])
 
         if 'envenom' in attacks_per_second:
             damage_breakdown['envenom'] = 0
-            for i in xrange(1,6):
+            for i in xrange(1, 6):
                 damage_breakdown['envenom'] += self.get_dps_contribution(self.envenom_damage(average_ap, i, current_stats['mastery']), crit_rates['envenom'], attacks_per_second['envenom'][i])
 
         if 'eviscerate' in attacks_per_second:
             damage_breakdown['eviscerate'] = 0
-            for i in xrange(1,6):
+            for i in xrange(1, 6):
                 damage_breakdown['eviscerate'] += self.get_dps_contribution(self.eviscerate_damage(average_ap, i), crit_rates['eviscerate'], attacks_per_second['eviscerate'][i])
 
         if 'venomous_wounds' in attacks_per_second:
@@ -489,7 +489,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.stats.mh.type != 'dagger' or self.stats.oh.type != 'dagger':
             raise InputNotModeledException(_('Assassination modeling requires daggers in both hands'))
 
-        if self.settings.mh_poison + self.settings.oh_poison not in ['ipdp', 'dpip']:
+        if self.settings.mh_poison + self.settings.oh_poison not in ('ipdp', 'dpip'):
             raise InputNotModeledException(_('Assassination modeling requires instant poison on one weapon and deadly on the other'))
 
         # These talents have huge, hard-to-model implications on cycle and will
@@ -510,7 +510,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             self.base_energy_regen += 60 / (180. + self.settings.response_time)
 
         if self.talents.cold_blood:
-            self.bonus_energy_regen += 25./(120+self.settings.response_time)
+            self.bonus_energy_regen += 25. / (120 + self.settings.response_time)
 
         if self.talents.vendetta:
             if self.glyphs.vendetta:
@@ -661,7 +661,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         dp_base_proc_rate = .5
         dp_envenom_proc_rate = dp_base_proc_rate + .15
 
-        envenom_uptime = min(sum([(1+cps) * attacks_per_second['envenom'][cps] for cps in xrange(1,6)]), 1)
+        envenom_uptime = min(sum([(1 / self.one_hand_melee_hit_chance() + cps) * attacks_per_second['envenom'][cps] for cps in xrange(1,6)]), 1)
         avg_ip_proc_rate = ip_base_proc_rate * (1 - envenom_uptime) + ip_envenom_proc_rate * envenom_uptime
         avg_dp_proc_rate = dp_base_proc_rate * (1 - envenom_uptime) + dp_envenom_proc_rate * envenom_uptime
 
@@ -773,7 +773,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         dp_base_proc_rate = .5
         dp_envenom_proc_rate = dp_base_proc_rate + .15
 
-        envenom_uptime = min(sum([(1+cps) * attacks_per_second['envenom'][cps] for cps in xrange(1,6)]), 1)
+        envenom_uptime = min(sum([(1 / self.one_hand_melee_hit_chance() + cps) * attacks_per_second['envenom'][cps] for cps in xrange(1,6)]), 1)
         avg_ip_proc_rate = ip_base_proc_rate * (1 - envenom_uptime) + ip_envenom_proc_rate * envenom_uptime
         avg_dp_proc_rate = dp_base_proc_rate * (1 - envenom_uptime) + dp_envenom_proc_rate * envenom_uptime
 
