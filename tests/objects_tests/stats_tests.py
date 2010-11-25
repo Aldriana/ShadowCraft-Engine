@@ -116,7 +116,10 @@ class TestGearBuffs(unittest.TestCase):
 
     def test_engineer_glove_enchant(self):
         test_gear = stats.GearBuffs('engineer_glove_enchant')
-        self.assertEqual(self.gear.get_all_activated_haste_rating_boosts()[0]['cooldown'], 60)
+        haste_boost = test_gear.get_all_activated_haste_rating_boosts()[0]
+        self.assertEqual(haste_boost['value'], 340)
+        self.assertEqual(haste_boost['duration'], 12)
+        self.assertEqual(haste_boost['cooldown'], 60)
 
     def test_lifeblood(self):
         test_gear = stats.GearBuffs('lifeblood')
@@ -128,8 +131,3 @@ class TestGearBuffs(unittest.TestCase):
     def test_get_all_activated_boosts(self):
         self.assertEqual(len(self.gear.get_all_activated_boosts()), 3)
         self.assertEqual(len(self.gear_none.get_all_activated_boosts()), 0)
-        boosts = self.gear.get_all_activated_boosts()
-        if(boosts[0]['stat'] == 'haste'):
-            self.assertEquals(boosts[0]['cooldown'], 60)
-        else:
-            self.assertEquals(boosts[0]['value'], 1200)
