@@ -78,3 +78,22 @@ class TestDamageCalculator(unittest.TestCase):
 
     def test_raid_settings_modifiers(self):
         self.assertRaises(exceptions.InvalidInputException, self.calculator.raid_settings_modifiers)
+
+    def test_get_all_activated_stat_boosts(self):
+        test_buffs = buffs.Buffs()
+        test_mh = stats.Weapon(737, 1.8, 'dagger', 'hurricane')
+        test_oh = stats.Weapon(573, 1.4, 'dagger', 'hurricane')
+        test_ranged = stats.Weapon(1104, 2.0, 'thrown')
+        test_gear_buffs = stats.GearBuffs('leather_specialization', 'potion_of_the_tolvir')
+        test_stats = stats.Stats(20, 3485, 190, 1517, 1086, 641, 899, 666, test_mh, test_oh, test_ranged, None, test_gear_buffs, 85)
+        test_race = race.Race('orc')
+        calculator = calcs.DamageCalculator(test_stats, None, None, test_buffs, test_race)
+        boosts = calculator.get_all_activated_stat_boosts()
+        self.assertEqual(len(boosts), 3)
+        for boost in boosts:
+            if boost['stat'] == 'ap':
+                self.assertEqual(boost['value'], 1170)
+            elif boost['stat'] == 'sp':
+                self.assertEqual(boost['value'], 585)
+            elif boost['stat'] == 'agi':
+                self.assertEqual(boost['value'], 1200)
