@@ -150,6 +150,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         self.base_speed_multiplier = 1.4 * self.buffs.melee_haste_multiplier() * self.get_heroism_haste_multiplier()
 
+        self.strike_hit_chance = self.one_hand_melee_hit_chance()
+        self.base_rupture_energy_cost = 25 / self.strike_hit_chance
+        self.base_eviscerate_energy_cost = 35 / self.strike_hit_chance
+
     def get_proc_damage_contribution(self, proc, proc_count, current_stats):
         base_damage = proc.value
 
@@ -354,7 +358,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if proc.stat == 'spell_damage':
             attacks_per_second[proc.proc_name] = self.get_procs_per_second(proc, attacks_per_second, crit_rates) * self.spell_hit_chance()
         elif proc.stat == 'physical_damage':
-            attacks_per_second[proc.proc_name] = self.get_procs_per_second(proc, attacks_per_second, crit_rates) * self.one_hand_melee_hit_chance()
+            attacks_per_second[proc.proc_name] = self.get_procs_per_second(proc, attacks_per_second, crit_rates) * self.strike_hit_chance
 
     def unheeded_warning_multiplier(self, attacks_per_second, crit_rates):
         proc = self.stats.procs.unheeded_warning
@@ -379,6 +383,39 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 finisher_spacing = min(1 / sum(attacks_per_second[direct_damage_finisher]), t11_4pc_bonus.duration)
                 p = 1 - (1-procs_per_second) ** finisher_spacing
                 crit_rates[direct_damage_finisher] = p + (1 - p) * crit_rates[direct_damage_finisher]
+
+    def get_poison_counts(self, total_mh_hits, total_oh_hits, attacks_per_second):
+        if self.settings.mh_poison == 'dp' or self.settings.oh_poison == 'dp':
+            attacks_per_second['deadly_poison'] = 1./3
+
+        if self.settings.mh_poison == 'ip':
+            mh_proc_rate = self.stats.mh.speed / 7.
+        elif self.settings.mh_poison == 'wp':
+            mh_proc_rate = self.stats.mh.speed / 2.8
+        else: # Deadly Poison
+            mh_proc_rate = .3
+
+        if self.settings.oh_poison == 'ip':
+            oh_proc_rate = self.stats.oh.speed / 7.
+        elif self.settings.oh_poison == 'wp':
+            oh_proc_rate = self.stats.oh.speed / 2.8
+        else: # Deadly Poison
+            oh_proc_rate = .3
+
+        mh_poison_procs = total_mh_hits * mh_proc_rate * self.spell_hit_chance()
+        oh_poison_procs = total_oh_hits * oh_proc_rate * self.spell_hit_chance()
+
+        poison_setup = self.settings.mh_poison + self.settings.oh_poison
+        if poison_setup in ['ipip', 'ipdp', 'dpip']:
+            attacks_per_second['instant_poison'] = mh_poison_procs + oh_poison_procs
+        elif poison_setup in ['wpwp', 'wpdp', 'dpwp']:
+            attacks_per_second['wound_poison'] = mh_poison_procs + oh_poison_procs
+        elif poison_setup == 'ipwp':
+            attacks_per_second['instant_poison'] = mh_poison_procs
+            attacks_per_second['wound_poison'] = oh_poison_procs
+        elif poison_setup == 'wpip':
+            attacks_per_second['wound_poison'] = mh_poison_procs
+            attacks_per_second['instant_poison'] = oh_poison_procs
 
     def compute_damage(self, attack_counts_function):
         # TODO: 4pc T11
@@ -502,8 +539,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         self.set_constants()
 
-        self.rupture_energy_cost = 25 / self.one_hand_melee_hit_chance()
-        self.envenom_energy_cost = 35 / self.one_hand_melee_hit_chance()
+        self.envenom_energy_cost = 35 / self.strike_hit_chance
 
         self.base_energy_regen = 10
         if self.talents.overkill:
@@ -551,7 +587,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         return dps_breakdown
 
     def assassination_dps_breakdown_mutilate(self):
-        self.mutilate_energy_cost = 48 + 12 / self.one_hand_melee_hit_chance()
+        self.mutilate_energy_cost = 48 + 12 / self.strike_hit_chance
         if self.glyphs.mutilate:
             self.mutilate_energy_cost -= 5
 
@@ -613,7 +649,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             cp_per_finisher += cps * probability
             finisher_size_breakdown[cps] += probability
 
-        energy_for_rupture = muts_per_finisher * self.mutilate_energy_cost + self.rupture_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
+        energy_for_rupture = muts_per_finisher * self.mutilate_energy_cost + self.base_rupture_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
         rupture_downtime = .5 * energy_for_rupture / energy_regen
         average_rupture_length = 2 * (3 + cp_per_finisher + 2 * self.glyphs.rupture)
         average_cycle_length = rupture_downtime + average_rupture_length
@@ -661,7 +697,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         dp_base_proc_rate = .5
         dp_envenom_proc_rate = dp_base_proc_rate + .15
 
-        envenom_uptime = min(sum([(1 / self.one_hand_melee_hit_chance() + cps) * attacks_per_second['envenom'][cps] for cps in xrange(1,6)]), 1)
+        envenom_uptime = min(sum([(1 / self.strike_hit_chance + cps) * attacks_per_second['envenom'][cps] for cps in xrange(1,6)]), 1)
         avg_ip_proc_rate = ip_base_proc_rate * (1 - envenom_uptime) + ip_envenom_proc_rate * envenom_uptime
         avg_dp_proc_rate = dp_base_proc_rate * (1 - envenom_uptime) + dp_envenom_proc_rate * envenom_uptime
 
@@ -673,7 +709,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             oh_poison_procs = avg_ip_proc_rate * total_oh_hits_per_second
 
         attacks_per_second['instant_poison'] = (mh_poison_procs + oh_poison_procs) * self.spell_hit_chance()
-        attacks_per_second['deadly_poison'] = 1./3
+        attacks_per_second['deadly_poison'] = 1. / 3
 
         return attacks_per_second, crit_rates
 
@@ -704,7 +740,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'deadly_poison': base_spell_crit_rate
         }
 
-        backstab_energy_cost = 48 + 12 / self.one_hand_melee_hit_chance()
+        backstab_energy_cost = 48 + 12 / self.strike_hit_chance
         backstab_energy_cost -= 15 * self.talents.murderous_intent
         if self.glyphs.backstab:
             backstab_energy_cost -= 5 * backstab_crit_rate
@@ -725,7 +761,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             cp_per_finisher += cps * probability
             finisher_size_breakdown[cps] += probability
 
-        energy_for_rupture = bs_per_finisher * backstab_energy_cost + self.rupture_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
+        energy_for_rupture = bs_per_finisher * backstab_energy_cost + self.base_rupture_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
         rupture_downtime = .5 * energy_for_rupture / energy_regen
         average_rupture_length = 2 * (3 + cp_per_finisher + 2 * self.glyphs.rupture)
         average_cycle_length = rupture_downtime + average_rupture_length
@@ -773,7 +809,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         dp_base_proc_rate = .5
         dp_envenom_proc_rate = dp_base_proc_rate + .15
 
-        envenom_uptime = min(sum([(1 / self.one_hand_melee_hit_chance() + cps) * attacks_per_second['envenom'][cps] for cps in xrange(1,6)]), 1)
+        envenom_uptime = min(sum([(1 / self.strike_hit_chance + cps) * attacks_per_second['envenom'][cps] for cps in xrange(1,6)]), 1)
         avg_ip_proc_rate = ip_base_proc_rate * (1 - envenom_uptime) + ip_envenom_proc_rate * envenom_uptime
         avg_dp_proc_rate = dp_base_proc_rate * (1 - envenom_uptime) + dp_envenom_proc_rate * envenom_uptime
 
@@ -785,7 +821,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             oh_poison_procs = avg_ip_proc_rate * total_oh_hits_per_second
 
         attacks_per_second['instant_poison'] = (mh_poison_procs + oh_poison_procs) * self.spell_hit_chance()
-        attacks_per_second['deadly_poison'] = 1./3
+        attacks_per_second['deadly_poison'] = 1. / 3
 
         return attacks_per_second, crit_rates
 
@@ -813,10 +849,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         else:
             self.max_bandits_guile_buff = 1
 
-        self.strike_hit_chance = self.one_hand_melee_hit_chance()
-
-        self.base_rupture_energy_cost = 25 / self.strike_hit_chance
-        self.base_eviscerate_energy_cost = 35 / self.strike_hit_chance
         self.base_revealing_strike_energy_cost = 32 + 8 / self.strike_hit_chance
         self.base_sinister_strike_energy_cost = 36 + 9 / self.strike_hit_chance - 2 * self.talents.improved_sinister_strike
 
@@ -906,7 +938,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             rvs_per_finisher = 0
             ss_per_finisher = 0
             cp_per_finisher = 0
-            finisher_size_breakdown = [0,0,0,0,0,0]
+            finisher_size_breakdown = [0, 0, 0, 0, 0, 0]
             for (cps, ss), probability in cp_distribution.items():
                 ss_per_finisher += ss * probability
                 if cps < FINISHER_SIZE:
@@ -922,7 +954,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             rvs_per_finisher = 1
             ss_per_finisher = 0
             cp_per_finisher = 0
-            finisher_size_breakdown = [0,0,0,0,0,0]
+            finisher_size_breakdown = [0, 0, 0, 0, 0, 0]
             for (cps, ss), probability in cp_distribution.items():
                 ss_per_finisher += ss * probability
                 actual_cps = min(cps + 1, 5)
@@ -995,7 +1027,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         if self.talents.killing_spree:
             attacks_per_second['mh_killing_spree'] = 5 * self.strike_hit_chance / ksp_cooldown
-            attacks_per_second['oh_killing_spree'] = 5 * self.one_hand_melee_hit_chance() / ksp_cooldown
+            attacks_per_second['oh_killing_spree'] = 5 * self.off_hand_melee_hit_chance() / ksp_cooldown
             ksp_uptime = 2. / ksp_cooldown
 
             ksp_buff = .2 + .1 * self.glyphs.killing_spree
@@ -1018,37 +1050,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         total_mh_hits = attacks_per_second['mh_autoattack_hits'] + attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'] + attacks_per_second['mh_killing_spree'] + attacks_per_second['rupture'] + total_evis_per_second
         total_oh_hits = attacks_per_second['oh_autoattack_hits'] + attacks_per_second['main_gauche'] + attacks_per_second['oh_killing_spree']
 
-        if self.settings.mh_poison == 'dp' or self.settings.oh_poison == 'dp':
-            attacks_per_second['deadly_poison'] = 1./3
-
-        if self.settings.mh_poison == 'ip':
-            mh_proc_rate = self.stats.mh.speed / 7.
-        elif self.settings.mh_poison == 'wp':
-            mh_proc_rate = self.stats.mh.speed / 2.8
-        else: # Deadly Poison
-            mh_proc_rate = .3
-
-        if self.settings.oh_poison == 'ip':
-            oh_proc_rate = self.stats.oh.speed / 7.
-        elif self.settings.oh_poison == 'wp':
-            oh_proc_rate = self.stats.oh.speed / 2.8
-        else: # Deadly Poison
-            oh_proc_rate = .3
-
-        mh_poison_procs = total_mh_hits * mh_proc_rate * self.spell_hit_chance()
-        oh_poison_procs = total_oh_hits * oh_proc_rate * self.spell_hit_chance()
-
-        poison_setup = self.settings.mh_poison + self.settings.oh_poison
-        if poison_setup in ['ipip', 'ipdp', 'dpip']:
-            attacks_per_second['instant_poison'] = mh_poison_procs + oh_poison_procs
-        elif poison_setup in ['wpwp', 'wpdp', 'dpwp']:
-            attacks_per_second['wound_poison'] = mh_poison_procs + oh_poison_procs
-        elif poison_setup == 'ipwp':
-            attacks_per_second['instant_poison'] = mh_poison_procs
-            attacks_per_second['wound_poison'] = oh_poison_procs
-        elif poison_setup == 'wpip':
-            attacks_per_second['wound_poison'] = mh_poison_procs
-            attacks_per_second['instant_poison'] = oh_poison_procs
+        self.get_poison_counts(total_mh_hits, total_oh_hits, attacks_per_second)
 
         return attacks_per_second, crit_rates
 
@@ -1071,9 +1073,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         self.set_constants()
 
-        self.strike_hit_chance = self.one_hand_melee_hit_chance()
-
-        self.base_eviscerate_energy_cost = 35 / self.strike_hit_chance
         self.base_hemo_cost = 28 + 7 / self.strike_hit_chance - 2 * self.talents.slaughter_from_the_shadows
 
         cost_reduction = (0, 7, 14, 20)[self.talents.slaughter_from_the_shadows]
@@ -1245,36 +1244,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         total_mh_hits = attacks_per_second['mh_autoattack_hits'] + attacks_per_second['backstab'] + sum(attacks_per_second['eviscerate']) + attacks_per_second['ambush']
         total_oh_hits = attacks_per_second['oh_autoattack_hits']
 
-        if self.settings.mh_poison == 'dp' or self.settings.oh_poison == 'dp':
-            attacks_per_second['deadly_poison'] = 1./3
-
-        if self.settings.mh_poison == 'ip':
-            mh_proc_rate = self.stats.mh.speed / 7.
-        elif self.settings.mh_poison == 'wp':
-            mh_proc_rate = self.stats.mh.speed / 2.8
-        else: # Deadly Poison
-            mh_proc_rate = .3
-
-        if self.settings.oh_poison == 'ip':
-            oh_proc_rate = self.stats.oh.speed / 7.
-        elif self.settings.oh_poison == 'wp':
-            oh_proc_rate = self.stats.oh.speed / 2.8
-        else: # Deadly Poison
-            oh_proc_rate = .3
-
-        mh_poison_procs = total_mh_hits * mh_proc_rate * self.spell_hit_chance()
-        oh_poison_procs = total_oh_hits * oh_proc_rate * self.spell_hit_chance()
-
-        poison_setup = self.settings.mh_poison + self.settings.oh_poison
-        if poison_setup in ['ipip', 'ipdp', 'dpip']:
-            attacks_per_second['instant_poison'] = mh_poison_procs + oh_poison_procs
-        elif poison_setup in ['wpwp', 'wpdp', 'dpwp']:
-            attacks_per_second['wound_poison'] = mh_poison_procs + oh_poison_procs
-        elif poison_setup == 'ipwp':
-            attacks_per_second['instant_poison'] = mh_poison_procs
-            attacks_per_second['wound_poison'] = oh_poison_procs
-        elif poison_setup == 'wpip':
-            attacks_per_second['wound_poison'] = mh_poison_procs
-            attacks_per_second['instant_poison'] = oh_poison_procs
+        self.get_poison_counts(total_mh_hits, total_oh_hits, attacks_per_second)
 
         return attacks_per_second, crit_rates
