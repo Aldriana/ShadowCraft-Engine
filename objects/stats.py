@@ -138,24 +138,28 @@ class Weapon(object):
     def normalized_damage(self, ap=0):
         return self.speed * self.weapon_dps + self._normalization_speed * ap / 14.
 
-#Catch-all for non-proc gear based buffs (static or activated)
+# Catch-all for non-proc gear based buffs (static or activated)
 class GearBuffs(object):
     allowed_buffs = frozenset([
-        'leather_specialization',       #Increase %stat by 5%
-        'chaotic_metagem',              #Increase critical damage by 3%
-        'rogue_t11_2pc',                #Increase crit chance for BS, Mut, SS by 5%
+        'leather_specialization',       # Increase %stat by 5%
+        'chaotic_metagem',              # Increase critical damage by 3%
+        'rogue_t11_2pc',                # Increase crit chance for BS, Mut, SS by 5%
         'engineer_glove_enchant',
         'unsolvable_riddle',
         'demon_panther',
-        'potion_of_the_tolvir'
+        'potion_of_the_tolvir',
+        'lifeblood',
+        'mixology',
+        'master_of_anatomy',
     ])
 
-    #Format is (stat, value, duration, cool down) - duration and cool down in seconds
+    # Format is (stat, value, duration, cool down) - duration and cool down in seconds
     activated_boosts = {
         'unsolvable_riddle':        ('agi', 1605, 20, 120),
         'demon_panther':            ('agi', 1425, 20, 120),
         'potion_of_the_tolvir':     ('agi', 1200, 25, None),
-        'engineer_glove_enchant':   ('haste', 340, 12, 60)
+        'engineer_glove_enchant':   ('haste', 340, 12, 60),
+        'lifeblood':                ('haste', 480, 20, 120),
     }
 
     def __init__(self, *args):

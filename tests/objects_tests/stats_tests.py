@@ -80,7 +80,7 @@ class TestWeapon(unittest.TestCase):
 
 class TestGearBuffs(unittest.TestCase):
     def setUp(self):
-        self.gear = stats.GearBuffs('chaotic_metagem', 'leather_specialization', 'rogue_t11_2pc', 'potion_of_the_tolvir', 'engineer_glove_enchant')
+        self.gear = stats.GearBuffs('chaotic_metagem', 'leather_specialization', 'rogue_t11_2pc', 'potion_of_the_tolvir', 'engineer_glove_enchant', 'lifeblood')
         self.gear_none = stats.GearBuffs()
 
     def test__getattr__(self):
@@ -107,10 +107,17 @@ class TestGearBuffs(unittest.TestCase):
 
     def test_get_all_activated_boosts_for_stat(self):
         self.assertEqual(len(self.gear.get_all_activated_boosts_for_stat('agi')), 1)
-        self.assertEqual(len(self.gear.get_all_activated_boosts_for_stat('haste')), 1)
+        self.assertEqual(len(self.gear.get_all_activated_boosts_for_stat('haste')), 2)
         self.assertEqual(len(self.gear.get_all_activated_boosts_for_stat('crit')), 0)
 
     def test_get_all_activated_haste_rating_boosts(self):
-        self.assertEqual(len(self.gear.get_all_activated_haste_rating_boosts()), 1)
+        self.assertEqual(len(self.gear.get_all_activated_haste_rating_boosts()), 2)
         self.assertEqual(len(self.gear_none.get_all_activated_haste_rating_boosts()), 0)
+
+    def test_engineer_glove_enchant(self):
+        test_gear = stats.GearBuffs('engineer_glove_enchant')
         self.assertEqual(self.gear.get_all_activated_haste_rating_boosts()[0], (340, 12, 60))
+
+    def test_lifeblood(self):
+        test_gear = stats.GearBuffs('lifeblood')
+        self.assertEqual(test_gear.get_all_activated_haste_rating_boosts()[0], (480, 20, 120))

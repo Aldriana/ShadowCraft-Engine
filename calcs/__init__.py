@@ -35,6 +35,10 @@ class DamageCalculator(object):
         self.race = race
         self.settings = settings
         self.level = level
+        if self.stats.gear_buffs.mixology and self.buffs.agi_flask:
+            self.stats.agi += 80
+        if self.stats.gear_buffs.master_of_anatomy:
+            self.stats.crit += 80
     
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)

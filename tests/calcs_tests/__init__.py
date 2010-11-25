@@ -5,16 +5,24 @@ from objects import buffs
 from objects import race
 from objects import stats
 from objects import procs
+from objects import glyphs
 
 class TestDamageCalculator(unittest.TestCase):
-    def setUp(self):
-        test_buffs = buffs.Buffs()
+    def make_calculator(self, buffs_list, gear_buffs_list):
+        test_buffs = buffs.Buffs(*buffs_list)
+        test_gear_buffs = stats.GearBuffs(*gear_buffs_list)
+        test_procs = procs.ProcsList()
         test_mh = stats.Weapon(737, 1.8, 'dagger', 'hurricane')
         test_oh = stats.Weapon(573, 1.4, 'dagger', 'hurricane')
         test_ranged = stats.Weapon(1104, 2.0, 'thrown')
-        test_stats = stats.Stats(20, 3485, 190, 1517, 1086, 641, 899, 666, test_mh, test_oh, test_ranged, None, None)
+        test_stats = stats.Stats(20, 3485, 190, 1517, 1086, 641, 899, 666, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
         test_race = race.Race('night_elf')
-        self.calculator = calcs.DamageCalculator(test_stats, None, None, test_buffs, test_race)
+        test_talents = None
+        test_glyphs = glyphs.Glyphs()
+        return calcs.DamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race)
+
+    def setUp(self):
+        self.calculator = self.make_calculator([], [])
 
     def test_melee_hit_chance(self):
         pass
@@ -78,3 +86,15 @@ class TestDamageCalculator(unittest.TestCase):
 
     def test_raid_settings_modifiers(self):
         self.assertRaises(exceptions.InvalidInputException, self.calculator.raid_settings_modifiers)
+
+    def test_mixology_no_flask(self):
+        test_calculator = self.make_calculator([], ['mixology'])
+        self.assertEqual(test_calculator.stats.agi, self.calculator.stats.agi)
+
+    def test_mixology(self):
+        test_calculator = self.make_calculator(['agi_flask'], ['mixology'])
+        self.assertEqual(test_calculator.stats.agi, self.calculator.stats.agi + 80)
+
+    def test_master_of_anatomy(self):
+        test_calculator = self.make_calculator([], ['master_of_anatomy'])
+        self.assertEqual(test_calculator.stats.crit, self.calculator.stats.crit + 80)
