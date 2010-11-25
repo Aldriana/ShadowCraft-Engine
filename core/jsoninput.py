@@ -57,43 +57,43 @@ if __name__ == '__main__':
     json_string = """{
         "level": 85, 
         "stats": {
+            "str": 20,
+            "agi": 4756, 
+            "ap": 190, 
+            "crit": 1022, 
             "hit": 1329, 
             "exp": 159, 
-            "ranged": {
-                "type": "thrown", 
-                "speed": 2.2000000000000002, 
-                "damage": 1371.5
-            }, 
-            "ap": 190, 
+            "haste": 1291, 
+            "mastery": 1713, 
             "gear_buffs": [
                 "rogue_t11_2pc", 
                 "leather_specialization", 
                 "potion_of_the_tolvir", 
                 "chaotic_metagem"
             ], 
-            "crit": 1022, 
             "procs": [
                 "heroic_prestors_talisman_of_machination", 
                 "fluid_death", 
                 "rogue_t11_4pc"
             ], 
-            "agi": 4756, 
+            "mh": {
+                "type": "dagger", 
+                "speed": 1.8, 
+                "damage": 939.5, 
+                "enchant": "landslide"
+            },
             "oh": {
                 "type": "dagger", 
                 "speed": 1.3999999999999999, 
                 "damage": 730.5, 
                 "enchant": "landslide"
             }, 
-            "mastery": 1713, 
-            "mh": {
-                "type": "dagger", 
-                "speed": 1.8, 
-                "damage": 939.5, 
-                "enchant": "landslide"
-            }, 
-            "haste": 1291, 
-            "str": 20
-        }, 
+            "ranged": {
+                "type": "thrown", 
+                "speed": 2.2000000000000002, 
+                "damage": 1371.5
+            }
+        },
         "buffs": [
             "short_term_haste_buff", 
             "stat_multiplier_buff", 
