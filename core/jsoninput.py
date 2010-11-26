@@ -31,6 +31,7 @@ def from_json(json_string, character_class='rogue'):
             cycle = settings.CombatCycle(c.get('use_rupture', True), c.get('use_revealing_strike', 'sometimes'), c.get('ksp_immediately', False))
         elif settings_type == 'subtlety':
             # SubletySycle(raid_crits_per_second, clip_recuperate=False)
+            c = s['cycle']
             cycle = settings.SubtletyCycle(c['raid_crits_per_second'], c.get('clip_recuperate', False))
         else:
             raise InvalidJSONException(_("Missing settings"))
