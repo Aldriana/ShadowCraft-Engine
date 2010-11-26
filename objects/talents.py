@@ -66,19 +66,16 @@ class ClassTalents(object):
         self.trees = list()
         self.spec = None
 
-        # instantiate the three trees using the specified strings. while we're
-        # at it, count up the total talents as a sanity check, and find the
-        # tree with the most talents to determine spec. since the specced tree
-        # always has either 1) all the talents, or 2) at least 31 talents while
-        # the other two have fewer than 31 talents, this works.
+        # Instantiate the three trees using the specified strings. While we're
+        # at it, find the tree with the most talents to determine spec. Since
+        # the specced tree always has more talent points than the other two,
+        # this works.
         maxTalents = 0
-        totalTalents = 0
         for (treeClass, string) in zip(self.treeClasses(), [string1, string2, string3]):
             tree = treeClass(string)
             if maxTalents < tree.talents_in_tree():
                 maxTalents = tree.talents_in_tree()
                 self.spec = treeClass
-            totalTalents += tree.talents_in_tree()
             self.trees.append(tree)
 
         # build up a dict of talents to trees for quicker access in __getattr__
@@ -86,11 +83,6 @@ class ClassTalents(object):
         for tree in self.trees:
             for name in tree.allowed_talents.keys():
                 self.treeForTalent[name] = tree
-
-        # May need to be adjusted if we're going to allow calculations at
-        # multiple character levels, but this will do for the moment.
-        if totalTalents > 41:
-            raise InvalidTalentException(_('Total number of talentpoints has to be 41 or less'))
 
     def is_specced(self, treeClass):
         return self.spec == treeClass
