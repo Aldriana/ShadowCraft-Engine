@@ -95,14 +95,13 @@ class ClassTalents(object):
     def is_specced(self, treeClass):
         return self.spec == treeClass
 
-    def __getattr__(self, name, tier=False):
+    def get_talent_tier(self, name):
+        max_talent_value, talent_tier = self.treeForTalent[name].allowed_talents[name]
+        return talent_tier
+
+    def __getattr__(self, name):
         # If someone tries to access a talent defined on one of the trees,
         # access it through that tree.
-        if tier == False:
-            if name in self.treeForTalent.keys():
-                return getattr(self.treeForTalent[name], name)
-            object.__getattribute__(self, name)
-        # Retunr the tier the talent belongs to in this case
-        elif tier == True:
-            max_talent_value, talent_tier = self.treeForTalent[name].allowed_talents[name]
-            return talent_tier
+        if name in self.treeForTalent.keys():
+            return getattr(self.treeForTalent[name], name)
+        object.__getattribute__(self, name)
