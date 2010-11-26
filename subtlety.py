@@ -78,7 +78,7 @@ for value in ep_values:
 print '---------'
 
 # Compute talents ranking
-calculator.get_ranking_for_talents(print_return=True)
+calculator.get_talents_ranking(print_return=True)
 
 print '---------'
 
