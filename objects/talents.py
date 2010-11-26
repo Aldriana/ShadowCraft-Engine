@@ -22,9 +22,10 @@ class TalentTree(object):
         object.__getattribute__(self, name)
 
     def set_talent(self, talent_name, talent_value):
+        max_talent_value, talent_tier = self.allowed_talents[talent_name]
         if talent_name not in self.allowed_talents.keys():
             raise InvalidTalentException(_('Invalid talent name {talent_name}').format(talent_name=talent_name))
-        if talent_value < 0 or talent_value > self.allowed_talents[talent_name]:
+        if talent_value < 0 or talent_value > max_talent_value:
             raise InvalidTalentException(_('Invalid value {talent_value} for talent {talent_name}').format(talent_value=talent_value, talent_name=talent_name))
 
         setattr(self, talent_name, int(talent_value))
@@ -65,19 +66,16 @@ class ClassTalents(object):
         self.trees = list()
         self.spec = None
 
-        # instantiate the three trees using the specified strings. while we're
-        # at it, count up the total talents as a sanity check, and find the
-        # tree with the most talents to determine spec. since the specced tree
-        # always has either 1) all the talents, or 2) at least 31 talents while
-        # the other two have fewer than 31 talents, this works.
+        # Instantiate the three trees using the specified strings. While we're
+        # at it, find the tree with the most talents to determine spec. Since
+        # the specced tree always has more talent points than the other two,
+        # this works.
         maxTalents = 0
-        totalTalents = 0
         for (treeClass, string) in zip(self.treeClasses(), [string1, string2, string3]):
             tree = treeClass(string)
             if maxTalents < tree.talents_in_tree():
                 maxTalents = tree.talents_in_tree()
                 self.spec = treeClass
-            totalTalents += tree.talents_in_tree()
             self.trees.append(tree)
 
         # build up a dict of talents to trees for quicker access in __getattr__
@@ -86,13 +84,12 @@ class ClassTalents(object):
             for name in tree.allowed_talents.keys():
                 self.treeForTalent[name] = tree
 
-        # May need to be adjusted if we're going to allow calculations at
-        # multiple character levels, but this will do for the moment.
-        if totalTalents > 41:
-            raise InvalidTalentException(_('Total number of talentpoints has to be 41 or less'))
-
     def is_specced(self, treeClass):
         return self.spec == treeClass
+
+    def get_talent_tier(self, name):
+        max_talent_value, talent_tier = self.treeForTalent[name].allowed_talents[name]
+        return talent_tier
 
     def __getattr__(self, name):
         # If someone tries to access a talent defined on one of the trees,

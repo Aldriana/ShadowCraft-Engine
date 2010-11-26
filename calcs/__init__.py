@@ -84,6 +84,42 @@ class DamageCalculator(object):
 
         return ep_values
 
+    def get_talents_ranking(self, list=None):
+        talents_ranking = {}
+        not_implemented_talents = []
+        baseline_dps = self.get_dps()
+        talent_list = []
+
+        if list == None:
+        # Build a list of talents that can be taken in the active spec
+            for talent in self.talents.treeForTalent.keys():
+                if self.talents.get_talent_tier(talent) <= 2:
+                    talent_list.append(talent)
+                elif talent in self.talents.spec.allowed_talents.keys():
+                    talent_list.append(talent)
+        else:
+            talent_list = list
+
+        for talent in talent_list:
+            old_talent_value = getattr(self.talents, talent)
+            if old_talent_value == 0:
+                new_talent_value = 1
+            else:
+                new_talent_value = old_talent_value - 1
+
+            self.talents.treeForTalent[talent].set_talent(talent, new_talent_value)
+            try:
+                new_dps = self.get_dps()
+                # Disregard talents that don't affect dps
+                if new_dps != baseline_dps:
+                    talents_ranking[talent] = abs(new_dps - baseline_dps)
+            except:
+                # These are the talents that the modeler asserts True
+                not_implemented_talents.append(talent)
+            self.talents.treeForTalent[talent].set_talent(talent, old_talent_value)
+
+        return talents_ranking, not_implemented_talents
+
     def get_dps(self):
         # Overwrite this function with your calculations/simulations/whatever;
         # this is what callers will (initially) be looking at.

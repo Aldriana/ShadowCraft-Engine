@@ -2,25 +2,25 @@ from objects import talents
 
 class Assassination(talents.TalentTree):
     allowed_talents = {
-        'deadly_momentum': 2,
-        'coup_de_grace': 3,
-        'lethality': 3,
-        'ruthlessness': 3,
-        'quickening': 2,
-        'puncturing_wounds': 3,
-        'blackjack': 2,
-        'deadly_brew': 2,
-        'cold_blood': 1,
-        'vile_poisons': 3,
-        'deadened_nerves': 3,
-        'seal_fate': 2,
-        'murderous_intent': 2,
-        'overkill': 1,
-        'master_poisoner': 1,
-        'improved_expose_armor': 2,
-        'cut_to_the_chase': 3,
-        'venomous_wounds': 2,
-        'vendetta': 1
+        'deadly_momentum': (2, 1),
+        'coup_de_grace': (3, 1),
+        'lethality': (3, 1),
+        'ruthlessness': (3, 2),
+        'quickening': (2, 2),
+        'puncturing_wounds': (3, 2),
+        'blackjack': (2, 2),
+        'deadly_brew': (2, 3),
+        'cold_blood': (1, 3),
+        'vile_poisons': (3, 3),
+        'deadened_nerves': (3, 4),
+        'seal_fate': (2, 4),
+        'murderous_intent': (2, 5),
+        'overkill': (1, 5),
+        'master_poisoner': (1, 5),
+        'improved_expose_armor': (2, 5),
+        'cut_to_the_chase': (3, 6),
+        'venomous_wounds': (2, 6),
+        'vendetta': (1, 7)
     }
 
     def populate_talents_from_list(self, values_list):
@@ -46,25 +46,25 @@ class Assassination(talents.TalentTree):
 
 class Combat(talents.TalentTree):
     allowed_talents = {
-        'improved_recuperate': 2,
-        'improved_sinister_strike': 3,
-        'precision': 3,
-        'improved_slice_and_dice': 2,
-        'improved_sprint': 2,
-        'aggression': 3,
-        'improved_kick': 2,
-        'lightning_reflexes': 3,
-        'revealing_strike': 1,
-        'reinforced_leather': 2,
-        'improved_gouge': 2,
-        'combat_potency': 3,
-        'blade_twisting': 2,
-        'throwing_specialization': 2,
-        'adrenaline_rush': 1,
-        'savage_combat': 2,
-        'bandits_guile': 3,
-        'restless_blades': 2,
-        'killing_spree': 1
+        'improved_recuperate': (2, 1),
+        'improved_sinister_strike': (3, 1),
+        'precision': (3, 1),
+        'improved_slice_and_dice': (2, 2),
+        'improved_sprint': (2, 2),
+        'aggression': (3, 2),
+        'improved_kick': (2, 2),
+        'lightning_reflexes': (3, 3),
+        'revealing_strike': (1, 3),
+        'reinforced_leather': (2, 3),
+        'improved_gouge': (2, 3),
+        'combat_potency': (3, 4),
+        'blade_twisting': (2, 4),
+        'throwing_specialization': (2, 5),
+        'adrenaline_rush': (1, 5),
+        'savage_combat': (2, 5),
+        'bandits_guile': (3, 6),
+        'restless_blades': (2, 6),
+        'killing_spree': (1, 7)
     }
 
     def populate_talents_from_list(self, values_list):
@@ -90,25 +90,25 @@ class Combat(talents.TalentTree):
 
 class Subtlety(talents.TalentTree):
     allowed_talents = {
-        'nightstalker': 2,
-        'improved_ambush': 3,
-        'relentless_strikes': 3,
-        'elusiveness': 2,
-        'waylay': 2,
-        'opportunity': 3,
-        'initiative': 2,
-        'energetic_recovery': 3,
-        'find_weakness': 2,
-        'hemorrhage': 1,
-        'honor_among_thieves': 3,
-        'premeditation': 1,
-        'enveloping_shadows': 3,
-        'cheat_death': 3,
-        'preparation': 1,
-        'sanguinary_vein': 2,
-        'slaughter_from_the_shadows': 3,
-        'serrated_blades': 2,
-        'shadow_dance': 1
+        'nightstalker': (2, 1),
+        'improved_ambush': (3, 1),
+        'relentless_strikes': (3, 1),
+        'elusiveness': (2, 2),
+        'waylay': (2, 2),
+        'opportunity': (3, 2),
+        'initiative': (2, 2),
+        'energetic_recovery': (3, 3),
+        'find_weakness': (2, 3),
+        'hemorrhage': (1, 3),
+        'honor_among_thieves': (3, 4),
+        'premeditation': (1, 4),
+        'enveloping_shadows': (3, 4),
+        'cheat_death': (3, 5),
+        'preparation': (1, 5),
+        'sanguinary_vein': (2, 5),
+        'slaughter_from_the_shadows': (3, 6),
+        'serrated_blades': (2, 6),
+        'shadow_dance': (1, 7)
     }
 
     def populate_talents_from_list(self, values_list):

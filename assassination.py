@@ -77,6 +77,18 @@ for value in ep_values:
 
 print '---------'
 
+# Compute talents ranking
+talents_ranking, mandatory_talents = calculator.get_talents_ranking()
+talents_ranking_values = talents_ranking.items()
+talents_ranking_values.sort(key=lambda entry: entry[1], reverse=True)
+max_len = max(len(entry[0]) for entry in talents_ranking_values)
+for entry in talents_ranking_values:
+    print entry[0] + ':' + ' ' * (max_len - len(entry[0])), entry[1]
+for talent in mandatory_talents:
+    print talent + ':' + ' ' * (max_len - len(talent)), _('imperative talent')
+
+print '---------'
+
 # Compute DPS Breakdown.
 dps_breakdown = calculator.get_dps_breakdown().items()
 dps_breakdown.sort(key=lambda entry: entry[1], reverse=True)
