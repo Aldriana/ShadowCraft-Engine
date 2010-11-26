@@ -105,10 +105,10 @@ class DamageCalculator(object):
 
             self.talents.treeForTalent[talent].set_talent(talent, new_talent_value)
             try:
-                dps = self.get_dps()
+                new_dps = self.get_dps()
                 # Disregard talents that don't affect dps
-                if self.get_dps() != baseline_dps:
-                    talents_ranking[talent] = abs(dps - baseline_dps)
+                if new_dps != baseline_dps:
+                    talents_ranking[talent] = abs(new_dps - baseline_dps)
             except:
                 # These are the talents that the modeler asserts True
                 not_implemented_talents.append(talent)
