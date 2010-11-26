@@ -80,7 +80,7 @@ class DamageCalculator(object):
 
         return ep_values
 
-    def get_ranking_for_talents(self, list=None, print_return=False):
+    def get_talents_ranking(self, list=None, print_return=False):
         talents_ranking = {}
         not_implemented_talents = []
         baseline_dps = self.get_dps()
@@ -97,30 +97,22 @@ class DamageCalculator(object):
             talent_list = list
 
         for talent in talent_list:
-            old_talent_value = self.talents.__getattr__(talent)
-            if self.talents.__getattr__(talent) == 0:
+            old_talent_value = getattr(self.talents, talent)
+            if old_talent_value == 0:
                 new_talent_value = 1
             else:
                 new_talent_value = old_talent_value - 1
 
-            for i in (0, 1, 2):
-                try:
-                    self.talents.trees[i].set_talent(talent, new_talent_value)
-                except:
-                    pass
+            self.talents.treeForTalent[talent].set_talent(talent, new_talent_value)
             try:
                 dps = self.get_dps()
                 # Disregard talents that don't affect dps
-                if abs(dps - baseline_dps) != 0.0:
+                if self.get_dps() != baseline_dps:
                     talents_ranking[talent] = abs(dps - baseline_dps)
             except:
                 # These are the talents that the modeler asserts True
                 not_implemented_talents.append(talent)
-            for i in (0, 1, 2):
-                try:
-                    self.talents.trees[i].set_talent(talent, old_talent_value)
-                except:
-                    pass
+            self.talents.treeForTalent[talent].set_talent(talent, old_talent_value)
 
         if print_return == False:
             return talents_ranking, not_implemented_talents
