@@ -84,13 +84,13 @@ if __name__ == '__main__':
             },
             "oh": {
                 "type": "dagger", 
-                "speed": 1.3999999999999999, 
+                "speed": 1.4, 
                 "damage": 730.5, 
                 "enchant": "landslide"
             }, 
             "ranged": {
                 "type": "thrown", 
-                "speed": 2.2000000000000002, 
+                "speed": 2.2, 
                 "damage": 1371.5
             }
         },
