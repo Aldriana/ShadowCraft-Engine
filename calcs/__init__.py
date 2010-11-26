@@ -80,6 +80,57 @@ class DamageCalculator(object):
 
         return ep_values
 
+    def get_ranking_for_talents(self, print_return=False):
+        talents_ranking = {}
+        not_implemented_talents = []
+        baseline_dps = self.get_dps()
+
+        talent_list = []
+        # Build a list of talents that can be taken in the active spec
+        for talent in self.talents.treeForTalent.keys():
+            if self.talents.__getattr__(talent, tier=True) <= 2:
+                talent_list.append(talent)
+            if self.talents.__getattr__(talent, tier=True) > 2 and talent in self.talents.spec.allowed_talents.keys():
+                talent_list.append(talent)
+
+        for talent in talent_list:
+            old_talent_value = self.talents.__getattr__(talent)
+            if self.talents.__getattr__(talent) == 0:
+                new_talent_value = 1
+            else:
+                new_talent_value = old_talent_value - 1
+
+            for i in (0, 1, 2):
+                try:
+                    self.talents.trees[i].set_talent(talent, new_talent_value)
+                except:
+                    pass
+            try:
+                dps = self.get_dps()
+                # Disregard talents that don't affect dps
+                if abs(dps - baseline_dps) != 0.0:
+                    talents_ranking[talent] = abs(dps - baseline_dps)
+            except:
+                # These are the talents that the modeler asserts True
+                not_implemented_talents.append(talent)
+            for i in (0, 1, 2):
+                try:
+                    self.talents.trees[i].set_talent(talent, old_talent_value)
+                except:
+                    pass
+
+        if print_return == False:
+            return talents_ranking, not_implemented_talents
+        else:
+            talents_ranking_sorted = talents_ranking.items()
+            talents_ranking_sorted.sort(key=lambda entry: entry[1], reverse=True)
+            max_len = max(len(entry[0]) for entry in talents_ranking_sorted)
+            total_dps = sum(entry[1] for entry in talents_ranking_sorted)
+            for entry in talents_ranking_sorted:
+                print entry[0] + ':' + ' ' * (max_len - len(entry[0])), entry[1]
+            for i in not_implemented_talents:
+                print i + ':' + ' ' , _('imperative talent')
+
     def get_dps(self):
         # Overwrite this function with your calculations/simulations/whatever;
         # this is what callers will (initially) be looking at.

@@ -77,6 +77,11 @@ for value in ep_values:
 
 print '---------'
 
+# Compute talents ranking
+calculator.get_ranking_for_talents(print_return=True)
+
+print '---------'
+
 # Compute DPS Breakdown.
 dps_breakdown = calculator.get_dps_breakdown().items()
 dps_breakdown.sort(key=lambda entry: entry[1], reverse=True)

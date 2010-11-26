@@ -22,9 +22,10 @@ class TalentTree(object):
         object.__getattribute__(self, name)
 
     def set_talent(self, talent_name, talent_value):
+        max_talent_value, talent_tier = self.allowed_talents[talent_name]
         if talent_name not in self.allowed_talents.keys():
             raise InvalidTalentException(_('Invalid talent name {talent_name}').format(talent_name=talent_name))
-        if talent_value < 0 or talent_value > self.allowed_talents[talent_name]:
+        if talent_value < 0 or talent_value > max_talent_value:
             raise InvalidTalentException(_('Invalid value {talent_value} for talent {talent_name}').format(talent_value=talent_value, talent_name=talent_name))
 
         setattr(self, talent_name, int(talent_value))
@@ -94,9 +95,14 @@ class ClassTalents(object):
     def is_specced(self, treeClass):
         return self.spec == treeClass
 
-    def __getattr__(self, name):
+    def __getattr__(self, name, tier=False):
         # If someone tries to access a talent defined on one of the trees,
         # access it through that tree.
-        if name in self.treeForTalent.keys():
-            return getattr(self.treeForTalent[name], name)
-        object.__getattribute__(self, name)
+        if tier == False:
+            if name in self.treeForTalent.keys():
+                return getattr(self.treeForTalent[name], name)
+            object.__getattribute__(self, name)
+        # Retunr the tier the talent belongs to in this case
+        elif tier == True:
+            max_talent_value, talent_tier = self.treeForTalent[name].allowed_talents[name]
+            return talent_tier
