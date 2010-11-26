@@ -21,13 +21,23 @@ def from_json(json_string, character_class='rogue'):
         s = j['settings']
         settings_type = s['type']
         if settings_type == 'assassination':
-            # AssassinationCycle(self, min_envenom_size_mutilate=4, min_envenom_size_backstab=5, prioritize_rupture_uptime_mutilate=True, prioritize_rupture_uptime_backstab=True):
+            # AssassinationCycle(self, min_envenom_size_mutilate=4, min_envenom_size_backstab=5, prioritize_rupture_uptime_mutilate=True, prioritize_rupture_uptime_backstab=True)
             c = s.get('cycle', {})
             cycle = settings.AssassinationCycle(c.get('min_envenom_size_mutilate', 4), c.get('min_envenom_size_backstab', 5),
                 c.get('prioritize_rupture_uptime_mutilate', True), c.get('prioritize_rupture_uptime_backstab', True))
-            # Settings(cycle, time_in_execute_range=.35, tricks_on_cooldown=True, response_time=.5, mh_poison='ip', oh_poison='dp', duration=300):
-            settings_object = settings.Settings(cycle, s.get('time_in_execute_range', .35), s.get('tricks_on_cooldown', True),
-                s.get('response_time', .5), s.get('mh_poison', 'ip'), s.get('oh_poison', 'dp'), s.get('duration', 300))
+        elif settings_type == 'combat':
+            # CombatCycle(self, use_rupture=True, use_revealing_strike='sometimes', ksp_immediately=False)
+            c = s.get('cycle', {})
+            cycle = settings.CombatCycle(c.get('use_rupture', True), c.get('use_revealing_strike', 'sometimes'), c.get('ksp_immediately', False))
+        elif settings_type == 'subtlety':
+            # SubletySycle(raid_crits_per_second, clip_recuperate=False)
+            cycle = settings.SubtletyCycle(c['raid_crits_per_second'], c.get('clip_recuperate', False))
+        else:
+            raise InvalidJSONException(_("Missing settings"))
+
+        # Settings(cycle, time_in_execute_range=.35, tricks_on_cooldown=True, response_time=.5, mh_poison='ip', oh_poison='dp', duration=300):
+        settings_object = settings.Settings(cycle, s.get('time_in_execute_range', .35), s.get('tricks_on_cooldown', True),
+            s.get('response_time', .5), s.get('mh_poison', 'ip'), s.get('oh_poison', 'dp'), s.get('duration', 300))
     
         stats_dict = j['stats']
         # Weapon(damage, speed, weapon_type, enchant=None):
