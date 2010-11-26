@@ -80,18 +80,21 @@ class DamageCalculator(object):
 
         return ep_values
 
-    def get_ranking_for_talents(self, print_return=False):
+    def get_ranking_for_talents(self, list=None, print_return=False):
         talents_ranking = {}
         not_implemented_talents = []
         baseline_dps = self.get_dps()
-
         talent_list = []
+
+        if list == None:
         # Build a list of talents that can be taken in the active spec
-        for talent in self.talents.treeForTalent.keys():
-            if self.talents.__getattr__(talent, tier=True) <= 2:
-                talent_list.append(talent)
-            if self.talents.__getattr__(talent, tier=True) > 2 and talent in self.talents.spec.allowed_talents.keys():
-                talent_list.append(talent)
+            for talent in self.talents.treeForTalent.keys():
+                if self.talents.__getattr__(talent, tier=True) <= 2:
+                    talent_list.append(talent)
+                if self.talents.__getattr__(talent, tier=True) > 2 and talent in self.talents.spec.allowed_talents.keys():
+                    talent_list.append(talent)
+        else:
+            talent_list = list
 
         for talent in talent_list:
             old_talent_value = self.talents.__getattr__(talent)
