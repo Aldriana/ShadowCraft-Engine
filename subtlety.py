@@ -72,9 +72,10 @@ calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyph
 ep_values = calculator.get_ep()
 
 # Compute talents ranking
-talents_ranking, mandatory_talents = calculator.get_talents_ranking()
+main_tree_talents_ranking, off_tree_talents_ranking, mandatory_talents = calculator.get_talents_ranking()
+mandatory_talents_dict = {}
 for i in mandatory_talents:
-    talents_ranking[i] = _('imperative talent')
+    mandatory_talents_dict[i] = _('imperative talent')
 
 # Compute DPS Breakdown.
 dps_breakdown = calculator.get_dps_breakdown()
@@ -96,5 +97,5 @@ def pretty_print(dict_list):
 
     return max_len
 
-dicts_for_pretty_print = [talents_ranking, ep_values, dps_breakdown]
+dicts_for_pretty_print = [main_tree_talents_ranking, off_tree_talents_ranking, mandatory_talents_dict, ep_values, dps_breakdown]
 print ' ' * (pretty_print(dicts_for_pretty_print) + 1), total_dps, _("total damage per second.")

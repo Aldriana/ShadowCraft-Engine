@@ -118,7 +118,15 @@ class DamageCalculator(object):
                 not_implemented_talents.append(talent)
             self.talents.treeForTalent[talent].set_talent(talent, old_talent_value)
 
-        return talents_ranking, not_implemented_talents
+        main_tree_talents_ranking = {}
+        off_trees_talents_ranking = {}
+        for talent in talents_ranking:
+            if talent in self.talents.spec.allowed_talents.keys():
+                main_tree_talents_ranking[talent] = talents_ranking[talent]
+            else:
+                off_trees_talents_ranking[talent] = talents_ranking[talent]
+
+        return main_tree_talents_ranking, off_trees_talents_ranking, not_implemented_talents
 
     def get_dps(self):
         # Overwrite this function with your calculations/simulations/whatever;
