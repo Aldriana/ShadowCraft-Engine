@@ -88,6 +88,7 @@ def pretty_print(dict_list):
         if max_len < max(len(entry[0]) for entry in dict_values):
             max_len = max(len(entry[0]) for entry in dict_values)
 
+    print '-' * (max_len + 15)
     for i in dict_list:
         dict_values = i.items()
         dict_values.sort(key=lambda entry: entry[1], reverse=True)
@@ -97,5 +98,8 @@ def pretty_print(dict_list):
 
     return max_len
 
-dicts_for_pretty_print = [main_tree_talents_ranking, off_tree_talents_ranking, mandatory_talents_dict, ep_values, dps_breakdown]
+dicts_for_pretty_print = [
+    off_tree_talents_ranking,
+    ep_values,
+    dps_breakdown]
 print ' ' * (pretty_print(dicts_for_pretty_print) + 1), total_dps, _("total damage per second.")
