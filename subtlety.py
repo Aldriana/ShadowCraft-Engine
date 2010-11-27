@@ -69,35 +69,39 @@ test_level = 85
 calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings, test_level)
 
 # Compute EP values.
-ep_values = calculator.get_ep().items()
-ep_values.sort(key=lambda entry: entry[1], reverse=True)
-max_len = max(len(entry[0]) for entry in ep_values)
-for value in ep_values:
-    print value[0] + ':' + ' ' * (max_len - len(value[0])), value[1]
-
-print '---------'
+ep_values = calculator.get_ep()
 
 # Compute talents ranking
-talents_ranking, mandatory_talents = calculator.get_talents_ranking()
-talents_ranking_values = talents_ranking.items()
-talents_ranking_values.sort(key=lambda entry: entry[1], reverse=True)
-max_len = max(len(entry[0]) for entry in talents_ranking_values)
-for entry in talents_ranking_values:
-    print entry[0] + ':' + ' ' * (max_len - len(entry[0])), entry[1]
-for talent in mandatory_talents:
-    print talent + ':' + ' ' * (max_len - len(talent)), _('imperative talent')
-
-print '---------'
+main_tree_talents_ranking, off_tree_talents_ranking, mandatory_talents = calculator.get_talents_ranking()
+mandatory_talents_dict = {}
+for i in mandatory_talents:
+    mandatory_talents_dict[i] = _('imperative talent')
 
 # Compute DPS Breakdown.
-dps_breakdown = calculator.get_dps_breakdown().items()
-dps_breakdown.sort(key=lambda entry: entry[1], reverse=True)
-max_len = max(len(entry[0]) for entry in dps_breakdown)
-total_dps = sum(entry[1] for entry in dps_breakdown)
-for entry in dps_breakdown:
-    print entry[0] + ':' + ' ' * (max_len - len(entry[0])), entry[1]
+dps_breakdown = calculator.get_dps_breakdown()
+total_dps = sum(entry[1] for entry in dps_breakdown.items())
 
-print '-' * (max_len + 15)
+def pretty_print(dict_list):
+    max_len = 0
+    for i in dict_list:
+        dict_values = i.items()
+        if max_len < max(len(entry[0]) for entry in dict_values):
+            max_len = max(len(entry[0]) for entry in dict_values)
 
-print ' ' * (max_len + 1), total_dps, _("total damage per second.")
+    print '-' * (max_len + 15)
+    for i in dict_list:
+        dict_values = i.items()
+        dict_values.sort(key=lambda entry: entry[1], reverse=True)
+        for value in dict_values:
+            print value[0] + ':' + ' ' * (max_len - len(value[0])), value[1]
+        print '-' * (max_len + 15)
 
+    return max_len
+
+dicts_for_pretty_print = [
+    mandatory_talents_dict,
+    main_tree_talents_ranking,
+    off_tree_talents_ranking,
+    ep_values,
+    dps_breakdown]
+print ' ' * (pretty_print(dicts_for_pretty_print) + 1), total_dps, _("total damage per second.")
