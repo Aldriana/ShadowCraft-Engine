@@ -1,13 +1,13 @@
 import json
-from calcs.rogue.Aldriana import AldrianasRogueDamageCalculator
-from calcs.rogue.Aldriana import settings
-from core import exceptions
-from objects import buffs
-from objects import procs
-from objects import race
-from objects import stats
-from objects.rogue import rogue_glyphs
-from objects.rogue import rogue_talents
+from shadowcraft.calcs.rogue.Aldriana import AldrianasRogueDamageCalculator
+from shadowcraft.calcs.rogue.Aldriana import settings
+from shadowcraft.core import exceptions
+from shadowcraft.objects import buffs
+from shadowcraft.objects import procs
+from shadowcraft.objects import race
+from shadowcraft.objects import stats
+from shadowcraft.objects.rogue import rogue_glyphs
+from shadowcraft.objects.rogue import rogue_talents
 
 class InvalidJSONException(exceptions.InvalidInputException):
     pass

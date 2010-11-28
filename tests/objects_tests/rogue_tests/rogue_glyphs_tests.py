@@ -1,5 +1,5 @@
 import unittest
-from objects.rogue import rogue_glyphs
+from shadowcraft.objects.rogue import rogue_glyphs
     
 class TestRogueGlyphs(unittest.TestCase):
     def setUp(self):

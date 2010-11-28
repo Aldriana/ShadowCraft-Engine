@@ -1,4 +1,4 @@
-from objects import talents
+from shadowcraft.objects import talents
 
 class Assassination(talents.TalentTree):
     allowed_talents = {

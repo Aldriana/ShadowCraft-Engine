@@ -1,7 +1,8 @@
 import unittest
+from os import path
 import sys
-
-sys.path.append(".")
+sys.path.append(path.abspath(path.dirname(__file__)))
+sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
 from calcs_tests import TestDamageCalculator
 from calcs_tests.armor_mitigation_tests import TestArmorMitigation

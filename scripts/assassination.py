@@ -1,16 +1,19 @@
-# Simple test program to debug + play with combat models.
+# Simple test program to debug + play with assassination models.
+from os import path
+import sys
+sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
-from calcs.rogue.Aldriana import AldrianasRogueDamageCalculator
-from calcs.rogue.Aldriana import settings
+from shadowcraft.calcs.rogue.Aldriana import AldrianasRogueDamageCalculator
+from shadowcraft.calcs.rogue.Aldriana import settings
 
-from objects import buffs
-from objects import race
-from objects import stats
-from objects import procs
-from objects.rogue import rogue_talents
-from objects.rogue import rogue_glyphs
+from shadowcraft.objects import buffs
+from shadowcraft.objects import race
+from shadowcraft.objects import stats
+from shadowcraft.objects import procs
+from shadowcraft.objects.rogue import rogue_talents
+from shadowcraft.objects.rogue import rogue_glyphs
 
-from core import i18n
+from shadowcraft.core import i18n
 
 # Set up language. Use 'en_US', 'es_ES', 'fr' for specific languages.
 test_language = 'local'
@@ -35,31 +38,31 @@ test_buffs = buffs.Buffs(
     )
 
 # Set up weapons.
-test_mh = stats.Weapon(1356.5, 2.6, '1h_axe', 'landslide')
+test_mh = stats.Weapon(939.5, 1.8, 'dagger', 'landslide')
 test_oh = stats.Weapon(730.5, 1.4, 'dagger', 'landslide')
 test_ranged = stats.Weapon(1371.5, 2.2, 'thrown')
 
 # Set up procs.
-test_procs = procs.ProcsList('heroic_prestors_talisman_of_machination', 'fluid_death')
+test_procs = procs.ProcsList('heroic_prestors_talisman_of_machination', 'fluid_death', 'rogue_t11_4pc')
 
 # Set up gear buffs.
-test_gear_buffs = stats.GearBuffs('rogue_t11_2pc', 'leather_specialization', 'potion_of_the_tolvir')
+test_gear_buffs = stats.GearBuffs('rogue_t11_2pc', 'leather_specialization', 'potion_of_the_tolvir', 'chaotic_metagem')
 
 # Set up a calcs object..
-test_stats = stats.Stats(20, 4745, 190, 1100, 782, 754, 2116, 776, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
+test_stats = stats.Stats(20, 4756, 190, 1022, 1329, 159, 1291, 1713, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
 
 # Initialize talents..
-test_talents = rogue_talents.RogueTalents('0232000000000000000', '0332230310032012321', '0030000000000000000')
+test_talents = rogue_talents.RogueTalents('0333230113022110321', '0020000000000000000', '2030030000000000000')
 
 # Set up glyphs.
-glyph_list = ['sinister_strike', 'adrenaline_rush', 'rupture']
+glyph_list = ['backstab', 'mutilate', 'rupture']
 test_glyphs = rogue_glyphs.RogueGlyphs(*glyph_list)
 
 # Set up race.
 test_race = race.Race('night_elf')
 
 # Set up settings.
-test_cycle = settings.CombatCycle()
+test_cycle = settings.AssassinationCycle()
 test_settings = settings.Settings(test_cycle, response_time=1)
 
 # Set up level 

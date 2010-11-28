@@ -1,6 +1,6 @@
 import unittest
-from core import exceptions
-from objects import buffs
+from shadowcraft.core import exceptions
+from shadowcraft.objects import buffs
     
 class TestBuffsTrue(unittest.TestCase):
     def setUp(self):

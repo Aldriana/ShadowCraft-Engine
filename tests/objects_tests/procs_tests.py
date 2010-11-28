@@ -1,5 +1,5 @@
 import unittest
-from objects import procs
+from shadowcraft.objects import procs
     
 class TestProcsList(unittest.TestCase):
     def setUp(self):

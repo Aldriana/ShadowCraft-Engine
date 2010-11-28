@@ -1,11 +1,11 @@
-import calcs
+from shadowcraft import calcs
 import unittest
-from core import exceptions
-from objects import buffs
-from objects import race
-from objects import stats
-from objects import procs
-from objects import glyphs
+from shadowcraft.core import exceptions
+from shadowcraft.objects import buffs
+from shadowcraft.objects import race
+from shadowcraft.objects import stats
+from shadowcraft.objects import procs
+from shadowcraft.objects import glyphs
 
 class TestDamageCalculator(unittest.TestCase):
     def make_calculator(self, buffs_list=[], gear_buffs_list=[], race_name='night_elf'):

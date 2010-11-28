@@ -1,7 +1,7 @@
 import unittest
-from core import exceptions
-from objects import stats
-from objects import procs
+from shadowcraft.core import exceptions
+from shadowcraft.objects import stats
+from shadowcraft.objects import procs
     
 class TestStats(unittest.TestCase):
     def setUp(self):

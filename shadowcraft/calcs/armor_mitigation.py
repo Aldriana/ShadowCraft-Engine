@@ -1,4 +1,4 @@
-from core.exceptions import InvalidLevelException
+from shadowcraft.core.exceptions import InvalidLevelException
 
 # tiered parameters for use in armor mitigation calculations. first tuple
 # element is the minimum level of the tier. the tuples must be in descending

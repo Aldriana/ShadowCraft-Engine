@@ -3,8 +3,8 @@ import __builtin__
 
 __builtin__._ = gettext.gettext
 
-from calcs import DamageCalculator
-from core import exceptions
+from shadowcraft.calcs import DamageCalculator
+from shadowcraft.core import exceptions
 
 class RogueDamageCalculator(DamageCalculator):
     # Functions of general use to rogue damage calculation go here. If a

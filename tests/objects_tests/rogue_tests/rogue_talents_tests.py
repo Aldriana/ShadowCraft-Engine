@@ -1,6 +1,6 @@
 import unittest
-from objects import talents
-from objects.rogue import rogue_talents
+from shadowcraft.objects import talents
+from shadowcraft.objects.rogue import rogue_talents
 
 class TestAssassinationTalents(unittest.TestCase):
     # Tests for the abstract class objects.talents.TalentTree

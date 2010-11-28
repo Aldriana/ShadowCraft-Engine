@@ -1,4 +1,4 @@
-from objects import glyphs
+from shadowcraft.objects import glyphs
 
 class RogueGlyphs(glyphs.Glyphs):
     # Should put all of them in at some point, just added the ones that matter

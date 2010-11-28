@@ -3,8 +3,8 @@ import __builtin__
 
 __builtin__._ = gettext.gettext
 
-from calcs.rogue import RogueDamageCalculator
-from core import exceptions
+from shadowcraft.calcs.rogue import RogueDamageCalculator
+from shadowcraft.core import exceptions
 
 
 class InputNotModeledException(exceptions.InvalidInputException):

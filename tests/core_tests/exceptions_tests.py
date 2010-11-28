@@ -1,5 +1,5 @@
 import unittest
-from core.exceptions import InvalidInputException
+from shadowcraft.core.exceptions import InvalidInputException
 
 class TestInvalidInputException(unittest.TestCase):
     def test(self):

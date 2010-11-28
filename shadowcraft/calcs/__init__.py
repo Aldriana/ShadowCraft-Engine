@@ -3,8 +3,8 @@ import __builtin__
 
 __builtin__._ = gettext.gettext
 
-from core import exceptions
-from calcs import armor_mitigation
+from shadowcraft.core import exceptions
+from shadowcraft.calcs import armor_mitigation
 
 class DamageCalculator(object):
     # This method holds the general interface for a damage calculator - the

@@ -1,5 +1,5 @@
-import procs
-from core import exceptions
+from shadowcraft.objects import procs
+from shadowcraft.core import exceptions
 
 class Stats(object):
     # For the moment, lets define this as raw stats from gear + race; AP is

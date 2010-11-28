@@ -1,4 +1,4 @@
-from core import exceptions
+from shadowcraft.core import exceptions
 
 class InvalidRaceException(exceptions.InvalidInputException):
     pass

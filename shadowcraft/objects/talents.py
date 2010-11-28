@@ -1,4 +1,4 @@
-from core import exceptions
+from shadowcraft.core import exceptions
 
 class InvalidTalentException(exceptions.InvalidInputException):
     pass

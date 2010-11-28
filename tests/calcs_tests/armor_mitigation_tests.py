@@ -1,7 +1,7 @@
-import calcs
+from shadowcraft import calcs
 import unittest
-from core import exceptions
-from calcs import armor_mitigation
+from shadowcraft.core import exceptions
+from shadowcraft.calcs import armor_mitigation
 
 class TestArmorMitigation(unittest.TestCase):
     def test_thresholds(self):

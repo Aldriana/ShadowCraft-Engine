@@ -1,5 +1,5 @@
-from core import exceptions
-from objects import proc_data
+from shadowcraft.core import exceptions
+from shadowcraft.objects import proc_data
 
 class InvalidProcException(exceptions.InvalidInputException):
     pass

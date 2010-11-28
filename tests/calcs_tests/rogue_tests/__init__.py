@@ -1,11 +1,11 @@
 import unittest
-from calcs.rogue import RogueDamageCalculator
-from core import exceptions
-from objects import buffs
-from objects import race
-from objects import stats
-from objects import procs
-from objects.rogue import rogue_talents
+from shadowcraft.calcs.rogue import RogueDamageCalculator
+from shadowcraft.core import exceptions
+from shadowcraft.objects import buffs
+from shadowcraft.objects import race
+from shadowcraft.objects import stats
+from shadowcraft.objects import procs
+from shadowcraft.objects.rogue import rogue_talents
 
 class TestRogueDamageCalculator(unittest.TestCase):
     def setUp(self):

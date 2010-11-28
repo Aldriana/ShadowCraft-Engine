@@ -1,5 +1,5 @@
 import unittest
-from objects import race
+from shadowcraft.objects import race
     
 class TestRace(unittest.TestCase):
     def setUp(self):

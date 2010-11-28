@@ -1,16 +1,19 @@
 # Simple test program to debug + play with subtlety models.
+from os import path
+import sys
+sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
-from calcs.rogue.Aldriana import AldrianasRogueDamageCalculator
-from calcs.rogue.Aldriana import settings
+from shadowcraft.calcs.rogue.Aldriana import AldrianasRogueDamageCalculator
+from shadowcraft.calcs.rogue.Aldriana import settings
 
-from objects import buffs
-from objects import race
-from objects import stats
-from objects import procs
-from objects.rogue import rogue_talents
-from objects.rogue import rogue_glyphs
+from shadowcraft.objects import buffs
+from shadowcraft.objects import race
+from shadowcraft.objects import stats
+from shadowcraft.objects import procs
+from shadowcraft.objects.rogue import rogue_talents
+from shadowcraft.objects.rogue import rogue_glyphs
 
-from core import i18n
+from shadowcraft.core import i18n
 
 # Set up language. Use 'en_US', 'es_ES', 'fr' for specific languages.
 test_language = 'local'
