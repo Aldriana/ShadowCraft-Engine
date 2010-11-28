@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(
-    name='ShadowCraft',
+    name='ShadowCraft-Engine',
     url='http://github.com/Aldriana/ShadowCraft-Engine/',
     version='0.1',
     packages=['shadowcraft',
