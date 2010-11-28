@@ -53,7 +53,3 @@ class TestRogueTalents(unittest.TestCase):
 
     def test_is_subtlety_rogue(self):
         self.assertFalse(self.talents.is_subtlety_rogue())
-
-    def test_exceptions(self):
-        self.assertRaises(talents.InvalidTalentException, rogue_talents.RogueTalents, 
-            '1333230113022110321', '0020000000000000000', '2030030000000000000')
