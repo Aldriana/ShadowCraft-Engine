@@ -1,6 +1,9 @@
 ./__init__.py
-./test.py
+./assassination.py
+./combat.py
+./subtlety.py
 ./calcs/__init__.py
+./calcs/armor_mitigation.py
 ./calcs/rogue/__init__.py
 ./calcs/rogue/Aldriana/__init__.py
 ./calcs/rogue/Aldriana/settings.py
@@ -17,3 +20,4 @@
 __init__.py
 core/exceptions.py
 core/i18n.py
+core/jsoninput.py
