@@ -82,7 +82,6 @@ class DamageCalculator(object):
 
     def get_talents_ranking(self, list=None):
         talents_ranking = {}
-        not_implemented_talents = []
         baseline_dps = self.get_dps()
         talent_list = []
 
@@ -110,8 +109,7 @@ class DamageCalculator(object):
                 if new_dps != baseline_dps:
                     talents_ranking[talent] = abs(new_dps - baseline_dps)
             except:
-                # These are the talents that the modeler asserts True
-                not_implemented_talents.append(talent)
+                talents_ranking[talent] = _('not implemented')
             self.talents.treeForTalent[talent].set_talent(talent, old_talent_value)
 
         main_tree_talents_ranking = {}
@@ -122,7 +120,7 @@ class DamageCalculator(object):
             else:
                 off_trees_talents_ranking[talent] = talents_ranking[talent]
 
-        return main_tree_talents_ranking, off_trees_talents_ranking, not_implemented_talents
+        return main_tree_talents_ranking, off_trees_talents_ranking
 
     def get_dps(self):
         # Overwrite this function with your calculations/simulations/whatever;
