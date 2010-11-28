@@ -98,5 +98,6 @@ def pretty_print(dict_list):
 dicts_for_pretty_print = [
     off_tree_talents_ranking,
     ep_values,
-    dps_breakdown]
+    dps_breakdown
+]
 print ' ' * (pretty_print(dicts_for_pretty_print) + 1), total_dps, _("total damage per second.")
