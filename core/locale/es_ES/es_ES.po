@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ShadowCraft-Engine\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-16 02:07+0100\n"
-"PO-Revision-Date: 2010-11-16 02:25+0100\n"
+"POT-Creation-Date: 2010-11-28 17:32+0100\n"
+"PO-Revision-Date: 2010-11-28 17:35+0100\n"
 "Last-Translator: Dazer <nextorniquete@gmail.com>\n"
 "Language-Team:  <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -18,45 +18,93 @@ msgstr ""
 "X-Poedit-Country: SPAIN\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
-#: test.py:93
+#: assassination.py:117
+#: combat.py:103
+#: subtlety.py:104
+#: core/jsoninput.py:162
 msgid "total damage per second."
 msgstr "daño total por segundo."
 
-#: calcs/__init__.py:184
+#: calcs/__init__.py:100
+msgid "not allowed"
+msgstr "no permitido"
+
+#: calcs/__init__.py:125
+msgid "not supported"
+msgstr "sin soporte"
+
+#: calcs/__init__.py:199
+msgid "not implemented"
+msgstr "no implementado"
+
+#: calcs/__init__.py:324
 msgid "Attacks cannot benefit from more than one type of raid damage multiplier"
 msgstr "Los ataques no se pueden beneficiar de más de un multiplicador de daño de banda."
+
+#: calcs/armor_mitigation.py:17
+msgid "No armor mitigation parameters available for level {level}"
+msgstr "No hay parámetro de mitigación de armadura disponible para nivel {level}"
 
 #: calcs/rogue/__init__.py:67
 msgid "No {spell_name} formula available for level {level}"
 msgstr "No hay fórmula disponible para la habilidad {spell_name} a nivel {level}"
 
 #: calcs/rogue/Aldriana/__init__.py:30
+#: calcs/rogue/Aldriana/__init__.py:41
 msgid "You must have 31 points in at least one talent tree."
 msgstr "Debes tener 31 puntos en al menos una rama de talentos."
 
-#: calcs/rogue/Aldriana/__init__.py:281
+#: calcs/rogue/Aldriana/__init__.py:326
 msgid "PPMs that also proc off spells are not yet modeled."
 msgstr "Los efectos de proc por minuto que se activan mediante hechizos aún no están modelados"
 
-#: calcs/rogue/Aldriana/__init__.py:428
+#: calcs/rogue/Aldriana/__init__.py:378
+msgid "Unable to model the 4pc T11 set bonus in a cycle that uses both eviscerate and envenom"
+msgstr "No se puede modelar 4pT11 en un ciclo que usa tanto Eviscerar como Envenenar."
+
+#: calcs/rogue/Aldriana/__init__.py:525
 msgid "You must specify an assassination cycle to match your assassination spec."
 msgstr "Debes especificar un ciclo de asesinato que concuerde con tu especialización de asesinato."
 
-#: calcs/rogue/Aldriana/__init__.py:430
+#: calcs/rogue/Aldriana/__init__.py:527
 msgid "Assassination modeling requires daggers in both hands"
 msgstr "El modelo de asesinato requiere dagas en ambas manos."
 
-#: calcs/rogue/Aldriana/__init__.py:433
+#: calcs/rogue/Aldriana/__init__.py:530
 msgid "Assassination modeling requires instant poison on one weapon and deadly on the other"
 msgstr "El modelo de asesinato requiere veneno instantáneo en un arma y mortal en la otra."
 
-#: calcs/rogue/Aldriana/__init__.py:439
+#: calcs/rogue/Aldriana/__init__.py:536
 msgid "Assassination modeling requires one point in Master Poisoner"
 msgstr "El modelo de asesinato requiere un punto en Maestro Envenenador."
 
-#: calcs/rogue/Aldriana/__init__.py:441
+#: calcs/rogue/Aldriana/__init__.py:538
 msgid "Assassination modeling requires three points in Cut to the Chase"
 msgstr "El modelo de asesinato requiere tres puntos en Acortar."
+
+#: calcs/rogue/Aldriana/__init__.py:837
+msgid "You must specify a combat cycle to match your combat spec."
+msgstr "Debes especificar un ciclo de combate que concuerde con tu especialización de combate."
+
+#: calcs/rogue/Aldriana/__init__.py:840
+msgid "Revealing strike usage must be set to always, sometimes, or never"
+msgstr "El uso de Golpe Revelador ha de ser Siempre, A Veces o Nunca."
+
+#: calcs/rogue/Aldriana/__init__.py:843
+msgid "Cannot specify revealing strike usage in cycle without taking the talent."
+msgstr "No puedes especificar Golpe Revelador en un ciclo sin tener el talento."
+
+#: calcs/rogue/Aldriana/__init__.py:1066
+msgid "You must specify a subtlety cycle to match your subtlety spec."
+msgstr "Debes especificar un ciclo de sutileza que concuerde con tu especialización de sutileza."
+
+#: calcs/rogue/Aldriana/__init__.py:1069
+msgid "Subtlety modeling currently requires a MH dagger"
+msgstr "El modelo de sutileza requiere una daga en la mano derecha."
+
+#: calcs/rogue/Aldriana/__init__.py:1072
+msgid "Subtlety modeling currently requires 2 points in Serrated Blades"
+msgstr "El modelo de sutileza requiere dos puntos en Espadas Dentadas"
 
 #: objects/buffs.py:33
 msgid "Invalid buff {buff}"
@@ -67,35 +115,49 @@ msgstr "{buff} no es un bufo válido."
 msgid "No conversion factor available for level {level}"
 msgstr "No hay factor de conversión disponible para nivel {level}"
 
-#: objects/procs.py:142
+#: objects/procs.py:78
+msgid "Weapon speed needed to calculate the proc rate of {proc}"
+msgstr "Se necesita la velocidad del arma para calcular el proc rate de {proc}"
+
+#: objects/procs.py:90
+msgid "Invalid data for proc {proc}"
+msgstr "Los datos para el proc {proc} son inválidos"
+
+#: objects/procs.py:101
 msgid "No data for proc {proc}"
 msgstr "No hay datos para el proc {proc}"
 
-#: objects/race.py:83
+#: objects/race.py:95
 msgid "Unsupported race {race}"
 msgstr "La raza {race} no se admite."
 
-#: objects/race.py:87
+#: objects/race.py:99
 msgid "Unsupported class {character_class}"
 msgstr "La clase {character_class} no se admite."
 
-#: objects/race.py:106
+#: objects/race.py:120
 msgid "Unsupported class/level combination {character_class}/{level}"
 msgstr "La combinación de clase: {character_class} / nivel: {level} no se admite."
 
-#: objects/talents.py:26
+#: objects/talents.py:27
 msgid "Invalid talent name {talent_name}"
 msgstr "{talent_name} no es un nombre de talento válido."
 
-#: objects/talents.py:28
+#: objects/talents.py:29
 msgid "Invalid value {talent_value} for talent {talent_name}"
 msgstr "EL valor{talent_value} no es válido para {talent_name}"
 
-#: objects/talents.py:38
+#: objects/talents.py:39
 msgid "Invalid talent string {talent_string}"
 msgstr "{talent_string} no corresponde a ningún talento válido."
 
-#: objects/talents.py:92
-msgid "Total number of talentpoints has to be 41 or less"
-msgstr "El número de puntos de talentos ha de ser igual a 41 o menor"
+#: core/jsoninput.py:37
+msgid "Missing settings"
+msgstr "Falta configuración"
 
+#: core/jsoninput.py:62
+msgid "Missing required input {key}"
+msgstr "Falta {key} entre los parámetros requeridos"
+
+#~ msgid "Total number of talentpoints has to be 41 or less"
+#~ msgstr "El número de puntos de talentos ha de ser igual a 41 o menor"
