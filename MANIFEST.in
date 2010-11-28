@@ -1,3 +1,2 @@
-include *.txt
 include license.txt
 recursive-include shadowcraft/core/locale *
