@@ -22,9 +22,9 @@ class TalentTree(object):
         object.__getattribute__(self, name)
 
     def set_talent(self, talent_name, talent_value):
-        max_talent_value, talent_tier = self.allowed_talents[talent_name]
         if talent_name not in self.allowed_talents.keys():
             raise InvalidTalentException(_('Invalid talent name {talent_name}').format(talent_name=talent_name))
+        max_talent_value, talent_tier = self.allowed_talents[talent_name]
         if talent_value < 0 or talent_value > max_talent_value:
             raise InvalidTalentException(_('Invalid value {talent_value} for talent {talent_name}').format(talent_value=talent_value, talent_name=talent_name))
 
