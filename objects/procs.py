@@ -100,6 +100,12 @@ class ProcsList(object):
                 # Throw invalid input exception here
                 raise InvalidProcException(_('No data for proc {proc}').format(proc=arg))
 
+    def set_proc(self, proc):
+        self.__init__(proc)
+
+    def del_proc(self, proc):
+        delattr(self, proc)
+
     def __getattr__(self, proc):
         # Any proc we haven't assigned a value to, we don't have.
         if proc in self.allowed_procs:

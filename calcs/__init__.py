@@ -39,7 +39,7 @@ class DamageCalculator(object):
             self.stats.agi += 80
         if self.stats.gear_buffs.master_of_anatomy:
             self.stats.crit += 80
-    
+
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
         if name == 'level':
@@ -83,6 +83,128 @@ class DamageCalculator(object):
             ep_values[stat] = abs(dps - baseline_dps) / ap_dps_difference
 
         return ep_values
+
+    def get_weapon_ep(self, speed_list=None, dps=False, enchants=False):
+        weapons = ('mh', 'oh')
+        if speed_list != None or dps == True:
+            baseline_dps = self.get_dps()
+            ap_dps = self.ep_helper('ap')
+
+        for hand in weapons:
+            ep_values = {}
+
+            # Weapon dps EP
+            if dps == True:
+                getattr(self.stats, hand).weapon_dps += 1.
+                new_dps = self.get_dps()
+                ep = abs(new_dps - baseline_dps) / (ap_dps - baseline_dps)
+                ep_values[hand + '_dps'] = ep
+                getattr(self.stats, hand).weapon_dps -= 1.
+
+            # Enchant EP
+            if enchants == True:
+                old_enchant = None
+                for enchant in getattr(self.stats, hand).allowed_melee_enchants:
+                    if getattr(getattr(self.stats, hand), enchant):
+                        old_enchant = enchant
+                for enchant in getattr(self.stats, hand).allowed_melee_enchants:
+                    getattr(self.stats, hand).del_enchant()
+                    no_enchant_dps = self.get_dps()
+                    no_enchant_ap_dps = self.ep_helper('ap')
+                    getattr(self.stats, hand).set_enchant(enchant)
+                    new_dps = self.get_dps()
+                    if new_dps != no_enchant_dps:
+                        ep = abs(new_dps - no_enchant_dps) / (no_enchant_ap_dps - no_enchant_dps)
+                        ep_values[hand + '_' + enchant] = ep
+                    getattr(self.stats, hand).set_enchant(old_enchant)
+
+            # Weapon speed EP
+            if speed_list != None:
+                old_speed = getattr(self.stats, hand).speed
+                for speed in speed_list:
+                    getattr(self.stats, hand).speed = speed
+                    new_dps = self.get_dps()
+                    ep = (new_dps - baseline_dps) / (ap_dps - baseline_dps)
+                    ep_values[hand + '_' +  str(speed)] = ep
+                    getattr(self.stats, hand).speed = old_speed
+
+            if hand == 'mh':
+                mh_ep_values = ep_values
+            elif hand == 'oh':
+                oh_ep_values = ep_values
+
+        return mh_ep_values, oh_ep_values
+
+    def get_other_ep(self, list):
+        # This method computes ep for every other buff/proc not covered by
+        # get_ep or get_weapon_ep. Weapon enchants, being tied to the
+        # weapons they are on, are computed by get_weapon_ep.
+        ep_values = {}
+        baseline_dps = self.get_dps()
+        ap_dps = self.ep_helper('ap')
+
+        procs = []
+        gear_buffs = []
+        for i in list:
+            if i in self.stats.procs.allowed_procs.keys():
+                procs.append(i)
+            elif i in self.stats.gear_buffs.allowed_buffs:
+                gear_buffs.append(i)
+            else:
+                ep_values[i] = _('not allowed')
+
+        for i in gear_buffs:
+            # Note that activated abilites like trinkets, potions, or
+            # engineering gizmos are handled as gear buffs by the engine.
+            setattr(self.stats.gear_buffs, i, not getattr(self.stats.gear_buffs, i))
+            new_dps = self.get_dps()
+            ep_values[i] = abs(new_dps - baseline_dps) / (ap_dps - baseline_dps)
+            setattr(self.stats.gear_buffs, i, not getattr(self.stats.gear_buffs, i))
+
+        for i in procs:
+            try:
+                if getattr(self.stats.procs, i):
+                    self.stats.procs.del_proc(i)
+                else:
+                    self.stats.procs.set_proc(i)
+                new_dps = self.get_dps()
+                ep_values[i] = abs(new_dps - baseline_dps) / (ap_dps - baseline_dps)
+                if getattr(self.stats.procs, i):
+                    self.stats.procs.del_proc(i)
+                else:
+                    self.stats.procs.set_proc(i)
+            except:
+                # These are procs that either the modeler has trouble with, or
+                # the proc data is not complete/correct
+                ep_values[i] = _('not supported')
+                self.stats.procs.del_proc(i)
+
+        return ep_values
+
+    def get_glyphs_ranking(self, list=None):
+        glyphs = []
+        glyphs_ranking = {}
+        baseline_dps = self.get_dps()
+
+        if list == None:
+            glyphs = self.glyphs.allowed_glyphs
+        else:
+            glyphs = list
+
+        for i in glyphs:
+            if getattr(self.glyphs, i):
+                self.glyphs.del_glyph(i)
+            else:
+                self.glyphs.set_glyph(i)
+            new_dps = self.get_dps()
+            if new_dps != baseline_dps:
+                glyphs_ranking[i] = abs(new_dps - baseline_dps)
+            if getattr(self.glyphs, i):
+                self.glyphs.del_glyph(i)
+            else:
+                self.glyphs.set_glyph(i)
+
+        return glyphs_ranking
 
     def get_talents_ranking(self, list=None):
         talents_ranking = {}
