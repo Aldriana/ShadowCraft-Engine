@@ -418,8 +418,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second['instant_poison'] = oh_poison_procs
 
     def compute_damage(self, attack_counts_function):
-        # TODO: 4pc T11
-        #
         # TODO: Crit cap
         #
         # TODO: Hit/Exp procs
@@ -1012,7 +1010,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         attacks_per_second['sinister_strike'] = (total_evis_per_second + attacks_per_second['rupture']) * ss_per_finisher + ss_per_snd / (snd_duration - self.settings.response_time)
         attacks_per_second['revealing_strike'] = (total_evis_per_second + attacks_per_second['rupture']) * rvs_per_finisher
-        attacks_per_second['main_gauche'] += (attacks_per_second['sinister_strike'] + attacks_per_second['rupture'] + total_evis_per_second + attacks_per_second['rupture']) * main_gauche_proc_rate
+        attacks_per_second['main_gauche'] += (attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'] + total_evis_per_second + attacks_per_second['rupture']) * main_gauche_proc_rate
 
         if self.talents.bandits_guile:
             time_at_level = 9 / ((attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike']) * self.talents.bandits_guile)
