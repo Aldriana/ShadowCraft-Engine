@@ -79,7 +79,7 @@ class Race(object):
                 "gnome":        ["expansive_mind", "dagger_specialization", "sword_1h_specialization"],
                 "draenei":      ["heroic_presence"],
                 "worgen":       ["viciousness"],
-                "orc":          ["blood_fury_physical", "blood_fury_spell", "mace_specialization", "axe_specialization"],
+                "orc":          ["blood_fury_physical", "blood_fury_spell", "fist_specialization", "axe_specialization"],
                 "undead":       [],
                 "tauren":       ["endurance"],
                 "troll":        ["regeneration", "beast_slaying", "throwing_specialization", "bow_specialization", "berserking"],
