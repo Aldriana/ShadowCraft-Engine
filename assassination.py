@@ -92,7 +92,6 @@ trinkets_ep_value = calculator.get_other_ep(trinkets_list)
 mh_enchants_and_dps_ep_values, oh_enchants_and_dps_ep_values = calculator.get_weapon_ep(dps=True, enchants=True)
 mh_speed_ep_values, oh_speed_ep_values = calculator.get_weapon_ep([1.4, 1.8])
 
-
 # Compute DPS Breakdown.
 dps_breakdown = calculator.get_dps_breakdown()
 total_dps = sum(entry[1] for entry in dps_breakdown.items())

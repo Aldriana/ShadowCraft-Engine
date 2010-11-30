@@ -164,20 +164,20 @@ class DamageCalculator(object):
         for i in procs:
             try:
                 if getattr(self.stats.procs, i):
-                    self.stats.procs.del_proc(i)
+                    delattr(self.stats.procs, i)
                 else:
                     self.stats.procs.set_proc(i)
                 new_dps = self.get_dps()
                 ep_values[i] = abs(new_dps - baseline_dps) / (ap_dps - baseline_dps)
                 if getattr(self.stats.procs, i):
-                    self.stats.procs.del_proc(i)
+                    delattr(self.stats.procs, i)
                 else:
                     self.stats.procs.set_proc(i)
             except:
                 # These are procs that either the modeler has trouble with, or
                 # the proc data is not complete/correct
                 ep_values[i] = _('not supported')
-                self.stats.procs.del_proc(i)
+                delattr(self.stats.procs, i)
 
         return ep_values
 
@@ -193,16 +193,16 @@ class DamageCalculator(object):
 
         for i in glyphs:
             if getattr(self.glyphs, i):
-                self.glyphs.del_glyph(i)
+                delattr(self.glyphs, i)
             else:
-                self.glyphs.set_glyph(i)
+                setattr(self.glyphs, i, True)
             new_dps = self.get_dps()
             if new_dps != baseline_dps:
                 glyphs_ranking[i] = abs(new_dps - baseline_dps)
             if getattr(self.glyphs, i):
-                self.glyphs.del_glyph(i)
+                delattr(self.glyphs, i)
             else:
-                self.glyphs.set_glyph(i)
+                setattr(self.glyphs, i, True)
 
         return glyphs_ranking
 
