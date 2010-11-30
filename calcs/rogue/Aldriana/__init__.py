@@ -124,6 +124,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.bonus_energy_regen = 0
         if self.settings.tricks_on_cooldown and not self.glyphs.tricks_of_the_trade:
             self.bonus_energy_regen -= 15. / (30 + self.settings.response_time)
+        if self.race.arcane_torrent:
+            self.bonus_energy_regen += 15. / (120 + self.settings.response_time)
 
         self.base_stats = {
             'agi': self.stats.agi + self.buffs.buff_agi() + self.race.racial_agi,
@@ -133,7 +135,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'mastery': self.stats.mastery
         }
 
-        # TODO: Include activated racial abilities.
+        for boost in self.race.get_racial_stat_boosts():
+            if boost['stat'] in self.base_stats:
+                self.base_stats[boost['stat']] += boost['value'] * boost['duration'] * 1.0 / (boost['cooldown'] + self.settings.response_time)
+
         for stat in self.base_stats:
             for boost in self.stats.gear_buffs.get_all_activated_boosts_for_stat(stat):
                 if boost['cooldown'] is not None:
@@ -149,6 +154,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.relentless_strikes_energy_return_per_cp = [0, 1.75, 3.5, 5][self.talents.relentless_strikes]
 
         self.base_speed_multiplier = 1.4 * self.buffs.melee_haste_multiplier() * self.get_heroism_haste_multiplier()
+        if self.race.berserking:
+            self.base_speed_multiplier *= (1 + .2 * 10. / (180 + self.settings.response_time))
+        if self.race.time_is_money:
+            self.base_speed_multiplier *= 1.01
 
         self.strike_hit_chance = self.one_hand_melee_hit_chance()
         self.base_rupture_energy_cost = 20 + 5 / self.strike_hit_chance
@@ -169,6 +178,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             return 0
 
         return base_damage * multiplier * (1 + crit_rate * (crit_multiplier - 1)) * proc_count
+
+    def get_rocket_barrage_damage(self, ap, current_stats):
+        base_damage = self.race.calculate_rocket_barrage(ap, 0, 0) * self.raid_settings_modifiers(is_spell=True)
+        crit_multiplier = self.crit_damage_modifiers(is_spell=True)
+        crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
+
+        return base_damage * (1 + crit_rate * (crit_multiplier - 1)) / (120 + self.settings.response_time)
 
     def get_damage_breakdown(self, current_stats, attacks_per_second, crit_rates, damage_procs):
         # Vendetta may want to be handled elsewhere.
@@ -249,6 +265,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         for proc in damage_procs:
             damage_breakdown[proc.proc_name] = self.get_proc_damage_contribution(proc, attacks_per_second[proc.proc_name], current_stats)
+
+        if self.race.rocket_barrage:
+            damage_breakdown['rocket_barrage'] = self.get_rocket_barrage_damage(average_ap, current_stats)
 
         return damage_breakdown
 
@@ -418,8 +437,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second['instant_poison'] = oh_poison_procs
 
     def compute_damage(self, attack_counts_function):
-        # TODO: 4pc T11
-        #
         # TODO: Crit cap
         #
         # TODO: Hit/Exp procs
@@ -1012,7 +1029,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         attacks_per_second['sinister_strike'] = (total_evis_per_second + attacks_per_second['rupture']) * ss_per_finisher + ss_per_snd / (snd_duration - self.settings.response_time)
         attacks_per_second['revealing_strike'] = (total_evis_per_second + attacks_per_second['rupture']) * rvs_per_finisher
-        attacks_per_second['main_gauche'] += (attacks_per_second['sinister_strike'] + attacks_per_second['rupture'] + total_evis_per_second + attacks_per_second['rupture']) * main_gauche_proc_rate
+        attacks_per_second['main_gauche'] += (attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'] + total_evis_per_second + attacks_per_second['rupture']) * main_gauche_proc_rate
 
         if self.talents.bandits_guile:
             time_at_level = 9 / ((attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike']) * self.talents.bandits_guile)
