@@ -14,12 +14,11 @@ from objects import procs
 from objects.rogue import rogue_talents
 from objects.rogue import rogue_glyphs
 
-import items
+import ui_data
 import os
 import string
 import wx
 
-    
 class GearPage(wx.Panel):
     gear_slots =    [
         "head",
@@ -41,23 +40,23 @@ class GearPage(wx.Panel):
         "ranged"
                     ]
     current_gear = {
-        "head": {},
-        "neck": {},
-        "shoulders": {},
-        "back": {},
-        "chest": {},
-        "wrists": {},
-        "hands": {},
-        "waist": {},
-        "legs": {},
-        "feet": {},
-        "ring1": {},
-        "ring2": {},
-        "trinket1": {},
-        "trinket2": {},
-        "mainhand": {},
-        "offhand": {},
-        "ranged": {}
+        "head": 0,
+        "neck": 0,
+        "shoulders": 0,
+        "back": 0,
+        "chest": 0,
+        "wrists": 0,
+        "hands": 0,
+        "waist": 0,
+        "legs": 0,
+        "feet": 0,
+        "ring1": 0,
+        "ring2": 0,
+        "trinket1": 0,
+        "trinket2": 0,
+        "mainhand": 0,
+        "offhand": 0,
+        "ranged": 0
         }
     stats = [
         'str',
@@ -69,11 +68,13 @@ class GearPage(wx.Panel):
         'haste',
         'mastery',
     ]
-    
+    enchants = {}
+    gems = {}
+
     def __init__(self, parent, calculator):
         wx.Panel.__init__(self, parent)
         self.calculator = calculator
-        
+
         grid_sizer = wx.FlexGridSizer(cols = 5)
         for slot in self.gear_slots:
             self.create_ui_for_slot(grid_sizer, slot)
@@ -83,107 +84,175 @@ class GearPage(wx.Panel):
     def create_ui_for_slot(self, sizer, slot):
         label = wx.StaticText(self, -1, label = string.capwords(slot))
         sizer.Add(label, flag = wx.ALIGN_RIGHT)
-        item_cb = self.create_item_ui_for_slot(self, slot)
+        item_cb = self.create_item_ui_for_slot(slot)
         sizer.Add(item_cb)
         if not slot in ('trinket1', 'trinket2', 'neck', 'waist', 'ranged'):
             ench_label = wx.StaticText(self, -1, label = "Enchant")
             sizer.Add(ench_label, flag = wx.ALIGN_RIGHT)
             enchant_cb = self.create_enchant_ui_for_slot(self, slot)
-            sizer.Add(enchant_cb)
+            if not enchant_cb == None:
+                sizer.Add(enchant_cb)
+            else:
+                sizer.Add((10, 10))
         else:
             sizer.Add((2, 2))
             sizer.Add((2, 2))
-        gem_selecter = self.create_gem_ui_for_slot(self, slot) #Need selected to actually set this ...
+
+        gem_selecter = self.create_gem_ui_for_slot(slot)
+        #In order to get gems set for initial items, have to do update here
+        self.update_item_for_slot(self.get_items_for_slot(slot)[0], slot)
         sizer.Add(gem_selecter)
 
-    def create_item_ui_for_slot(self, master, slot):
+    def create_item_ui_for_slot(self, slot):
         cb = None
-        slot_items = self.get_items_for_slot(slot)
-        if len(slot_items) > 0:
-            cb = wx.ComboBox(master, wx.ID_ANY, style = wx.CB_READONLY, name = slot)
-            cb.SetItems(slot_items)
-            cb.SetStringSelection(slot_items[0])
-            items_dict = getattr(items, slot)
-            self.current_gear[slot] = items_dict[slot_items[0]] 
-            cb.Bind(wx.EVT_COMBOBOX, lambda evt, slot=slot:self.on_item_selected(evt, slot))
+        cb = wx.ComboBox(self, -1, style = wx.CB_READONLY, name = slot)
+        cb.SetItems(self.get_items_for_slot(slot))
+        cb.SetSelection(0)
+        cb.Bind(wx.EVT_COMBOBOX, lambda evt, slot=slot:self.on_item_selected(evt, slot))
         return cb
 
-    def create_gem_ui_for_slot(self, master, slot):
+    def create_gem_ui_for_slot(self, slot):
         vbox = wx.BoxSizer(wx.VERTICAL)
+        self.gems[slot] = {}
+        for color in ('meta', 'red', 'yellow', 'blue', 'prismatic'):
+            panel = wx.Panel(self, -1)
+            gem_sizer = wx.BoxSizer(wx.HORIZONTAL)
+            panel.SetSizer(gem_sizer)
+            color_block = wx.StaticText(panel, -1, label = "   ")
+            gem_sizer.Add(color_block)
+            if color == 'meta':
+                color_block.SetBackgroundColour('WHITE')
+            elif color == 'prismatic':
+                color_block.SetBackgroundColour('GREY')
+            else:
+                color_block.SetBackgroundColour(color.upper())
+            cb = wx.ComboBox(panel, -1, style = wx.CB_READONLY)
+            cb.Bind(wx.EVT_COMBOBOX, self.on_gem_selected)
+            cb.SetItems([''] + ui_data.gems.keys())
+            cb.SetSelection(0)
+            panel.Hide()
+
+            gem_sizer.Add(cb, 0, wx.EXPAND)
+            self.gems[slot][color] = cb
+            vbox.Add(panel, 0, wx.EXPAND)
         return vbox
 
     def create_enchant_ui_for_slot(self, master, slot):
         cb = None
-        enchants = self.get_enchants_for_slot(slot)
-        if len(enchants) > 0:
-            cb = wx.ComboBox(master, -1, style = wx.CB_READONLY, name = slot + "_enchant")
-            cb.SetItems(enchants)
+        enchants = [''] + self.get_enchants_for_slot(slot).keys()
+        cb = wx.ComboBox(master, -1, style = wx.CB_READONLY)
+        cb.SetItems(enchants)
+        cb.Bind(wx.EVT_COMBOBOX, self.on_enchant_selected)
+        self.enchants[slot] = cb
         return cb
 
     def populate_combobox_for_slot(self, combobox, slot):
         options = self.get_items_for_slot(slot)
         combobox.SetItems(options)
         combobox.SetStringSelection(options[0])
-    
+
     def get_items_for_slot(self, slot):
         item_names = []
-        items_dict = getattr(items, slot)
+        items_dict = getattr(ui_data, slot)
         item_names = items_dict.keys()
         return item_names
+
     def get_gems(self):
-        return ["gem1", "gem2"]
+        return ui_data.gems.keys()
+
     def get_enchants_for_slot(self, slot):
-        return ["baz", "zif"]
+        enchants = []
+        if slot in ('mainhand', 'offhand'):
+            enchants = ui_data.enchants['melee_weapons']
+        elif slot in ('ring1', 'ring2'):
+            enchants = ui_data.enchants['rings']
+        else:
+            enchants = ui_data.enchants[slot]
+        return enchants
+
+    def update_gems_for_slot(self, slot):
+        for color in self.gems[slot].keys():
+            self.gems[slot][color].SetSelection(0)
+            self.gems[slot][color].GetParent().Hide()
+        item = self.current_gear[slot]
+        for color in item.sockets:
+            self.gems[slot][color].GetParent().Show()
+        self.Layout()
+
+    def update_item_for_slot(self, item_name, slot):
+        items_dict = getattr(ui_data, slot)
+        item = None
+        if slot in ('mainhand', 'offhand', 'ranged'):
+            item = ui_data.Weapon(item_name, **items_dict[item_name])
+        else:
+            item = ui_data.Item(item_name, **items_dict[item_name])
+        self.current_gear[slot] = item
+        self.update_gems_for_slot(slot)
 
     #Event handler for selecting a combo box entry
     def on_item_selected(self, e, slot):
-        items_dict = getattr(items, slot)
-        self.current_gear[slot] = items_dict[e.GetString()]
+        item_name = e.GetString()
+        self.update_item_for_slot(item_name, slot)
         self.calculator.calculate()
 
     def on_gem_selected(self, e):
-        pass
+        self.calculator.calculate()
+
     def on_enchant_selected(self, e):
-        pass
-    
-    def get_stats(self):  
-        current_stats = []
-        for stat in self.stats:
-            value = 0
-            for slot in self.gear_slots:
-                if self.current_gear[slot].has_key(stat):
-                    value += self.current_gear[slot][stat]
-            current_stats.append(value)
-        
-        #TODO: figure out weapon enchants here
+        self.calculator.calculate()
+
+    def get_stats(self):
+        current_stats = {'str': 0, 'agi': 0, 'ap': 0, 'crit': 0, 'hit': 0, 'exp': 0, 'haste': 0, 'mastery': 0, 'procs': [], 'gear_buffs': []}
+        current_stats['procs'] = []
+        current_stats['gear_buffs'] = ['leather_specialization'] #Assuming this rather than give equipment an armor type
+        enchant_slots = self.enchants.keys()
+
+        for slot in self.gear_slots:
+            for stat in self.stats:
+                current_stats[stat] += getattr(self.current_gear[slot], stat)
+
+            get_bonus = True
+            for slot_color in self.current_gear[slot].sockets:
+                gem_name = self.gems[slot][slot_color].GetValue()
+                if len(gem_name) > 0:
+                    gem = ui_data.gems[gem_name]
+                    for stat in gem[1]:
+                        current_stats[stat] += gem[1][stat]
+                    if not slot_color in gem[0]:
+                        get_bonus = False
+            if get_bonus and len(self.current_gear[slot].bonus_stat) > 0:
+                current_stats[self.current_gear[slot].bonus_stat] += self.current_gear[slot].bonus_value
+            if slot in enchant_slots and slot not in ('mainhand', 'offhand'):
+                enchant_name = self.enchants[slot].GetValue()
+                if len(enchant_name) > 0:
+                    enchant_data = ui_data.enchants[slot][enchant_name]
+                    for stat in enchant_data.keys():
+                        current_stats[stat] += enchant_data[stat]
+
         mh = self.current_gear['mainhand']
-        mainhand = stats.Weapon(mh['damage'], mh['speed'], mh['type'])
-        current_stats.append(mainhand)
-        
+        enchant = None
+        if len(self.enchants['mainhand'].GetValue()) > 0:
+            enchant = ui_data.enchants['melee_weapons'][self.enchants['mainhand'].GetValue()]
+        mainhand = stats.Weapon(mh.damage, mh.speed, mh.type, enchant)
+        current_stats['mh'] = mainhand
+
         oh = self.current_gear['offhand']
-        offhand = stats.Weapon(oh['damage'], oh['speed'], oh['type'])
-        current_stats.append(offhand)
-        
+        enchant = None
+        if len(self.enchants['offhand'].GetValue()) > 0:
+            enchant = ui_data.enchants['melee_weapons'][self.enchants['offhand'].GetValue()]
+        offhand = stats.Weapon(oh.damage, oh.speed, oh.type,  enchant)
+        current_stats['oh'] = offhand
+
         rngd = self.current_gear['ranged']
-        ranged = stats.Weapon(rngd['damage'], rngd['speed'], rngd['type'])
-        current_stats.append(ranged)
-     
-        proc_names = []
-        for slot in self.gear_slots:
-            if self.current_gear[slot].has_key('procs'):
-                proc_names += self.current_gear[slot]['procs']
-        my_procs = procs.ProcsList(*proc_names)
-        current_stats.append(my_procs)
-     
-        gear_buff_names = []
-        for slot in self.gear_slots:
-            if self.current_gear[slot].has_key('gear_buffs'):
-                gear_buff_names += self.current_gear[slot]['gear_buffs']
-        my_gear_buffs = stats.GearBuffs(*gear_buff_names)
-        current_stats.append(my_gear_buffs)
-        
+        ranged = stats.Weapon(rngd.damage, rngd.speed, rngd.type)
+        current_stats['ranged'] = ranged
+
+        current_stats['procs'] = procs.ProcsList(*current_stats['procs'])
+
+        current_stats['gear_buffs'] = stats.GearBuffs(*current_stats['gear_buffs'])
+
         return current_stats
-    
+
 class TalentsPage(wx.Panel):
     assassination_talents = [
         'deadly_momentum',
@@ -206,7 +275,7 @@ class TalentsPage(wx.Panel):
         'venomous_wounds',
         'vendetta'
         ]
-    
+
     combat_talents = [
         'improved_recuperate',
         'improved_sinister_strike',
@@ -249,7 +318,7 @@ class TalentsPage(wx.Panel):
         'serrated_blades',
         'shadow_dance'
         ]
-    
+
     prime_glyphs = [
         'adrenaline_rush',
         'backstab',
@@ -284,7 +353,7 @@ class TalentsPage(wx.Panel):
         'tricks_of_the_trade',
         'vanish',
         ]
-    
+
     minor_glyphs = [
         'blurred_speed',
         'distract',
@@ -293,7 +362,7 @@ class TalentsPage(wx.Panel):
         'poisons',
         'safe_fall'
         ]
-    
+
     current_glyphs = []
     talents = {}
     MAX_TALENTS_PER_TIER = 4
@@ -301,12 +370,12 @@ class TalentsPage(wx.Panel):
     def __init__(self, parent, calculator):
         wx.Panel.__init__(self, parent)
         self.calculator = calculator
-        
-        hbox = wx.BoxSizer(wx.HORIZONTAL)        
+
+        hbox = wx.BoxSizer(wx.HORIZONTAL)
         hbox.Add(self.add_talents(), 0, wx.EXPAND)
         hbox.Add(self.add_glyphs())
         self.SetSizer(hbox)
-        
+
     def add_talents(self):
         talents_box = wx.BoxSizer(wx.VERTICAL)
         talents_box.Add(wx.StaticText(self, -1, label = "Talents"))
@@ -319,7 +388,7 @@ class TalentsPage(wx.Panel):
         talents_box.Add(wx.StaticLine(self), 0, wx.ALL|wx.EXPAND, 5)
         talents_box.Add(wx.StaticText(self, -1, label = "Subtlety"))
         talents_box.Add(self.add_talents_for_spec('subtlety'), 0, wx.EXPAND)
-        
+
         return talents_box
 
     def add_talents_for_spec(self, spec):
@@ -338,8 +407,9 @@ class TalentsPage(wx.Panel):
 
         current_tier = 1
         talents_this_tier = 0
-        
+
         for talent in talents:
+            #Funky ui stuff to get reasonable columns
             if talent_data[talent][1] != current_tier:
                 while(talents_this_tier < self.MAX_TALENTS_PER_TIER):
                     spec_box.Add((10, 10))
@@ -350,11 +420,13 @@ class TalentsPage(wx.Panel):
             talents_this_tier += 1
             spec_box.Add(wx.StaticText(self, -1, label = talent), flag = wx.ALIGN_RIGHT)
             combo = self.create_combo_with_max(talent_data[talent][0])
+            if ui_data.default_talents.has_key(talent):
+                combo.SetSelection(ui_data.default_talents[talent])
             self.talents[talent] = combo
             spec_box.Add(combo)
-            setattr(self, talent, combo)
+
         return spec_box
-    
+
     def create_combo_with_max(self, max_value):
         cb = wx.ComboBox(self, -1, style = wx.CB_READONLY)
         cb.Bind(wx.EVT_COMBOBOX, self.on_selection)
@@ -369,45 +441,45 @@ class TalentsPage(wx.Panel):
         vbox.Add(wx.StaticLine(self), 0, wx.ALL|wx.EXPAND, 5)
         sizer = wx.FlexGridSizer(cols = 4)
         vbox.Add(sizer)
-        
+
         sizer.Add(wx.StaticText(self, -1, label = "Prime: "))
         sizer.Add(self.add_glyph(self.prime_glyphs))
         sizer.Add(self.add_glyph(self.prime_glyphs))
         sizer.Add(self.add_glyph(self.prime_glyphs))
-        
+
         sizer.Add(wx.StaticText(self, -1, label = "Major: "))
         sizer.Add(self.add_glyph(self.major_glyphs))
         sizer.Add(self.add_glyph(self.major_glyphs))
         sizer.Add(self.add_glyph(self.major_glyphs))
-        
+
         sizer.Add(wx.StaticText(self, -1, label = "Minor: "))
         sizer.Add(self.add_glyph(self.minor_glyphs))
         sizer.Add(self.add_glyph(self.minor_glyphs))
         sizer.Add(self.add_glyph(self.minor_glyphs))
-        
+
         return vbox
 
     def add_glyph(self, options):
         cb = wx.ComboBox(self, -1, style = wx.CB_READONLY)
         cb.Bind(wx.EVT_COMBOBOX, self.on_selection)
-        cb.SetItems(options)
+        cb.SetItems([''] + options)
         self.current_glyphs.append(cb)
         return cb
-    
+
     def get_talents(self):
         assassination_string = ''
         combat_string = ''
         subtlety_string = ''
-        
+
         for talent in self.assassination_talents:
             assassination_string += self.talents[talent].GetValue()
         for talent in self.combat_talents:
             combat_string += self.talents[talent].GetValue()
         for talent in self.subtlety_talents:
             subtlety_string += self.talents[talent].GetValue()
-            
+
         return (assassination_string, combat_string, subtlety_string)
-        
+
     def get_glyphs(self):
         glyphs_list = []
         for glyph in self.current_glyphs:
@@ -421,17 +493,17 @@ class TalentsPage(wx.Panel):
 
 class BuffsPage(wx.Panel):
     current_buffs = []
-    
+
     def __init__(self, parent, calculator):
         wx.Panel.__init__(self, parent)
         self.calculator = calculator
 
         self.create_buff_checkboxes()
-        
+
     def create_buff_checkboxes(self):
         vbox = wx.BoxSizer(wx.VERTICAL)
         self.SetSizer(vbox)
-        
+
         for buff in buffs.Buffs.allowed_buffs:
             chk_box = wx.CheckBox(self, -1, buff, name = buff)
             chk_box.SetValue(True)
@@ -447,8 +519,8 @@ class BuffsPage(wx.Panel):
         elif not (name in self.current_buffs) and (chk_box.GetValue()):
             self.current_buffs.append(name)
         self.calculator.calculate()
-        
-        
+
+
     def get_buff_string(self):
         return ", ".join(self.current_buffs)
 
@@ -457,29 +529,29 @@ class SettingsPage(wx.Panel):
         wx.Panel.__init__(self, parent)
         self.calculator = calculator
         sizer = wx.FlexGridSizer(cols = 2)
-        
+
         sizer.Add(wx.StaticText(self, -1, label = "Race: "))
         sizer.Add(self.create_race_selector())
         sizer.Add(wx.StaticText(self, -1, label = "Cycle: "))
         sizer.Add(self.create_cycle_selector())
         sizer.Add(wx.StaticText(self, -1, label = "Response Time: "))
         sizer.Add(self.create_response_time_entry())
-        
+
         self.SetSizer(sizer)
-        
+
     def create_race_selector(self):
         races = race.Race.racial_stat_offset.keys()
         cb = self.create_combobox_with_options(races)
         self.race = cb
         return cb
-    
+
     def create_combobox_with_options(self, options):
         cb = wx.ComboBox(self, -1, style = wx.CB_READONLY)
         cb.Bind(wx.EVT_COMBOBOX, self.on_selection)
-        cb.SetItems(options)        
+        cb.SetItems(options)
         cb.SetSelection(0)
         return cb
-    
+
     def create_cycle_selector(self):
         cycles = ["Assassination", "Combat", "Subtlety"]
         cb = self.create_combobox_with_options(cycles)
@@ -492,7 +564,7 @@ class SettingsPage(wx.Panel):
         tc = wx.TextCtrl(self, -1, value = '1')
         self.response_time = tc
         return tc
-    
+
     def get_race(self):
         return self.race.GetValue()
 
@@ -529,38 +601,39 @@ class TestGUI(wx.Frame):
         'dodge_exp',
         'parry_exp'
         ]
-        
+
     def __init__(self):
         wx.Frame.__init__(self, None, title = "ShadowCraft")
         self.initializing = True
         vbox = wx.BoxSizer(wx.VERTICAL)
         nb = wx.Notebook(self)
-        
+
         self.gear_page = GearPage(nb, self)
         self.talents_page = TalentsPage(nb, self)
         self.buffs_page = BuffsPage(nb, self)
         self.settings_page = SettingsPage(nb, self)
-        
+
         nb.AddPage(self.gear_page, "Gear")
         nb.AddPage(self.talents_page, "Talents")
         nb.AddPage(self.buffs_page, "Buffs")
         nb.AddPage(self.settings_page, "Settings")
         vbox.Add(nb, 0, wx.EXPAND)
-        
+
         self.error_area = wx.StaticText(self, -1)
         self.error_area.SetForegroundColour("Red")
         error_font = self.error_area.GetFont()
         error_font.SetPointSize(16)
         self.error_area.SetFont(error_font)
         vbox.Add(self.error_area)
-              
+
         results_area = self.create_results_area()
         vbox.Add(results_area, 0, wx.EXPAND)
-        
+
         self.SetSizer(vbox)
         self.Fit()
         self.initializing = False
-       
+        self.calculate()
+
     def no_edit_text_box(self):
         panel = wx.Panel(self, -1)
         tb = wx.TextCtrl(self, -1, style = wx.TE_READONLY)
@@ -569,14 +642,14 @@ class TestGUI(wx.Frame):
 
     def create_results_area(self):
         hbox = wx.BoxSizer(wx.HORIZONTAL)
-        
+
         dps_box = wx.FlexGridSizer(cols = 2)
         dps_box.Add(wx.StaticText(self, -1, style = wx.ALIGN_RIGHT, label = "DPS: "))
         self.dps = self.no_edit_text_box()
         self.dps.SetValue("Over 9000")
         dps_box.Add(self.dps, 2, wx.BOTTOM)
         hbox.Add(dps_box, 2, wx.BOTTOM)
-        
+
         ep_box = wx.FlexGridSizer(cols = 2)
         for ep_stat in self.ep_stats:
             ep_box.Add(wx.StaticText(self, -1, style = wx.ALIGN_RIGHT, label = "%(ep)s: " % {'ep': ep_stat}))
@@ -584,27 +657,27 @@ class TestGUI(wx.Frame):
             ep_box.Add(ep_value, 2, wx.BOTTOM)
             setattr(self, ep_stat, ep_value)
         hbox.Add(ep_box, 2, wx.BOTTOM)
-        
+
         #TODO: add talents comparions here
-        
+
         breakdown_box = wx.BoxSizer(wx.VERTICAL)
         breakdown_box.Add(wx.StaticText(self, -1, label = "DPS Breakdown"))
         dps_breakdown = wx.TextCtrl(self, -1, style = wx.TE_MULTILINE | wx.TE_READONLY)
         breakdown_box.Add(dps_breakdown, 0, wx.EXPAND)
         self.dps_breakdown = dps_breakdown
         hbox.Add(breakdown_box, 1, wx.EXPAND)
-        
+
         return hbox
-        
+
     def calculate(self):
         if not self.initializing:
-            my_stats = stats.Stats(*self.gear_page.get_stats())
+            my_stats = stats.Stats(**self.gear_page.get_stats())
             my_talents = rogue_talents.RogueTalents(*self.talents_page.get_talents())
             my_glyphs = rogue_glyphs.RogueGlyphs(*self.talents_page.get_glyphs())
             my_buffs = buffs.Buffs(*self.buffs_page.current_buffs)
             my_race = race.Race(self.settings_page.get_race())
-            test_settings = settings.Settings(self.settings_page.get_cycle(), self.settings_page.get_response_time())
-            
+            test_settings = settings.Settings(self.settings_page.get_cycle(), response_time = self.settings_page.get_response_time())
+
             self.error_area.SetLabel("")
             try:
                 calculator = AldrianasRogueDamageCalculator(my_stats, my_talents, my_glyphs, my_buffs, my_race, test_settings)
@@ -612,15 +685,15 @@ class TestGUI(wx.Frame):
                 ep_values = calculator.get_ep()
                 dps_breakdown = calculator.get_dps_breakdown()
                 self.dps_breakdown.SetValue(self.pretty_print(dps_breakdown))
-                
+
                 for ep_stat in self.ep_stats:
                     ep_text = getattr(self, ep_stat)
                     ep_text.SetValue(str(ep_values[ep_stat]))
-                
+
 
             except exceptions.InvalidInputException as e:
                 self.error_area.SetLabel(str(e))
-    
+
     def pretty_print(self, my_dict):
         ret_str = ''
         max_len = max(len(entry[0]) for entry in my_dict.items())
@@ -628,9 +701,9 @@ class TestGUI(wx.Frame):
         dict_values.sort(key=lambda entry: entry[1], reverse=True)
         for value in dict_values:
             ret_str += value[0] + ':' + ' ' * (max_len - len(value[0])) + str(value[1]) + os.linesep
-    
+
         return ret_str
-    
+
 if __name__ == "__main__":
     app = wx.App(False)
     gui = TestGUI();
