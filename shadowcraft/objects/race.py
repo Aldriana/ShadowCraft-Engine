@@ -82,7 +82,7 @@ class Race(object):
                 "orc":          ["blood_fury_physical", "blood_fury_spell", "mace_specialization", "axe_specialization"],
                 "undead":       [],
                 "tauren":       ["endurance"],
-                "troll":        ["regeneration", "beast_slaying", "throwing_specialization", "bow_specialization"],
+                "troll":        ["regeneration", "beast_slaying", "throwing_specialization", "bow_specialization", "berserking"],
                 "blood_elf":    ["arcane_torrent"],
                 "goblin":       ["rocket_barrage", "time_is_money"],
     }

@@ -103,6 +103,12 @@ class TestRogueDamageCalculator(unittest.TestCase):
     def test_main_gauche_damage(self):
         self.assertTrue(self.calculator.main_gauche_damage(0) < self.calculator.main_gauche_damage(1))
 
+    def test_mh_killing_spree_damage(self):
+        self.assertTrue(self.calculator.mh_killing_spree_damage(0) < self.calculator.mh_killing_spree_damage(1))
+
+    def test_oh_killing_spree_damage(self):
+        self.assertTrue(self.calculator.oh_killing_spree_damage(0) < self.calculator.oh_killing_spree_damage(1))
+
     def test_instant_poison_damage(self):
         self.assertTrue(self.calculator.instant_poison_damage(0) < self.calculator.instant_poison_damage(1))
         self.assertTrue(self.calculator.instant_poison_damage(0, mastery=0) < self.calculator.instant_poison_damage(0, mastery=1))
