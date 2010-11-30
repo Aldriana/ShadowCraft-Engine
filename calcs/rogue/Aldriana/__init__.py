@@ -124,6 +124,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.bonus_energy_regen = 0
         if self.settings.tricks_on_cooldown and not self.glyphs.tricks_of_the_trade:
             self.bonus_energy_regen -= 15. / (30 + self.settings.response_time)
+        if self.race.arcane_torrent:
+            self.bonus_energy_regen += 15. / (120 + self.settings.response_time)
 
         self.base_stats = {
             'agi': self.stats.agi + self.buffs.buff_agi() + self.race.racial_agi,
@@ -133,7 +135,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'mastery': self.stats.mastery
         }
 
-        # TODO: Include activated racial abilities.
+        for boost in self.race.get_racial_stat_boosts():
+            if boost['stat'] in self.base_stats:
+                self.base_stats[boost['stat']] += boost['value'] * boost['duration'] * 1.0 / (boost['cooldown'] + self.settings.response_time)
+
         for stat in self.base_stats:
             for boost in self.stats.gear_buffs.get_all_activated_boosts_for_stat(stat):
                 if boost['cooldown'] is not None:
@@ -149,6 +154,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.relentless_strikes_energy_return_per_cp = [0, 1.75, 3.5, 5][self.talents.relentless_strikes]
 
         self.base_speed_multiplier = 1.4 * self.buffs.melee_haste_multiplier() * self.get_heroism_haste_multiplier()
+        if self.race.berserking:
+            self.base_speed_multiplier *= (1 + .2 * 10. / (180 + self.settings.response_time))
+        if self.race.time_is_money:
+            self.base_speed_multiplier *= 1.01
 
         self.strike_hit_chance = self.one_hand_melee_hit_chance()
         self.base_rupture_energy_cost = 20 + 5 / self.strike_hit_chance
