@@ -179,6 +179,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         return base_damage * multiplier * (1 + crit_rate * (crit_multiplier - 1)) * proc_count
 
+    def get_rocket_barrage_damage(self, ap, current_stats):
+        base_damage = self.race.calculate_rocket_barrage(ap, 0, 0) * self.raid_settings_modifiers(is_spell=True)
+        crit_multiplier = self.crit_damage_modifiers(is_spell=True)
+        crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
+
+        return base_damage * (1 + crit_rate * (crit_multiplier - 1)) / (120 + self.settings.response_time)
+
     def get_damage_breakdown(self, current_stats, attacks_per_second, crit_rates, damage_procs):
         # Vendetta may want to be handled elsewhere.
         average_ap = current_stats['ap'] + 2 * current_stats['agi'] + self.base_strength
@@ -258,6 +265,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         for proc in damage_procs:
             damage_breakdown[proc.proc_name] = self.get_proc_damage_contribution(proc, attacks_per_second[proc.proc_name], current_stats)
+
+        if self.race.rocket_barrage:
+            damage_breakdown['rocket_barrage'] = self.get_rocket_barrage_damage(average_ap, current_stats)
 
         return damage_breakdown
 
