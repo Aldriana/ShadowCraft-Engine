@@ -5,6 +5,7 @@ __builtin__._ = gettext.gettext
 
 from core import exceptions
 from calcs import armor_mitigation
+from objects.procs import InvalidProcException
 
 class DamageCalculator(object):
     # This method holds the general interface for a damage calculator - the
@@ -143,17 +144,17 @@ class DamageCalculator(object):
         baseline_dps = self.get_dps()
         ap_dps = self.ep_helper('ap')
 
-        procs = []
-        gear_buffs = []
+        procs_list = []
+        gear_buffs_list = []
         for i in list:
             if i in self.stats.procs.allowed_procs.keys():
-                procs.append(i)
+                procs_list.append(i)
             elif i in self.stats.gear_buffs.allowed_buffs:
-                gear_buffs.append(i)
+                gear_buffs_list.append(i)
             else:
                 ep_values[i] = _('not allowed')
 
-        for i in gear_buffs:
+        for i in gear_buffs_list:
             # Note that activated abilites like trinkets, potions, or
             # engineering gizmos are handled as gear buffs by the engine.
             setattr(self.stats.gear_buffs, i, not getattr(self.stats.gear_buffs, i))
@@ -161,7 +162,7 @@ class DamageCalculator(object):
             ep_values[i] = abs(new_dps - baseline_dps) / (ap_dps - baseline_dps)
             setattr(self.stats.gear_buffs, i, not getattr(self.stats.gear_buffs, i))
 
-        for i in procs:
+        for i in procs_list:
             try:
                 if getattr(self.stats.procs, i):
                     delattr(self.stats.procs, i)
@@ -173,9 +174,8 @@ class DamageCalculator(object):
                     delattr(self.stats.procs, i)
                 else:
                     self.stats.procs.set_proc(i)
-            except:
-                # These are procs that either the modeler has trouble with, or
-                # the proc data is not complete/correct
+            except InvalidProcException:
+                # Data for these procs is not complete/correct
                 ep_values[i] = _('not supported')
                 delattr(self.stats.procs, i)
 
