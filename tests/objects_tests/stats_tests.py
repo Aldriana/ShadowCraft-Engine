@@ -51,7 +51,7 @@ class TestWeapon(unittest.TestCase):
         self.assertAlmostEqual(self.mh.speed, 2.0)
         self.assertAlmostEqual(self.mh.weapon_dps, 1000 / 2.0)
         self.assertEqual(self.mh.type, 'dagger')
-        self.assertRaises(AssertionError, stats.Weapon, 1000, 2.0, 'thrown', 'fake_enchant')
+        self.assertRaises(exceptions.InvalidInputException, stats.Weapon, 1000, 2.0, 'thrown', 'fake_enchant')
         self.assertAlmostEqual(self.ranged._normalization_speed, 2.1)
         mh = stats.Weapon(1000, 1.8, 'dagger', 'hurricane')
         self.assertAlmostEqual(mh.hurricane.proc_rate(speed=1.8), 1 * 1.8 / 60)
