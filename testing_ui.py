@@ -70,12 +70,13 @@ class GearPage(wx.Panel):
     ]
     enchants = {}
     gems = {}
+    reforges = {}
 
     def __init__(self, parent, calculator):
         wx.Panel.__init__(self, parent)
         self.calculator = calculator
 
-        grid_sizer = wx.FlexGridSizer(cols = 5)
+        grid_sizer = wx.FlexGridSizer(cols = 6)
         for slot in self.gear_slots:
             self.create_ui_for_slot(grid_sizer, slot)
         self.SetSizer(grid_sizer)
@@ -101,7 +102,11 @@ class GearPage(wx.Panel):
         gem_selecter = self.create_gem_ui_for_slot(slot)
         #In order to get gems set for initial items, have to do update here
         self.update_item_for_slot(self.get_items_for_slot(slot)[0], slot)
+        self.update_gems_for_slot(slot)
         sizer.Add(gem_selecter)
+        
+        reforging_panel = self.create_reforging_ui_for_slot(slot)
+        sizer.Add(reforging_panel)
 
     def create_item_ui_for_slot(self, slot):
         cb = None
@@ -146,6 +151,27 @@ class GearPage(wx.Panel):
         self.enchants[slot] = cb
         return cb
 
+    def create_reforging_ui_for_slot(self, slot):
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+        reforge_from = self.current_gear[slot].reforgable_from()
+        reforge_to = self.current_gear[slot].reforgable_to()
+        if len(reforge_from) > 0:
+            cb_from = wx.ComboBox(self, -1, style = wx.CB_READONLY)
+            cb_from.SetItems([''] + reforge_from)
+            sizer.Add(cb_from, 2, wx.EXPAND)
+            cb_to = wx.ComboBox(self, -1, style = wx.CB_READONLY)
+            cb_to.SetItems([''] + reforge_to)
+            sizer.Add(cb_to, 2, wx.EXPAND)
+            btn_reforge = wx.Button(self, -1, label = "Reforge")
+            btn_reforge.Bind(wx.EVT_BUTTON, lambda evt, slot=slot: self.on_reforge(evt, slot))
+            sizer.Add(btn_reforge, 2, wx.EXPAND)
+            btn_restore = wx.Button(self, -1, label = "Restore")
+            btn_restore.Bind(wx.EVT_BUTTON, lambda evt, slot=slot: self.on_restore(evt, slot))
+            btn_restore.Hide()
+            sizer.Add(btn_restore, 2, wx.EXPAND)
+            self.reforges[slot] = {'from': cb_from, 'to': cb_to, 'reforge': btn_reforge, 'restore': btn_restore}
+        return sizer
+
     def populate_combobox_for_slot(self, combobox, slot):
         options = self.get_items_for_slot(slot)
         combobox.SetItems(options)
@@ -187,13 +213,39 @@ class GearPage(wx.Panel):
         else:
             item = ui_data.Item(item_name, **items_dict[item_name])
         self.current_gear[slot] = item
-        self.update_gems_for_slot(slot)
 
     #Event handler for selecting a combo box entry
     def on_item_selected(self, e, slot):
         item_name = e.GetString()
         self.update_item_for_slot(item_name, slot)
+        self.update_gems_for_slot(slot)
         self.calculator.calculate()
+        #Clear the (no longer true) reforge settings
+        self.reset_reforging_ui_for_slot(slot)
+
+    def on_reforge(self, e, slot):
+        reforge_from = self.reforges[slot]['from'].GetValue()
+        reforge_to = self.reforges[slot]['to'].GetValue()
+        if len(reforge_from) > 0 and len(reforge_to) > 0:
+            self.current_gear[slot].reforge(reforge_from, reforge_to)
+            self.reforges[slot]['reforge'].Hide()
+            self.reforges[slot]['restore'].Show()
+            self.Layout()
+            self.calculator.calculate()
+
+    def on_restore(self, e, slot):
+        #Restoring the item to its dictionary definition
+        print self.current_gear[slot], self.current_gear[slot].name
+        self.update_item_for_slot(self.current_gear[slot].name, slot)
+        self.reset_reforging_ui_for_slot(slot)
+        self.calculator.calculate()
+
+    def reset_reforging_ui_for_slot(self, slot):
+        self.reforges[slot]['from'].SetSelection(0)
+        self.reforges[slot]['to'].SetSelection(0)
+        self.reforges[slot]['restore'].Hide()
+        self.reforges[slot]['reforge'].Show()
+        self.Layout()
 
     def on_gem_selected(self, e):
         self.calculator.calculate()
@@ -218,7 +270,7 @@ class GearPage(wx.Panel):
                     gem = ui_data.gems[gem_name]
                     for stat in gem[1]:
                         current_stats[stat] += gem[1][stat]
-                    if not slot_color in gem[0]:
+                    if not slot_color in gem[0] and slot_color != 'prismatic':
                         get_bonus = False
             if get_bonus and len(self.current_gear[slot].bonus_stat) > 0:
                 current_stats[self.current_gear[slot].bonus_stat] += self.current_gear[slot].bonus_value
@@ -627,7 +679,7 @@ class TestGUI(wx.Frame):
         vbox.Add(self.error_area)
 
         results_area = self.create_results_area()
-        vbox.Add(results_area, 0, wx.EXPAND)
+        vbox.Add(results_area, 2, wx.EXPAND | wx.BOTTOM)
 
         self.SetSizer(vbox)
         self.Fit()
@@ -640,38 +692,41 @@ class TestGUI(wx.Frame):
         tb.SetBackgroundColour(panel.GetBackgroundColour())
         return tb
 
+    def create_multiline_with_label(self, label, key):
+        vbox =  wx.BoxSizer(wx.VERTICAL)
+        vbox.Add(wx.StaticText(self, -1, label = label))
+        multi = wx.TextCtrl(self, -1, style = wx.TE_MULTILINE | wx.TE_READONLY)
+        vbox.Add(multi, 2, wx.EXPAND | wx.ALL)
+        setattr(self, key, multi)
+        return vbox
+    
     def create_results_area(self):
         hbox = wx.BoxSizer(wx.HORIZONTAL)
 
         dps_box = wx.FlexGridSizer(cols = 2)
         dps_box.Add(wx.StaticText(self, -1, style = wx.ALIGN_RIGHT, label = "DPS: "))
         self.dps = self.no_edit_text_box()
-        self.dps.SetValue("Over 9000")
         dps_box.Add(self.dps, 2, wx.BOTTOM)
-        hbox.Add(dps_box, 2, wx.BOTTOM)
+        hbox.Add(dps_box, 2, wx.BOTTOM | wx.EXPAND)
 
-        ep_box = wx.FlexGridSizer(cols = 2)
-        for ep_stat in self.ep_stats:
-            ep_box.Add(wx.StaticText(self, -1, style = wx.ALIGN_RIGHT, label = "%(ep)s: " % {'ep': ep_stat}))
-            ep_value = self.no_edit_text_box()
-            ep_box.Add(ep_value, 2, wx.BOTTOM)
-            setattr(self, ep_stat, ep_value)
-        hbox.Add(ep_box, 2, wx.BOTTOM)
-
+        sizer = wx.FlexGridSizer(cols = 2)
+        for stat in GearPage.stats:
+            sizer.Add(wx.StaticText(self, -1, label = stat))
+            stat_box = wx.TextCtrl(self, -1, style = wx.TE_READONLY)
+            setattr(self, stat, stat_box)
+            sizer.Add(stat_box)
+        hbox.Add(sizer, 2, wx.EXPAND)
+        
+        hbox.Add(self.create_multiline_with_label("EP Values", 'ep_box'), 2, wx.EXPAND |  wx.ALL)
         #TODO: add talents comparions here
-
-        breakdown_box = wx.BoxSizer(wx.VERTICAL)
-        breakdown_box.Add(wx.StaticText(self, -1, label = "DPS Breakdown"))
-        dps_breakdown = wx.TextCtrl(self, -1, style = wx.TE_MULTILINE | wx.TE_READONLY)
-        breakdown_box.Add(dps_breakdown, 0, wx.EXPAND)
-        self.dps_breakdown = dps_breakdown
-        hbox.Add(breakdown_box, 1, wx.EXPAND)
+        hbox.Add(self.create_multiline_with_label("DPS Breakdown", 'dps_breakdown'), 2, wx.EXPAND |  wx.ALL)
 
         return hbox
 
     def calculate(self):
         if not self.initializing:
-            my_stats = stats.Stats(**self.gear_page.get_stats())
+            gear_stats = self.gear_page.get_stats()
+            my_stats = stats.Stats(**gear_stats)
             my_talents = rogue_talents.RogueTalents(*self.talents_page.get_talents())
             my_glyphs = rogue_glyphs.RogueGlyphs(*self.talents_page.get_glyphs())
             my_buffs = buffs.Buffs(*self.buffs_page.current_buffs)
@@ -681,19 +736,20 @@ class TestGUI(wx.Frame):
             self.error_area.SetLabel("")
             try:
                 calculator = AldrianasRogueDamageCalculator(my_stats, my_talents, my_glyphs, my_buffs, my_race, test_settings)
-                self.dps.SetValue(str(calculator.get_dps()))
+                dps = calculator.get_dps()
                 ep_values = calculator.get_ep()
                 dps_breakdown = calculator.get_dps_breakdown()
-                self.dps_breakdown.SetValue(self.pretty_print(dps_breakdown))
-
-                for ep_stat in self.ep_stats:
-                    ep_text = getattr(self, ep_stat)
-                    ep_text.SetValue(str(ep_values[ep_stat]))
-
 
             except exceptions.InvalidInputException as e:
                 self.error_area.SetLabel(str(e))
-
+            
+            self.dps.SetValue(str(dps))
+            self.ep_box.SetValue(self.pretty_print(ep_values))
+            self.dps_breakdown.SetValue(self.pretty_print(dps_breakdown))
+            for stat in GearPage.stats:
+                tc = getattr(self, stat)
+                tc.SetValue(str(gear_stats[stat]))
+                
     def pretty_print(self, my_dict):
         ret_str = ''
         max_len = max(len(entry[0]) for entry in my_dict.items())

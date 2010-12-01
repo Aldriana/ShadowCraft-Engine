@@ -1,4 +1,14 @@
+import math
+
 class Item(object):
+    reforgable_stats = frozenset([
+        'crit',
+        'hit',
+        'exp',
+        'haste',
+        'mastery'
+    ])
+
     def __init__(self, name, str=0, agi=0, ap=0, crit=0, hit=0, exp=0, haste=0, mastery=0, sockets=[], bonus_stat='', bonus_value=0, proc='', gear_buff=''):
         self.name = name
         self.str = str
@@ -14,6 +24,25 @@ class Item(object):
         self.bonus_value = bonus_value
         self.proc = proc
         self.gear_buff = gear_buff
+    
+    def reforgable_from(self):
+        reforgable = []
+        for stat in self.reforgable_stats:
+            if getattr(self, stat) > 0:
+                reforgable.append(stat)
+        return reforgable
+    
+    def reforgable_to(self):
+        reforgable = []
+        for stat in self.reforgable_stats:
+            if getattr(self, stat) == 0:
+                reforgable.append(stat)
+        return reforgable
+    
+    def reforge(self, from_stat, to_stat):
+        reforged_value = math.floor(getattr(self, from_stat) * 0.4)
+        setattr(self, from_stat, getattr(self, from_stat) - reforged_value)
+        setattr(self, to_stat, reforged_value)
 
 class Weapon(Item):
     def __init__(self, name, str=0, agi=0, ap=0, crit=0, hit=0, exp=0, haste=0, mastery=0, sockets=[], bonus_stat='', bonus_value=0, proc='', gear_buff='', damage=0, speed=0, type=''):
@@ -224,6 +253,8 @@ enchants = {
 }
 
 gems = {
+    "Destructive Shadowspirit Diamond": (['meta'], {'crit': 54}),
+    "Chaotic Shadowspirit Diamond": (['meta'], {'crit': 54, 'gear_buffs': ['chaotic_metagem']}),
     "Delicate Chimera's Eye": (['red'], {'agi': 67}),
     "Delicate Inferno Ruby": (['red'], {'agi': 40}),
     "Adept Ember Topaz": (['red', 'yellow'], {'agi': 20, 'mastery': 20}),
