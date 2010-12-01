@@ -217,6 +217,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             oh_mutilate_dps = self.get_dps_contribution(self.oh_mutilate_damage(average_ap), crit_rates['mutilate'], attacks_per_second['mutilate'])
             damage_breakdown['mutilate'] = mh_mutilate_dps + oh_mutilate_dps
 
+        if 'hemorrhage' in attacks_per_second:
+            damage_breakdown['hemorrhage'] = self.get_dps_contribution(self.hemorrhage_damage(average_ap), crit_rates['hemorrhage'], attacks_per_second['hemorrhage'])
+
         if 'backstab' in attacks_per_second:
             damage_breakdown['backstab'] = self.get_dps_contribution(self.backstab_damage(average_ap), crit_rates['backstab'], attacks_per_second['backstab'])
 
@@ -1110,7 +1113,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             find_weakness_multiplier = 1
 
         for key in damage_breakdown:
-            if key in ('autoattack', 'backstab', 'eviscerate'):
+            if key in ('autoattack', 'backstab', 'eviscerate', 'hemorrhage'):
                 damage_breakdown[key] *= find_weakness_multiplier
             if key == 'ambush':
                 damage_breakdown[key] *= ((1.3 * self.ambush_shadowstep_rate) + (1-self.ambush_shadowstep_rate) * find_weakness_damage_boost)
@@ -1147,6 +1150,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'eviscerate': base_melee_crit_rate + .1 * self.glyphs.eviscerate,
             'backstab': backstab_crit_rate,
             'ambush': ambush_crit_rate,
+            'hemorrhage': base_melee_crit_rate,
             'rupture_ticks': base_melee_crit_rate,
             'instant_poison': base_spell_crit_rate,
             'deadly_poison': base_spell_crit_rate,
