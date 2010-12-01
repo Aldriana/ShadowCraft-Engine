@@ -259,10 +259,17 @@ class GearPage(wx.Panel):
         current_stats['gear_buffs'] = ['leather_specialization'] #Assuming this rather than give equipment an armor type
         enchant_slots = self.enchants.keys()
 
+        tier11_count = 0
         for slot in self.gear_slots:
             for stat in self.stats:
                 current_stats[stat] += getattr(self.current_gear[slot], stat)
-
+            gear_buff = self.current_gear[slot].gear_buff
+            if 'tier_11' == gear_buff:
+                tier11_count += 1
+            elif len(gear_buff) > 0:
+                current_stats['gear_buffs'].append(gear_buff)
+            if len(self.current_gear[slot].proc) > 0:
+                current_stats['procs'].append(self.current_gear[slot].proc)
             get_bonus = True
             for slot_color in self.current_gear[slot].sockets:
                 gem_name = self.gems[slot][slot_color].GetValue()
@@ -280,7 +287,10 @@ class GearPage(wx.Panel):
                     enchant_data = ui_data.enchants[slot][enchant_name]
                     for stat in enchant_data.keys():
                         current_stats[stat] += enchant_data[stat]
-
+        if tier11_count >= 2:
+            current_stats['gear_buffs'].append('rogue_t11_2pc')
+            if tier11_count >= 4:
+                current_stats['procs'].append('rogue_t11_4pc')
         mh = self.current_gear['mainhand']
         enchant = None
         if len(self.enchants['mainhand'].GetValue()) > 0:
@@ -299,9 +309,9 @@ class GearPage(wx.Panel):
         ranged = stats.Weapon(rngd.damage, rngd.speed, rngd.type)
         current_stats['ranged'] = ranged
 
-        current_stats['procs'] = procs.ProcsList(*current_stats['procs'])
+        current_stats['procs'] = procs.ProcsList(*set(current_stats['procs']))
 
-        current_stats['gear_buffs'] = stats.GearBuffs(*current_stats['gear_buffs'])
+        current_stats['gear_buffs'] = stats.GearBuffs(*set(current_stats['gear_buffs']))
 
         return current_stats
 
