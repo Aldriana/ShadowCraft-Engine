@@ -40,19 +40,19 @@ test_oh = stats.Weapon(730.5, 1.4, 'dagger', 'landslide')
 test_ranged = stats.Weapon(1371.5, 2.2, 'thrown')
 
 # Set up procs.
-test_procs = procs.ProcsList('heroic_prestors_talisman_of_machination', 'fluid_death')
+test_procs = procs.ProcsList('heroic_prestors_talisman_of_machination', 'fluid_death', 'rogue_t11_4pc')
 
 # Set up gear buffs.
-test_gear_buffs = stats.GearBuffs('rogue_t11_2pc', 'leather_specialization', 'potion_of_the_tolvir')
+test_gear_buffs = stats.GearBuffs('rogue_t11_2pc', 'leather_specialization', 'potion_of_the_tolvir', 'chaotic_metagem')
 
 # Set up a calcs object..
-test_stats = stats.Stats(20, 4745, 190, 1100, 782, 754, 2116, 776, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
+test_stats = stats.Stats(20, 4746, 190, 1176, 716, 779, 1761, 1077, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
 
 # Initialize talents..
 test_talents = rogue_talents.RogueTalents('0232000000000000000', '0332230310032012321', '0030000000000000000')
 
 # Set up glyphs.
-glyph_list = ['sinister_strike', 'adrenaline_rush', 'rupture']
+glyph_list = ['sinister_strike', 'adrenaline_rush', 'slice_and_dice', 'tricks_of_the_trade']
 test_glyphs = rogue_glyphs.RogueGlyphs(*glyph_list)
 
 # Set up race.
