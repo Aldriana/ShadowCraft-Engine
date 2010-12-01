@@ -1238,11 +1238,16 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             shadow_dance_available_energy = shadow_dance_duration * energy_regen_with_recuperate - shadow_dance_bonus_eviscerate_cost
 
             shadow_dance_eviscerate_cost = (5 - .2 * self.talents.ruthlessness) / cp_per_ambush * self.base_ambush_energy_cost + (35 - 5 * self.relentless_strikes_energy_return_per_cp)
-
-            base_eviscerates_for_period = shadow_dance_available_energy / total_cost_of_extra_eviscerate
             shadow_dance_eviscerates_for_period = shadow_dance_available_energy / shadow_dance_eviscerate_cost
 
-            shadow_dance_extra_eviscerates = shadow_dance_eviscerates_for_period - base_eviscerates_for_period
+            base_bonus_cp_regen = shadow_dance_duration * hat_cp_gen
+            base_bonus_eviscerates = base_bonus_cp_regen / (5 - .2 * self.talents.ruthlessness)
+            base_bonus_eviscerate_cost = base_bonus_eviscerates * (35 - 5 * self.relentless_strikes_energy_return_per_cp)
+            base_available_energy = shadow_dance_duration * energy_regen_with_recuperate - base_bonus_eviscerate_cost
+
+            base_eviscerates_for_period = base_available_energy / total_cost_of_extra_eviscerate
+
+            shadow_dance_extra_eviscerates = shadow_dance_eviscerates_for_period + shadow_dance_bonus_eviscerates - base_eviscerates_for_period - base_bonus_eviscerates
             shadow_dance_extra_ambushes = (5 - .2 * self.talents.ruthlessness) / cp_per_ambush * shadow_dance_eviscerates_for_period
             shadow_dance_replaced_backstabs = (5 - .2 * self.talents.ruthlessness) * base_eviscerates_for_period
 
