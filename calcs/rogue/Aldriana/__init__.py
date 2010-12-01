@@ -217,6 +217,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             oh_mutilate_dps = self.get_dps_contribution(self.oh_mutilate_damage(average_ap), crit_rates['mutilate'], attacks_per_second['mutilate'])
             damage_breakdown['mutilate'] = mh_mutilate_dps + oh_mutilate_dps
 
+        if 'hemorrhage' in attacks_per_second:
+            damage_breakdown['hemorrhage'] = self.get_dps_contribution(self.hemorrhage_damage(average_ap), crit_rates['hemorrhage'], attacks_per_second['hemorrhage'])
+
         if 'backstab' in attacks_per_second:
             damage_breakdown['backstab'] = self.get_dps_contribution(self.backstab_damage(average_ap), crit_rates['backstab'], attacks_per_second['backstab'])
 
@@ -1110,7 +1113,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             find_weakness_multiplier = 1
 
         for key in damage_breakdown:
-            if key in ('autoattack', 'backstab', 'eviscerate'):
+            if key in ('autoattack', 'backstab', 'eviscerate', 'hemorrhage'):
                 damage_breakdown[key] *= find_weakness_multiplier
             if key == 'ambush':
                 damage_breakdown[key] *= ((1.3 * self.ambush_shadowstep_rate) + (1-self.ambush_shadowstep_rate) * find_weakness_damage_boost)
@@ -1125,7 +1128,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         haste_multiplier = self.stats.get_haste_multiplier_from_rating(current_stats['haste'])
 
-        attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
+        mastery_snd_speed = 1 + .4 * (1 + .02 * self.stats.get_mastery_from_rating(current_stats['mastery']))
+
+        attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier * mastery_snd_speed / 1.4
 
         attacks_per_second['mh_autoattacks'] = attack_speed_multiplier / self.stats.mh.speed
         attacks_per_second['oh_autoattacks'] = attack_speed_multiplier / self.stats.oh.speed
@@ -1147,6 +1152,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'eviscerate': base_melee_crit_rate + .1 * self.glyphs.eviscerate,
             'backstab': backstab_crit_rate,
             'ambush': ambush_crit_rate,
+            'hemorrhage': base_melee_crit_rate,
             'rupture_ticks': base_melee_crit_rate,
             'instant_poison': base_spell_crit_rate,
             'deadly_poison': base_spell_crit_rate,
@@ -1238,11 +1244,16 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             shadow_dance_available_energy = shadow_dance_duration * energy_regen_with_recuperate - shadow_dance_bonus_eviscerate_cost
 
             shadow_dance_eviscerate_cost = (5 - .2 * self.talents.ruthlessness) / cp_per_ambush * self.base_ambush_energy_cost + (35 - 5 * self.relentless_strikes_energy_return_per_cp)
-
-            base_eviscerates_for_period = shadow_dance_available_energy / total_cost_of_extra_eviscerate
             shadow_dance_eviscerates_for_period = shadow_dance_available_energy / shadow_dance_eviscerate_cost
 
-            shadow_dance_extra_eviscerates = shadow_dance_eviscerates_for_period - base_eviscerates_for_period
+            base_bonus_cp_regen = shadow_dance_duration * hat_cp_gen
+            base_bonus_eviscerates = base_bonus_cp_regen / (5 - .2 * self.talents.ruthlessness)
+            base_bonus_eviscerate_cost = base_bonus_eviscerates * (35 - 5 * self.relentless_strikes_energy_return_per_cp)
+            base_available_energy = shadow_dance_duration * energy_regen_with_recuperate - base_bonus_eviscerate_cost
+
+            base_eviscerates_for_period = base_available_energy / total_cost_of_extra_eviscerate
+
+            shadow_dance_extra_eviscerates = shadow_dance_eviscerates_for_period + shadow_dance_bonus_eviscerates - base_eviscerates_for_period - base_bonus_eviscerates
             shadow_dance_extra_ambushes = (5 - .2 * self.talents.ruthlessness) / cp_per_ambush * shadow_dance_eviscerates_for_period
             shadow_dance_replaced_backstabs = (5 - .2 * self.talents.ruthlessness) * base_eviscerates_for_period
 
