@@ -50,7 +50,7 @@ allowed_procs = {
         'duration': 15,
         'max_stacks': 10,
         'icd': None,
-        'proc_chance': None,
+        'proc_chance': 1,
         'trigger': 'all_attacks',
         'proc_name': 'Grace'
     },
@@ -67,6 +67,15 @@ allowed_procs = {
     'essence_of_the_cyclone': {         # ICD is a guess and should be verified.
         'stat': 'crit',
         'value': 1926,
+        'duration': 10,
+        'icd': 45,
+        'proc_chance': .1,
+        'trigger': 'all_attacks',
+        'proc_name': 'Twisted'
+    },
+    'heroic_essence_of_the_cyclone': {         # ICD is a guess and should be verified.
+        'stat': 'crit',
+        'value': 2178,
         'duration': 10,
         'icd': 45,
         'proc_chance': .1,
@@ -154,7 +163,7 @@ allowed_procs = {
         'duration': 15,
         'max_stacks': 10,
         'icd': None,
-        'proc_chance': None,
+        'proc_chance': 1,
         'trigger': 'all_attacks',
         'proc_name': 'Grace'
     },
