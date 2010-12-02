@@ -1,5 +1,8 @@
 # All the imports here are either base python or shadowcraft files with the exception of wx,
 # which can be downloaded from http://www.wxpython.org/download.php (I worked with windows 2.6/64)
+from os import path
+import sys
+sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
 from calcs.rogue.Aldriana import AldrianasRogueDamageCalculator
 from calcs.rogue.Aldriana import settings
@@ -235,17 +238,22 @@ class GearPage(wx.Panel):
 
     def on_restore(self, e, slot):
         #Restoring the item to its dictionary definition
-        print self.current_gear[slot], self.current_gear[slot].name
+        print self.current_gear[slot].name
         self.update_item_for_slot(self.current_gear[slot].name, slot)
         self.reset_reforging_ui_for_slot(slot)
         self.calculator.calculate()
 
     def reset_reforging_ui_for_slot(self, slot):
-        self.reforges[slot]['from'].SetSelection(0)
-        self.reforges[slot]['to'].SetSelection(0)
-        self.reforges[slot]['restore'].Hide()
-        self.reforges[slot]['reforge'].Show()
-        self.Layout()
+        reforge_from = self.current_gear[slot].reforgable_from()
+        reforge_to = self.current_gear[slot].reforgable_to()        
+        if len(reforge_from) > 0:
+            self.reforges[slot]['from'].SetItems([''] + reforge_from)
+            self.reforges[slot]['from'].SetSelection(0)
+            self.reforges[slot]['to'].SetItems([''] + reforge_to)
+            self.reforges[slot]['to'].SetSelection(0)
+            self.reforges[slot]['restore'].Hide()
+            self.reforges[slot]['reforge'].Show()
+            self.Layout()
 
     def on_gem_selected(self, e):
         self.calculator.calculate()
@@ -276,7 +284,12 @@ class GearPage(wx.Panel):
                 if len(gem_name) > 0:
                     gem = ui_data.gems[gem_name]
                     for stat in gem[1]:
-                        current_stats[stat] += gem[1][stat]
+                        if stat == 'proc':
+                            current_stats['procs'] += gem[1][stat]
+                        elif stat == 'gear_buff':
+                            current_stats['gear_buffs'] += gem[1][stat]
+                        else:
+                            current_stats[stat] += gem[1][stat]
                     if not slot_color in gem[0] and slot_color != 'prismatic':
                         get_bonus = False
             if get_bonus and len(self.current_gear[slot].bonus_stat) > 0:
