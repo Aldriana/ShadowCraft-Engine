@@ -278,7 +278,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         triggers_per_second = 0
         if proc.procs_off_auto_attacks():
             if proc.procs_off_crit_only():
-                triggers_per_second += attacks_per_second['mh_autoattack_hits'] * crit_rates['mh_autoattacks']
+                triggers_per_second += attacks_per_second['mh_autoattacks'] * crit_rates['mh_autoattacks']
             else:
                 triggers_per_second += attacks_per_second['mh_autoattack_hits']
         if proc.procs_off_strikes():
@@ -305,7 +305,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         triggers_per_second = 0
         if proc.procs_off_auto_attacks():
             if proc.procs_off_crit_only():
-                triggers_per_second += attacks_per_second['oh_autoattack_hits'] * crit_rates['oh_autoattacks']
+                triggers_per_second += attacks_per_second['oh_autoattacks'] * crit_rates['oh_autoattacks']
             else:
                 triggers_per_second += attacks_per_second['oh_autoattack_hits']
         if proc.procs_off_strikes():
@@ -909,7 +909,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attacks_per_second['oh_autoattack_hits'] = attacks_per_second['oh_autoattacks'] * self.dual_wield_oh_hit_chance()
 
         main_gauche_proc_rate = .02 * self.stats.get_mastery_from_rating(current_stats['mastery']) * self.off_hand_melee_hit_chance()
-        attacks_per_second['main_gauche'] = main_gauche_proc_rate * attacks_per_second['mh_autoattacks']
+        attacks_per_second['main_gauche'] = main_gauche_proc_rate * attacks_per_second['mh_autoattack_hits']
 
         autoattack_cp_regen = self.talents.combat_potency * (attacks_per_second['oh_autoattack_hits'] + attacks_per_second['main_gauche'])
         energy_regen = self.base_energy_regen * haste_multiplier + self.bonus_energy_regen + autoattack_cp_regen

@@ -90,8 +90,8 @@ class Race(object):
     #Note this allows invalid class-race combos
     def __init__(self, race, character_class="rogue", level=85):
         self.character_class = str.lower(character_class)
-        self.race_name = str.lower(race)
-        if self.race_name not in Race.racial_stat_offset:
+        self.race_name = race
+        if self.race_name not in Race.racial_stat_offset.keys():
             raise InvalidRaceException(_('Unsupported race {race}').format(race=self.race_name))
         if self.character_class == "rogue":
             self.stat_set = Race.rogue_base_stats
