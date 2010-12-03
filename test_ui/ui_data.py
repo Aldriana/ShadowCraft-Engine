@@ -283,7 +283,7 @@ default_talents = {
     'coup_de_grace': 3,
     'lethality': 3,
     'ruthlessness': 3,
-    'quickness': 2,
+    'quickening': 2,
     'puncturing_wounds': 3,
     'cold_blood': 1,
     'vile_poisons': 3,
