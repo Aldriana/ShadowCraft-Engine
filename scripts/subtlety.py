@@ -49,13 +49,13 @@ test_procs = procs.ProcsList('heroic_prestors_talisman_of_machination', 'fluid_d
 test_gear_buffs = stats.GearBuffs('rogue_t11_2pc', 'leather_specialization', 'potion_of_the_tolvir')
 
 # Set up a calcs object..
-test_stats = stats.Stats(20, 4745, 190, 1100, 782, 754, 2116, 776, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
+test_stats = stats.Stats(20, 4788, 190, 1399, 752, 574, 1705, 964, test_mh, test_oh, test_ranged, test_procs, test_gear_buffs)
 
 # Initialize talents..
 test_talents = rogue_talents.RogueTalents('0230030000000000000', '0020000000000000000', '0332031321310012321')
 
 # Set up glyphs.
-glyph_list = ['backstab', 'slice_and_dice', 'eviscerate']
+glyph_list = ['backstab', 'slice_and_dice', 'shadow_dance', 'tricks_of_the_trade']
 test_glyphs = rogue_glyphs.RogueGlyphs(*glyph_list)
 
 # Set up race.

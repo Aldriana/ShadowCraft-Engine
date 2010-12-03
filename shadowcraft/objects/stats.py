@@ -119,9 +119,26 @@ class Weapon(object):
             self._normalization_speed = 2.4
 
         if enchant is not None:
-            assert self.is_melee() and enchant in self.allowed_melee_enchants
-            proc = procs.Proc(**self.allowed_melee_enchants[enchant])
-            setattr(self, enchant, proc)
+            self.set_enchant(enchant)
+
+    def set_enchant(self, enchant):
+        if enchant == None:
+            self.del_enchant()
+        else:
+            if self.is_melee():
+                if enchant in self.allowed_melee_enchants:
+                    self.del_enchant()
+                    proc = procs.Proc(**self.allowed_melee_enchants[enchant])
+                    setattr(self, enchant, proc)
+                else:
+                    raise exceptions.InvalidInputException(_('Enchant {enchant} is not allowed.').format(enchant=enchant))
+            else:
+                raise exceptions.InvalidInputException(_('Only melee weapons can be enchanted with {enchant}.').format(enchant=enchant))
+
+    def del_enchant(self):
+        for i in self.allowed_melee_enchants:
+            if getattr(self, i):
+                delattr(self, i)
 
     def __getattr__(self, name):
         # Any enchant we haven't assigned a value to, we don't have.
