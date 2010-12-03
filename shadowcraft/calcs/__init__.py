@@ -5,7 +5,7 @@ __builtin__._ = gettext.gettext
 
 from shadowcraft.core import exceptions
 from shadowcraft.calcs import armor_mitigation
-from objects.procs import InvalidProcException
+from shadowcraft.objects.procs import InvalidProcException
 
 class DamageCalculator(object):
     # This method holds the general interface for a damage calculator - the
