@@ -28,6 +28,11 @@ class DamageCalculator(object):
     GLANCE_RATE = .24
     GLANCE_MULTIPLIER = .75
 
+    # Override this in your class specfic subclass to list appropriate stats
+    # possible values are agi, str, spi, int, white_hit, spell_hit, yellow_hit,
+    # haste, crit, mastery, dodge_exp, parry_exp
+    default_ep_stats = []
+
     def __init__(self, stats, talents, glyphs, buffs, race, settings=None, level=85):
         self.stats = stats
         self.talents = talents
@@ -72,10 +77,12 @@ class DamageCalculator(object):
 
         return dps
 
-    def get_ep(self):
-        ep_values = {'white_hit':0, 'spell_hit':0, 'yellow_hit':0,
-                     'str':0, 'agi':0, 'haste':0, 'crit':0,
-                     'mastery':0, 'dodge_exp':0, 'parry_exp':0}
+    def get_ep(self, ep_stats=None):
+        if not ep_stats:
+            ep_stats = self.default_ep_stats
+        ep_values = {}
+        for stat in ep_stats:
+            ep_values[stat] = 0
         baseline_dps = self.get_dps()
         ap_dps = self.ep_helper('ap')
         ap_dps_difference = ap_dps - baseline_dps
