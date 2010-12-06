@@ -99,7 +99,7 @@ class DamageCalculator(object):
         weapons = ('mh', 'oh')
         if speed_list != None or dps == True:
             baseline_dps = self.get_dps()
-            ap_dps = self.ep_helper('ap')
+            normalize_dps = self.ep_helper(self.normalize_ep_stat)
 
         for hand in weapons:
             ep_values = {}
@@ -108,7 +108,7 @@ class DamageCalculator(object):
             if dps == True:
                 getattr(self.stats, hand).weapon_dps += 1.
                 new_dps = self.get_dps()
-                ep = abs(new_dps - baseline_dps) / (ap_dps - baseline_dps)
+                ep = abs(new_dps - baseline_dps) / (normalize_dps - baseline_dps)
                 ep_values[hand + '_dps'] = ep
                 getattr(self.stats, hand).weapon_dps -= 1.
 
@@ -121,11 +121,11 @@ class DamageCalculator(object):
                 for enchant in getattr(self.stats, hand).allowed_melee_enchants:
                     getattr(self.stats, hand).del_enchant()
                     no_enchant_dps = self.get_dps()
-                    no_enchant_ap_dps = self.ep_helper('ap')
+                    no_enchant_normalize_dps = self.ep_helper(self.normalize_ep_stat)
                     getattr(self.stats, hand).set_enchant(enchant)
                     new_dps = self.get_dps()
                     if new_dps != no_enchant_dps:
-                        ep = abs(new_dps - no_enchant_dps) / (no_enchant_ap_dps - no_enchant_dps)
+                        ep = abs(new_dps - no_enchant_dps) / (no_enchant_normalize_dps - no_enchant_dps)
                         ep_values[hand + '_' + enchant] = ep
                     getattr(self.stats, hand).set_enchant(old_enchant)
 
@@ -135,7 +135,7 @@ class DamageCalculator(object):
                 for speed in speed_list:
                     getattr(self.stats, hand).speed = speed
                     new_dps = self.get_dps()
-                    ep = (new_dps - baseline_dps) / (ap_dps - baseline_dps)
+                    ep = (new_dps - baseline_dps) / (normalize_dps - baseline_dps)
                     ep_values[hand + '_' +  str(speed)] = ep
                     getattr(self.stats, hand).speed = old_speed
 
@@ -152,7 +152,7 @@ class DamageCalculator(object):
         # weapons they are on, are computed by get_weapon_ep.
         ep_values = {}
         baseline_dps = self.get_dps()
-        ap_dps = self.ep_helper('ap')
+        normalize_dps = self.ep_helper(self.normalize_ep_stat)
 
         procs_list = []
         gear_buffs_list = []
@@ -169,7 +169,7 @@ class DamageCalculator(object):
             # engineering gizmos are handled as gear buffs by the engine.
             setattr(self.stats.gear_buffs, i, not getattr(self.stats.gear_buffs, i))
             new_dps = self.get_dps()
-            ep_values[i] = abs(new_dps - baseline_dps) / (ap_dps - baseline_dps)
+            ep_values[i] = abs(new_dps - baseline_dps) / (normalize_dps - baseline_dps)
             setattr(self.stats.gear_buffs, i, not getattr(self.stats.gear_buffs, i))
 
         for i in procs_list:
@@ -179,7 +179,7 @@ class DamageCalculator(object):
                 else:
                     self.stats.procs.set_proc(i)
                 new_dps = self.get_dps()
-                ep_values[i] = abs(new_dps - baseline_dps) / (ap_dps - baseline_dps)
+                ep_values[i] = abs(new_dps - baseline_dps) / (normalize_dps - baseline_dps)
                 if getattr(self.stats.procs, i):
                     delattr(self.stats.procs, i)
                 else:
