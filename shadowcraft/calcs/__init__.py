@@ -33,6 +33,8 @@ class DamageCalculator(object):
     # haste, crit, mastery, dodge_exp, parry_exp, oh_dodge_exp, mh_dodge_exp,
     # oh_parry_exp, mh_parry_exp
     default_ep_stats = []
+    # normalize_ep_stat is the stat with value 1 EP, override in your subclass
+    normalize_ep_stat = None
 
     def __init__(self, stats, talents, glyphs, buffs, race, settings=None, level=85):
         self.stats = stats
@@ -85,11 +87,11 @@ class DamageCalculator(object):
         for stat in ep_stats:
             ep_values[stat] = 0
         baseline_dps = self.get_dps()
-        ap_dps = self.ep_helper('ap')
-        ap_dps_difference = ap_dps - baseline_dps
+        normalize_dps = self.ep_helper(self.normalize_ep_stat)
+        normalize_dps_difference = normalize_dps - baseline_dps
         for stat in ep_values.keys():
             dps = self.ep_helper(stat)
-            ep_values[stat] = abs(dps - baseline_dps) / ap_dps_difference
+            ep_values[stat] = abs(dps - baseline_dps) / normalize_dps_difference
 
         return ep_values
 
