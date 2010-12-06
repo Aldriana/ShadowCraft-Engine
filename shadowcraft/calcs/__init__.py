@@ -30,7 +30,8 @@ class DamageCalculator(object):
 
     # Override this in your class specfic subclass to list appropriate stats
     # possible values are agi, str, spi, int, white_hit, spell_hit, yellow_hit,
-    # haste, crit, mastery, dodge_exp, parry_exp
+    # haste, crit, mastery, dodge_exp, parry_exp, oh_dodge_exp, mh_dodge_exp,
+    # oh_parry_exp, mh_parry_exp
     default_ep_stats = []
 
     def __init__(self, stats, talents, glyphs, buffs, race, settings=None, level=85):
@@ -65,12 +66,12 @@ class DamageCalculator(object):
         self.armor_mitigation_parameter = armor_mitigation.parameter(self.level)
 
     def ep_helper(self,stat):
-        if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp'):
+        if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp', 'mh_dodge_exp', 'oh_dodge_exp', 'mh_parry_exp', 'oh_parry_exp'):
             setattr(self.stats, stat, getattr(self.stats, stat) + 1.)
         else:
             setattr(self, 'calculating_ep', stat)
         dps = self.get_dps()
-        if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp'):
+        if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp', 'mh_dodge_exp', 'oh_dodge_exp', 'mh_parry_exp', 'oh_parry_exp'):
             setattr(self.stats, stat, getattr(self.stats, stat) - 1.)
         else:
             setattr(self, 'calculating_ep', False)
@@ -307,6 +308,8 @@ class DamageCalculator(object):
         hit_chance = self.melee_hit_chance(self.BASE_ONE_HAND_MISS_RATE, dodgeable, parryable, weapon.type)
         if self.calculating_ep == 'yellow_hit':
             hit_chance -= self.stats.get_melee_hit_from_rating(1)
+        if (self.calculating_ep == 'mh_dodge_exp' and dodgeable) or (self.calculating_ep == 'mh_parry_exp' and parryable):
+            hit_chance -= self.stats.get_expertise_from_rating(1)
         return hit_chance
 
     def off_hand_melee_hit_chance(self, dodgeable=True, parryable=False, weapon=None):
@@ -318,19 +321,27 @@ class DamageCalculator(object):
         hit_chance = self.melee_hit_chance(self.BASE_ONE_HAND_MISS_RATE, dodgeable, parryable, weapon.type)
         if self.calculating_ep == 'yellow_hit':
             hit_chance -= self.stats.get_melee_hit_from_rating(1)
+        if (self.calculating_ep == 'oh_dodge_exp' and dodgeable) or (self.calculating_ep == 'oh_parry_exp' and parryable):
+            hit_chance -= self.stats.get_expertise_from_rating(1)
         return hit_chance
 
     def dual_wield_mh_hit_chance(self, dodgeable=True, parryable=False):
         # Most attacks by DPS aren't parryable due to positional negation. But
         # if you ever want to attacking from the front, you can just set that
         # to True.
-        return self.dual_wield_hit_chance(dodgeable, parryable, self.stats.mh.type)
+        hit_chance = self.dual_wield_hit_chance(dodgeable, parryable, self.stats.mh.type)
+        if (self.calculating_ep == 'mh_dodge_exp' and dodgeable) or (self.calculating_ep == 'mh_parry_exp' and parryable):
+            hit_chance -= self.stats.get_expertise_from_rating(1)
+        return hit_chance
 
     def dual_wield_oh_hit_chance(self, dodgeable=True, parryable=False):
         # Most attacks by DPS aren't parryable due to positional negation. But
         # if you ever want to attacking from the front, you can just set that
         # to True.
-        return self.dual_wield_hit_chance(dodgeable, parryable, self.stats.oh.type)
+        hit_chance = self.dual_wield_hit_chance(dodgeable, parryable, self.stats.oh.type)
+        if (self.calculating_ep == 'oh_dodge_exp' and dodgeable) or (self.calculating_ep == 'oh_parry_exp' and parryable):
+            hit_chance -= self.stats.get_expertise_from_rating(1)
+        return hit_chance
 
     def dual_wield_hit_chance(self, dodgeable, parryable, weapon_type):
         hit_chance = self.melee_hit_chance(self.BASE_DW_MISS_RATE, dodgeable, parryable, weapon_type)
