@@ -887,7 +887,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 damage_breakdown[key] *= self.bandits_guile_multiplier * self.revealing_strike_multiplier
             elif key == 'rupture':
                 damage_breakdown[key] *= self.bandits_guile_multiplier * self.ksp_multiplier * self.revealing_strike_multiplier
-            else:
+            elif key in ('autoattack', 'instant_poison', 'deadly_poison', 'main_gauche'):
                 damage_breakdown[key] *= self.bandits_guile_multiplier * self.ksp_multiplier
 
         return damage_breakdown

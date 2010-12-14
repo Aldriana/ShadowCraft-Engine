@@ -25,7 +25,7 @@ class RogueDamageCalculator(DamageCalculator):
     dp_base_dmg_values =          {80:296, 85:540}
     dp_percentage_dmg_values =    {80:.108, 85:.14}
     wp_base_dmg_values =          {80:231, 85:276}
-    wp_percentage_dmg_values =    {80:.036, 85:.036}
+    wp_percentage_dmg_values =    {80:.036, 85:.04}
     garrote_base_dmg_values =     {80:119, 81:122, 82:125, 83:127, 84:130, 85:133}
     rup_base_dmg_values =         {80:127, 81:130, 82:133, 83:136, 84:139, 85:142}
     rup_bonus_dmg_values =        {80:18, 81:19, 82:19, 83:19, 84:20, 85:20}
