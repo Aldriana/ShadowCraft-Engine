@@ -7,11 +7,11 @@
 # 'auto_attacks', 'damaging_spells', 'all_spells', 'healing_spells', 'all_periodic_damage',
 # 'bleeds', 'spell_periodic_damage' and 'hots'
 allowed_procs = {
-    'heroic_grace_of_the_herald': {     # ICD is a guess and should be verified.
+    'heroic_grace_of_the_herald': {
         'stat': 'crit',
         'value': 1710,
         'duration': 10,
-        'icd': 45,
+        'icd': 50,
         'proc_chance': .1,
         'trigger': 'all_attacks',
         'proc_name': 'Herald of Doom'
@@ -25,7 +25,7 @@ allowed_procs = {
         'trigger': 'all_attacks',
         'proc_name': 'Final Key'
     },
-    'heroic_left_eye_of_rajh': {        # ICD is a guess and should be verified.
+    'heroic_left_eye_of_rajh': {
         'stat': 'agi',
         'value': 1710,
         'duration': 10,
@@ -54,7 +54,7 @@ allowed_procs = {
         'trigger': 'all_attacks',
         'proc_name': 'Grace'
     },
-    'darkmoon_card_hurricane': {        # PPM/ICD is a guess and should be verified.
+    'darkmoon_card_hurricane': {
         'stat': 'spell_damage',
         'value': 5000,
         'duration': 0,
@@ -64,20 +64,20 @@ allowed_procs = {
         'trigger': 'all_attacks',
         'proc_name': 'Lightning Strike'
     },
-    'essence_of_the_cyclone': {         # ICD is a guess and should be verified.
+    'essence_of_the_cyclone': {
         'stat': 'crit',
         'value': 1926,
         'duration': 10,
-        'icd': 45,
+        'icd': 50,
         'proc_chance': .1,
         'trigger': 'all_attacks',
         'proc_name': 'Twisted'
     },
-    'heroic_essence_of_the_cyclone': {         # ICD is a guess and should be verified.
+    'heroic_essence_of_the_cyclone': {
         'stat': 'crit',
         'value': 2178,
         'duration': 10,
-        'icd': 45,
+        'icd': 50,
         'proc_chance': .1,
         'trigger': 'all_attacks',
         'proc_name': 'Twisted'
@@ -92,20 +92,20 @@ allowed_procs = {
         'trigger': 'all_attacks',
         'proc_name': 'River of Death'
     },
-    'grace_of_the_herald': {            # ICD is a guess and should be verified.
+    'grace_of_the_herald': {
         'stat': 'crit',
         'value': 924,
         'duration': 10,
-        'icd': 45,
+        'icd': 50,
         'proc_chance': .1,
         'trigger': 'all_attacks',
         'proc_name': 'Herald of Doom'
     },
-    'heart_of_the_vile': {              # ICD is a guess and should be verified.
+    'heart_of_the_vile': {
         'stat': 'crit',
         'value': 924,
         'duration': 10,
-        'icd': 45,
+        'icd': 50,
         'proc_chance': .1,
         'trigger': 'all_attacks',
         'proc_name': 'Herald of Doom'
@@ -119,11 +119,11 @@ allowed_procs = {
         'trigger': 'all_attacks',
         'proc_name': 'Final Key'
     },
-    'left_eye_of_rajh': {               # ICD is a guess and should be verified.
+    'left_eye_of_rajh': {
         'stat': 'agi',
         'value': 1512,
         'duration': 10,
-        'icd': 45,
+        'icd': 50,
         'proc_chance': .3,
         'trigger': 'all_attacks',
         'on_crit': True,
@@ -167,11 +167,11 @@ allowed_procs = {
         'trigger': 'all_attacks',
         'proc_name': 'Grace'
     },
-    'unheeded_warning': {               # ICD is a guess and should be verified.
+    'unheeded_warning': {
         'stat': 'weird_proc',
         'value': .25,
         'duration': 10,
-        'icd': 45,
+        'icd': 50,
         'proc_chance': .1,
         'trigger': 'all_attacks',
         'proc_name': 'Heedless Carnage'

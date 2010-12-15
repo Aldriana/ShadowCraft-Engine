@@ -267,7 +267,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             damage_breakdown['wound_poison'] = self.get_dps_contribution(self.wound_poison_damage(average_ap, mastery=current_stats['mastery']), crit_rates['wound_poison'], attacks_per_second['wound_poison'])
 
         for proc in damage_procs:
-            damage_breakdown[proc.proc_name] = self.get_proc_damage_contribution(proc, attacks_per_second[proc.proc_name], current_stats)
+            if proc.proc_name not in damage_breakdown:
+                damage_breakdown[proc.proc_name] = 0
+            damage_breakdown[proc.proc_name] += self.get_proc_damage_contribution(proc, attacks_per_second[proc.proc_name], current_stats)
 
         if self.race.rocket_barrage:
             damage_breakdown['rocket_barrage'] = self.get_rocket_barrage_damage(average_ap, current_stats)
@@ -887,8 +889,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 damage_breakdown[key] *= self.bandits_guile_multiplier * self.revealing_strike_multiplier
             elif key == 'rupture':
                 damage_breakdown[key] *= self.bandits_guile_multiplier * self.ksp_multiplier * self.revealing_strike_multiplier
-            else:
+            elif key in ('autoattack', 'instant_poison', 'deadly_poison', 'main_gauche'):
                 damage_breakdown[key] *= self.bandits_guile_multiplier * self.ksp_multiplier
+            else:
+                damage_breakdown[key] *= self.ksp_multiplier
 
         return damage_breakdown
 
