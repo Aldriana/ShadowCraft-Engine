@@ -37,6 +37,10 @@ class RogueDamageCalculator(DamageCalculator):
     MELEE_CRIT_REDUCTION =        .048
     SPELL_CRIT_REDUCTION =        .021
 
+    default_ep_stats = ['white_hit', 'spell_hit', 'yellow_hit', 'str', 'agi', 'haste',
+        'crit', 'mastery', 'dodge_exp']
+    normalize_ep_stat = 'ap'
+
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
         if name == 'level':

@@ -28,6 +28,14 @@ class DamageCalculator(object):
     GLANCE_RATE = .24
     GLANCE_MULTIPLIER = .75
 
+    # Override this in your class specfic subclass to list appropriate stats
+    # possible values are agi, str, spi, int, white_hit, spell_hit, yellow_hit,
+    # haste, crit, mastery, dodge_exp, parry_exp, oh_dodge_exp, mh_dodge_exp,
+    # oh_parry_exp, mh_parry_exp
+    default_ep_stats = []
+    # normalize_ep_stat is the stat with value 1 EP, override in your subclass
+    normalize_ep_stat = None
+
     def __init__(self, stats, talents, glyphs, buffs, race, settings=None, level=85):
         self.stats = stats
         self.talents = talents
@@ -60,28 +68,30 @@ class DamageCalculator(object):
         self.armor_mitigation_parameter = armor_mitigation.parameter(self.level)
 
     def ep_helper(self,stat):
-        if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp'):
+        if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp', 'mh_dodge_exp', 'oh_dodge_exp', 'mh_parry_exp', 'oh_parry_exp'):
             setattr(self.stats, stat, getattr(self.stats, stat) + 1.)
         else:
             setattr(self, 'calculating_ep', stat)
         dps = self.get_dps()
-        if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp'):
+        if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp', 'mh_dodge_exp', 'oh_dodge_exp', 'mh_parry_exp', 'oh_parry_exp'):
             setattr(self.stats, stat, getattr(self.stats, stat) - 1.)
         else:
             setattr(self, 'calculating_ep', False)
 
         return dps
 
-    def get_ep(self):
-        ep_values = {'white_hit':0, 'spell_hit':0, 'yellow_hit':0,
-                     'str':0, 'agi':0, 'haste':0, 'crit':0,
-                     'mastery':0, 'dodge_exp':0, 'parry_exp':0}
+    def get_ep(self, ep_stats=None):
+        if not ep_stats:
+            ep_stats = self.default_ep_stats
+        ep_values = {}
+        for stat in ep_stats:
+            ep_values[stat] = 0
         baseline_dps = self.get_dps()
-        ap_dps = self.ep_helper('ap')
-        ap_dps_difference = ap_dps - baseline_dps
+        normalize_dps = self.ep_helper(self.normalize_ep_stat)
+        normalize_dps_difference = normalize_dps - baseline_dps
         for stat in ep_values.keys():
             dps = self.ep_helper(stat)
-            ep_values[stat] = abs(dps - baseline_dps) / ap_dps_difference
+            ep_values[stat] = abs(dps - baseline_dps) / normalize_dps_difference
 
         return ep_values
 
@@ -89,7 +99,7 @@ class DamageCalculator(object):
         weapons = ('mh', 'oh')
         if speed_list != None or dps == True:
             baseline_dps = self.get_dps()
-            ap_dps = self.ep_helper('ap')
+            normalize_dps = self.ep_helper(self.normalize_ep_stat)
 
         for hand in weapons:
             ep_values = {}
@@ -98,7 +108,7 @@ class DamageCalculator(object):
             if dps == True:
                 getattr(self.stats, hand).weapon_dps += 1.
                 new_dps = self.get_dps()
-                ep = abs(new_dps - baseline_dps) / (ap_dps - baseline_dps)
+                ep = abs(new_dps - baseline_dps) / (normalize_dps - baseline_dps)
                 ep_values[hand + '_dps'] = ep
                 getattr(self.stats, hand).weapon_dps -= 1.
 
@@ -111,11 +121,11 @@ class DamageCalculator(object):
                 for enchant in getattr(self.stats, hand).allowed_melee_enchants:
                     getattr(self.stats, hand).del_enchant()
                     no_enchant_dps = self.get_dps()
-                    no_enchant_ap_dps = self.ep_helper('ap')
+                    no_enchant_normalize_dps = self.ep_helper(self.normalize_ep_stat)
                     getattr(self.stats, hand).set_enchant(enchant)
                     new_dps = self.get_dps()
                     if new_dps != no_enchant_dps:
-                        ep = abs(new_dps - no_enchant_dps) / (no_enchant_ap_dps - no_enchant_dps)
+                        ep = abs(new_dps - no_enchant_dps) / (no_enchant_normalize_dps - no_enchant_dps)
                         ep_values[hand + '_' + enchant] = ep
                     getattr(self.stats, hand).set_enchant(old_enchant)
 
@@ -125,7 +135,7 @@ class DamageCalculator(object):
                 for speed in speed_list:
                     getattr(self.stats, hand).speed = speed
                     new_dps = self.get_dps()
-                    ep = (new_dps - baseline_dps) / (ap_dps - baseline_dps)
+                    ep = (new_dps - baseline_dps) / (normalize_dps - baseline_dps)
                     ep_values[hand + '_' +  str(speed)] = ep
                     getattr(self.stats, hand).speed = old_speed
 
@@ -142,7 +152,7 @@ class DamageCalculator(object):
         # weapons they are on, are computed by get_weapon_ep.
         ep_values = {}
         baseline_dps = self.get_dps()
-        ap_dps = self.ep_helper('ap')
+        normalize_dps = self.ep_helper(self.normalize_ep_stat)
 
         procs_list = []
         gear_buffs_list = []
@@ -159,7 +169,7 @@ class DamageCalculator(object):
             # engineering gizmos are handled as gear buffs by the engine.
             setattr(self.stats.gear_buffs, i, not getattr(self.stats.gear_buffs, i))
             new_dps = self.get_dps()
-            ep_values[i] = abs(new_dps - baseline_dps) / (ap_dps - baseline_dps)
+            ep_values[i] = abs(new_dps - baseline_dps) / (normalize_dps - baseline_dps)
             setattr(self.stats.gear_buffs, i, not getattr(self.stats.gear_buffs, i))
 
         for i in procs_list:
@@ -169,7 +179,7 @@ class DamageCalculator(object):
                 else:
                     self.stats.procs.set_proc(i)
                 new_dps = self.get_dps()
-                ep_values[i] = abs(new_dps - baseline_dps) / (ap_dps - baseline_dps)
+                ep_values[i] = abs(new_dps - baseline_dps) / (normalize_dps - baseline_dps)
                 if getattr(self.stats.procs, i):
                     delattr(self.stats.procs, i)
                 else:
@@ -300,6 +310,8 @@ class DamageCalculator(object):
         hit_chance = self.melee_hit_chance(self.BASE_ONE_HAND_MISS_RATE, dodgeable, parryable, weapon.type)
         if self.calculating_ep == 'yellow_hit':
             hit_chance -= self.stats.get_melee_hit_from_rating(1)
+        if (self.calculating_ep == 'mh_dodge_exp' and dodgeable) or (self.calculating_ep == 'mh_parry_exp' and parryable):
+            hit_chance -= self.stats.get_expertise_from_rating(1)
         return hit_chance
 
     def off_hand_melee_hit_chance(self, dodgeable=True, parryable=False, weapon=None):
@@ -311,19 +323,27 @@ class DamageCalculator(object):
         hit_chance = self.melee_hit_chance(self.BASE_ONE_HAND_MISS_RATE, dodgeable, parryable, weapon.type)
         if self.calculating_ep == 'yellow_hit':
             hit_chance -= self.stats.get_melee_hit_from_rating(1)
+        if (self.calculating_ep == 'oh_dodge_exp' and dodgeable) or (self.calculating_ep == 'oh_parry_exp' and parryable):
+            hit_chance -= self.stats.get_expertise_from_rating(1)
         return hit_chance
 
     def dual_wield_mh_hit_chance(self, dodgeable=True, parryable=False):
         # Most attacks by DPS aren't parryable due to positional negation. But
         # if you ever want to attacking from the front, you can just set that
         # to True.
-        return self.dual_wield_hit_chance(dodgeable, parryable, self.stats.mh.type)
+        hit_chance = self.dual_wield_hit_chance(dodgeable, parryable, self.stats.mh.type)
+        if (self.calculating_ep == 'mh_dodge_exp' and dodgeable) or (self.calculating_ep == 'mh_parry_exp' and parryable):
+            hit_chance -= self.stats.get_expertise_from_rating(1)
+        return hit_chance
 
     def dual_wield_oh_hit_chance(self, dodgeable=True, parryable=False):
         # Most attacks by DPS aren't parryable due to positional negation. But
         # if you ever want to attacking from the front, you can just set that
         # to True.
-        return self.dual_wield_hit_chance(dodgeable, parryable, self.stats.oh.type)
+        hit_chance = self.dual_wield_hit_chance(dodgeable, parryable, self.stats.oh.type)
+        if (self.calculating_ep == 'oh_dodge_exp' and dodgeable) or (self.calculating_ep == 'oh_parry_exp' and parryable):
+            hit_chance -= self.stats.get_expertise_from_rating(1)
+        return hit_chance
 
     def dual_wield_hit_chance(self, dodgeable, parryable, weapon_type):
         hit_chance = self.melee_hit_chance(self.BASE_DW_MISS_RATE, dodgeable, parryable, weapon_type)
