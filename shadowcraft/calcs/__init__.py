@@ -80,14 +80,16 @@ class DamageCalculator(object):
 
         return dps
 
-    def get_ep(self, ep_stats=None):
+    def get_ep(self, ep_stats=None, normalize_ep_stat=None):
+        if not normalize_ep_stat:
+            normalize_ep_stat = self.normalize_ep_stat
         if not ep_stats:
             ep_stats = self.default_ep_stats
         ep_values = {}
         for stat in ep_stats:
             ep_values[stat] = 0
         baseline_dps = self.get_dps()
-        normalize_dps = self.ep_helper(self.normalize_ep_stat)
+        normalize_dps = self.ep_helper(normalize_ep_stat)
         normalize_dps_difference = normalize_dps - baseline_dps
         for stat in ep_values.keys():
             dps = self.ep_helper(stat)
@@ -95,11 +97,13 @@ class DamageCalculator(object):
 
         return ep_values
 
-    def get_weapon_ep(self, speed_list=None, dps=False, enchants=False):
+    def get_weapon_ep(self, speed_list=None, dps=False, enchants=False, normalize_ep_stat=None):
+        if not normalize_ep_stat:
+            normalize_ep_stat = self.normalize_ep_stat
         weapons = ('mh', 'oh')
         if speed_list != None or dps == True:
             baseline_dps = self.get_dps()
-            normalize_dps = self.ep_helper(self.normalize_ep_stat)
+            normalize_dps = self.ep_helper(normalize_ep_stat)
 
         for hand in weapons:
             ep_values = {}
@@ -121,7 +125,7 @@ class DamageCalculator(object):
                 for enchant in getattr(self.stats, hand).allowed_melee_enchants:
                     getattr(self.stats, hand).del_enchant()
                     no_enchant_dps = self.get_dps()
-                    no_enchant_normalize_dps = self.ep_helper(self.normalize_ep_stat)
+                    no_enchant_normalize_dps = self.ep_helper(normalize_ep_stat)
                     getattr(self.stats, hand).set_enchant(enchant)
                     new_dps = self.get_dps()
                     if new_dps != no_enchant_dps:
@@ -146,13 +150,15 @@ class DamageCalculator(object):
 
         return mh_ep_values, oh_ep_values
 
-    def get_other_ep(self, list):
+    def get_other_ep(self, list, normalize_ep_stat=None):
+        if not normalize_ep_stat:
+            normalize_ep_stat = self.normalize_ep_stat
         # This method computes ep for every other buff/proc not covered by
         # get_ep or get_weapon_ep. Weapon enchants, being tied to the
         # weapons they are on, are computed by get_weapon_ep.
         ep_values = {}
         baseline_dps = self.get_dps()
-        normalize_dps = self.ep_helper(self.normalize_ep_stat)
+        normalize_dps = self.ep_helper(normalize_ep_stat)
 
         procs_list = []
         gear_buffs_list = []
