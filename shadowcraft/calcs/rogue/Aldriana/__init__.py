@@ -565,7 +565,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         self.base_energy_regen = 10
         if self.talents.overkill:
-            self.base_energy_regen += 60 / (180. + self.settings.response_time)
+            self.base_energy_regen += 60 / (180. + self.settings.response_time - 30 * self.talents.elusiveness)
 
         if self.talents.cold_blood:
             self.bonus_energy_regen += 25. / (120 + self.settings.response_time)
