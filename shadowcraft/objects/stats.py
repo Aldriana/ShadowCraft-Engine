@@ -164,6 +164,8 @@ class GearBuffs(object):
         'engineer_glove_enchant',
         'unsolvable_riddle',
         'demon_panther',
+        'skardyns_grace',
+        'heroic_skardyns_grace',
         'potion_of_the_tolvir',
         'lifeblood',
         'mixology',
