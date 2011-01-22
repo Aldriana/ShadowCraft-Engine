@@ -174,6 +174,8 @@ class GearBuffs(object):
     activated_boosts = {
         'unsolvable_riddle':        {'stat': 'agi', 'value': 1605, 'duration': 20, 'cooldown': 120},
         'demon_panther':            {'stat': 'agi', 'value': 1425, 'duration': 20, 'cooldown': 120},
+        'skardyns_grace':           {'stat': 'mastery', 'value': 1260, 'duration': 20, 'cooldown': 120},
+        'heroic_skardyns_grace':    {'stat': 'mastery', 'value': 1425, 'duration': 20, 'cooldown': 120},
         'potion_of_the_tolvir':     {'stat': 'agi', 'value': 1200, 'duration': 25, 'cooldown': None}, #Cooldown = fight length
         'engineer_glove_enchant':   {'stat': 'haste', 'value': 340, 'duration': 12, 'cooldown': 60},
         'lifeblood':                {'stat': 'haste', 'value': 480, 'duration': 20, 'cooldown': 120},
