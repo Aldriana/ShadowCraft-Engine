@@ -175,7 +175,7 @@ class RogueDamageCalculator(DamageCalculator):
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
         percentage_damage_bonus = 2
         if self.talents.is_subtlety_rogue():
-            percentage_damage_bonus += .25
+            percentage_damage_bonus += .40
 
         damage = percentage_damage_bonus * (weapon_damage + self.bs_bonus_dmg) * multiplier
         crit_damage = damage * crit_multiplier
@@ -233,7 +233,7 @@ class RogueDamageCalculator(DamageCalculator):
         else:
             percentage_damage_bonus = 1.1
         if self.talents.is_subtlety_rogue():
-            percentage_damage_bonus += .25
+            percentage_damage_bonus += .40
             # This should probably be tested at some point to make sure there isn't
             # some weird interaction with the dagger-or-not logic - that is,
             # its possible that the computation the do internally would be

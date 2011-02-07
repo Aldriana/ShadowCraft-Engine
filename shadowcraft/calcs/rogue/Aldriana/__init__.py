@@ -1186,7 +1186,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         self.base_energy_regen = 10
 
-        self.agi_multiplier *= 1.25
+        self.agi_multiplier *= 1.30
 
         damage_breakdown = self.compute_damage(self.subtlety_attack_counts_backstab)
         if self.talents.find_weakness:
