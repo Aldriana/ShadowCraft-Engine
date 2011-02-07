@@ -98,7 +98,7 @@ class RogueDamageCalculator(DamageCalculator):
             cdg_tuple = (0, .07, .14, .2)
             base_modifier += cdg_tuple[self.talents.coup_de_grace]
         if executioner and self.talents.is_subtlety_rogue():
-            base_modifier += .02 * self.stats.get_mastery_from_rating(mastery)
+            base_modifier += .025 * self.stats.get_mastery_from_rating(mastery)
         if aggression:
             aggression_tuple = (0, .07, .14, .2)
             base_modifier += aggression_tuple[self.talents.aggression]
