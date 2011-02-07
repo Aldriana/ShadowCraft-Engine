@@ -912,7 +912,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attacks_per_second['mh_autoattack_hits'] = attacks_per_second['mh_autoattacks'] * self.dual_wield_mh_hit_chance()
         attacks_per_second['oh_autoattack_hits'] = attacks_per_second['oh_autoattacks'] * self.dual_wield_oh_hit_chance()
 
-        main_gauche_proc_rate = .02 * self.stats.get_mastery_from_rating(current_stats['mastery']) * self.off_hand_melee_hit_chance()
+        main_gauche_proc_rate = .02 * self.stats.get_mastery_from_rating(current_stats['mastery']) * self.one_hand_melee_hit_chance()
         attacks_per_second['main_gauche'] = main_gauche_proc_rate * attacks_per_second['mh_autoattack_hits']
 
         autoattack_cp_regen = self.talents.combat_potency * (attacks_per_second['oh_autoattack_hits'] + attacks_per_second['main_gauche'])
