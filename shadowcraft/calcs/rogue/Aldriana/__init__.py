@@ -985,7 +985,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 cp_per_finisher += actual_cps * probability
                 finisher_size_breakdown[actual_cps] += probability
 
-        self.revealing_strike_multiplier = (1 + (.2 + .1 * self.glyphs.revealing_strike) * rvs_per_finisher)
+        self.revealing_strike_multiplier = (1 + (.35 + .1 * self.glyphs.revealing_strike) * rvs_per_finisher)
 
         energy_cost_to_generate_cps = rvs_per_finisher * revealing_strike_energy_cost + ss_per_finisher * sinister_strike_energy_cost
         total_eviscerate_cost = energy_cost_to_generate_cps + eviscerate_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
