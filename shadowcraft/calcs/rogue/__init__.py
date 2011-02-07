@@ -283,7 +283,7 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier = self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
-        damage = self.oh_penalty() * weapon_damage * multiplier
+        damage = weapon_damage * multiplier
         crit_damage = damage * crit_multiplier
 
         return damage, crit_damage
