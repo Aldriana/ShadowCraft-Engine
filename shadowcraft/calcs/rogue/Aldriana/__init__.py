@@ -1191,7 +1191,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         damage_breakdown = self.compute_damage(self.subtlety_attack_counts_backstab)
         if self.talents.find_weakness:
             armor_value = self.target_armor()
-            armor_reduction = (1 - .25 * self.talents.find_weakness)
+            armor_reduction = (1 - .35 * self.talents.find_weakness)
             find_weakness_damage_boost = self.armor_mitigation_multiplier(armor_reduction * armor_value) / self.armor_mitigation_multiplier(armor_value)
             find_weakness_multiplier = 1 + (find_weakness_damage_boost - 1) * self.find_weakness_uptime
         else:
