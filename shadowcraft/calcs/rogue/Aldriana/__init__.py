@@ -1152,8 +1152,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             ticks_per_rupture = 3 + i + 2 * self.glyphs.rupture
             attacks_per_second['rupture_ticks'][i] = ticks_per_rupture * attacks_per_second['rupture'] * finisher_size_breakdown[i]
 
-        total_mh_hits = attacks_per_second['mh_autoattack_hits'] + attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'] + attacks_per_second['mh_killing_spree'] + attacks_per_second['rupture'] + total_evis_per_second
-        total_oh_hits = attacks_per_second['oh_autoattack_hits'] + attacks_per_second['main_gauche'] + attacks_per_second['oh_killing_spree']
+        total_mh_hits = attacks_per_second['mh_autoattack_hits'] + attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'] + attacks_per_second['mh_killing_spree'] + attacks_per_second['rupture'] + total_evis_per_second  + attacks_per_second['main_gauche']
+        total_oh_hits = attacks_per_second['oh_autoattack_hits'] + attacks_per_second['oh_killing_spree']
 
         self.get_poison_counts(total_mh_hits, total_oh_hits, attacks_per_second)
 
