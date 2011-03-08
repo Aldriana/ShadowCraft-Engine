@@ -32,7 +32,7 @@ class TalentTree(object):
 
     def __init__(self, talent_string = '', **kwargs):
         if not talent_string:
-            for talent_name in kwargs.keys():
+            for talent_name in kwargs:
                 self.set_talent(talent_name, kwargs[talent_name])
         else:
             if len(talent_string) != len(self.allowed_talents):
@@ -65,6 +65,7 @@ class ClassTalents(object):
     def __init__(self, string1, string2, string3):
         self.trees = list()
         self.spec = None
+        self.cachedAttrs = list()
 
         # Instantiate the three trees using the specified strings. While we're
         # at it, find the tree with the most talents to determine spec. Since
@@ -91,11 +92,18 @@ class ClassTalents(object):
         max_talent_value, talent_tier = self.treeForTalent[name].allowed_talents[name]
         return talent_tier
 
+    def reset_cache(self):
+        for name in self.cachedAttrs:
+            delattr(self, name)
+        del self.cachedAttrs[:]
+            
     def __getattr__(self, name):
         # If someone tries to access a talent defined on one of the trees,
         # access it through that tree.
         if name in self.treeForTalent:
-            attr = getattr(self.treeForTalent[name], name)
-            setattr(self, name, attr)
-            return attr
+            self.cachedAttrs.append(name)
+            r = getattr(self.treeForTalent[name], name)            
+            setattr(self, name, r)
+            return r
+            
         object.__getattribute__(self, name)

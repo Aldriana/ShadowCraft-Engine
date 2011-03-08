@@ -19,6 +19,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
     ###########################################################################
 
     def get_dps(self):
+        super(AldrianasRogueDamageCalculator, self).get_dps()
         if self.talents.is_assassination_rogue():
             self.init_assassination()
             return self.assassination_dps_estimate()
