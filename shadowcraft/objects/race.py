@@ -91,7 +91,7 @@ class Race(object):
     def __init__(self, race, character_class="rogue", level=85):
         self.character_class = str.lower(character_class)
         self.race_name = race
-        if self.race_name not in Race.racial_stat_offset.keys():
+        if self.race_name not in Race.racial_stat_offset:
             raise InvalidRaceException(_('Unsupported race {race}').format(race=self.race_name))
         if self.character_class == "rogue":
             self.stat_set = Race.rogue_base_stats
@@ -101,9 +101,10 @@ class Race(object):
         self.set_racials()
 
     def set_racials(self):
-        racials = Race.racials_by_race[self.race_name]
-        for racial in racials:
-            setattr(self, racial, True)
+        # Set all racials to false, so we don't invoke __getattr__ all the time
+        for race, racials in Race.racials_by_race.items():
+          for racial in racials:
+            setattr(self, racial, self.race_name == race)
 
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
