@@ -94,6 +94,6 @@ class ClassTalents(object):
     def __getattr__(self, name):
         # If someone tries to access a talent defined on one of the trees,
         # access it through that tree.
-        if name in self.treeForTalent.keys():
+        if name in self.treeForTalent:
             return getattr(self.treeForTalent[name], name)
         object.__getattribute__(self, name)
