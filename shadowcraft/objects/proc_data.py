@@ -168,8 +168,8 @@ allowed_procs = {
         'proc_name': 'Grace'
     },
     'unheeded_warning': {
-        'stat': 'weird_proc',
-        'value': .25,
+        'stat': 'extra_weapon_damage',
+        'value': 680,
         'duration': 10,
         'icd': 50,
         'proc_chance': .1,
