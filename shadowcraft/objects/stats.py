@@ -165,18 +165,21 @@ class GearBuffs(object):
         'unsolvable_riddle',
         'demon_panther',
         'potion_of_the_tolvir',
+        'potion_of_the_tolvir_prepot',
         'lifeblood',
         'mixology',
         'master_of_anatomy',
     ])
 
     # Format is (stat, value, duration, cool down) - duration and cool down in seconds
+    # Prepot is 3 seconds wasted; this is a rough guesstimate and should probably be tweaked or be made able to be adjusted by invokers
     activated_boosts = {
-        'unsolvable_riddle':        {'stat': 'agi', 'value': 1605, 'duration': 20, 'cooldown': 120},
-        'demon_panther':            {'stat': 'agi', 'value': 1425, 'duration': 20, 'cooldown': 120},
-        'potion_of_the_tolvir':     {'stat': 'agi', 'value': 1200, 'duration': 25, 'cooldown': None}, #Cooldown = fight length
-        'engineer_glove_enchant':   {'stat': 'haste', 'value': 340, 'duration': 12, 'cooldown': 60},
-        'lifeblood':                {'stat': 'haste', 'value': 480, 'duration': 20, 'cooldown': 120},
+        'unsolvable_riddle':               {'stat': 'agi', 'value': 1605, 'duration': 20, 'cooldown': 120},
+        'demon_panther':                   {'stat': 'agi', 'value': 1425, 'duration': 20, 'cooldown': 120},
+        'potion_of_the_tolvir':            {'stat': 'agi', 'value': 1200, 'duration': 25, 'cooldown': None}, #Cooldown = fight length
+        'potion_of_the_tolvir_prepot':     {'stat': 'agi', 'value': 1200, 'duration': 22, 'cooldown': None}, #Cooldown = fight length
+        'engineer_glove_enchant':          {'stat': 'haste', 'value': 340, 'duration': 12, 'cooldown': 60},
+        'lifeblood':                       {'stat': 'haste', 'value': 480, 'duration': 20, 'cooldown': 120},
     }
 
     def __init__(self, *args):
