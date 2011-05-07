@@ -408,6 +408,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 p = 1 - (1-procs_per_second) ** finisher_spacing
                 crit_rates[direct_damage_finisher] = p + (1 - p) * crit_rates[direct_damage_finisher]
 
+    def update_current_stats_for_4pc_t12(self, stats):
+        if self.settings.tricks_on_cooldown:
+            t12_4pc_bonus = 1 + (self.stats.gear_buffs.rogue_t12_4pc_stat_bonus() / 3)
+            for stat in stats:
+                if stat in ('haste', 'crit', 'mastery'):
+                    stats[stat] *= t12_4pc_bonus
+
     def get_poison_counts(self, total_mh_hits, total_oh_hits, attacks_per_second):
         if self.settings.mh_poison == 'dp' or self.settings.oh_poison == 'dp':
             attacks_per_second['deadly_poison'] = 1./3
@@ -495,6 +502,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             }
 
             self.update_crit_rates_for_4pc_t11(attacks_per_second, crit_rates)
+            self.update_current_stats_for_4pc_t12(current_stats)
 
             for proc in damage_procs:
                 if not proc.icd:

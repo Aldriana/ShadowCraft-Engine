@@ -161,9 +161,14 @@ class GearBuffs(object):
         'leather_specialization',       # Increase %stat by 5%
         'chaotic_metagem',              # Increase critical damage by 3%
         'rogue_t11_2pc',                # Increase crit chance for BS, Mut, SS by 5%
+        'rogue_t12_4pc',
         'engineer_glove_enchant',
         'unsolvable_riddle',
         'demon_panther',
+        'ancient_petrified_seed',
+        'heroic_ancient_petrified_seed',
+        'hungerer',
+        'heroic_hungerer',
         'potion_of_the_tolvir',
         'lifeblood',
         'mixology',
@@ -172,11 +177,15 @@ class GearBuffs(object):
 
     # Format is (stat, value, duration, cool down) - duration and cool down in seconds
     activated_boosts = {
-        'unsolvable_riddle':        {'stat': 'agi', 'value': 1605, 'duration': 20, 'cooldown': 120},
-        'demon_panther':            {'stat': 'agi', 'value': 1425, 'duration': 20, 'cooldown': 120},
-        'potion_of_the_tolvir':     {'stat': 'agi', 'value': 1200, 'duration': 25, 'cooldown': None}, #Cooldown = fight length
-        'engineer_glove_enchant':   {'stat': 'haste', 'value': 340, 'duration': 12, 'cooldown': 60},
-        'lifeblood':                {'stat': 'haste', 'value': 480, 'duration': 20, 'cooldown': 120},
+        'unsolvable_riddle':              {'stat': 'agi', 'value': 1605, 'duration': 20, 'cooldown': 120},
+        'demon_panther':                  {'stat': 'agi', 'value': 1425, 'duration': 20, 'cooldown': 120},
+        'potion_of_the_tolvir':           {'stat': 'agi', 'value': 1200, 'duration': 25, 'cooldown': None}, #Cooldown = fight length
+        'engineer_glove_enchant':         {'stat': 'haste', 'value': 340, 'duration': 12, 'cooldown': 60},
+        'lifeblood':                      {'stat': 'haste', 'value': 480, 'duration': 20, 'cooldown': 120},
+        'ancient_petrified_seed':         {'stat': 'agi', 'value': 1227, 'duration': 15, 'cooldown': 60},
+        'heroic_ancient_petrified_seed':  {'stat': 'agi', 'value': 1441, 'duration': 15, 'cooldown': 60},
+        'hungerer':                       {'stat': 'haste', 'value': 1532, 'duration': 15, 'cooldown': 60},
+        'heroic_hungerer':                {'stat': 'haste', 'value': 1730, 'duration': 15, 'cooldown': 60},
     }
 
     def __init__(self, *args):
@@ -199,6 +208,12 @@ class GearBuffs(object):
     def rogue_t11_2pc_crit_bonus(self):
         if self.rogue_t11_2pc:
             return .05
+        else:
+            return 0
+
+    def rogue_t12_4pc_stat_bonus(self):
+        if self.rogue_t12_4pc:
+            return .25
         else:
             return 0
 
