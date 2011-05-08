@@ -35,6 +35,15 @@ allowed_procs = {
         'on_crit': True,
         'proc_name': 'Eye of Vengeance'
     },
+    'heroic_matrix_restabilizer': {     # Proc_chance/ICD is a guess and should be verified.
+        'stat': 'weird_proc',
+        'value': 1730,
+        'duration': 30,
+        'icd': 150,
+        'proc_chance': .1,
+        'trigger': 'all_attacks',
+        'proc_name': 'Matrix Restabilizer'
+    },
     'heroic_prestors_talisman_of_machination': {
         'stat': 'haste',
         'value': 2178,
@@ -128,6 +137,15 @@ allowed_procs = {
         'trigger': 'all_attacks',
         'on_crit': True,
         'proc_name': 'Eye of Vengeance'
+    },
+    'matrix_restabilizer': {            # Proc_chance/ICD is a guess and should be verified.
+        'stat': 'weird_proc',
+        'value': 1532,
+        'duration': 30,
+        'icd': 150,
+        'proc_chance': .1,
+        'trigger': 'all_attacks',
+        'proc_name': 'Matrix Restabilizer'
     },
     'prestors_talisman_of_machination': {
         'stat': 'haste',

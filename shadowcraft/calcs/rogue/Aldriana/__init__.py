@@ -163,6 +163,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.base_rupture_energy_cost = 20 + 5 / self.strike_hit_chance
         self.base_eviscerate_energy_cost = 28 + 7 / self.strike_hit_chance
 
+        if self.stats.procs.heroic_matrix_restabilizer:
+            self.stats.procs.heroic_matrix_restabilizer.stat = self.set_matrix_restabilizer_stat(self.base_stats)
+        if self.stats.procs.matrix_restabilizer:
+            self.stats.procs.matrix_restabilizer.stat = self.set_matrix_restabilizer_stat(self.base_stats)
+            
     def get_proc_damage_contribution(self, proc, proc_count, current_stats):
         base_damage = proc.value
 
@@ -179,12 +184,38 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         return base_damage * multiplier * (1 + crit_rate * (crit_multiplier - 1)) * proc_count
 
+    def set_matrix_restabilizer_stat(self, base_stats):
+        base_stats_for_matrix_restabilizer = {}
+        for key in self.base_stats.keys():
+            if key in ('haste', 'mastery', 'crit'):
+                base_stats_for_matrix_restabilizer[key] = self.base_stats[key]
+        sorted_list = base_stats_for_matrix_restabilizer.keys()
+        sorted_list.sort(cmp=lambda b,a: cmp(base_stats_for_matrix_restabilizer[a],base_stats_for_matrix_restabilizer[b]))
+        return sorted_list[0]
+
     def get_rocket_barrage_damage(self, ap, current_stats):
         base_damage = self.race.calculate_rocket_barrage(ap, 0, 0) * self.raid_settings_modifiers(is_spell=True)
         crit_multiplier = self.crit_damage_modifiers(is_spell=True)
         crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
 
         return base_damage * (1 + crit_rate * (crit_multiplier - 1)) / (120 + self.settings.response_time)
+
+    def get_rickets_magnetic_fireball_damage(self, current_stats):
+        value = self.stats.gear_buffs.calculate_rickets_magnetic_fireball()
+        base_damage = value * self.raid_settings_modifiers(is_spell=True)
+        crit_multiplier = self.crit_damage_modifiers(is_spell=True)
+        crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
+        
+        return base_damage * (1 + crit_rate * (crit_multiplier - 1)) / (180 + self.settings.response_time)
+
+    def get_t12_2p_damage(self, damage_breakdown, mh_dps, oh_dps, crit_rates):
+        crit_damage = 0
+        for key in damage_breakdown.keys():
+            if key in ('mutilate', 'hemorrhage', 'backstab', 'sinister_strike', 'revealing_strike', 'main_gauche', 'ambush', 'mh_killing_spree', 'oh_killing_spree', 'envenom', 'eviscerate'):
+                crit_damage += damage_breakdown[key] * crit_rates[key]
+        crit_damage += mh_dps * crit_rates['mh_autoattacks']
+        crit_damage += oh_dps * crit_rates['oh_autoattacks']
+        return crit_damage * .06
 
     def get_damage_breakdown(self, current_stats, attacks_per_second, crit_rates, damage_procs):
         # Vendetta may want to be handled elsewhere.
@@ -274,6 +305,12 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.race.rocket_barrage:
             damage_breakdown['rocket_barrage'] = self.get_rocket_barrage_damage(average_ap, current_stats)
 
+        if self.stats.gear_buffs.rickets_magnetic_fireball:
+            damage_breakdown['rickets_magnetic_fireball'] = self.get_rickets_magnetic_fireball_damage(current_stats)
+
+        if self.stats.gear_buffs.rogue_t12_2pc:
+            damage_breakdown['burning_wounds'] = self.get_t12_2p_damage(damage_breakdown, mh_dps, oh_dps, crit_rates)
+            
         return damage_breakdown
 
     def get_mh_procs_per_second(self, proc, attacks_per_second, crit_rates):
@@ -409,11 +446,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 crit_rates[direct_damage_finisher] = p + (1 - p) * crit_rates[direct_damage_finisher]
 
     def update_current_stats_for_4pc_t12(self, stats):
-        if self.settings.tricks_on_cooldown:
-            t12_4pc_bonus = 1 + (self.stats.gear_buffs.rogue_t12_4pc_stat_bonus() / 3)
-            for stat in stats:
-                if stat in ('haste', 'crit', 'mastery'):
-                    stats[stat] *= t12_4pc_bonus
+        for stat in stats:
+            if self.settings.tricks_on_cooldown and stat in ('haste', 'crit', 'mastery'):
+                uptime = 30. / (30 + self.settings.response_time)
+                uptime_per_stat = uptime / 3
+                stats[stat] *= 1 + self.stats.gear_buffs.rogue_t12_4pc_stat_bonus() * uptime_per_stat
 
     def get_poison_counts(self, total_mh_hits, total_oh_hits, attacks_per_second):
         if self.settings.mh_poison == 'dp' or self.settings.oh_poison == 'dp':

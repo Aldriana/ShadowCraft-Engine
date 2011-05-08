@@ -161,6 +161,7 @@ class GearBuffs(object):
         'leather_specialization',       # Increase %stat by 5%
         'chaotic_metagem',              # Increase critical damage by 3%
         'rogue_t11_2pc',                # Increase crit chance for BS, Mut, SS by 5%
+        'rogue_t12_2pc',
         'rogue_t12_4pc',
         'engineer_glove_enchant',
         'unsolvable_riddle',
@@ -169,6 +170,7 @@ class GearBuffs(object):
         'heroic_ancient_petrified_seed',
         'hungerer',
         'heroic_hungerer',
+        'rickets_magnetic_fireball',
         'potion_of_the_tolvir',
         'lifeblood',
         'mixology',
@@ -216,6 +218,9 @@ class GearBuffs(object):
             return .25
         else:
             return 0
+
+    def calculate_rickets_magnetic_fireball(self):
+        return (400 + 442) / 2
 
     def leather_specialization_multiplier(self):
         if self.leather_specialization:
