@@ -168,7 +168,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             self.stats.procs.heroic_matrix_restabilizer.stat = self.set_matrix_restabilizer_stat(self.base_stats)
         if self.stats.procs.matrix_restabilizer:
             self.stats.procs.matrix_restabilizer.stat = self.set_matrix_restabilizer_stat(self.base_stats)
-            
+
     def get_proc_damage_contribution(self, proc, proc_count, current_stats):
         base_damage = proc.value
 
@@ -222,7 +222,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             if key in ('mutilate', 'hemorrhage', 'backstab', 'sinister_strike', 'revealing_strike', 'main_gauche', 'ambush', 'mh_killing_spree', 'oh_killing_spree', 'envenom', 'eviscerate', 'autoattack'):
                 average_damage, crit_contribution = damage_breakdown[key]
                 crit_damage += crit_contribution
-        print crit_damage
 
         return crit_damage * .06, 0
 
@@ -289,7 +288,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 average_dps += dps_tuple[0]
                 crit_dps += dps_tuple[1]
             damage_breakdown['rupture'] = average_dps, crit_dps
-            
+
         if 'envenom' in attacks_per_second:
             average_dps = crit_dps = 0
             for i in xrange(1, 6):
@@ -337,7 +336,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         for key in damage_breakdown:
             average_damage, crit_damage = damage_breakdown[key]
             average_damage_breakdown[key] = average_damage
-        
+
         return average_damage_breakdown
 
     def get_mh_procs_per_second(self, proc, attacks_per_second, crit_rates):
@@ -1046,7 +1045,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 finisher_size_breakdown[actual_cps] += probability
         else:
             cp_distribution = self.get_cp_distribution_for_cycle(cp_per_ss, FINISHER_SIZE - 1)
-            
+
             rvs_per_finisher = 1
             ss_per_finisher = 0
             cp_per_finisher = 0
