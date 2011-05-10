@@ -181,7 +181,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             crit_multiplier = self.crit_damage_modifiers(is_physical=True)
             crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
         else:
-            return 0
+            return 0, 0
 
         average_damage = base_damage * multiplier * (1 + crit_rate * (crit_multiplier - 1)) * proc_count
         crit_contribution = base_damage * multiplier * crit_rate * proc_count
@@ -200,7 +200,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         base_damage = self.race.calculate_rocket_barrage(ap, 0, 0) * self.raid_settings_modifiers(is_spell=True)
         crit_multiplier = self.crit_damage_modifiers(is_spell=True)
         crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
-        average_hit = base_damage * (1 + crit_rate * (crit_multiplier - 1))
+        average_damage = base_damage * (1 + crit_rate * (crit_multiplier - 1))
         crit_contribution = base_damage * crit_rate * crit_multiplier
         frequency = 120 + self.settings.response_time
 
@@ -210,7 +210,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         base_damage = self.stats.gear_buffs.calculate_rickets_magnetic_fireball() * self.raid_settings_modifiers(is_spell=True)
         crit_multiplier = self.crit_damage_modifiers(is_spell=True)
         crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
-        average_hit = base_damage * (1 + crit_rate * (crit_multiplier - 1))
+        average_damage = base_damage * (1 + crit_rate * (crit_multiplier - 1))
         crit_contribution = base_damage * crit_rate * crit_multiplier
         frequency = 180 + self.settings.response_time
 
@@ -219,7 +219,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
     def get_t12_2p_damage(self, damage_breakdown):
         crit_damage = 0
         for key in damage_breakdown.keys():
-            if key in ('mutilate', 'hemorrhage', 'backstab', 'sinister_strike', 'revealing_strike', 'main_gauche', 'ambush', 'mh_killing_spree', 'oh_killing_spree', 'envenom', 'eviscerate', 'autoattack'):
+            if key in ('mutilate', 'hemorrhage', 'backstab', 'sinister_strike', 'revealing_strike', 'main_gauche', 'ambush', 'killing_spree', 'envenom', 'eviscerate', 'autoattack'):
                 average_damage, crit_contribution = damage_breakdown[key]
                 crit_damage += crit_contribution
 
@@ -247,7 +247,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         crit_oh_hit = crit_rates['oh_autoattacks'] * oh_crit_damage
         oh_dps_tuple = average_oh_hit * attacks_per_second['oh_autoattacks'], crit_oh_hit * attacks_per_second['oh_autoattacks']
 
-        damage_breakdown['autoattack'] = mh_dps_tuple[0]+ oh_dps_tuple[0], mh_dps_tuple[1]+ oh_dps_tuple[1]
+        damage_breakdown['autoattack'] = mh_dps_tuple[0] + oh_dps_tuple[0], mh_dps_tuple[1] + oh_dps_tuple[1]
 
         for key in attacks_per_second.keys():
             if not attacks_per_second[key]:
@@ -328,16 +328,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.stats.gear_buffs.rickets_magnetic_fireball:
             damage_breakdown['rickets_magnetic_fireball'] = self.get_rickets_magnetic_fireball_damage(current_stats)
 
-        if self.stats.gear_buffs.rogue_t12_2pc:
-            damage_breakdown['burning_wounds'] = self.get_t12_2p_damage(damage_breakdown)
-
-        # Discarding the crit component of the tuples as it's used only for t12_2pc damage.
-        average_damage_breakdown = {}
-        for key in damage_breakdown:
-            average_damage, crit_damage = damage_breakdown[key]
-            average_damage_breakdown[key] = average_damage
-
-        return average_damage_breakdown
+        return damage_breakdown
 
     def get_mh_procs_per_second(self, proc, attacks_per_second, crit_rates):
         triggers_per_second = 0
@@ -599,9 +590,21 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         for proc in damage_procs:
             self.update_with_damaging_proc(proc, attacks_per_second, crit_rates)
 
-        damage_breakdown = self.get_damage_breakdown(current_stats, attacks_per_second, crit_rates ,damage_procs)
-        damage_breakdown['autoattack'] *= self.unheeded_warning_multiplier(attacks_per_second, crit_rates)
-        return damage_breakdown
+        damage_breakdown = self.get_damage_breakdown(current_stats, attacks_per_second, crit_rates, damage_procs)
+
+        for i in damage_breakdown['autoattack']:
+            i *= self.unheeded_warning_multiplier(attacks_per_second, crit_rates)
+
+        if self.stats.gear_buffs.rogue_t12_2pc:
+            damage_breakdown['burning_wounds'] = self.get_t12_2p_damage(damage_breakdown)
+
+        # Discard the crit component.
+        average_damage_breakdown = {}
+        for key in damage_breakdown:
+            average_damage, crit_damage = damage_breakdown[key]
+            average_damage_breakdown[key] = average_damage
+
+        return average_damage_breakdown
 
     ###########################################################################
     # Assassination DPS functions
