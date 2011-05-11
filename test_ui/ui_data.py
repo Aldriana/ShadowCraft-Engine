@@ -69,6 +69,8 @@ class Weapon(Item):
 
 head = {
     #'Agile Bio-Optic Killshades': {'id': 59455, 'agi': 301, 'sockets': ['meta'], 'bonus_stat': 'agi', 'bonus_value': 20}, # missing cogwheels
+    'Vision of the Flaming Skull': {'id': 71003, 'agi': 348, 'exp': 172, 'haste': 295, 'sockets': ['red', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 30}, # New in 4.2
+    'Dark Phoenix Helmet': {'id': 71047, 'agi': 348, 'hit': 233, 'haste': 249, 'sockets': ['yellow', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 30, 'gear_buff': 'tier_12'}, # New in 4.2 - Tier 12
     "(H)Membrane of C'Thun": {'id': 65129, 'agi': 325, 'exp': 197, 'haste': 257, 'sockets': ['yellow', 'meta'], 'bonus_stat': 'haste', 'bonus_value': 30},
     "Membrane of C'Thun": {'id': 59490, 'agi': 281, 'exp': 168, 'haste': 228, 'sockets': ['yellow', 'meta'], 'bonus_stat': 'haste', 'bonus_value': 30},
     "Tsanga's Helm": {'id': 60202, 'agi': 281, 'crit': 168, 'mastery': 228, 'sockets': ['blue', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 30},
@@ -97,6 +99,7 @@ neck = {
     'Sweet Perfume Broach': {'id': 68174, 'agi': 168, 'crit': 101, 'haste': 119},
 }
 shoulders = {
+    'Dark Phoenix Spaulders': {'id': 71049, 'agi': 282, 'haste': 185, 'mastery': 197, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10, 'gear_buff': 'tier_12'}, # New in 4.2 - Tier 12
     '(H)Poison Protocol Pauldrons': {'id': 65083, 'agi': 226, 'crit': 171, 'mastery': 191, 'sockets': ['red'], 'bonus_stat': 'mastery', 'bonus_value': 10},
     'Poison Protocol Pauldrons': {'id': 59120, 'agi': 233, 'crit': 149, 'mastery': 169, 'sockets': ['red'], 'bonus_stat': 'mastery', 'bonus_value': 10},
     "(H)Wind Dancer's Spaulders": {'id': 65243, 'agi': 266, 'crit': 171, 'haste': 191, 'sockets': ['blue'], 'bonus_stat': 'agi', 'bonus_value': 10, 'gear_buff': 'tier_11'}, # Tier 11
@@ -107,6 +110,7 @@ shoulders = {
     '(H)Thieving Spaulders': {'id': 63449, 'agi': 205, 'crit': 130, 'haste': 150, 'sockets': ['yellow'], 'bonus_stat': 'haste', 'bonus_value': 20},
 }
 back = {
+    'Dreadfire Drape': {'id': 70992, 'agi': 212, 'hit': 138, 'mastery': 95, 'sockets': ['red', 'red'], 'bonus_stat': 'agi', 'bonus_value': 20}, # New in 4.2
     '(H)Cloak of Biting Chill': {'id': 65035, 'agi': 215, 'crit': 143, 'mastery': 143},
     'Cloak of Biting Chill': {'id': 59348, 'agi': 190, 'crit': 127, 'mastery': 127},
     'Viewless Wings': {'id': 58191, 'agi': 190, 'crit': 127, 'hit': 127},
@@ -120,7 +124,8 @@ back = {
     '(H)Twitching Shadows': {'id': 56315, 'agi': 168, 'crit': 112, 'haste': 112},
 }
 chest = {
-    "Assassin's Chestplate": {'id': 56562, 'agi': 341, 'crit': 253, 'hit': 183},
+    'Dark Phoenix Tunic': {'id': 71045, 'agi': 368, 'crit': 230, 'exp': 263, 'sockets': ['red', 'blue'], 'bonus_stat': 'agi', 'bonus_value': 20, 'gear_buff': 'tier_12'}, # New in 4.2 - Tier 12
+    "Assassin's Chestplate": {'id': 56562, 'agi': 341, 'crit': 253, 'hit': 183, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10},
     "Morrie's Waywalker Wrap": {'id': 67135, 'agi': 301, 'crit': 198, 'mastery': 218, 'sockets': ['red', 'yellow'], 'bonus_stat': 'mastery', 'bonus_value': 20},
     '(H)Sark of the Unwatched': {'id': 65060, 'agi': 345, 'crit': 227, 'mastery': 247,'sockets': ['red', 'yellow'], 'bonus_stat': 'mastery', 'bonus_value': 20},
     'Sark of the Unwatched': {'id': 59318, 'agi': 301, 'crit': 198, 'mastery': 218, 'sockets': ['red', 'yellow'], 'bonus_stat': 'mastery', 'bonus_value': 20},
@@ -143,6 +148,9 @@ wrists = {
     'Poison Fang Bracers': {'id': 55886, 'agi': 149, 'hit': 100, 'haste': 100},
 }
 hands = {
+    'True-Arrow Grips': {'id': 71020, 'agi': 282, 'haste': 172, 'mastery': 208, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10}, # New in 4.2
+    'Clutches of Evil': {'id': 69942, 'agi': 302, 'haste': 202, 'mastery': 202}, # New in 4.2
+    'Dark Phoenix Gloves': {'id': 71046, 'agi': 282, 'crit': 133, 'haste': 230, 'sockets': ['red'], 'bonus_stat': 'haste', 'bonus_value': 10, 'gear_buff': 'tier_12'}, # New in 4.2 - Tier 12
     '(H)Double Attack Handguards': {'id': 65073, 'agi': 266, 'exp': 171, 'mastery': 191, 'sockets': ['red'], 'bonus_stat': 'mastery', 'bonus_value': 10},
     'Double Attack Handguards': {'id': 59223, 'agi': 233, 'exp': 149, 'mastery': 169, 'sockets': ['red'], 'bonus_stat': 'mastery', 'bonus_value': 10},
     "Liar's Handwraps": {'id': 62417, 'agi': 233, 'crit': 149, 'haste': 169, 'sockets': ['yellow'], 'bonus_stat': 'haste', 'bonus_value': 10},
@@ -153,7 +161,7 @@ hands = {
     'Sticky Fingers': {'id': 58138, 'agi': 205, 'haste': 130, 'mastery': 150, 'sockets': ['yellow'], 'bonus_stat': 'agi', 'bonus_value': 10},
 }
 waist = {
-    'Belt of Nefarious Whispers': {'id': 56537, 'agi': 253, 'hit': 184, 'mastery': 144, 'sockets': ['prismatic']},
+    'Belt of Nefarious Whispers': {'id': 56537, 'agi': 253, 'hit': 184, 'mastery': 144, 'sockets': ['red', 'prismatic'], 'bonus_stat': 'agi', 'bonus_value': 10},
     '(H)Dispersing Belt': {'id': 65122, 'agi': 266, 'crit': 171, 'haste': 191, 'sockets': ['blue', 'prismatic'], 'bonus_stat': 'agi', 'bonus_value': 10},
     'Dispersing Belt': {'id': 59502, 'agi': 233, 'crit': 149, 'haste': 169, 'sockets': ['blue', 'prismatic'], 'bonus_stat': 'agi', 'bonus_value': 10},
     'Belt of a Thousand Mouths': {'id': 67240, 'agi': 225, 'crit': 150, 'haste': 150, 'sockets': ['prismatic']},
@@ -163,6 +171,8 @@ waist = {
     'Sash of Musing': {'id': 57918, 'agi': 205, 'exp': 130, 'mastery': 150, 'sockets': ['red', 'prismatic'], 'bonus_stat': 'mastery', 'bonus_value': 10},
 }
 legs = {
+    'Spiderheart Leggings': {'id': 71031, 'agi': 368, 'haste': 212, 'mastery': 284, 'sockets': ['red', 'yellow'], 'bonus_stat': 'agi', 'bonus_value': 20}, # New in 4.2
+    'Dark Phoenix Legguards': {'id': 71048, 'agi': 368, 'hit': 280, 'crit': 218, 'sockets': ['red', 'blue'], 'bonus_stat': 'agi', 'bonus_value': 20, 'gear_buff': 'tier_12'}, # New in 4.2 - Tier 12
     "(H)Aberration's Leggings": {'id': 65039, 'agi': 345, 'crit': 257, 'haste': 217, 'sockets': ['yellow', 'yellow'], 'bonus_stat': 'agi', 'bonus_value': 20},
     "Aberration's Leggings": {'id': 59343, 'agi': 301, 'crit': 228, 'haste': 188, 'sockets': ['yellow', 'yellow'], 'bonus_stat': 'agi', 'bonus_value': 20},
     "(H)Wind Dancer's Legguards": {'id': 65242, 'agi': 345, 'crit': 217, 'mastery': 257, 'sockets': ['yellow', 'blue'], 'bonus_stat': 'agi', 'bonus_value': 20, 'gear_buff': 'tier_11'}, # Tier 11
@@ -175,6 +185,7 @@ legs = {
     'Swiftflight Leggings': {'id': 62425, 'agi': 228, 'crit': 168, 'haste': 148, 'sockets': ['red', 'yellow'], 'bonus_stat': 'crit', 'bonus_value': 20},
 }
 feet = {
+    'Treads of the Craft': {'id': 69951, 'agi': 302, 'haste': 202, 'mastery': 202}, # New in 4.2
     "(H)Storm Rider's Boots": {'id': 65144, 'agi': 266, 'haste': 171, 'mastery': 191, 'sockets': ['yellow'], 'bonus_stat': 'mastery', 'bonus_value': 10}, # not tagged heroic in wowhead
     "Storm Rider's Boots": {'id': 59469, 'agi': 233, 'haste': 149, 'mastery': 169, 'sockets': ['yellow'], 'bonus_stat': 'mastery', 'bonus_value': 10},
     'Treads of Fleeting Joy': {'id': 58482, 'agi': 233, 'crit': 149, 'haste': 169, 'sockets': ['blue'], 'bonus_stat': 'agi', 'bonus_value': 10},
@@ -185,6 +196,7 @@ feet = {
     "(H)VanCleef's Boots": {'id': 65178, 'agi': 205, 'haste': 150, 'mastery': 130, 'sockets': ['yellow'], 'bonus_stat': 'agi', 'bonus_value': 10},
 }
 rings = {
+    'Signet of the Eightfold Eye': {'id': 71032, 'agi': 227, 'haste': 167, 'mastery': 126}, # New in 4.2
     'Gilnean Ring of Ruination': {'id': 67136, 'agi': 190, 'hit': 108, 'haste': 138},
     '(H)Lightning Conductor Band': {'id': 65082, 'agi': 215, 'crit': 143, 'hit': 143},
     'Lightning Conductor Band': {'id': 59121, 'agi': 190, 'crit': 127, 'hit': 127},
@@ -205,6 +217,13 @@ rings = {
 ring1 = rings
 ring2 = rings
 trinkets = {
+    "Ricket's Magnetic Fireball": {'id': 70144, 'agi': 340, 'gear_buff': 'rickets_magnetic_fireball'}, # New in 4.2
+    '(H)Matrix Restabilizer': {'id': 68150, 'agi': 433, 'proc': 'heroic_matrix_restabilizer'}, # New in 4.2
+    'Matrix Restabilizer': {'id': 68994, 'agi': 383, 'proc': 'matrix_restabilizer'}, # New in 4.2
+    '(H)Hungerer': {'id': 69112, 'agi': 433, 'gear_buff': 'heroic_hungerer'}, # New in 4.2
+    'Hungerer': {'id': 68927, 'agi': 383, 'gear_buff': 'heroic_hungerer'}, # New in 4.2
+    '(H)Ancient Petrified Seed': {'id': 69199, 'mastery': 433, 'gear_buff': 'heroic_ancient_petrified_seed'}, # New in 4.2
+    'Ancient Petrified Seed': {'id': 69001, 'mastery': 383, 'gear_buff': 'ancient_petrified_seed'}, # New in 4.2
     '(H)Grace of the Herald': {'id': 56295, 'agi': 285, 'proc': 'heroic_grace_of_the_herald'},
     'Grace of the Herald': {'id': 55266, 'agi': 153, 'proc': 'grace_of_the_herald'},
     '(H)Key to the Endless Chamber': {'id': 56328, 'hit': 285, 'proc': 'heroic_key_to_the_endless_chamber'},
@@ -226,6 +245,9 @@ trinkets = {
 trinket1 = trinkets
 trinket2 = trinkets
 melee_weapons = {
+    '1.4d Phoenixfeather Shiv': {'id': 70733, 'agi': 155, 'crit': 113, 'exp': 98, 'damage': 772.5, 'speed': 1.4, 'type': 'dagger'}, # New in 4.2
+    '1.8d Spike of the Dread Hunter': {'id': 71013, 'agi': 175, 'crit': 88, 'haste': 133, 'damage': 993, 'speed': 1.8, 'type': 'dagger'}, # New in 4.2
+    '1.8d Brainsplinter': {'id': 70155, 'agi': 152, 'hit': 101, 'haste': 101, 'damage': 880.5, 'speed': 1.8, 'type': 'dagger'}, # New in 4.2
     '1.8d (H)Organic Lifeform Inverter': {'id': 65081, 'agi': 165, 'exp': 110, 'mastery': 110, 'damage': 939.5, 'speed': 1.8, 'type': 'dagger'},
     '1.8d Organic Lifeform Inverter': {'id': 59122, 'agi': 146, 'exp': 97, 'mastery': 97, 'damage': 832, 'speed': 1.8, 'type': 'dagger'},
     '1.4d Scaleslicer': {'id': 68601, 'agi': 146, 'hit': 97, 'exp': 97, 'damage': 647.5, 'speed': 1.4, 'type': 'dagger'},
@@ -263,6 +285,8 @@ melee_weapons = {
     '2.6m (H)Hammer of Sparks': {'id': 56396, 'agi': 129, 'crit': 86, 'hit': 86, 'damage': 1065, 'speed': 2.6, 'type': 'mace'},
     '2.6m Hammer of Sparks': {'id': 55875, 'agi': 115, 'crit': 76, 'hit': 76, 'damage': 943.5, 'speed': 2.6, 'type': 'mace'},
     '2.6m (H)Heavy Geode Mace': {'id': 56353, 'agi': 129, 'hit': 86, 'exp': 86, 'damage': 1065, 'speed': 2.6, 'type': 'mace'},
+    '2.6s Pyrium Spellward': {'id': 70162, 'agi': 152, 'hit': 101, 'mastery': 101, 'damage': 1271, 'speed': 2.6, 'type': 'sword'}, # New in 4.2
+    # '2.6s Unbreakable Guardian': {'id': 70163, 'agi': 152, 'hit': 101, 'mastery': 101, 'damage': 1271, 'speed': 2.6, 'type': 'sword'}, # New in 4.2 - The UI doesn't allow having two exactly equal items, see Pyrium Spellward
     '2.6s (H)Fang of Twilight': {'id': 65094, 'agi': 165, 'crit': 110, 'mastery': 110, 'damage': 1356.5, 'speed': 2.6, 'type': 'sword'},
     '2.6s Fang of Twilight': {'id': 63533, 'agi': 146, 'crit': 97, 'mastery': 97, 'damage': 1202, 'speed': 2.6, 'type': 'sword'},
     '2.6s Krol Decapitator': {'id': 68161, 'agi': 146, 'hit': 86, 'haste': 105, 'damage': 1202, 'speed': 2.6, 'type': 'sword'},

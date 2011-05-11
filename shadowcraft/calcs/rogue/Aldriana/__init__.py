@@ -164,10 +164,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.base_rupture_energy_cost = 20 + 5 / self.strike_hit_chance
         self.base_eviscerate_energy_cost = 28 + 7 / self.strike_hit_chance
 
-        if self.stats.procs.heroic_matrix_restabilizer:
-            self.stats.procs.heroic_matrix_restabilizer.stat = self.set_matrix_restabilizer_stat(self.base_stats)
-        if self.stats.procs.matrix_restabilizer:
-            self.stats.procs.matrix_restabilizer.stat = self.set_matrix_restabilizer_stat(self.base_stats)
+        if self.stats.procs.heroic_matrix_restabilizer or self.stats.procs.matrix_restabilizer:
+            self.set_matrix_restabilizer_stat(self.base_stats)
 
     def get_proc_damage_contribution(self, proc, proc_count, current_stats):
         base_damage = proc.value
@@ -194,7 +192,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 base_stats_for_matrix_restabilizer[key] = self.base_stats[key]
         sorted_list = base_stats_for_matrix_restabilizer.keys()
         sorted_list.sort(cmp=lambda b,a: cmp(base_stats_for_matrix_restabilizer[a],base_stats_for_matrix_restabilizer[b]))
-        return sorted_list[0]
+
+        if self.stats.procs.heroic_matrix_restabilizer:
+            self.stats.procs.heroic_matrix_restabilizer.stat = sorted_list[0]
+        if self.stats.procs.matrix_restabilizer:
+            self.stats.procs.matrix_restabilizer.stat = sorted_list[0]
 
     def get_rocket_barrage_damage(self, ap, current_stats):
         base_damage = self.race.calculate_rocket_barrage(ap, 0, 0) * self.raid_settings_modifiers(is_spell=True)
