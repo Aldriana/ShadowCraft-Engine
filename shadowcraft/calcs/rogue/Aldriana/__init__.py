@@ -322,7 +322,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         for proc in damage_procs:
             if proc.proc_name not in damage_breakdown:
                 damage_breakdown[proc.proc_name] = 0, 0
-            damage_breakdown[proc.proc_name] += self.get_proc_damage_contribution(proc, attacks_per_second[proc.proc_name], current_stats)
+            old_value = damage_breakdown[proc.proc_name]
+            new_value = self.get_proc_damage_contribution(proc, attacks_per_second[proc.proc_name], current_stats)
+            damage_breakdown[proc.proc_name] = [sum(pair) for pair in zip(old_value, new_value)] 
 
         if self.race.rocket_barrage:
             damage_breakdown['rocket_barrage'] = self.get_rocket_barrage_damage(average_ap, current_stats)
