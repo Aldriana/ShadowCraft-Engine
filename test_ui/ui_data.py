@@ -84,6 +84,7 @@ head = {
     'Shocktrooper Hood': {'id': 63829, 'agi': 268, 'haste': 178, 'mastery': 178},
 }
 neck = {
+    'Flamesign Necklace': {'id': 71129, 'agi': 227, 'hit': 144, 'crit': 156}, # New in 4.2
     '(H)Necklace of Strife': {'id': 65107, 'agi': 215, 'haste': 143, 'mastery': 143},
     'Necklace of Strife': {'id': 59517, 'agi': 190, 'haste': 127, 'mastery': 127},
     'Acorn of the Daughter Tree': {'id': 62378, 'agi': 168, 'crit': 112, 'haste': 112},
@@ -141,6 +142,7 @@ chest = {
 
 }
 wrists = {
+    'Flamebinder Bracers': {'id': 71130, 'agi': 227, 'crit': 148, 'exp': 154}, # New in 4.2
     '(H)Parasitic Bands': {'id': 65050, 'agi': 215, 'crit': 143, 'mastery': 143},
     'Parasitic Bands': {'id': 59329, 'agi': 190, 'crit': 127, 'mastery': 127},
     '(H)Double Dealing Bracers': {'id': 63454, 'agi': 168, 'crit': 112, 'mastery': 112},
@@ -161,6 +163,7 @@ hands = {
     'Sticky Fingers': {'id': 58138, 'agi': 205, 'haste': 130, 'mastery': 150, 'sockets': ['yellow'], 'bonus_stat': 'agi', 'bonus_value': 10},
 }
 waist = {
+    'Flamebinding Girdle': {'id': 71131, 'agi': 282, 'hit': 167, 'haste': 211, 'sockets': ['blue', 'prismatic'], 'bonus_stat': 'agi', 'bonus_value': 10}, # New in 4.2
     'Belt of Nefarious Whispers': {'id': 56537, 'agi': 253, 'hit': 184, 'mastery': 144, 'sockets': ['red', 'prismatic'], 'bonus_stat': 'agi', 'bonus_value': 10},
     '(H)Dispersing Belt': {'id': 65122, 'agi': 266, 'crit': 171, 'haste': 191, 'sockets': ['blue', 'prismatic'], 'bonus_stat': 'agi', 'bonus_value': 10},
     'Dispersing Belt': {'id': 59502, 'agi': 233, 'crit': 149, 'haste': 169, 'sockets': ['blue', 'prismatic'], 'bonus_stat': 'agi', 'bonus_value': 10},
@@ -196,6 +199,8 @@ feet = {
     "(H)VanCleef's Boots": {'id': 65178, 'agi': 205, 'haste': 150, 'mastery': 130, 'sockets': ['yellow'], 'bonus_stat': 'agi', 'bonus_value': 10},
 }
 rings = {
+    'Viridian Signet of the Avengers': {'id': 71216, 'agi': 236, 'haste': 181, 'mastery': 134, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10}, # New in 4.2
+    'Firestone Seal': {'id': 71209, 'agi': 227, 'crit': 140, 'mastery': 158}, # New in 4.2
     'Signet of the Eightfold Eye': {'id': 71032, 'agi': 227, 'haste': 167, 'mastery': 126}, # New in 4.2
     'Gilnean Ring of Ruination': {'id': 67136, 'agi': 190, 'hit': 108, 'haste': 138},
     '(H)Lightning Conductor Band': {'id': 65082, 'agi': 215, 'crit': 143, 'hit': 143},
@@ -296,6 +301,7 @@ melee_weapons = {
 mainhand = melee_weapons
 offhand = melee_weapons
 ranged = {
+    'Morningstar Shard': {'id': 71152, 'agi': 128, 'hit': 88, 'exp': 81, 'damage': 1488, 'speed': 2, 'type': 'thrown'}, # New in 4.2
     'Dragonwreck Throwing Axe': {'id': 68608, 'agi': 107, 'exp': 72, 'mastery': 72, 'damage': 1371.5, 'speed': 2.2, 'type': 'thrown'},
     'Spinerender': {'id': 68162, 'agi': 107, 'crit': 72, 'hit': 72, 'damage': 1371.5, 'speed': 2.2, 'type': 'thrown'},
     '(H)Slashing Thorns': {'id': 56420, 'agi': 95, 'crit': 63, 'hit': 63, 'damage': 1104.5, 'speed': 2, 'type': 'thrown'},
