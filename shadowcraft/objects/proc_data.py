@@ -73,6 +73,17 @@ allowed_procs = {
         'trigger': 'all_attacks',
         'proc_name': 'Lightning Strike'
     },
+    'corens_chilled_chromium_coaster': {    # PPM/ICD is a guess and should be verified.
+        'stat': 'ap',
+        'value': 4000,
+        'duration': 10,
+        'max_stacks': 0,
+        'icd': 0,
+        'ppm': 1,
+        'trigger': 'all_attacks',
+        'on_crit': True,
+        'proc_name': 'Reflection of Torment'
+    },
     'essence_of_the_cyclone': {
         'stat': 'crit',
         'value': 1926,
