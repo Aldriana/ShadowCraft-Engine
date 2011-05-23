@@ -324,7 +324,6 @@ melee_weapons = {
     '2.6m (H)Heavy Geode Mace': {'id': 56353, 'agi': 129, 'hit': 86, 'exp': 86, 'damage': 1065, 'speed': 2.6, 'type': 'mace'},
     '2.6s Pyrium Spellward': {'id': 70162, 'agi': 152, 'hit': 101, 'mastery': 101, 'damage': 1271, 'speed': 2.6, 'type': 'sword'}, # New in 4.2
     # "2.6s The Horseman's Sinister Saber": {'id': 71325, 'agi': 103, 'hit': 103, 'exp': 103, 'damage': 1271, 'speed': 2.6, 'type': 'sword'}, # New in 4.2 - seasonal, not modeled gear_buff, throws error when included
-    # '2.6s Unbreakable Guardian': {'id': 70163, 'agi': 152, 'hit': 101, 'mastery': 101, 'damage': 1271, 'speed': 2.6, 'type': 'sword'}, # New in 4.2 - throws error when included, see Pyrium Spellward(same stats)
     '2.6s (H)Fang of Twilight': {'id': 65094, 'agi': 165, 'crit': 110, 'mastery': 110, 'damage': 1356.5, 'speed': 2.6, 'type': 'sword'},
     '2.6s Fang of Twilight': {'id': 63533, 'agi': 146, 'crit': 97, 'mastery': 97, 'damage': 1202, 'speed': 2.6, 'type': 'sword'},
     '2.6s Krol Decapitator': {'id': 68161, 'agi': 146, 'hit': 86, 'haste': 105, 'damage': 1202, 'speed': 2.6, 'type': 'sword'},
