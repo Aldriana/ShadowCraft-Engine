@@ -181,6 +181,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         else:
             return 0, 0
 
+        if proc.can_crit == False:
+            crit_rate = 0
+
         average_damage = base_damage * multiplier * (1 + crit_rate * (crit_multiplier - 1)) * proc_count
         crit_contribution = base_damage * multiplier * crit_rate * proc_count
         return average_damage, crit_contribution

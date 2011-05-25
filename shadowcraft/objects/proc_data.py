@@ -1,6 +1,6 @@
 # None should be used to indicate unknown values
 # The Proc class takes these parameters:
-# stat, value, duration, trigger, icd, proc_name, ppm=False, proc_chance=False, on_crit=False, max_stacks=1
+# stat, value, can_crit=True, duration, trigger, icd, proc_name, ppm=False, proc_chance=False, on_crit=False, max_stacks=1
 # You can't set a value for both 'ppm' and 'proc_chance': one of them must be False
 # Assumed heroic trinkets have same proc chance/ICD as non-heroic
 # Allowed triggers are: 'all_spells_and_attacks', 'all_damaging_attacks', 'all_attacks', 'strikes',
@@ -65,7 +65,8 @@ allowed_procs = {
     },
     'darkmoon_card_hurricane': {
         'stat': 'spell_damage',
-        'value': 5000,
+        'value': 7000,
+        'can_crit': False,
         'duration': 0,
         'max_stacks': 0,
         'icd': 0,
