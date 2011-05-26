@@ -44,7 +44,7 @@ class Stats(object):
             self.mastery_rating_conversion = self.mastery_rating_conversion_values[self.level]
         except KeyError:
             raise exceptions.InvalidLevelException(_('No conversion factor available for level {level}').format(level=self.level))
-    
+
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
         if name == 'level':
@@ -171,6 +171,7 @@ class GearBuffs(object):
         'hungerer',
         'heroic_hungerer',
         'rickets_magnetic_fireball',
+        'aellas_bottle',
         'potion_of_the_tolvir',
         'lifeblood',
         'mixology',
@@ -179,6 +180,7 @@ class GearBuffs(object):
 
     # Format is (stat, value, duration, cool down) - duration and cool down in seconds
     activated_boosts = {
+        'aellas_bottle':                  {'stat': 'crit', 'value': 1700, 'duration': 20, 'cooldown': 120}, #Cooldown is a guess and should be verified
         'unsolvable_riddle':              {'stat': 'agi', 'value': 1605, 'duration': 20, 'cooldown': 120},
         'demon_panther':                  {'stat': 'agi', 'value': 1425, 'duration': 20, 'cooldown': 120},
         'potion_of_the_tolvir':           {'stat': 'agi', 'value': 1200, 'duration': 25, 'cooldown': None}, #Cooldown = fight length
