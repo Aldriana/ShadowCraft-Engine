@@ -173,7 +173,7 @@ wrists = {
     'Poison Fang Bracers': {'id': 55886, 'agi': 149, 'hit': 100, 'haste': 100},
 }
 hands = {
-    'True-Arrow Grips': {'id': 71020, 'agi': 282, 'crit': 172, 'mastery': 208, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10}, # New in 4.2
+    'Gloves of Dissolving Smoke': {'id': 71020, 'agi': 282, 'crit': 172, 'mastery': 208, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10}, # New in 4.2
     '(H)Gloves of Dissolving Smoke': {'id': 71440, 'agi': 322, 'crit': 197, 'mastery': 235, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10}, # New in 4.2
     'Dark Phoenix Gloves': {'id': 71046, 'agi': 282, 'crit': 133, 'haste': 230, 'sockets': ['red'], 'bonus_stat': 'haste', 'bonus_value': 10, 'gear_buff': 'tier_12'}, # New in 4.2 - Tier 12
     '(H)Dark Phoenix Gloves': {'id': 71538, 'agi': 322, 'crit': 153, 'haste': 260, 'sockets': ['red'], 'bonus_stat': 'haste', 'bonus_value': 10, 'gear_buff': 'tier_12'}, # New in 4.2 - Tier 12
@@ -205,7 +205,7 @@ waist = {
     'Sash of Musing': {'id': 57918, 'agi': 205, 'exp': 130, 'mastery': 150, 'sockets': ['red', 'prismatic'], 'bonus_stat': 'mastery', 'bonus_value': 10},
 }
 legs = {
-    'Spiderheart Leggings': {'id': 71031, 'agi': 368, 'haste': 212, 'mastery': 284, 'sockets': ['red', 'yellow'], 'bonus_stat': 'agi', 'bonus_value': 20}, # New in 4.2
+    'Cinderweb Leggings': {'id': 71031, 'agi': 368, 'haste': 212, 'mastery': 284, 'sockets': ['red', 'yellow'], 'bonus_stat': 'agi', 'bonus_value': 20}, # New in 4.2
     '(H)Cinderweb Leggings': {'id': 71402, 'agi': 420, 'haste': 244, 'mastery': 320, 'sockets': ['red', 'yellow'], 'bonus_stat': 'agi', 'bonus_value': 20}, # New in 4.2
     'Dark Phoenix Legguards': {'id': 71048, 'agi': 368, 'hit': 280, 'crit': 218, 'sockets': ['red', 'blue'], 'bonus_stat': 'agi', 'bonus_value': 20, 'gear_buff': 'tier_12'}, # New in 4.2 - Tier 12
     '(H)Dark Phoenix Legguards': {'id': 71540, 'agi': 420, 'hit': 316, 'crit': 251, 'sockets': ['red', 'blue'], 'bonus_stat': 'agi', 'bonus_value': 20, 'gear_buff': 'tier_12'}, # New in 4.2 - Tier 12
@@ -270,8 +270,8 @@ trinkets = {
     "Ricket's Magnetic Fireball": {'id': 70144, 'agi': 340, 'gear_buff': 'rickets_magnetic_fireball'}, # New in 4.2
     '(H)Matrix Restabilizer': {'id': 68150, 'agi': 433, 'proc': 'heroic_matrix_restabilizer'}, # New in 4.2
     'Matrix Restabilizer': {'id': 68994, 'agi': 383, 'proc': 'matrix_restabilizer'}, # New in 4.2
-    '(H)Hungerer': {'id': 69112, 'agi': 433, 'gear_buff': 'heroic_hungerer'}, # New in 4.2
-    'Hungerer': {'id': 68927, 'agi': 383, 'gear_buff': 'heroic_hungerer'}, # New in 4.2
+    '(H)The Hungerer': {'id': 69112, 'agi': 433, 'gear_buff': 'heroic_the_hungerer'}, # New in 4.2
+    'The Hungerer': {'id': 68927, 'agi': 383, 'gear_buff': 'the_hungerer'}, # New in 4.2
     '(H)Ancient Petrified Seed': {'id': 69199, 'mastery': 433, 'gear_buff': 'heroic_ancient_petrified_seed'}, # New in 4.2
     'Ancient Petrified Seed': {'id': 69001, 'mastery': 383, 'gear_buff': 'ancient_petrified_seed'}, # New in 4.2
     "Coren's Chilled Chromium Coaster": {'id': 71335, 'crit': 340, 'proc': 'corens_chilled_chromium_coaster'}, # New in 4.2, seasonal
@@ -296,9 +296,9 @@ trinkets = {
 trinket1 = trinkets
 trinket2 = trinkets
 melee_weapons = {
-    '1.4d Phoenixfeather Shiv': {'id': 70733, 'agi': 155, 'crit': 113, 'exp': 98, 'damage': 772.5, 'speed': 1.4, 'type': 'dagger'}, # New in 4.2
+    "1.4d Alysra's Razor": {'id': 70733, 'agi': 155, 'crit': 113, 'exp': 98, 'damage': 772.5, 'speed': 1.4, 'type': 'dagger'}, # New in 4.2
     # "1.4d (H)Alysra's Razor": {'id': 71427, 'agi': 177, 'crit': 128, 'exp': 113, 'damage': 872, 'speed': 1.4, 'type': 'dagger'}, # New in 4.2 - throws error when included
-    '1.8d Spike of the Dread Hunter': {'id': 71013, 'agi': 175, 'crit': 88, 'haste': 133, 'damage': 993, 'speed': 1.8, 'type': 'dagger'}, # New in 4.2
+    '1.8d Feeding Frenzy': {'id': 71013, 'agi': 175, 'crit': 88, 'haste': 133, 'damage': 993, 'speed': 1.8, 'type': 'dagger'}, # New in 4.2
     #'1.8d (H)Feeding Frenzy': {'id': 71441, 'agi': 197, 'crit': 100, 'haste': 150, 'damage': 1121, 'speed': 1.8, 'type': 'dagger'}, # New in 4.2 - throws error when included
     '1.8d Brainsplinter': {'id': 70155, 'agi': 152, 'hit': 101, 'haste': 101, 'damage': 880.5, 'speed': 1.8, 'type': 'dagger'}, # New in 4.2
     # "2.0d Direbrew's Bloodied Shanker": {'id': 71331, 'agi': 155, 'hit': 90, 'crit': 111, 'damage': 978, 'speed': 2.0, 'type': 'dagger'}, # New in 4.2 - seasonal - throws error when included
@@ -331,7 +331,7 @@ melee_weapons = {
     '2.6f Crystalline Geoknife': {'id': 66972, 'agi': 115, 'crit': 76, 'haste': 76, 'damage': 943.5, 'speed': 2.6, 'type': 'fist'}, # main hand
     '2.6f (H)Fist of Pained Senses': {'id': 56329, 'agi': 129, 'crit': 86, 'haste': 86, 'damage': 1065, 'speed': 2.6, 'type': 'fist'}, # main hand
     '2.6f The Perforator': {'id': 52493, 'agi': 95, 'crit': 87, 'mastery': 38, 'sockets': ['red'], 'bonus_stat': 'mastery', 'bonus_value': 10, 'damage': 943.5, 'speed': 2.6, 'type': 'fist'},
-    # '2.6a Axe of the Barred Door': {'id': 71312, 'agi': 152, 'crit': 120, 'exp': 111, 'damage': 1435, 'speed': 2.6, 'type': 'axe'}, # New in 4.2 - throws error when included
+    # '2.6a Gatecrasher': {'id': 71312, 'agi': 152, 'crit': 120, 'exp': 111, 'damage': 1435, 'speed': 2.6, 'type': 'axe'}, # New in 4.2 - throws error when included
     # '2.6a (H)Gatecrasher': {'id': 71454, 'agi': 197, 'crit': 135, 'exp': 125, 'damage': 1619.5, 'speed': 2.6, 'type': 'axe'}, # New in 4.2 - throws error when included
     "2.6a (H)Crul'korak, the Lightning's Arc": {'id': 65024, 'agi': 165, 'crit': 110, 'haste': 110, 'damage': 1356.5, 'speed': 2.6, 'type': 'axe'},
     "2.6a Crul'korak, the Lightning's Arc": {'id': 59443, 'agi': 146, 'crit': 97, 'haste': 97, 'damage': 1202, 'speed': 2.6, 'type': 'axe'},

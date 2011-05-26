@@ -168,8 +168,8 @@ class GearBuffs(object):
         'demon_panther',
         'ancient_petrified_seed',
         'heroic_ancient_petrified_seed',
-        'hungerer',
-        'heroic_hungerer',
+        'the_hungerer',
+        'heroic_the_hungerer',
         'rickets_magnetic_fireball',
         'aellas_bottle',
         'potion_of_the_tolvir',
@@ -188,8 +188,8 @@ class GearBuffs(object):
         'lifeblood':                      {'stat': 'haste', 'value': 480, 'duration': 20, 'cooldown': 120},
         'ancient_petrified_seed':         {'stat': 'agi', 'value': 1227, 'duration': 15, 'cooldown': 60},
         'heroic_ancient_petrified_seed':  {'stat': 'agi', 'value': 1441, 'duration': 15, 'cooldown': 60},
-        'hungerer':                       {'stat': 'haste', 'value': 1532, 'duration': 15, 'cooldown': 60},
-        'heroic_hungerer':                {'stat': 'haste', 'value': 1730, 'duration': 15, 'cooldown': 60},
+        'the_hungerer':                   {'stat': 'haste', 'value': 1532, 'duration': 15, 'cooldown': 60},
+        'heroic_the_hungerer':            {'stat': 'haste', 'value': 1730, 'duration': 15, 'cooldown': 60},
     }
 
     def __init__(self, *args):
