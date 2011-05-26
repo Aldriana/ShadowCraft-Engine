@@ -19,6 +19,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
     ###########################################################################
 
     def get_dps(self):
+        super(AldrianasRogueDamageCalculator, self).get_dps()
         if self.talents.is_assassination_rogue():
             self.init_assassination()
             return self.assassination_dps_estimate()
@@ -235,7 +236,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         average_ap = current_stats['ap'] + 2 * current_stats['agi'] + self.base_strength
         average_ap *= self.buffs.attack_power_multiplier()
         if self.talents.is_combat_rogue():
-            average_ap *= 1.2
+            average_ap *= 1.25
         average_ap *= (1 + .01 * self.talents.savage_combat)
 
         damage_breakdown = {}
@@ -993,7 +994,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attacks_per_second['mh_autoattack_hits'] = attacks_per_second['mh_autoattacks'] * self.dual_wield_mh_hit_chance()
         attacks_per_second['oh_autoattack_hits'] = attacks_per_second['oh_autoattacks'] * self.dual_wield_oh_hit_chance()
 
-        main_gauche_proc_rate = .02 * self.stats.get_mastery_from_rating(current_stats['mastery']) * self.off_hand_melee_hit_chance()
+        main_gauche_proc_rate = .02 * self.stats.get_mastery_from_rating(current_stats['mastery']) * self.one_hand_melee_hit_chance()
         attacks_per_second['main_gauche'] = main_gauche_proc_rate * attacks_per_second['mh_autoattack_hits']
 
         autoattack_cp_regen = self.talents.combat_potency * (attacks_per_second['oh_autoattack_hits'] + attacks_per_second['main_gauche'])
@@ -1066,7 +1067,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 cp_per_finisher += actual_cps * probability
                 finisher_size_breakdown[actual_cps] += probability
 
-        self.revealing_strike_multiplier = (1 + (.2 + .1 * self.glyphs.revealing_strike) * rvs_per_finisher)
+        self.revealing_strike_multiplier = (1 + (.35 + .1 * self.glyphs.revealing_strike) * rvs_per_finisher)
 
         energy_cost_to_generate_cps = rvs_per_finisher * revealing_strike_energy_cost + ss_per_finisher * sinister_strike_energy_cost
         total_eviscerate_cost = energy_cost_to_generate_cps + eviscerate_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
@@ -1152,8 +1153,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             ticks_per_rupture = 3 + i + 2 * self.glyphs.rupture
             attacks_per_second['rupture_ticks'][i] = ticks_per_rupture * attacks_per_second['rupture'] * finisher_size_breakdown[i]
 
-        total_mh_hits = attacks_per_second['mh_autoattack_hits'] + attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'] + attacks_per_second['mh_killing_spree'] + attacks_per_second['rupture'] + total_evis_per_second
-        total_oh_hits = attacks_per_second['oh_autoattack_hits'] + attacks_per_second['main_gauche'] + attacks_per_second['oh_killing_spree']
+        total_mh_hits = attacks_per_second['mh_autoattack_hits'] + attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'] + attacks_per_second['mh_killing_spree'] + attacks_per_second['rupture'] + total_evis_per_second  + attacks_per_second['main_gauche']
+        total_oh_hits = attacks_per_second['oh_autoattack_hits'] + attacks_per_second['oh_killing_spree']
 
         self.get_poison_counts(total_mh_hits, total_oh_hits, attacks_per_second)
 
@@ -1186,12 +1187,12 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         self.base_energy_regen = 10
 
-        self.agi_multiplier *= 1.25
+        self.agi_multiplier *= 1.30
 
         damage_breakdown = self.compute_damage(self.subtlety_attack_counts_backstab)
         if self.talents.find_weakness:
             armor_value = self.target_armor()
-            armor_reduction = (1 - .25 * self.talents.find_weakness)
+            armor_reduction = (1 - .35 * self.talents.find_weakness)
             find_weakness_damage_boost = self.armor_mitigation_multiplier(armor_reduction * armor_value) / self.armor_mitigation_multiplier(armor_value)
             find_weakness_multiplier = 1 + (find_weakness_damage_boost - 1) * self.find_weakness_uptime
         else:

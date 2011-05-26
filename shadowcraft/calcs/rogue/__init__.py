@@ -98,7 +98,7 @@ class RogueDamageCalculator(DamageCalculator):
             cdg_tuple = (0, .07, .14, .2)
             base_modifier += cdg_tuple[self.talents.coup_de_grace]
         if executioner and self.talents.is_subtlety_rogue():
-            base_modifier += .02 * self.stats.get_mastery_from_rating(mastery)
+            base_modifier += .025 * self.stats.get_mastery_from_rating(mastery)
         if aggression:
             aggression_tuple = (0, .07, .14, .2)
             base_modifier += aggression_tuple[self.talents.aggression]
@@ -175,7 +175,7 @@ class RogueDamageCalculator(DamageCalculator):
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
         percentage_damage_bonus = 2
         if self.talents.is_subtlety_rogue():
-            percentage_damage_bonus += .25
+            percentage_damage_bonus += .40
 
         damage = percentage_damage_bonus * (weapon_damage + self.bs_bonus_dmg) * multiplier
         crit_damage = damage * crit_multiplier
@@ -233,7 +233,7 @@ class RogueDamageCalculator(DamageCalculator):
         else:
             percentage_damage_bonus = 1.1
         if self.talents.is_subtlety_rogue():
-            percentage_damage_bonus += .25
+            percentage_damage_bonus += .40
             # This should probably be tested at some point to make sure there isn't
             # some weird interaction with the dagger-or-not logic - that is,
             # its possible that the computation the do internally would be
@@ -279,11 +279,11 @@ class RogueDamageCalculator(DamageCalculator):
         return damage, crit_damage
 
     def main_gauche_damage(self, ap, armor=None):
-        weapon_damage = self.stats.oh.normalized_damage(ap)
+        weapon_damage = self.stats.mh.normalized_damage(ap)
         multiplier = self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
-        damage = self.oh_penalty() * weapon_damage * multiplier
+        damage = weapon_damage * multiplier
         crit_damage = damage * crit_multiplier
 
         return damage, crit_damage
