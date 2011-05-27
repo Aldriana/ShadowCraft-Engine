@@ -243,8 +243,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         average_ap = current_stats['ap'] + 2 * current_stats['agi'] + self.base_strength
         average_ap *= self.buffs.attack_power_multiplier()
         if self.talents.is_combat_rogue():
-            average_ap *= 1.25
-        average_ap *= (1 + .01 * self.talents.savage_combat)
+            average_ap *= 1.3
+        average_ap *= (1 + .03 * self.talents.savage_combat)
 
         damage_breakdown = {}
 

@@ -105,14 +105,13 @@ class RogueDamageCalculator(DamageCalculator):
         if improved_sinister_strike:
             base_modifier += .1 * self.talents.improved_sinister_strike
         if vile_poisons:
-            vp_tuple = (0, .07, .14, .2)
-            base_modifier += vp_tuple[self.talents.vile_poisons]
+            base_modifier += .12 * self.talents.vile_poisons
         if improved_ambush:
             base_modifier += .05 * self.talents.improved_ambush
         if potent_poisons and self.talents.is_assassination_rogue():
             base_modifier += .035 * self.stats.get_mastery_from_rating(mastery)
         if assassins_resolve and self.talents.is_assassination_rogue() and (self.stats.mh.type == 'dagger'):
-            base_modifier *= 1.15
+            base_modifier *= 1.2
         # TODO: This probably wants to be updated to default to this behavior but still
         # allow it to be overridden - I'd prefer to make as few assumptions as possible
         # about what the cycle looks like, so the modeler can figure that out for themself.
@@ -120,7 +119,7 @@ class RogueDamageCalculator(DamageCalculator):
         # Passing Sanguinary Vein without talent parameter (it affects all damage)
         # nor is_bleeding since the target will most likely be bleeding from
         # refreshed ruptures in subtletly builds.
-        base_modifier *= (1 + .05 * self.talents.sanguinary_vein)
+        base_modifier *= (1 + .08 * self.talents.sanguinary_vein)
 
         return base_modifier
 
