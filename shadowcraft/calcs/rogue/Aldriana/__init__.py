@@ -202,6 +202,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.stats.procs.matrix_restabilizer:
             self.stats.procs.matrix_restabilizer.stat = sorted_list[0]
 
+    # This relies on set_uptime being called for the proc in compute_damage before any of the actual computation stuff is invoked.
+    def unheeded_warning_bonus(self):
+        proc = self.stats.procs.unheeded_warning
+        if not proc:
+            return 0        
+        return proc.value * proc.uptime
+
     def get_rocket_barrage_damage(self, ap, current_stats):
         base_damage = self.race.calculate_rocket_barrage(ap, 0, 0) * self.raid_settings_modifiers(is_spell=True)
         crit_multiplier = self.crit_damage_modifiers(is_spell=True)
@@ -446,14 +453,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         elif proc.stat == 'physical_damage':
             attacks_per_second[proc.proc_name] = self.get_procs_per_second(proc, attacks_per_second, crit_rates) * self.strike_hit_chance
 
-    def unheeded_warning_multiplier(self, attacks_per_second, crit_rates):
-        proc = self.stats.procs.unheeded_warning
-        if not proc:
-            return 1
-
-        self.set_uptime(proc, attacks_per_second, crit_rates)
-        return 1 + proc.value * proc.uptime
-
     def update_crit_rates_for_4pc_t11(self, attacks_per_second, crit_rates):
         t11_4pc_bonus = self.stats.procs.rogue_t11_4pc
         if t11_4pc_bonus:
@@ -598,10 +597,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         for proc in damage_procs:
             self.update_with_damaging_proc(proc, attacks_per_second, crit_rates)
 
-        damage_breakdown = self.get_damage_breakdown(current_stats, attacks_per_second, crit_rates, damage_procs)
+        if self.stats.procs.unheeded_warning:
+            self.set_uptime(self.stats.procs.unheeded_warning, attacks_per_second, crit_rates)
 
-        for i in damage_breakdown['autoattack']:
-            i *= self.unheeded_warning_multiplier(attacks_per_second, crit_rates)
+        damage_breakdown = self.get_damage_breakdown(current_stats, attacks_per_second, crit_rates, damage_procs)
 
         if self.stats.gear_buffs.rogue_t12_2pc:
             damage_breakdown['burning_wounds'] = self.get_t12_2p_damage(damage_breakdown)

@@ -177,6 +177,24 @@ allowed_procs = {
         'trigger': 'auto_attacks',
         'proc_name': 'Deadly Scheme'
     },
+    'schnottz_medallion_of_command': {
+        'stat': 'mastery',
+        'value': 918,
+        'duration': 20,
+        'icd': 100,
+        'proc_chance': .1,
+        'trigger': 'all_attacks',
+        'proc_name': 'Hardened Shell'
+    },
+    'swordguard_embroidery': {
+        'stat': 'ap',
+        'value': 1000,
+        'duration': 15,
+        'icd': 55,
+        'proc_chance': .15,
+        'trigger': 'all_attacks',
+        'proc_name': 'Swordguard Embroidery'
+    },
     'the_twilight_blade': {             # PPM/ICD is a guess and should be verified.
         'stat': 'crit',
         'value': 185,
@@ -198,8 +216,8 @@ allowed_procs = {
         'proc_name': 'Grace'
     },
     'unheeded_warning': {
-        'stat': 'weird_proc',
-        'value': .25,
+        'stat': 'extra_weapon_damage',
+        'value': 680,
         'duration': 10,
         'icd': 50,
         'proc_chance': .1,

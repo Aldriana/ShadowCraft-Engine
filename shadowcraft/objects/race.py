@@ -103,8 +103,8 @@ class Race(object):
     def set_racials(self):
         # Set all racials, so we don't invoke __getattr__ all the time
         for race, racials in Race.racials_by_race.items():
-          for racial in racials:
-              setattr(self, racial, False)
+            for racial in racials:
+                setattr(self, racial, False)
         for racial in Race.racials_by_race[self.race_name]:
             setattr(self, racial, True)
         setattr(self, "racial_str", self.stats[0])
