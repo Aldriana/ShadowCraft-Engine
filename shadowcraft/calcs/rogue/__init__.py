@@ -95,13 +95,11 @@ class RogueDamageCalculator(DamageCalculator):
         if opportunity:
             base_modifier += .1 * self.talents.opportunity
         if coup_de_grace:
-            cdg_tuple = (0, .07, .14, .2)
-            base_modifier += cdg_tuple[self.talents.coup_de_grace]
+            base_modifier += (0, .07, .14, .2)[self.talents.coup_de_grace]
         if executioner and self.talents.is_subtlety_rogue():
             base_modifier += .025 * self.stats.get_mastery_from_rating(mastery)
         if aggression:
-            aggression_tuple = (0, .07, .14, .2)
-            base_modifier += aggression_tuple[self.talents.aggression]
+            base_modifier += (0, .07, .14, .2)[self.talents.aggression]
         if improved_sinister_strike:
             base_modifier += .1 * self.talents.improved_sinister_strike
         if vile_poisons:
@@ -172,9 +170,10 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier = self.talents_modifiers(opportunity=True, aggression=True)
         multiplier *= self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
+
         percentage_damage_bonus = 2
         if self.talents.is_subtlety_rogue():
-            percentage_damage_bonus += .40
+            percentage_damage_bonus *= 1.40
 
         damage = percentage_damage_bonus * (weapon_damage + self.bs_bonus_dmg) * multiplier
         crit_damage = damage * crit_multiplier
@@ -227,16 +226,11 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier = self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
 
+        percentage_damage_bonus = 1.54 # 4.2 buff, not yet confirmed: 1.54 = 1.1 * 1.4
         if self.stats.mh.type == 'dagger':
-            percentage_damage_bonus = 1.595
-        else:
-            percentage_damage_bonus = 1.1
+            percentage_damage_bonus *= 1.45
         if self.talents.is_subtlety_rogue():
-            percentage_damage_bonus += .40
-            # This should probably be tested at some point to make sure there isn't
-            # some weird interaction with the dagger-or-not logic - that is,
-            # its possible that the computation the do internally would be
-            # (1.1 + .25) * 1.45 rather than 1.1 * 1.45 + .25.
+            percentage_damage_bonus *= 1.40
 
         damage = percentage_damage_bonus * weapon_damage * multiplier
         crit_damage = damage * crit_multiplier
@@ -249,10 +243,11 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier *= self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
+        percentage_damage_bonus = 1.9
         if self.stats.mh.type == 'dagger':
-            damage = (2.7493 * weapon_damage + self.ambush_bonus_dmg * 2.75) * multiplier
-        else:
-            damage = (1.9 * weapon_damage + self.ambush_bonus_dmg * 1.9) * multiplier
+            percentage_damage_bonus *= 1.447
+
+        damage = percentage_damage_bonus * (weapon_damage + self.ambush_bonus_dmg) * multiplier
         crit_damage = damage * crit_multiplier
 
         return damage, crit_damage
@@ -376,8 +371,7 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier *= self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
-        ap_multiplier_tuple = (0, .091, .182, .273, .364, .455)
-        damage = (self.evis_base_dmg + self.evis_bonus_dmg * cp + ap_multiplier_tuple[cp] * ap) * multiplier
+        damage = (self.evis_base_dmg + self.evis_bonus_dmg * cp + .091 * cp * ap) * multiplier
         crit_damage = damage * crit_multiplier
 
         return damage, crit_damage

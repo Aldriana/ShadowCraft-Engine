@@ -202,8 +202,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.stats.procs.matrix_restabilizer:
             self.stats.procs.matrix_restabilizer.stat = sorted_list[0]
 
-    # This relies on set_uptime being called for the proc in compute_damage before any of the actual computation stuff is invoked.
     def unheeded_warning_bonus(self):
+        # This relies on set_uptime being called for the proc in compute_damage before any of the actual computation stuff is invoked.
         proc = self.stats.procs.unheeded_warning
         if not proc:
             return 0        
@@ -1294,7 +1294,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         snd_size = .2 * self.talents.ruthlessness + hat_cp_per_snd + backstabs_per_snd
         snd_duration = self.get_snd_length(snd_size)
-        snd_per_second = 1./(snd_duration-self.settings.response_time)
+        snd_per_second = 1. / (snd_duration - self.settings.response_time)
         snd_net_energy_cost = 25 - snd_size * self.relentless_strikes_energy_return_per_cp
         snd_per_cycle = cycle_length / snd_duration
 

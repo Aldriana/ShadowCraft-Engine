@@ -134,8 +134,8 @@ back = {
     # ----- 4.2 -----
     'Dreadfire Drape': {'id': 70992, 'agi': 212, 'hit': 138, 'mastery': 95, 'sockets': ['red', 'red'], 'bonus_stat': 'agi', 'bonus_value': 20},
     '(H)Dreadfire Drape': {'id': 71415, 'agi': 241, 'hit': 158, 'mastery': 113, 'sockets': ['red', 'red'], 'bonus_stat': 'agi', 'bonus_value': 20},
-    'Nimble Flamewrath Cloak': {'id': 71228, 'str': 227, 'hit': 169, 'crit': 122}, # Now a str item; being a rep. reward it will most likely turn to agi
-    '(H)Sleek Flamewrath Cloak': {'id': 71388, 'agi': 256, 'hit': 190, 'crit': 138}, #
+    'Sleek Flamewrath Cloak': {'id': 71228, 'agi': 227, 'hit': 169, 'crit': 122},
+    '(H)Sleek Flamewrath Cloak': {'id': 71388, 'agi': 256, 'hit': 190, 'crit': 138},
     'Mantle of Doubt': {'id': 71268, 'agi': 201, 'hit': 134, 'mastery': 134}, # 'elemental bonds' quest reward
     # ----- 4.1 -----
     'Recovered Cloak of Frostheim': {'id': 69584, 'agi': 180, 'hit': 117, 'haste': 122},
@@ -268,13 +268,13 @@ feet = {
 rings = {
     # ----- 4.2 -----
     'Viridian Signet of the Avengers': {'id': 71216, 'agi': 236, 'haste': 181, 'mastery': 134, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10},
-    'Firestone Seal': {'id': 71209, 'agi': 227, 'crit': 140, 'mastery': 158},
+    'Splintered Brimstone Seal': {'id': 71209, 'agi': 227, 'crit': 140, 'mastery': 158},
     '(H)Splintered Brimstone Seal': {'id': 71566, 'agi': 256, 'crit': 158, 'mastery': 178},
     "Widow's Kiss": {'id': 71032, 'agi': 227, 'haste': 167, 'mastery': 126},
     "(H)Widow's Kiss": {'id': 71401, 'agi': 256, 'haste': 188, 'mastery': 142},
     'Band of Glittering Lights': {'id': 70110, 'agi': 201, 'crit': 131, 'haste': 136},
     "Matoclaw's Band": {'id': 70105, 'agi': 201, 'hit': 121, 'crit': 142},
-    # 'Band of Ghoulish Glee': {'id': 71327, 'agi': 134, 'hit': 118, 'crit': 144}, # seasonal
+    'Band of Ghoulish Glee': {'id': 71327, 'agi': 134, 'hit': 118, 'crit': 144}, # seasonal
     # ----- 4.1 -----
     "Arlokk's Signet": {'id': 69610, 'agi': 180, 'crit': 122, 'mastery': 117},
     'Quickfinger Ring': {'id': 69799, 'agi': 180, 'haste': 135, 'exp': 94},
@@ -333,8 +333,12 @@ trinket1 = trinkets
 trinket2 = trinkets
 melee_weapons = {
     # ----- 4.2 -----
-    "1.4d Alysra's Razor": {'id': 70733, 'agi': 155, 'crit': 113, 'exp': 98, 'damage': 772.5, 'speed': 1.4, 'type': 'dagger'},
-    # "1.4d (H)Alysra's Razor": {'id': 71427, 'agi': 177, 'crit': 128, 'exp': 113, 'damage': 872, 'speed': 1.4, 'type': 'dagger'}, # throws error when included
+    # "1.4d Avool's Incendiary Shanker": {'id': 71779, 'agi': 175, 'hit': 125, 'crit': 102, 'damage': 772.5, 'speed': 1.4, 'type': 'dagger'}, # throws error when included - likely to change to 1.8
+    # "1.8d (H)Avool's Incendiary Shanker": {'id': 71778, 'agi': 197, 'hit': 141, 'crit': 115, 'damage': 1121, 'speed': 1.8, 'type': 'dagger'}, # throws error when included
+    # '1.4d Entrail Disgorger': {'id': 71787, 'agi': 175, 'crit': 97, 'mastery': 128, 'damage': 773, 'speed': 1.4, 'type': 'dagger'}, # throws error when included
+    # '1.4d (H) Entrail Disgorger': {'id': 71786, 'agi': 197, 'crit': 109, 'mastery': 145, 'damage': 872, 'speed': 1.4, 'type': 'dagger'}, # throws error when included
+    "1.4d Alysra's Razor": {'id': 70733, 'agi': 155, 'crit': 113, 'exp': 98, 'damage': 772.5, 'speed': 1.4, 'type': 'dagger'}, # off hand
+    # "1.4d (H)Alysra's Razor": {'id': 71427, 'agi': 177, 'crit': 128, 'exp': 113, 'damage': 872, 'speed': 1.4, 'type': 'dagger'}, # off hand, throws error when included
     '1.8d Feeding Frenzy': {'id': 71013, 'agi': 175, 'crit': 88, 'haste': 133, 'damage': 993, 'speed': 1.8, 'type': 'dagger'},
     #'1.8d (H)Feeding Frenzy': {'id': 71441, 'agi': 197, 'crit': 100, 'haste': 150, 'damage': 1121, 'speed': 1.8, 'type': 'dagger'}, # throws error when included
     '1.8d Brainsplinter': {'id': 70155, 'agi': 152, 'hit': 101, 'haste': 101, 'damage': 880.5, 'speed': 1.8, 'type': 'dagger'},
@@ -343,7 +347,7 @@ melee_weapons = {
     # '2.6a (H)Gatecrasher': {'id': 71454, 'agi': 197, 'crit': 135, 'exp': 125, 'damage': 1619.5, 'speed': 2.6, 'type': 'axe'}, # throws error when included
     # "2.6m Tremendous Tankard O' Terror": {'id': 71332, 'agi': 153, 'crit': 99, 'haste': 97, 'damage': 1271, 'speed': 2.6, 'type': 'mace'}, # seasonal, throws error when included
     '2.6s Pyrium Spellward': {'id': 70162, 'agi': 152, 'hit': 103, 'mastery': 103, 'damage': 1271, 'speed': 2.6, 'type': 'sword'}, # New in 4.2
-    # "2.6s The Horseman's Sinister Saber": {'id': 71325, 'agi': 103, 'hit': 103, 'exp': 103, 'damage': 1271, 'speed': 2.6, 'type': 'sword'}, # seasonal, not modeled gear_buff, throws error when included
+    # "2.6s The Horseman's Sinister Saber": {'id': 71325, 'agi': 103, 'hit': 103, 'exp': 103, 'damage': 1271, 'speed': 2.6, 'type': 'sword'}, # main hand - seasonal, not modeled gear_buff, throws error when included
     # ----- 4.1 -----
     # '1.8d Twinblade of the Hakkari': {'id': 69621, 'agi': 138, 'crit': 92, 'haste': 92, 'damage': 786.5, 'speed': 1.8, 'type': 'dagger'}, # throws error when included
     # '1.4d Twinblade of the Hakkari': {'id': 69620, 'agi': 138, 'hit': 92, 'exp': 92, 'damage': 612, 'speed': 1.4, 'type': 'dagger'}, # throws error when included
