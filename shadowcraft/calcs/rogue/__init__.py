@@ -31,7 +31,7 @@ class RogueDamageCalculator(DamageCalculator):
     rup_bonus_dmg_values =        {80:18, 81:19, 82:19, 83:19, 84:20, 85:20}
     evis_base_dmg_values =        {80:329, 81:334, 82:339, 83:344, 84:349, 85:354}
     evis_bonus_dmg_values =       {80:481, 81:488, 82:495, 83:503, 84:510, 85:517}
-    env_bonus_dmg_values =        {80:216, 81:221, 82:226, 83:231, 84:236, 85:241}
+    env_base_dmg_values =         {80:216, 81:221, 82:226, 83:231, 84:236, 85:241}
     agi_per_crit_values =         {80:83.15 * 100, 81:109.18 * 100, 82:143.37 * 100, 83:188.34 * 100, 84:247.3 * 100, 85:324.72 * 100}
     AGI_CRIT_INTERCEPT =          -.00295
     MELEE_CRIT_REDUCTION =        .048
@@ -65,7 +65,7 @@ class RogueDamageCalculator(DamageCalculator):
             self.rup_bonus_dmg =         self.rup_bonus_dmg_values[self.level]
             self.evis_base_dmg =         self.evis_base_dmg_values[self.level]
             self.evis_bonus_dmg =        self.evis_bonus_dmg_values[self.level]
-            self.env_bonus_dmg =         self.env_bonus_dmg_values[self.level]
+            self.env_base_dmg =          self.env_base_dmg_values[self.level]
             self.agi_per_crit =          self.agi_per_crit_values[self.level]
         except KeyError as e:
             raise exceptions.InvalidLevelException(_('No {spell_name} formula available for level {level}').format(spell_name=str(e), level=self.level))
@@ -173,7 +173,7 @@ class RogueDamageCalculator(DamageCalculator):
 
         percentage_damage_bonus = 2
         if self.talents.is_subtlety_rogue():
-            percentage_damage_bonus *= 1.40
+            percentage_damage_bonus *= 1.4
 
         damage = percentage_damage_bonus * (weapon_damage + self.bs_bonus_dmg) * multiplier
         crit_damage = damage * crit_multiplier
@@ -230,7 +230,7 @@ class RogueDamageCalculator(DamageCalculator):
         if self.stats.mh.type == 'dagger':
             percentage_damage_bonus *= 1.45
         if self.talents.is_subtlety_rogue():
-            percentage_damage_bonus *= 1.40
+            percentage_damage_bonus *= 1.4
 
         damage = percentage_damage_bonus * weapon_damage * multiplier
         crit_damage = damage * crit_multiplier
@@ -376,14 +376,12 @@ class RogueDamageCalculator(DamageCalculator):
 
         return damage, crit_damage
 
-    def envenom_damage(self, ap, cp, mastery=None):
-        # Envemom has a dependency on dp_charges too; but being unlikely to be used out of builds
-        # with master poisoner I'm not including that for the moment
+    def envenom_damage(self, ap, cp, mastery=None, dp_charges=5):
         multiplier = self.talents_modifiers(coup_de_grace=True, executioner=True, assassins_resolve=True, potent_poisons=True, mastery=mastery)
         multiplier *= self.raid_settings_modifiers(is_spell=True)
         crit_multiplier = self.crit_damage_modifiers()
 
-        damage = (self.env_bonus_dmg * cp + .09 * cp * ap) * multiplier
+        damage = (self.env_base_dmg * dp_charges + .09 * cp * ap) * multiplier
         crit_damage = damage * crit_multiplier
 
         return damage, crit_damage
