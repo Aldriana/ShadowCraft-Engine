@@ -59,6 +59,7 @@ class CombatCycle(Cycle):
 class SubtletyCycle(Cycle):
     _cycle_type = 'subtlety'
 
-    def __init__(self, raid_crits_per_second, clip_recuperate=False):
+    def __init__(self, raid_crits_per_second, clip_recuperate=False, use_hemorrhage='never'):
         self.raid_crits_per_second = raid_crits_per_second
         self.clip_recuperate = clip_recuperate # Determines if you clip the previous recuperate or wait for it to drop before reapplying.
+        self.use_hemorrhage = use_hemorrhage # Allowed values are 'always' (main CP generator), 'never' (default to backstab), or a number denoting the interval in seconds between applications.

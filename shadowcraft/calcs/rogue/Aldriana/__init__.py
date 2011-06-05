@@ -1170,8 +1170,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.settings.cycle._cycle_type != 'subtlety':
             raise InputNotModeledException(_('You must specify a subtlety cycle to match your subtlety spec.'))
 
-        if self.stats.mh.type != 'dagger':
-            raise InputNotModeledException(_('Subtlety modeling currently requires a MH dagger'))
+        if self.stats.mh.type != 'dagger' and self.settings.cycle.use_hemorrhage != 'always':
+            raise InputNotModeledException(_('Subtlety modeling requires a MH dagger if Hemorrhage is not the main combo point builder'))
+
+        if self.settings.cycle.use_hemorrhage not in ('always', 'never') and self.settings.cycle.use_hemorrhage > self.settings.duration:
+            raise InputNotModeledException(_('Interval between Hemorrhages cannot be higher than the fight duration'))
 
         if self.talents.serrated_blades != 2:
             raise InputNotModeledException(_('Subtlety modeling currently requires 2 points in Serrated Blades'))
@@ -1258,41 +1261,54 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         energy_regen = self.base_energy_regen * haste_multiplier + self.bonus_energy_regen
         energy_regen_with_recuperate = energy_regen + self.talents.energetic_recovery * 4. / 3
 
-        base_backstab_time = backstab_energy_cost / energy_regen
-        base_cp_per_backstab = 1 + base_backstab_time * hat_cp_gen
+        if self.settings.cycle.use_hemorrhage == 'always':
+            cp_builder_energy_cost = self.base_hemo_cost
+            modified_energy_regen = energy_regen_with_recuperate
+        elif self.settings.cycle.use_hemorrhage == 'never':
+            cp_builder_energy_cost = backstab_energy_cost
+            modified_energy_regen = energy_regen_with_recuperate
+        else:
+            hemorrhage_interval = float(self.settings.cycle.use_hemorrhage)
+            backstab_interval = backstab_energy_cost / energy_regen_with_recuperate
+            if hemorrhage_interval <= backstab_interval:
+                raise InputNotModeledException(_('Interval between Hemorrhages cannot be lower than {interval} for this gearset').format(interval=backstab_interval))
+            else:
+                cp_builder_energy_cost = backstab_energy_cost
+                energy_return_per_replaced_backstab = backstab_energy_cost - self.base_hemo_cost
+                modified_energy_regen = energy_regen_with_recuperate + energy_return_per_replaced_backstab / hemorrhage_interval
 
-        backstab_time_during_recuperate = backstab_energy_cost / energy_regen_with_recuperate
-        cp_per_backstab_during_recuperate = 1 + backstab_time_during_recuperate * hat_cp_gen
+        cp_builder_interval = cp_builder_energy_cost / modified_energy_regen
+        cp_per_cp_builder = 1 + cp_builder_interval * hat_cp_gen
 
         eviscerate_net_energy_cost = self.base_eviscerate_energy_cost - 5 * self.relentless_strikes_energy_return_per_cp
-        eviscerate_net_cp_cost = 5 - .2 * self.talents.ruthlessness - eviscerate_net_energy_cost * hat_cp_gen / energy_regen_with_recuperate
+        eviscerate_net_cp_cost = 5 - .2 * self.talents.ruthlessness - eviscerate_net_energy_cost * hat_cp_gen / modified_energy_regen
 
-        backstabs_per_eviscerate = eviscerate_net_cp_cost / cp_per_backstab_during_recuperate
-        total_eviscerate_cost = eviscerate_net_energy_cost + backstabs_per_eviscerate * backstab_energy_cost
-        total_eviscerate_duration = total_eviscerate_cost / energy_regen_with_recuperate
+        cp_builders_per_eviscerate = eviscerate_net_cp_cost / cp_per_cp_builder
+        total_eviscerate_cost = eviscerate_net_energy_cost + cp_builders_per_eviscerate * cp_builder_energy_cost
+        total_eviscerate_duration = total_eviscerate_cost / modified_energy_regen
 
         recuperate_duration = 30
         if self.settings.cycle.clip_recuperate:
             cycle_length = recuperate_duration - .5 * total_eviscerate_duration
-            total_cycle_regen = cycle_length * energy_regen_with_recuperate
+            total_cycle_regen = cycle_length * modified_energy_regen
         else:
             recuperate_net_energy_cost = 30 - 5 * self.relentless_strikes_energy_return_per_cp
             recuperate_net_cp_cost = recuperate_net_energy_cost * hat_cp_gen / energy_regen
-            backstabs_under_previous_recuperate = .5 * total_eviscerate_duration / backstab_energy_cost
-            cp_gained_under_previous_recuperate = backstabs_under_previous_recuperate * cp_per_backstab_during_recuperate
+            cp_builders_under_previous_recuperate = .5 * total_eviscerate_duration / cp_builder_energy_cost
+            cp_gained_under_previous_recuperate = cp_builders_under_previous_recuperate * cp_per_cp_builder
             cp_needed_outside_recuperate = recuperate_net_cp_cost - cp_gained_under_previous_recuperate
-            backstabs_after_recuperate = cp_needed_outside_recuperate / cp_per_backstab_during_recuperate
-            energy_spent_after_recuperate = backstabs_after_recuperate * backstab_energy_cost + recuperate_net_energy_cost
+            cp_builders_after_recuperate = cp_needed_outside_recuperate / cp_per_cp_builder
+            energy_spent_after_recuperate = cp_builders_after_recuperate * cp_builder_energy_cost + recuperate_net_energy_cost
 
             cycle_length = 30 + energy_spent_after_recuperate / energy_regen
-            total_cycle_regen = 30 * energy_regen_with_recuperate + energy_spent_after_recuperate
+            total_cycle_regen = 30 * modified_energy_regen + energy_spent_after_recuperate
 
         snd_build_time = total_eviscerate_duration / 2
-        snd_build_energy_for_backstabs = 5 * self.relentless_strikes_energy_return_per_cp + energy_regen_with_recuperate * snd_build_time - 25
-        backstabs_per_snd = snd_build_energy_for_backstabs / backstab_energy_cost
+        snd_build_energy_for_cp_builders = 5 * self.relentless_strikes_energy_return_per_cp + modified_energy_regen * snd_build_time - 25
+        cp_builders_per_snd = snd_build_energy_for_cp_builders / cp_builder_energy_cost
         hat_cp_per_snd = snd_build_time * hat_cp_gen
 
-        snd_size = .2 * self.talents.ruthlessness + hat_cp_per_snd + backstabs_per_snd
+        snd_size = .2 * self.talents.ruthlessness + hat_cp_per_snd + cp_builders_per_snd
         snd_duration = self.get_snd_length(snd_size)
         snd_per_second = 1. / (snd_duration - self.settings.response_time)
         snd_net_energy_cost = 25 - snd_size * self.relentless_strikes_energy_return_per_cp
@@ -1312,10 +1328,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         bonus_eviscerates = (bonus_cp_per_cycle - cp_used_on_buffs) / (5 - .2 * self.talents.ruthlessness)
         energy_spent_on_bonus_finishers = 30 + 25 * snd_per_cycle + 35 * bonus_eviscerates - (5 + snd_size * snd_per_cycle + 5 * bonus_eviscerates) * self.relentless_strikes_energy_return_per_cp + cycle_length * ambushes_from_vanish * self.base_ambush_energy_cost
         energy_for_evis_spam = total_cycle_regen - energy_spent_on_bonus_finishers
-        total_cost_of_extra_eviscerate = (5 - .2 * self.talents.ruthlessness) * backstab_energy_cost + self.base_eviscerate_energy_cost - 5 * self.relentless_strikes_energy_return_per_cp
+        total_cost_of_extra_eviscerate = (5 - .2 * self.talents.ruthlessness) * cp_builder_energy_cost + self.base_eviscerate_energy_cost - 5 * self.relentless_strikes_energy_return_per_cp
         extra_eviscerates_per_cycle = energy_for_evis_spam / total_cost_of_extra_eviscerate
 
-        attacks_per_second['backstab'] = (5 - .2 * self.talents.ruthlessness) * extra_eviscerates_per_cycle / cycle_length
+        attacks_per_second['cp_builder'] = (5 - .2 * self.talents.ruthlessness) * extra_eviscerates_per_cycle / cycle_length
         attacks_per_second['eviscerate'] = [0, 0, 0, 0, 0, (bonus_eviscerates + extra_eviscerates_per_cycle) / cycle_length]
         attacks_per_second['ambush'] = ambushes_from_vanish
 
@@ -1326,7 +1342,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             shadow_dance_bonus_cp_regen = shadow_dance_duration * hat_cp_gen + 2 * self.talents.premeditation
             shadow_dance_bonus_eviscerates = shadow_dance_bonus_cp_regen / (5 - .2 * self.talents.ruthlessness)
             shadow_dance_bonus_eviscerate_cost = shadow_dance_bonus_eviscerates * (35 - 5 * self.relentless_strikes_energy_return_per_cp)
-            shadow_dance_available_energy = shadow_dance_duration * energy_regen_with_recuperate - shadow_dance_bonus_eviscerate_cost
+            shadow_dance_available_energy = shadow_dance_duration * modified_energy_regen - shadow_dance_bonus_eviscerate_cost
 
             shadow_dance_eviscerate_cost = (5 - .2 * self.talents.ruthlessness) / cp_per_ambush * self.base_ambush_energy_cost + (35 - 5 * self.relentless_strikes_energy_return_per_cp)
             shadow_dance_eviscerates_for_period = shadow_dance_available_energy / shadow_dance_eviscerate_cost
@@ -1334,17 +1350,17 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             base_bonus_cp_regen = shadow_dance_duration * hat_cp_gen
             base_bonus_eviscerates = base_bonus_cp_regen / (5 - .2 * self.talents.ruthlessness)
             base_bonus_eviscerate_cost = base_bonus_eviscerates * (35 - 5 * self.relentless_strikes_energy_return_per_cp)
-            base_available_energy = shadow_dance_duration * energy_regen_with_recuperate - base_bonus_eviscerate_cost
+            base_available_energy = shadow_dance_duration * modified_energy_regen - base_bonus_eviscerate_cost
 
             base_eviscerates_for_period = base_available_energy / total_cost_of_extra_eviscerate
 
             shadow_dance_extra_eviscerates = shadow_dance_eviscerates_for_period + shadow_dance_bonus_eviscerates - base_eviscerates_for_period - base_bonus_eviscerates
             shadow_dance_extra_ambushes = (5 - .2 * self.talents.ruthlessness) / cp_per_ambush * shadow_dance_eviscerates_for_period
-            shadow_dance_replaced_backstabs = (5 - .2 * self.talents.ruthlessness) * base_eviscerates_for_period
+            shadow_dance_replaced_cp_builders = (5 - .2 * self.talents.ruthlessness) * base_eviscerates_for_period
 
             self.ambush_shadowstep_rate = (shadow_dance_frequency + ambushes_from_vanish) / (shadow_dance_extra_ambushes + ambushes_from_vanish)
 
-            attacks_per_second['backstab'] -= shadow_dance_replaced_backstabs * shadow_dance_frequency
+            attacks_per_second['cp_builder'] -= shadow_dance_replaced_cp_builders * shadow_dance_frequency
             attacks_per_second['ambush'] += shadow_dance_extra_ambushes * shadow_dance_frequency
             attacks_per_second['eviscerate'][5] += shadow_dance_extra_eviscerates * shadow_dance_frequency
 
@@ -1354,9 +1370,18 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         attacks_per_second['rupture_ticks'] = (0, 0, 0, 0, 0, .5)
 
-        total_mh_hits = attacks_per_second['mh_autoattack_hits'] + attacks_per_second['backstab'] + sum(attacks_per_second['eviscerate']) + attacks_per_second['ambush']
+        total_mh_hits = attacks_per_second['mh_autoattack_hits'] + attacks_per_second['cp_builder'] + sum(attacks_per_second['eviscerate']) + attacks_per_second['ambush']
         total_oh_hits = attacks_per_second['oh_autoattack_hits']
 
         self.get_poison_counts(total_mh_hits, total_oh_hits, attacks_per_second)
+
+        if self.settings.cycle.use_hemorrhage == 'always':
+            attacks_per_second['hemorrhage'] = attacks_per_second['cp_builder']
+        elif self.settings.cycle.use_hemorrhage == 'never':
+            attacks_per_second['backstab'] = attacks_per_second['cp_builder']
+        else:
+            attacks_per_second['hemorrhage'] = 1. / hemorrhage_interval
+            attacks_per_second['backstab'] = attacks_per_second['cp_builder'] - attacks_per_second['hemorrhage']
+        del attacks_per_second['cp_builder']
 
         return attacks_per_second, crit_rates
