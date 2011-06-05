@@ -381,7 +381,7 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier *= self.raid_settings_modifiers(is_spell=True)
         crit_multiplier = self.crit_damage_modifiers()
 
-        damage = (self.env_base_dmg * dp_charges + .09 * cp * ap) * multiplier
+        damage = (self.env_base_dmg * min(dp_charges, cp) + .09 * cp * ap) * multiplier
         crit_damage = damage * crit_multiplier
 
         return damage, crit_damage
