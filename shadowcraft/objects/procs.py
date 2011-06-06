@@ -6,9 +6,10 @@ class InvalidProcException(exceptions.InvalidInputException):
 
 
 class Proc(object):
-    def __init__(self, stat, value, duration, trigger, icd, proc_name, ppm=False, proc_chance=False, on_crit=False, max_stacks=1, crit_school=None):
+    def __init__(self, stat, value, duration, trigger, icd, proc_name, ppm=False, proc_chance=False, on_crit=False, max_stacks=1, can_crit=True):
         self.stat = stat
         self.value = value
+        self.can_crit = can_crit
         self.duration = duration
         self.proc_chance = proc_chance
         self.trigger = trigger
@@ -17,7 +18,6 @@ class Proc(object):
         self.on_crit = on_crit
         self.proc_name = proc_name
         self.ppm = ppm
-        self.crit_school = crit_school
 
     def procs_off_auto_attacks(self):
         if self.trigger in ('all_attacks', 'auto_attacks', 'all_spells_and_attacks'):

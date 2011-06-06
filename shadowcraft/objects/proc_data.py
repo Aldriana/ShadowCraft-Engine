@@ -1,6 +1,6 @@
 # None should be used to indicate unknown values
 # The Proc class takes these parameters:
-# stat, value, duration, trigger, icd, proc_name, ppm=False, proc_chance=False, on_crit=False, max_stacks=1
+# stat, value, can_crit=True, duration, trigger, icd, proc_name, ppm=False, proc_chance=False, on_crit=False, max_stacks=1
 # You can't set a value for both 'ppm' and 'proc_chance': one of them must be False
 # Assumed heroic trinkets have same proc chance/ICD as non-heroic
 # Allowed triggers are: 'all_spells_and_attacks', 'all_damaging_attacks', 'all_attacks', 'strikes',
@@ -35,6 +35,15 @@ allowed_procs = {
         'on_crit': True,
         'proc_name': 'Eye of Vengeance'
     },
+    'heroic_matrix_restabilizer': {     # Proc_chance/ICD is a guess and should be verified.
+        'stat': 'weird_proc',
+        'value': 1730,
+        'duration': 30,
+        'icd': 150,
+        'proc_chance': .1,
+        'trigger': 'all_attacks',
+        'proc_name': 'Matrix Restabilizer'
+    },
     'heroic_prestors_talisman_of_machination': {
         'stat': 'haste',
         'value': 2178,
@@ -56,7 +65,8 @@ allowed_procs = {
     },
     'darkmoon_card_hurricane': {
         'stat': 'spell_damage',
-        'value': 5000,
+        'value': 7000,
+        'can_crit': False,
         'duration': 0,
         'max_stacks': 0,
         'icd': 0,
@@ -64,6 +74,17 @@ allowed_procs = {
         'trigger': 'all_attacks',
         'proc_name': 'Lightning Strike',
         'crit_school': 'melee'
+    },
+    'corens_chilled_chromium_coaster': {    # PPM/ICD is a guess and should be verified.
+        'stat': 'ap',
+        'value': 4000,
+        'duration': 10,
+        'max_stacks': 0,
+        'icd': 0,
+        'ppm': 1,
+        'trigger': 'all_attacks',
+        'on_crit': True,
+        'proc_name': 'Reflection of Torment'
     },
     'essence_of_the_cyclone': {
         'stat': 'crit',
@@ -130,6 +151,15 @@ allowed_procs = {
         'on_crit': True,
         'proc_name': 'Eye of Vengeance'
     },
+    'matrix_restabilizer': {            # Proc_chance/ICD is a guess and should be verified.
+        'stat': 'weird_proc',
+        'value': 1532,
+        'duration': 30,
+        'icd': 150,
+        'proc_chance': .1,
+        'trigger': 'all_attacks',
+        'proc_name': 'Matrix Restabilizer'
+    },
     'prestors_talisman_of_machination': {
         'stat': 'haste',
         'value': 1926,
@@ -147,6 +177,24 @@ allowed_procs = {
         'proc_chance': .01,
         'trigger': 'auto_attacks',
         'proc_name': 'Deadly Scheme'
+    },
+    'schnottz_medallion_of_command': {
+        'stat': 'mastery',
+        'value': 918,
+        'duration': 20,
+        'icd': 100,
+        'proc_chance': .1,
+        'trigger': 'all_attacks',
+        'proc_name': 'Hardened Shell'
+    },
+    'swordguard_embroidery': {
+        'stat': 'ap',
+        'value': 1000,
+        'duration': 15,
+        'icd': 55,
+        'proc_chance': .15,
+        'trigger': 'all_attacks',
+        'proc_name': 'Swordguard Embroidery'
     },
     'the_twilight_blade': {             # PPM/ICD is a guess and should be verified.
         'stat': 'crit',

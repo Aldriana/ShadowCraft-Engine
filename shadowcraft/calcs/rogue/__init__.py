@@ -31,7 +31,7 @@ class RogueDamageCalculator(DamageCalculator):
     rup_bonus_dmg_values =        {80:18, 81:19, 82:19, 83:19, 84:20, 85:20}
     evis_base_dmg_values =        {80:329, 81:334, 82:339, 83:344, 84:349, 85:354}
     evis_bonus_dmg_values =       {80:481, 81:488, 82:495, 83:503, 84:510, 85:517}
-    env_bonus_dmg_values =        {80:216, 81:221, 82:226, 83:231, 84:236, 85:241}
+    env_base_dmg_values =         {80:216, 81:221, 82:226, 83:231, 84:236, 85:241}
     agi_per_crit_values =         {80:83.15 * 100, 81:109.18 * 100, 82:143.37 * 100, 83:188.34 * 100, 84:247.3 * 100, 85:324.72 * 100}
     AGI_CRIT_INTERCEPT =          -.00295
     MELEE_CRIT_REDUCTION =        .048
@@ -65,7 +65,7 @@ class RogueDamageCalculator(DamageCalculator):
             self.rup_bonus_dmg =         self.rup_bonus_dmg_values[self.level]
             self.evis_base_dmg =         self.evis_base_dmg_values[self.level]
             self.evis_bonus_dmg =        self.evis_bonus_dmg_values[self.level]
-            self.env_bonus_dmg =         self.env_bonus_dmg_values[self.level]
+            self.env_base_dmg =          self.env_base_dmg_values[self.level]
             self.agi_per_crit =          self.agi_per_crit_values[self.level]
         except KeyError as e:
             raise exceptions.InvalidLevelException(_('No {spell_name} formula available for level {level}').format(spell_name=str(e), level=self.level))
@@ -95,24 +95,21 @@ class RogueDamageCalculator(DamageCalculator):
         if opportunity:
             base_modifier += .1 * self.talents.opportunity
         if coup_de_grace:
-            cdg_tuple = (0, .07, .14, .2)
-            base_modifier += cdg_tuple[self.talents.coup_de_grace]
+            base_modifier += (0, .07, .14, .2)[self.talents.coup_de_grace]
         if executioner and self.talents.is_subtlety_rogue():
             base_modifier += .025 * self.stats.get_mastery_from_rating(mastery)
         if aggression:
-            aggression_tuple = (0, .07, .14, .2)
-            base_modifier += aggression_tuple[self.talents.aggression]
+            base_modifier += (0, .07, .14, .2)[self.talents.aggression]
         if improved_sinister_strike:
             base_modifier += .1 * self.talents.improved_sinister_strike
         if vile_poisons:
-            vp_tuple = (0, .07, .14, .2)
-            base_modifier += vp_tuple[self.talents.vile_poisons]
+            base_modifier += .12 * self.talents.vile_poisons
         if improved_ambush:
             base_modifier += .05 * self.talents.improved_ambush
         if potent_poisons and self.talents.is_assassination_rogue():
             base_modifier += .035 * self.stats.get_mastery_from_rating(mastery)
         if assassins_resolve and self.talents.is_assassination_rogue() and (self.stats.mh.type == 'dagger'):
-            base_modifier *= 1.15
+            base_modifier *= 1.2
         # TODO: This probably wants to be updated to default to this behavior but still
         # allow it to be overridden - I'd prefer to make as few assumptions as possible
         # about what the cycle looks like, so the modeler can figure that out for themself.
@@ -120,7 +117,7 @@ class RogueDamageCalculator(DamageCalculator):
         # Passing Sanguinary Vein without talent parameter (it affects all damage)
         # nor is_bleeding since the target will most likely be bleeding from
         # refreshed ruptures in subtletly builds.
-        base_modifier *= (1 + .05 * self.talents.sanguinary_vein)
+        base_modifier *= (1 + .08 * self.talents.sanguinary_vein)
 
         return base_modifier
 
@@ -173,9 +170,10 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier = self.talents_modifiers(opportunity=True, aggression=True)
         multiplier *= self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
+
         percentage_damage_bonus = 2
         if self.talents.is_subtlety_rogue():
-            percentage_damage_bonus += .40
+            percentage_damage_bonus *= 1.4
 
         damage = percentage_damage_bonus * (weapon_damage + self.bs_bonus_dmg) * multiplier
         crit_damage = damage * crit_multiplier
@@ -228,16 +226,11 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier = self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
 
+        percentage_damage_bonus = 1.54 # 4.2 buff, not yet confirmed: 1.54 = 1.1 * 1.4
         if self.stats.mh.type == 'dagger':
-            percentage_damage_bonus = 1.595
-        else:
-            percentage_damage_bonus = 1.1
+            percentage_damage_bonus *= 1.45
         if self.talents.is_subtlety_rogue():
-            percentage_damage_bonus += .40
-            # This should probably be tested at some point to make sure there isn't
-            # some weird interaction with the dagger-or-not logic - that is,
-            # its possible that the computation the do internally would be
-            # (1.1 + .25) * 1.45 rather than 1.1 * 1.45 + .25.
+            percentage_damage_bonus *= 1.4
 
         damage = percentage_damage_bonus * weapon_damage * multiplier
         crit_damage = damage * crit_multiplier
@@ -250,10 +243,11 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier *= self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
+        percentage_damage_bonus = 1.9
         if self.stats.mh.type == 'dagger':
-            damage = (2.7493 * weapon_damage + self.ambush_bonus_dmg * 2.75) * multiplier
-        else:
-            damage = (1.9 * weapon_damage + self.ambush_bonus_dmg * 1.9) * multiplier
+            percentage_damage_bonus *= 1.447
+
+        damage = percentage_damage_bonus * (weapon_damage + self.ambush_bonus_dmg) * multiplier
         crit_damage = damage * crit_multiplier
 
         return damage, crit_damage
@@ -377,20 +371,17 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier *= self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
-        ap_multiplier_tuple = (0, .091, .182, .273, .364, .455)
-        damage = (self.evis_base_dmg + self.evis_bonus_dmg * cp + ap_multiplier_tuple[cp] * ap) * multiplier
+        damage = (self.evis_base_dmg + self.evis_bonus_dmg * cp + .091 * cp * ap) * multiplier
         crit_damage = damage * crit_multiplier
 
         return damage, crit_damage
 
-    def envenom_damage(self, ap, cp, mastery=None):
-        # Envemom has a dependency on dp_charges too; but being unlikely to be used out of builds
-        # with master poisoner I'm not including that for the moment
+    def envenom_damage(self, ap, cp, mastery=None, dp_charges=5):
         multiplier = self.talents_modifiers(coup_de_grace=True, executioner=True, assassins_resolve=True, potent_poisons=True, mastery=mastery)
         multiplier *= self.raid_settings_modifiers(is_spell=True)
         crit_multiplier = self.crit_damage_modifiers()
 
-        damage = (self.env_bonus_dmg * cp + .09 * cp * ap) * multiplier
+        damage = (self.env_base_dmg * min(dp_charges, cp) + .09 * cp * ap) * multiplier
         crit_damage = damage * crit_multiplier
 
         return damage, crit_damage
