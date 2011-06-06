@@ -226,9 +226,9 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier = self.raid_settings_modifiers(is_physical=True, armor=armor)
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
 
-        percentage_damage_bonus = 1.54 # 4.2 buff, not yet confirmed: 1.54 = 1.1 * 1.4
+        percentage_damage_bonus = 1.55
         if self.stats.mh.type == 'dagger':
-            percentage_damage_bonus *= 1.45
+            percentage_damage_bonus = 2.25
         if self.talents.is_subtlety_rogue():
             percentage_damage_bonus *= 1.4
 

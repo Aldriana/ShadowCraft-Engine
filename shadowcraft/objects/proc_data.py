@@ -72,8 +72,7 @@ allowed_procs = {
         'icd': 0,
         'ppm': 1,
         'trigger': 'all_attacks',
-        'proc_name': 'Lightning Strike',
-        'crit_school': 'melee'
+        'proc_name': 'Lightning Strike'
     },
     'corens_chilled_chromium_coaster': {    # PPM/ICD is a guess and should be verified.
         'stat': 'ap',
