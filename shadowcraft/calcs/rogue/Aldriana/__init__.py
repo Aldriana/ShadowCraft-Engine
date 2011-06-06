@@ -167,16 +167,24 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
     def get_proc_damage_contribution(self, proc, proc_count, current_stats):
         base_damage = proc.value
 
+        crit_school = proc.crit_school
         if proc.stat == 'spell_damage':
             multiplier = self.raid_settings_modifiers(is_spell=True)
-            crit_multiplier = self.crit_damage_modifiers(is_spell=True)
-            crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
+            if crit_school == None:
+                crit_school = 'spell'
         elif proc.stat == 'physical_damage':
             multiplier = self.raid_settings_modifiers(is_physical=True)
-            crit_multiplier = self.crit_damage_modifiers(is_physical=True)
-            crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
+            if crit_school == None:
+                crit_school = 'melee'
         else:
             return 0
+
+        if crit_school == 'melee':
+            crit_multiplier = self.crit_damage_modifiers()
+            crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
+        elif crit_school == 'spell':
+            crit_multiplier = self.crit_damage_modifiers(is_spell=True)
+            crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
 
         return base_damage * multiplier * (1 + crit_rate * (crit_multiplier - 1)) * proc_count
 

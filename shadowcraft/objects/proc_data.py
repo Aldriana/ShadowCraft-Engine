@@ -62,7 +62,8 @@ allowed_procs = {
         'icd': 0,
         'ppm': 1,
         'trigger': 'all_attacks',
-        'proc_name': 'Lightning Strike'
+        'proc_name': 'Lightning Strike',
+        'crit_school': 'melee'
     },
     'essence_of_the_cyclone': {
         'stat': 'crit',
