@@ -330,6 +330,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if 'wound_poison' in attacks_per_second:
             damage_breakdown['wound_poison'] = self.get_dps_contribution(self.wound_poison_damage(average_ap, mastery=current_stats['mastery']), crit_rates['wound_poison'], attacks_per_second['wound_poison'])
 
+        if 'hemorrhage_ticks' in attacks_per_second:
+            dps_from_hit_hemo = self.get_dps_contribution(self.hemorrhage_tick_damage(average_ap, from_crit_hemo=False), crit_rates['hemorrhage'], attacks_per_second['hemorrhage_ticks'] * (1 - crit_rates['hemorrhage']))
+            dps_from_crit_hemo = self.get_dps_contribution(self.hemorrhage_tick_damage(average_ap, from_crit_hemo=True), crit_rates['hemorrhage'], attacks_per_second['hemorrhage_ticks'] * crit_rates['hemorrhage'])
+            damage_breakdown['hemorrhage_glyph'] = dps_from_hit_hemo[0] + dps_from_crit_hemo[0], dps_from_hit_hemo[1] + dps_from_crit_hemo[1]
+
         for proc in damage_procs:
             if proc.proc_name not in damage_breakdown:
                 damage_breakdown[proc.proc_name] = 0, 0
@@ -1264,6 +1269,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.settings.cycle.use_hemorrhage == 'always':
             cp_builder_energy_cost = self.base_hemo_cost
             modified_energy_regen = energy_regen_with_recuperate
+            hemorrhage_interval = cp_builder_energy_cost / modified_energy_regen
         elif self.settings.cycle.use_hemorrhage == 'never':
             cp_builder_energy_cost = backstab_energy_cost
             modified_energy_regen = energy_regen_with_recuperate
@@ -1383,5 +1389,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second['hemorrhage'] = 1. / hemorrhage_interval
             attacks_per_second['backstab'] = attacks_per_second['cp_builder'] - attacks_per_second['hemorrhage']
         del attacks_per_second['cp_builder']
+
+        if self.glyphs.hemorrhage and 'hemorrhage' in attacks_per_second:
+            if hemorrhage_interval >= 24:
+                attacks_per_second['hemorrhage_ticks'] = 8. / hemorrhage_interval
+            else:
+                raise InputNotModeledException(_('Hemorrhage Glyph modeling currently requires Hemorrhage strikes at least 24 seconds apart'))
 
         return attacks_per_second, crit_rates

@@ -209,9 +209,12 @@ class DamageCalculator(object):
 
         for i in glyphs:
             setattr(self.glyphs, i, not getattr(self.glyphs, i))
-            new_dps = self.get_dps()
-            if new_dps != baseline_dps:
-                glyphs_ranking[i] = abs(new_dps - baseline_dps)
+            try:
+                new_dps = self.get_dps()
+                if new_dps != baseline_dps:
+                    glyphs_ranking[i] = abs(new_dps - baseline_dps)
+            except:
+                glyphs_ranking[i] = _('not implemented')
             setattr(self.glyphs, i, not getattr(self.glyphs, i))
 
         return glyphs_ranking
