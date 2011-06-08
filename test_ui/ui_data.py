@@ -69,8 +69,8 @@ class Weapon(Item):
 
 head = {
     # ----- 4.2 -----
-    'Vision of the Flaming Skull': {'id': 71003, 'agi': 348, 'exp': 172, 'haste': 295, 'sockets': ['red', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 30},
-    '(H)Vision of the Flaming Skull': {'id': 71413, 'agi': 400, 'exp': 202, 'haste': 333, 'sockets': ['red', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 30},
+    'Hood of Rampant Disdain': {'id': 71003, 'agi': 348, 'exp': 172, 'haste': 295, 'sockets': ['red', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 30},
+    '(H)Hood of Rampant Disdain': {'id': 71416, 'agi': 400, 'exp': 202, 'haste': 333, 'sockets': ['red', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 30},
     'Dark Phoenix Helmet': {'id': 71047, 'agi': 348, 'hit': 233, 'haste': 249, 'sockets': ['yellow', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 30, 'gear_buff': 'tier_12'}, # Tier 12
     '(H)Dark Phoenix Helmet': {'id': 71539, 'agi': 400, 'hit': 259, 'haste': 285, 'sockets': ['yellow', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 30, 'gear_buff': 'tier_12'}, # Tier 12
     # ----- 4.1 -----
@@ -91,9 +91,9 @@ head = {
 }
 neck = {
     # ----- 4.2 -----
-    'Flamesign Necklace': {'id': 71129, 'agi': 227, 'hit': 144, 'crit': 156},
-    '(H)Flamesign Necklace': {'id': 71565, 'agi': 256, 'hit': 162, 'crit': 176},
-    'Choker of the Firelord': {'id': 71354, 'agi': 240, 'haste': 162, 'mastery': 156},
+    'Necklace of Smoke Signals': {'id': 71129, 'agi': 227, 'hit': 144, 'crit': 156},
+    '(H)Necklace of Smoke Signals': {'id': 71565, 'agi': 256, 'hit': 162, 'crit': 176},
+    'Choker of Vanquished Lord': {'id': 71354, 'agi': 240, 'haste': 162, 'mastery': 156},
     '(H)Choker of the Vanquished Lord': {'id': 71610, 'agi': 271, 'haste': 183, 'mastery': 176},
     # ----- 4.1 -----
     'Amulet of the Watcher': {'id': 69605, 'agi': 180, 'crit': 125, 'mastery': 111},
@@ -157,8 +157,8 @@ chest = {
     # ----- 4.2 -----
     'Dark Phoenix Tunic': {'id': 71045, 'agi': 368, 'crit': 230, 'exp': 263, 'sockets': ['red', 'blue'], 'bonus_stat': 'agi', 'bonus_value': 20, 'gear_buff': 'tier_12'}, # Tier 12
     '(H)Dark Phoenix Tunic': {'id': 71537, 'agi': 420, 'crit': 261, 'exp': 299, 'sockets': ['red', 'blue'], 'bonus_stat': 'agi', 'bonus_value': 20, 'gear_buff': 'tier_12'}, # Tier 12
-    "Demon Lord's Wing": {'id': 71314, 'agi': 368, 'haste': 231, 'mastery': 267, 'sockets': ['red', 'red'], 'bonus_stat': 'agi', 'bonus_value': 20},
-    "(H)Demon Lord's Wing": {'id': 71455, 'agi': 420, 'haste': 264, 'mastery': 303, 'sockets': ['red', 'red'], 'bonus_stat': 'agi', 'bonus_value': 20},
+    'Breastplate of the Incendiary Soul': {'id': 71314, 'agi': 368, 'haste': 231, 'mastery': 267, 'sockets': ['red', 'red'], 'bonus_stat': 'agi', 'bonus_value': 20},
+    '(H)Breastplate of the Incendiary Soul': {'id': 71455, 'agi': 420, 'haste': 264, 'mastery': 303, 'sockets': ['red', 'red'], 'bonus_stat': 'agi', 'bonus_value': 20},
     # ----- 4.1 -----
     'Shadowtooth Trollskin Breastplate': {'id': 69569, 'agi': 283, 'crit': 164, 'haste': 216, 'sockets': ['yellow', 'yellow'], 'bonus_stat': 'agi', 'bonus_value': 20},
     # ----- 4.0 -----
@@ -250,8 +250,8 @@ legs = {
 }
 feet = {
     # ----- 4.2 -----
-    'Sandals of the Flaming Scorpion': {'id': 71313, 'agi': 282, 'crit': 133, 'mastery': 230, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10},
-    '(H)Sandals of the Flaming Scorpion': {'id': 71467, 'agi': 322, 'crit': 153, 'mastery': 260, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10},
+    'Sandals of Leaping Coals': {'id': 71313, 'agi': 282, 'crit': 133, 'mastery': 230, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10},
+    '(H)Sandals of Leaping Coals': {'id': 71467, 'agi': 322, 'crit': 153, 'mastery': 260, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10},
     'Treads of the Craft': {'id': 69951, 'agi': 302, 'haste': 202, 'mastery': 202},
     # ----- 4.1 -----
     "Fasc's Preserved Boots": {'id': 69634, 'agi': 220, 'exp': 157, 'mastery': 135, 'sockets': ['red'], 'bonus_stat': 'crit', 'bonus_value': 10},
@@ -274,7 +274,7 @@ rings = {
     "(H)Widow's Kiss": {'id': 71401, 'agi': 256, 'haste': 188, 'mastery': 142},
     'Band of Glittering Lights': {'id': 70110, 'agi': 201, 'crit': 131, 'haste': 136},
     "Matoclaw's Band": {'id': 70105, 'agi': 201, 'hit': 121, 'crit': 142},
-    'Band of Ghoulish Glee': {'id': 71327, 'agi': 134, 'hit': 118, 'crit': 144}, # seasonal
+    'Band of Ghoulish Glee': {'id': 71327, 'agi': 201, 'hit': 118, 'crit': 144}, # seasonal
     # ----- 4.1 -----
     "Arlokk's Signet": {'id': 69610, 'agi': 180, 'crit': 122, 'mastery': 117},
     'Quickfinger Ring': {'id': 69799, 'agi': 180, 'haste': 135, 'exp': 94},
@@ -333,20 +333,22 @@ trinket1 = trinkets
 trinket2 = trinkets
 melee_weapons = {
     # ----- 4.2 -----
-    # "1.4d Avool's Incendiary Shanker": {'id': 71779, 'agi': 175, 'hit': 125, 'crit': 102, 'damage': 772.5, 'speed': 1.4, 'type': 'dagger'}, # throws error when included - likely to change to 1.8
+    # "1.8d Avool's Incendiary Shanker": {'id': 71779, 'agi': 175, 'hit': 125, 'crit': 102, 'damage': 993.5, 'speed': 1.8, 'type': 'dagger'}, # throws error when included
     # "1.8d (H)Avool's Incendiary Shanker": {'id': 71778, 'agi': 197, 'hit': 141, 'crit': 115, 'damage': 1121, 'speed': 1.8, 'type': 'dagger'}, # throws error when included
     # '1.4d Entrail Disgorger': {'id': 71787, 'agi': 175, 'crit': 97, 'mastery': 128, 'damage': 773, 'speed': 1.4, 'type': 'dagger'}, # throws error when included
     # '1.4d (H) Entrail Disgorger': {'id': 71786, 'agi': 197, 'crit': 109, 'mastery': 145, 'damage': 872, 'speed': 1.4, 'type': 'dagger'}, # throws error when included
-    "1.4d Alysra's Razor": {'id': 70733, 'agi': 155, 'crit': 113, 'exp': 98, 'damage': 772.5, 'speed': 1.4, 'type': 'dagger'}, # off hand
-    # "1.4d (H)Alysra's Razor": {'id': 71427, 'agi': 177, 'crit': 128, 'exp': 113, 'damage': 872, 'speed': 1.4, 'type': 'dagger'}, # off hand, throws error when included
+    "1.4d Alysra's Razor": {'id': 70733, 'agi': 155, 'haste': 113, 'exp': 98, 'sockets': ['yellow'], 'bonus_stat': 'agi', 'bonus_value': 10, 'damage': 772.5, 'speed': 1.4, 'type': 'dagger'},
+    # "1.4d (H)Alysra's Razor": {'id': 71427, 'agi': 177, 'haste': 128, 'exp': 113, 'sockets': ['yellow'], 'bonus_stat': 'agi', 'bonus_value': 10, 'damage': 872, 'speed': 1.4, 'type': 'dagger'}, #  throws error when included
     '1.8d Feeding Frenzy': {'id': 71013, 'agi': 175, 'crit': 88, 'haste': 133, 'damage': 993, 'speed': 1.8, 'type': 'dagger'},
     #'1.8d (H)Feeding Frenzy': {'id': 71441, 'agi': 197, 'crit': 100, 'haste': 150, 'damage': 1121, 'speed': 1.8, 'type': 'dagger'}, # throws error when included
-    '1.8d Brainsplinter': {'id': 70155, 'agi': 152, 'hit': 101, 'haste': 101, 'damage': 880.5, 'speed': 1.8, 'type': 'dagger'},
+    '1.8d Brainsplinter': {'id': 70155, 'agi': 155, 'hit': 103, 'haste': 103, 'damage': 880.5, 'speed': 1.8, 'type': 'dagger'},
     # "2.0d Direbrew's Bloodied Shanker": {'id': 71331, 'agi': 155, 'hit': 90, 'crit': 111, 'damage': 978, 'speed': 2.0, 'type': 'dagger'}, # seasonal - throws error when included
     # '2.6a Gatecrasher': {'id': 71312, 'agi': 152, 'crit': 120, 'exp': 111, 'damage': 1435, 'speed': 2.6, 'type': 'axe'}, # throws error when included
     # '2.6a (H)Gatecrasher': {'id': 71454, 'agi': 197, 'crit': 135, 'exp': 125, 'damage': 1619.5, 'speed': 2.6, 'type': 'axe'}, # throws error when included
+    # '2.6m Shatterskull Bonecrusher': {'id': 71782, 'agi': 175, 'crit': 123, 'haste': 105, 'damage': 1435, 'speed': 2.6, 'type': 'mace'}, # throws error when included
+    # '2.6m (H)Shatterskull Bonecrusher': {'id': 71783, 'agi': 197, 'crit': 139, 'haste': 119, 'damage': 1619.5, 'speed': 2.6, 'type': 'mace'}, # throws error when included
     # "2.6m Tremendous Tankard O' Terror": {'id': 71332, 'agi': 153, 'crit': 99, 'haste': 97, 'damage': 1271, 'speed': 2.6, 'type': 'mace'}, # seasonal, throws error when included
-    '2.6s Pyrium Spellward': {'id': 70162, 'agi': 152, 'hit': 103, 'mastery': 103, 'damage': 1271, 'speed': 2.6, 'type': 'sword'}, # New in 4.2
+    '2.6s Pyrium Spellward': {'id': 70162, 'agi': 155, 'hit': 103, 'mastery': 103, 'damage': 1271, 'speed': 2.6, 'type': 'sword'}, # New in 4.2
     # "2.6s The Horseman's Sinister Saber": {'id': 71325, 'agi': 103, 'hit': 103, 'exp': 103, 'damage': 1271, 'speed': 2.6, 'type': 'sword'}, # main hand - seasonal, not modeled gear_buff, throws error when included
     # ----- 4.1 -----
     # '1.8d Twinblade of the Hakkari': {'id': 69621, 'agi': 138, 'crit': 92, 'haste': 92, 'damage': 786.5, 'speed': 1.8, 'type': 'dagger'}, # throws error when included

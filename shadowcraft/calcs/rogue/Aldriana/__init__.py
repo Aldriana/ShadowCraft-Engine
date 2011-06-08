@@ -206,7 +206,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         # This relies on set_uptime being called for the proc in compute_damage before any of the actual computation stuff is invoked.
         proc = self.stats.procs.unheeded_warning
         if not proc:
-            return 0        
+            return 0
         return proc.value * proc.uptime
 
     def get_rocket_barrage_damage(self, ap, current_stats):
@@ -340,7 +340,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 damage_breakdown[proc.proc_name] = 0, 0
             old_value = damage_breakdown[proc.proc_name]
             new_value = self.get_proc_damage_contribution(proc, attacks_per_second[proc.proc_name], current_stats)
-            damage_breakdown[proc.proc_name] = [sum(pair) for pair in zip(old_value, new_value)] 
+            damage_breakdown[proc.proc_name] = [sum(pair) for pair in zip(old_value, new_value)]
 
         if self.race.rocket_barrage:
             damage_breakdown['rocket_barrage'] = self.get_rocket_barrage_damage(average_ap, current_stats)
@@ -1342,7 +1342,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attacks_per_second['ambush'] = ambushes_from_vanish
 
         if self.talents.shadow_dance:
-            shadow_dance_duration = 6 + 2 * self.glyphs.shadow_dance
+            shadow_dance_duration = 6. + 2 * self.glyphs.shadow_dance
             shadow_dance_frequency = 1. / (60 + self.settings.response_time)
 
             shadow_dance_bonus_cp_regen = shadow_dance_duration * hat_cp_gen + 2 * self.talents.premeditation
@@ -1391,9 +1391,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         del attacks_per_second['cp_builder']
 
         if self.glyphs.hemorrhage and 'hemorrhage' in attacks_per_second:
-            if hemorrhage_interval >= 24:
-                attacks_per_second['hemorrhage_ticks'] = 8. / hemorrhage_interval
+            base_ticks_per_second = min(int(hemorrhage_interval / 3), 8.) / hemorrhage_interval
+            if hemorrhage_interval < 24 and self.talents.shadow_dance:
+                # Not particularly accurate but good enough a ballpark
+                # for something that won't get much of an use.
+                shadow_dance_uptime = shadow_dance_duration * shadow_dance_frequency
+                ticks_per_second_during_shadow_dance = 1. / 3
+                ticks_per_second = base_ticks_per_second * (1 - shadow_dance_uptime) + ticks_per_second_during_shadow_dance * shadow_dance_uptime
             else:
-                raise InputNotModeledException(_('Hemorrhage Glyph modeling currently requires Hemorrhage strikes at least 24 seconds apart'))
+                ticks_per_second = base_ticks_per_second
+            attacks_per_second['hemorrhage_ticks'] = ticks_per_second
 
         return attacks_per_second, crit_rates
