@@ -157,32 +157,8 @@ class Weapon(object):
 
 # Catch-all for non-proc gear based buffs (static or activated)
 class GearBuffs(object):
-    allowed_buffs = frozenset([
-        'leather_specialization',       # Increase %stat by 5%
-        'chaotic_metagem',              # Increase critical damage by 3%
-        'rogue_t11_2pc',                # Increase crit chance for BS, Mut, SS by 5%
-        'rogue_t12_2pc',
-        'rogue_t12_4pc',
-        'engineer_glove_enchant',
-        'unsolvable_riddle',
-        'demon_panther',
-        'skardyns_grace',
-        'heroic_skardyns_grace',
-        'ancient_petrified_seed',
-        'heroic_ancient_petrified_seed',
-        'the_hungerer',
-        'heroic_the_hungerer',
-        'rickets_magnetic_fireball',
-        'aellas_bottle',
-        'potion_of_the_tolvir',
-        'potion_of_the_tolvir_prepot',
-        'lifeblood',
-        'mixology',
-        'master_of_anatomy',
-    ])
-
-    # Format is (stat, value, duration, cool down) - duration and cool down in seconds
     activated_boosts = {
+        # Duration and cool down in seconds - name is mandatory for damage-on-use boosts
         'aellas_bottle':                  {'stat': 'crit', 'value': 1700, 'duration': 20, 'cooldown': 120}, #Cooldown is a guess and should be verified
         'unsolvable_riddle':              {'stat': 'agi', 'value': 1605, 'duration': 20, 'cooldown': 120},
         'demon_panther':                  {'stat': 'agi', 'value': 1425, 'duration': 20, 'cooldown': 120},
@@ -196,7 +172,20 @@ class GearBuffs(object):
         'heroic_ancient_petrified_seed':  {'stat': 'agi', 'value': 1441, 'duration': 15, 'cooldown': 60},
         'the_hungerer':                   {'stat': 'haste', 'value': 1532, 'duration': 15, 'cooldown': 60},
         'heroic_the_hungerer':            {'stat': 'haste', 'value': 1730, 'duration': 15, 'cooldown': 60},
+        'rickets_magnetic_fireball':      {'stat': 'physical_damage', 'value': 500, 'cooldown': 120, 'name': 'Magnetic Fireball'} #TODO: verify this trinket's behaviour. Currently modeled as a proc and as a gear buff.
     }
+
+    other_gear_buffs = [
+        'leather_specialization',       # Increase %stat by 5%
+        'chaotic_metagem',              # Increase critical damage by 3%
+        'rogue_t11_2pc',                # Increase crit chance for BS, Mut, SS by 5%
+        'rogue_t12_2pc',                # Add 6% of melee crit damage as a fire DOT
+        'rogue_t12_4pc',                # Increase crit/haste/mastery rating by 25% every TotT
+        'mixology',
+        'master_of_anatomy'
+    ]
+
+    allowed_buffs = frozenset(other_gear_buffs + activated_boosts.keys())
 
     def __init__(self, *args):
         for arg in args:
@@ -221,14 +210,17 @@ class GearBuffs(object):
         else:
             return 0
 
+    def rogue_t12_2pc_damage_bonus(self):
+        if self.rogue_t12_2pc:
+            return .06
+        else:
+            return 0
+
     def rogue_t12_4pc_stat_bonus(self):
         if self.rogue_t12_4pc:
             return .25
         else:
             return 0
-
-    def calculate_rickets_magnetic_fireball(self):
-        return (400 + 442) / 2
 
     def leather_specialization_multiplier(self):
         if self.leather_specialization:

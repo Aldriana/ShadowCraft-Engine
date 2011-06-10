@@ -177,7 +177,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
         elif proc.stat == 'physical_damage':
             multiplier = self.raid_settings_modifiers(is_physical=True)
-            crit_multiplier = self.crit_damage_modifiers(is_physical=True)
+            crit_multiplier = self.crit_damage_modifiers(is_spell=False)
             crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
         else:
             return 0, 0
@@ -188,6 +188,31 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         average_damage = base_damage * multiplier * (1 + crit_rate * (crit_multiplier - 1)) * proc_count
         crit_contribution = base_damage * multiplier * crit_rate * proc_count
         return average_damage, crit_contribution
+
+    def append_damage_on_use(self, average_ap, current_stats, damage_breakdown):
+        on_use_damage_list = []
+        for i in ('spell_damage', 'physical_damage'):
+            on_use_damage_list += self.stats.gear_buffs.get_all_activated_boosts_for_stat(i)
+        if self.race.rocket_barrage:
+            rocket_barrage_dict = {'stat': 'spell_damage', 'cooldown': 120, 'name': 'Rocket Barrage'}
+            rocket_barrage_dict['value'] = self.race.calculate_rocket_barrage(average_ap, 0, 0)
+            on_use_damage_list.append(rocket_barrage_dict)
+
+        for item in on_use_damage_list:
+            if item['stat'] == 'physical_damage':
+                modifier = self.raid_settings_modifiers(is_physical=True)
+                crit_multiplier = self.crit_damage_modifiers(is_spell=False)
+                crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
+            elif item['stat'] == 'spell_damage':
+                modifier = self.raid_settings_modifiers(is_spell=True)
+                crit_multiplier = self.crit_damage_modifiers(is_spell=True)
+                crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
+            base_damage = item['value'] * modifier
+            frequency = 1. / (item['cooldown'] + self.settings.response_time)
+            average_dps = base_damage * (1 + crit_rate * (crit_multiplier - 1)) * frequency
+            crit_contribution = base_damage * crit_rate * crit_multiplier * frequency
+
+            damage_breakdown[item['name']] = average_dps, crit_contribution
 
     def set_matrix_restabilizer_stat(self, base_stats):
         base_stats_for_matrix_restabilizer = {}
@@ -209,34 +234,14 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             return 0
         return proc.value * proc.uptime
 
-    def get_rocket_barrage_damage(self, ap, current_stats):
-        base_damage = self.race.calculate_rocket_barrage(ap, 0, 0) * self.raid_settings_modifiers(is_spell=True)
-        crit_multiplier = self.crit_damage_modifiers(is_spell=True)
-        crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
-        average_damage = base_damage * (1 + crit_rate * (crit_multiplier - 1))
-        crit_contribution = base_damage * crit_rate * crit_multiplier
-        frequency = 120 + self.settings.response_time
-
-        return average_damage / frequency, crit_contribution / frequency
-
-    def get_rickets_magnetic_fireball_damage(self, current_stats):
-        base_damage = self.stats.gear_buffs.calculate_rickets_magnetic_fireball() * self.raid_settings_modifiers(is_spell=True)
-        crit_multiplier = self.crit_damage_modifiers(is_spell=True)
-        crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
-        average_damage = base_damage * (1 + crit_rate * (crit_multiplier - 1))
-        crit_contribution = base_damage * crit_rate * crit_multiplier
-        frequency = 180 + self.settings.response_time
-
-        return average_damage / frequency, crit_contribution / frequency
-
     def get_t12_2p_damage(self, damage_breakdown):
         crit_damage = 0
-        for key in damage_breakdown.keys():
+        for key in damage_breakdown:
             if key in ('mutilate', 'hemorrhage', 'backstab', 'sinister_strike', 'revealing_strike', 'main_gauche', 'ambush', 'killing_spree', 'envenom', 'eviscerate', 'autoattack'):
                 average_damage, crit_contribution = damage_breakdown[key]
                 crit_damage += crit_contribution
 
-        return crit_damage * .06, 0
+        return crit_damage * self.stats.gear_buffs.rogue_t12_2pc_damage_bonus(), 0
 
     def get_damage_breakdown(self, current_stats, attacks_per_second, crit_rates, damage_procs):
         # Vendetta may want to be handled elsewhere.
@@ -342,11 +347,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             new_value = self.get_proc_damage_contribution(proc, attacks_per_second[proc.proc_name], current_stats)
             damage_breakdown[proc.proc_name] = [sum(pair) for pair in zip(old_value, new_value)]
 
-        if self.race.rocket_barrage:
-            damage_breakdown['rocket_barrage'] = self.get_rocket_barrage_damage(average_ap, current_stats)
-
-        if self.stats.gear_buffs.rickets_magnetic_fireball:
-            damage_breakdown['rickets_magnetic_fireball'] = self.get_rickets_magnetic_fireball_damage(current_stats)
+        self.append_damage_on_use(average_ap, current_stats, damage_breakdown)
 
         return damage_breakdown
 
@@ -1178,8 +1179,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.stats.mh.type != 'dagger' and self.settings.cycle.use_hemorrhage != 'always':
             raise InputNotModeledException(_('Subtlety modeling requires a MH dagger if Hemorrhage is not the main combo point builder'))
 
-        if self.settings.cycle.use_hemorrhage not in ('always', 'never') and self.settings.cycle.use_hemorrhage > self.settings.duration:
-            raise InputNotModeledException(_('Interval between Hemorrhages cannot be higher than the fight duration'))
+        if self.settings.cycle.use_hemorrhage not in ('always', 'never'):
+            if type(self.settings.cycle.use_hemorrhage) not in (int, float) or self.settings.cycle.use_hemorrhage < 0:
+                raise InputNotModeledException(_('Hemorrhage usage must be set to always, never or a positive number'))
+            if self.settings.cycle.use_hemorrhage > self.settings.duration:
+                raise InputNotModeledException(_('Interval between Hemorrhages cannot be higher than the fight duration'))
 
         if self.talents.serrated_blades != 2:
             raise InputNotModeledException(_('Subtlety modeling currently requires 2 points in Serrated Blades'))

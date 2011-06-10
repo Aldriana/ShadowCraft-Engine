@@ -150,6 +150,16 @@ allowed_procs = {
         'on_crit': True,
         'proc_name': 'Eye of Vengeance'
     },
+    'rickets_magnetic_fireball': {      # Proc_chance/ICD is a guess and should be verified.
+        'stat': 'physical_damage',
+        'value': 500,
+        'duration': 0,
+        'max_stacks': 0,
+        'icd': 120,
+        'proc_chance': .2,
+        'trigger': 'all_attacks',
+        'proc_name': 'Magnetic Fireball'
+    },
     'matrix_restabilizer': {            # Proc_chance/ICD is a guess and should be verified.
         'stat': 'weird_proc',
         'value': 1532,

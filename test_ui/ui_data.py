@@ -196,7 +196,7 @@ hands = {
     '(H)Gloves of Dissolving Smoke': {'id': 71440, 'agi': 322, 'crit': 197, 'mastery': 235, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10},
     'Dark Phoenix Gloves': {'id': 71046, 'agi': 282, 'crit': 133, 'haste': 230, 'sockets': ['red'], 'bonus_stat': 'haste', 'bonus_value': 10, 'gear_buff': 'tier_12'}, # Tier 12
     '(H)Dark Phoenix Gloves': {'id': 71538, 'agi': 322, 'crit': 153, 'haste': 260, 'sockets': ['red'], 'bonus_stat': 'haste', 'bonus_value': 10, 'gear_buff': 'tier_12'}, # Tier 12
-    'Clutches of Evil': {'id': 69942, 'agi': 302, 'haste': 202, 'mastery': 202},
+    'Clutches of Evil': {'id': 69942, 'agi': 282, 'haste': 198, 'mastery': 186, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10},
     "Aviana's Grips": {'id': 70122, 'agi': 248, 'haste': 203, 'mastery': 117, 'sockets': ['yellow'], 'bonus_stat': 'agi', 'bonus_value': 10},
     # ----- 4.1 -----
     'Knotted Handwraps': {'id': 69798, 'agi': 240, 'haste': 182, 'exp': 121},
@@ -252,7 +252,7 @@ feet = {
     # ----- 4.2 -----
     'Sandals of Leaping Coals': {'id': 71313, 'agi': 282, 'crit': 133, 'mastery': 230, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10},
     '(H)Sandals of Leaping Coals': {'id': 71467, 'agi': 322, 'crit': 153, 'mastery': 260, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10},
-    'Treads of the Craft': {'id': 69951, 'agi': 302, 'haste': 202, 'mastery': 202},
+    'Treads of the Craft': {'id': 69951, 'agi': 282, 'haste': 197, 'mastery': 187, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10},
     # ----- 4.1 -----
     "Fasc's Preserved Boots": {'id': 69634, 'agi': 220, 'exp': 157, 'mastery': 135, 'sockets': ['red'], 'bonus_stat': 'crit', 'bonus_value': 10},
     # ----- 4.0 -----
