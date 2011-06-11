@@ -60,7 +60,7 @@ class GearPage(wx.Panel):
         "mainhand": 0,
         "offhand": 0,
         "ranged": 0
-        }
+    }
     stats = [
         'str',
         'agi',

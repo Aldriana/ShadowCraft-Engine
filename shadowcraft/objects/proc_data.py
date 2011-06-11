@@ -57,7 +57,7 @@ allowed_procs = {
         'stat': 'haste',
         'value': 1730,
         'duration': 15,
-        'icd': 75
+        'icd': 75,
         'proc_chance': .1,
         'trigger': 'all_attacks',
         'proc_name': 'Devour'
@@ -218,7 +218,7 @@ allowed_procs = {
         'stat': 'haste',
         'value': 1532,
         'duration': 15,
-        'icd': 75
+        'icd': 75,
         'proc_chance': .1,
         'trigger': 'all_attacks',
         'proc_name': 'Devour'
