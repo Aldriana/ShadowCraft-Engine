@@ -36,21 +36,21 @@ class Item(object):
         self.bonus_value = bonus_value
         self.proc = proc
         self.gear_buff = gear_buff
-    
+
     def reforgable_from(self):
         reforgable = []
         for stat in self.reforgable_stats:
             if getattr(self, stat) > 0:
                 reforgable.append(stat)
         return reforgable
-    
+
     def reforgable_to(self):
         reforgable = []
         for stat in self.reforgable_stats:
             if getattr(self, stat) == 0:
                 reforgable.append(stat)
         return reforgable
-    
+
     def reforge(self, from_stat, to_stat):
         print "before: " + from_stat + " = " + str(getattr(self, from_stat))
         print "        " + to_stat + " = " + str(getattr(self, to_stat))
@@ -71,7 +71,7 @@ head = {
     # ----- 4.2 -----
     'Hood of Rampant Disdain': {'id': 71003, 'agi': 348, 'exp': 172, 'haste': 295, 'sockets': ['red', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 30},
     '(H)Hood of Rampant Disdain': {'id': 71416, 'agi': 400, 'exp': 202, 'haste': 333, 'sockets': ['red', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 30},
-    'Dark Phoenix Helmet': {'id': 71047, 'agi': 348, 'hit': 233, 'haste': 249, 'sockets': ['yellow', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 30, 'gear_buff': 'tier_12'}, # Tier 12
+    'Dark Phoenix Helmet': {'id': 71047, 'agi': 348, 'hit': 227, 'haste': 249, 'sockets': ['yellow', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 30, 'gear_buff': 'tier_12'}, # Tier 12
     '(H)Dark Phoenix Helmet': {'id': 71539, 'agi': 400, 'hit': 259, 'haste': 285, 'sockets': ['yellow', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 30, 'gear_buff': 'tier_12'}, # Tier 12
     # ----- 4.1 -----
     "The Savager's Mask": {'id': 69564, 'agi': 263, 'crit': 175, 'exp': 192, 'sockets': ['red', 'meta'], 'bonus_stat': 'crit', 'bonus_value': 30},
@@ -300,12 +300,12 @@ ring1 = rings
 ring2 = rings
 trinkets = {
     # ----- 4.2 -----
-    "Aella's Bottle": {'id': 71633, 'agi': 340, 'gear_buff': 'aellas_bottle'},
-    "Ricket's Magnetic Fireball": {'id': 70144, 'agi': 340, 'gear_buff': 'rickets_magnetic_fireball'},
+    # "Aella's Bottle": {'id': 71633, 'agi': 340, 'gear_buff': 'rickets_magnetic_fireball'}, # unobtainable
+    "Ricket's Magnetic Fireball": {'id': 70144, 'agi': 340, 'gear_buff': 'rickets_magnetic_fireball', 'proc': 'rickets_magnetic_fireball_proc'},
     '(H)Matrix Restabilizer': {'id': 68150, 'agi': 433, 'proc': 'heroic_matrix_restabilizer'},
     'Matrix Restabilizer': {'id': 68994, 'agi': 383, 'proc': 'matrix_restabilizer'},
-    '(H)The Hungerer': {'id': 69112, 'agi': 433, 'gear_buff': 'heroic_the_hungerer'},
-    'The Hungerer': {'id': 68927, 'agi': 383, 'gear_buff': 'the_hungerer'},
+    '(H)The Hungerer': {'id': 69112, 'agi': 433, 'proc': 'heroic_the_hungerer'},
+    'The Hungerer': {'id': 68927, 'agi': 383, 'proc': 'the_hungerer'},
     '(H)Ancient Petrified Seed': {'id': 69199, 'mastery': 433, 'gear_buff': 'heroic_ancient_petrified_seed'},
     'Ancient Petrified Seed': {'id': 69001, 'mastery': 383, 'gear_buff': 'ancient_petrified_seed'},
     "Coren's Chilled Chromium Coaster": {'id': 71335, 'crit': 340, 'proc': 'corens_chilled_chromium_coaster'}, # seasonal

@@ -159,7 +159,6 @@ class Weapon(object):
 class GearBuffs(object):
     activated_boosts = {
         # Duration and cool down in seconds - name is mandatory for damage-on-use boosts
-        'aellas_bottle':                  {'stat': 'crit', 'value': 1700, 'duration': 20, 'cooldown': 120}, #Cooldown is a guess and should be verified
         'unsolvable_riddle':              {'stat': 'agi', 'value': 1605, 'duration': 20, 'cooldown': 120},
         'demon_panther':                  {'stat': 'agi', 'value': 1425, 'duration': 20, 'cooldown': 120},
         'skardyns_grace':                 {'stat': 'mastery', 'value': 1260, 'duration': 20, 'cooldown': 120},
@@ -170,9 +169,7 @@ class GearBuffs(object):
         'lifeblood':                      {'stat': 'haste', 'value': 480, 'duration': 20, 'cooldown': 120},
         'ancient_petrified_seed':         {'stat': 'agi', 'value': 1227, 'duration': 15, 'cooldown': 60},
         'heroic_ancient_petrified_seed':  {'stat': 'agi', 'value': 1441, 'duration': 15, 'cooldown': 60},
-        'the_hungerer':                   {'stat': 'haste', 'value': 1532, 'duration': 15, 'cooldown': 60},
-        'heroic_the_hungerer':            {'stat': 'haste', 'value': 1730, 'duration': 15, 'cooldown': 60},
-        'rickets_magnetic_fireball':      {'stat': 'physical_damage', 'value': 500, 'cooldown': 120, 'name': 'Magnetic Fireball'} #TODO: verify this trinket's behaviour. Currently modeled as a proc and as a gear buff.
+        'rickets_magnetic_fireball':      {'stat': 'crit', 'value': 1700, 'duration': 20, 'cooldown': 120},
     }
 
     other_gear_buffs = [

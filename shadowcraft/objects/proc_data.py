@@ -35,7 +35,7 @@ allowed_procs = {
         'on_crit': True,
         'proc_name': 'Eye of Vengeance'
     },
-    'heroic_matrix_restabilizer': {     # Proc_chance/ICD is a guess and should be verified.
+    'heroic_matrix_restabilizer': {     # Proc_chance/ICD/duration is a guess and should be verified.
         'stat': 'weird_proc',
         'value': 1730,
         'duration': 30,
@@ -52,6 +52,15 @@ allowed_procs = {
         'proc_chance': .1,
         'trigger': 'all_attacks',
         'proc_name': 'Nefarious Plot'
+    },
+    'heroic_the_hungerer': {            # Proc_chance/ICD is a guess and should be verified.
+        'stat': 'haste',
+        'value': 1730,
+        'duration': 15,
+        'icd': 75
+        'proc_chance': .1,
+        'trigger': 'all_attacks',
+        'proc_name': 'Devour'
     },
     'heroic_tias_grace': {
         'stat': 'agi',
@@ -150,17 +159,7 @@ allowed_procs = {
         'on_crit': True,
         'proc_name': 'Eye of Vengeance'
     },
-    'rickets_magnetic_fireball': {      # Proc_chance/ICD is a guess and should be verified.
-        'stat': 'physical_damage',
-        'value': 500,
-        'duration': 0,
-        'max_stacks': 0,
-        'icd': 120,
-        'proc_chance': .2,
-        'trigger': 'all_attacks',
-        'proc_name': 'Magnetic Fireball'
-    },
-    'matrix_restabilizer': {            # Proc_chance/ICD is a guess and should be verified.
+    'matrix_restabilizer': {            # Proc_chance/ICD/duration is a guess and should be verified.
         'stat': 'weird_proc',
         'value': 1532,
         'duration': 30,
@@ -177,6 +176,16 @@ allowed_procs = {
         'proc_chance': .1,
         'trigger': 'all_attacks',
         'proc_name': 'Nefarious Plot'
+    },
+    'rickets_magnetic_fireball_proc': { # Proc_chance/ICD is a guess and should be verified.
+        'stat': 'physical_damage',
+        'value': 500,
+        'duration': 0,
+        'max_stacks': 0,
+        'icd': 120,
+        'proc_chance': .2,
+        'trigger': 'all_attacks',
+        'proc_name': 'Magnetic Fireball'
     },
     'rogue_t11_4pc': {
         'stat': 'weird_proc',
@@ -204,6 +213,15 @@ allowed_procs = {
         'proc_chance': .15,
         'trigger': 'all_attacks',
         'proc_name': 'Swordguard Embroidery'
+    },
+    'the_hungerer': {                   # Proc_chance/ICD is a guess and should be verified.
+        'stat': 'haste',
+        'value': 1532,
+        'duration': 15,
+        'icd': 75
+        'proc_chance': .1,
+        'trigger': 'all_attacks',
+        'proc_name': 'Devour'
     },
     'the_twilight_blade': {             # PPM/ICD is a guess and should be verified.
         'stat': 'crit',
