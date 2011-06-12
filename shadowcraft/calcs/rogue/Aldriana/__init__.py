@@ -172,11 +172,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         base_damage = proc.value
 
         if proc.stat == 'spell_damage':
-            multiplier = self.raid_settings_modifiers(is_spell=True)
+            multiplier = self.raid_settings_modifiers('spell')
             crit_multiplier = self.crit_damage_modifiers(is_spell=True)
             crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
         elif proc.stat == 'physical_damage':
-            multiplier = self.raid_settings_modifiers(is_physical=True)
+            multiplier = self.raid_settings_modifiers('physical')
             crit_multiplier = self.crit_damage_modifiers(is_spell=False)
             crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
         else:
@@ -200,11 +200,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         for item in on_use_damage_list:
             if item['stat'] == 'physical_damage':
-                modifier = self.raid_settings_modifiers(is_physical=True)
+                modifier = self.raid_settings_modifiers('physical')
                 crit_multiplier = self.crit_damage_modifiers(is_spell=False)
                 crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
             elif item['stat'] == 'spell_damage':
-                modifier = self.raid_settings_modifiers(is_spell=True)
+                modifier = self.raid_settings_modifiers('spell')
                 crit_multiplier = self.crit_damage_modifiers(is_spell=True)
                 crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
             base_damage = item['value'] * modifier
@@ -341,8 +341,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             damage_breakdown['hemorrhage_glyph'] = dps_from_hit_hemo[0] + dps_from_crit_hemo[0], dps_from_hit_hemo[1] + dps_from_crit_hemo[1]
 
         for proc in damage_procs:
-            if proc.proc_name not in damage_breakdown:
-                damage_breakdown[proc.proc_name] = 0, 0
+            damage_breakdown.setdefault(proc.proc_name, (0, 0))
             old_value = damage_breakdown[proc.proc_name]
             new_value = self.get_proc_damage_contribution(proc, attacks_per_second[proc.proc_name], current_stats)
             damage_breakdown[proc.proc_name] = [sum(pair) for pair in zip(old_value, new_value)]
@@ -484,7 +483,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
     def get_poison_counts(self, total_mh_hits, total_oh_hits, attacks_per_second):
         if self.settings.mh_poison == 'dp' or self.settings.oh_poison == 'dp':
-            attacks_per_second['deadly_poison'] = 1./3
+            attacks_per_second['deadly_poison'] = 1. / 3
 
         if self.settings.mh_poison == 'ip':
             mh_proc_rate = self.stats.mh.speed / 7.
@@ -503,7 +502,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         mh_poison_procs = total_mh_hits * mh_proc_rate * self.spell_hit_chance()
         oh_poison_procs = total_oh_hits * oh_proc_rate * self.spell_hit_chance()
 
-        poison_setup = self.settings.mh_poison + self.settings.oh_poison
+        poison_setup = ''.join((self.settings.mh_poison, self.settings.oh_poison))
         if poison_setup in ['ipip', 'ipdp', 'dpip']:
             attacks_per_second['instant_poison'] = mh_poison_procs + oh_poison_procs
         elif poison_setup in ['wpwp', 'wpdp', 'dpwp']:
@@ -612,12 +611,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             damage_breakdown['burning_wounds'] = self.get_t12_2p_damage(damage_breakdown)
 
         # Discard the crit component.
-        average_damage_breakdown = {}
         for key in damage_breakdown:
-            average_damage, crit_damage = damage_breakdown[key]
-            average_damage_breakdown[key] = average_damage
+            damage_breakdown[key] = damage_breakdown[key][0]
 
-        return average_damage_breakdown
+        return damage_breakdown
 
     ###########################################################################
     # Assassination DPS functions
@@ -635,7 +632,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.stats.mh.type != 'dagger' or self.stats.oh.type != 'dagger':
             raise InputNotModeledException(_('Assassination modeling requires daggers in both hands'))
 
-        if self.settings.mh_poison + self.settings.oh_poison not in ('ipdp', 'dpip'):
+        if ''.join((self.settings.mh_poison, self.settings.oh_poison)) not in ('ipdp', 'dpip'):
             raise InputNotModeledException(_('Assassination modeling requires instant poison on one weapon and deadly on the other'))
 
         # These talents have huge, hard-to-model implications on cycle and will
@@ -855,7 +852,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             backstab_energy_cost -= 5 * backstab_crit_rate
 
         seal_fate_proc_rate = backstab_crit_rate * .5 * self.talents.seal_fate
-        cp_per_backstab = {1: 1-seal_fate_proc_rate, 2: seal_fate_proc_rate}
+        cp_per_backstab = {1: 1 - seal_fate_proc_rate, 2: seal_fate_proc_rate}
         cp_distribution = self.get_cp_distribution_for_cycle(cp_per_backstab, self.settings.cycle.min_envenom_size_backstab)
 
         # This cycle need a *lot* of work, but in the interest of getting some
