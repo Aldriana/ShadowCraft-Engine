@@ -91,7 +91,7 @@ class DamageCalculator(object):
         baseline_dps = self.get_dps()
         normalize_dps = self.ep_helper(normalize_ep_stat)
         normalize_dps_difference = normalize_dps - baseline_dps
-        for stat in ep_values.keys():
+        for stat in ep_values:
             dps = self.ep_helper(stat)
             ep_values[stat] = abs(dps - baseline_dps) / normalize_dps_difference
 
@@ -101,7 +101,7 @@ class DamageCalculator(object):
         if not normalize_ep_stat:
             normalize_ep_stat = self.normalize_ep_stat
         weapons = ('mh', 'oh')
-        if speed_list != None or dps == True:
+        if speed_list is not None or dps:
             baseline_dps = self.get_dps()
             normalize_dps = self.ep_helper(normalize_ep_stat)
 
@@ -109,7 +109,7 @@ class DamageCalculator(object):
             ep_values = {}
 
             # Weapon dps EP
-            if dps == True:
+            if dps:
                 getattr(self.stats, hand).weapon_dps += 1.
                 new_dps = self.get_dps()
                 ep = abs(new_dps - baseline_dps) / (normalize_dps - baseline_dps)
@@ -117,7 +117,7 @@ class DamageCalculator(object):
                 getattr(self.stats, hand).weapon_dps -= 1.
 
             # Enchant EP
-            if enchants == True:
+            if enchants:
                 old_enchant = None
                 for enchant in getattr(self.stats, hand).allowed_melee_enchants:
                     if getattr(getattr(self.stats, hand), enchant):
@@ -134,7 +134,7 @@ class DamageCalculator(object):
                     getattr(self.stats, hand).set_enchant(old_enchant)
 
             # Weapon speed EP
-            if speed_list != None:
+            if speed_list is not None:
                 old_speed = getattr(self.stats, hand).speed
                 for speed in speed_list:
                     getattr(self.stats, hand).speed = speed
@@ -163,7 +163,7 @@ class DamageCalculator(object):
         procs_list = []
         gear_buffs_list = []
         for i in list:
-            if i in self.stats.procs.allowed_procs.keys():
+            if i in self.stats.procs.allowed_procs:
                 procs_list.append(i)
             elif i in self.stats.gear_buffs.allowed_buffs:
                 gear_buffs_list.append(i)
@@ -224,12 +224,12 @@ class DamageCalculator(object):
         baseline_dps = self.get_dps()
         talent_list = []
 
-        if list == None:
+        if list is None:
         # Build a list of talents that can be taken in the active spec
-            for talent in self.talents.treeForTalent.keys():
+            for talent in self.talents.treeForTalent:
                 if self.talents.get_talent_tier(talent) <= 2:
                     talent_list.append(talent)
-                elif talent in self.talents.spec.allowed_talents.keys():
+                elif talent in self.talents.spec.allowed_talents:
                     talent_list.append(talent)
         else:
             talent_list = list
