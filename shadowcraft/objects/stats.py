@@ -92,7 +92,7 @@ class Weapon(object):
             'proc_name': 'Hurricane'
         },
         'landslide': {          # Completely guessing at proc behavior.
-            'stat':'ap',
+            'stat': 'ap',
             'value': 1000,
             'duration': 12,
             'icd': 0,

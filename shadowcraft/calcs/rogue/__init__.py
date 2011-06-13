@@ -45,7 +45,7 @@ class RogueDamageCalculator(DamageCalculator):
         object.__setattr__(self, name, value)
         if name == 'level':
             self._set_constants_for_level()
-    
+
     def _set_constants_for_level(self):
         super(RogueDamageCalculator, self)._set_constants_for_level()
         try:
@@ -69,13 +69,13 @@ class RogueDamageCalculator(DamageCalculator):
             self.agi_per_crit =          self.agi_per_crit_values[self.level]
         except KeyError as e:
             raise exceptions.InvalidLevelException(_('No {spell_name} formula available for level {level}').format(spell_name=str(e), level=self.level))
-            
+
     def get_spell_hit_from_talents(self):
         return .02 * self.talents.precision
 
     def get_melee_hit_from_talents(self):
         return .02 * self.talents.precision
-    
+
     def oh_penalty(self):
         if self.talents.is_combat_rogue():
             return .875
@@ -342,7 +342,7 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier *= self.raid_settings_modifiers('bleed')
         crit_multiplier = self.crit_damage_modifiers()
 
-        tick_damage = (self.garrote_base_dmg +  ap * 1 * 0.07) * multiplier
+        tick_damage = (self.garrote_base_dmg + ap * 1 * 0.07) * multiplier
         crit_tick_damage = tick_damage * crit_multiplier
 
         return tick_damage, crit_tick_damage

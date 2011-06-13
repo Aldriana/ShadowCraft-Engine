@@ -90,7 +90,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
     def get_cp_distribution_for_cycle(self, cp_distribution_per_move, target_cp_quantity):
         cur_min_cp = 0
         ruthlessness_chance = self.talents.ruthlessness * .2
-        cur_dist = {(0, 0): (1-ruthlessness_chance), (1, 0): ruthlessness_chance}
+        cur_dist = {(0, 0): (1 - ruthlessness_chance), (1, 0): ruthlessness_chance}
         while cur_min_cp < target_cp_quantity:
             cur_min_cp += 1
 
@@ -220,7 +220,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             if key in ('haste', 'mastery', 'crit'):
                 base_stats_for_matrix_restabilizer[key] = self.base_stats[key]
         sorted_list = base_stats_for_matrix_restabilizer.keys()
-        sorted_list.sort(cmp=lambda b,a: cmp(base_stats_for_matrix_restabilizer[a],base_stats_for_matrix_restabilizer[b]))
+        sorted_list.sort(cmp=lambda b, a: cmp(base_stats_for_matrix_restabilizer[a],base_stats_for_matrix_restabilizer[b]))
 
         if self.stats.procs.heroic_matrix_restabilizer:
             self.stats.procs.heroic_matrix_restabilizer.stat = sorted_list[0]
@@ -471,7 +471,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             if direct_damage_finisher:
                 procs_per_second = self.get_procs_per_second(t11_4pc_bonus, attacks_per_second, crit_rates)
                 finisher_spacing = min(1 / sum(attacks_per_second[direct_damage_finisher]), t11_4pc_bonus.duration)
-                p = 1 - (1-procs_per_second) ** finisher_spacing
+                p = 1 - (1 - procs_per_second) ** finisher_spacing
                 crit_rates[direct_damage_finisher] = p + (1 - p) * crit_rates[direct_damage_finisher]
 
     def update_current_stats_for_4pc_t12(self, stats):
@@ -1155,7 +1155,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             ticks_per_rupture = 3 + i + 2 * self.glyphs.rupture
             attacks_per_second['rupture_ticks'][i] = ticks_per_rupture * attacks_per_second['rupture'] * finisher_size_breakdown[i]
 
-        total_mh_hits = attacks_per_second['mh_autoattack_hits'] + attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'] + attacks_per_second['mh_killing_spree'] + attacks_per_second['rupture'] + total_evis_per_second  + attacks_per_second['main_gauche']
+        total_mh_hits = attacks_per_second['mh_autoattack_hits'] + attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'] + attacks_per_second['mh_killing_spree'] + attacks_per_second['rupture'] + total_evis_per_second + attacks_per_second['main_gauche']
         total_oh_hits = attacks_per_second['oh_autoattack_hits'] + attacks_per_second['oh_killing_spree']
 
         self.get_poison_counts(total_mh_hits, total_oh_hits, attacks_per_second)
@@ -1177,7 +1177,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             raise InputNotModeledException(_('Subtlety modeling requires a MH dagger if Hemorrhage is not the main combo point builder'))
 
         if self.settings.cycle.use_hemorrhage not in ('always', 'never'):
-            if type(self.settings.cycle.use_hemorrhage) not in (int, float) or self.settings.cycle.use_hemorrhage < 0:
+            if float(self.settings.cycle.use_hemorrhage) <= 0:
                 raise InputNotModeledException(_('Hemorrhage usage must be set to always, never or a positive number'))
             if self.settings.cycle.use_hemorrhage > self.settings.duration:
                 raise InputNotModeledException(_('Interval between Hemorrhages cannot be higher than the fight duration'))
@@ -1210,7 +1210,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             if key in ('autoattack', 'backstab', 'eviscerate', 'hemorrhage'):
                 damage_breakdown[key] *= find_weakness_multiplier
             if key == 'ambush':
-                damage_breakdown[key] *= ((1.3 * self.ambush_shadowstep_rate) + (1-self.ambush_shadowstep_rate) * find_weakness_damage_boost)
+                damage_breakdown[key] *= ((1.3 * self.ambush_shadowstep_rate) + (1 - self.ambush_shadowstep_rate) * find_weakness_damage_boost)
 
         return damage_breakdown
 
@@ -1317,8 +1317,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         snd_size = .2 * self.talents.ruthlessness + hat_cp_per_snd + cp_builders_per_snd
         snd_duration = self.get_snd_length(snd_size)
-        snd_per_second = 1. / (snd_duration - self.settings.response_time)
-        snd_net_energy_cost = 25 - snd_size * self.relentless_strikes_energy_return_per_cp
+        # snd_per_second = 1. / (snd_duration - self.settings.response_time)
+        # snd_net_energy_cost = 25 - snd_size * self.relentless_strikes_energy_return_per_cp
         snd_per_cycle = cycle_length / snd_duration
 
         vanish_cooldown = 180 - 30 * self.talents.elusiveness

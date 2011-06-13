@@ -67,7 +67,7 @@ class DamageCalculator(object):
         # calculate and cache the level-dependent armor mitigation parameter
         self.armor_mitigation_parameter = armor_mitigation.parameter(self.level)
 
-    def ep_helper(self,stat):
+    def ep_helper(self, stat):
         if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp', 'mh_dodge_exp', 'oh_dodge_exp', 'mh_parry_exp', 'oh_parry_exp'):
             setattr(self.stats, stat, getattr(self.stats, stat) + 1.)
         else:
@@ -140,7 +140,7 @@ class DamageCalculator(object):
                     getattr(self.stats, hand).speed = speed
                     new_dps = self.get_dps()
                     ep = (new_dps - baseline_dps) / (normalize_dps - baseline_dps)
-                    ep_values[hand + '_' +  str(speed)] = ep
+                    ep_values[hand + '_' + str(speed)] = ep
                     getattr(self.stats, hand).speed = old_speed
 
             if hand == 'mh':
@@ -290,7 +290,7 @@ class DamageCalculator(object):
 
     def melee_hit_chance(self, base_miss_chance, dodgeable, parryable, weapon_type):
         hit_chance = self.stats.get_melee_hit_from_rating() + self.race.get_racial_hit() + self.get_melee_hit_from_talents()
-        miss_chance = max(base_miss_chance - hit_chance,0)
+        miss_chance = max(base_miss_chance - hit_chance, 0)
 
         #Expertise represented as the reduced chance to be dodged or parried, not true "Expertise"
         expertise = self.stats.get_expertise_from_rating() + self.race.get_racial_expertise(weapon_type)
@@ -357,7 +357,7 @@ class DamageCalculator(object):
 
     def dual_wield_hit_chance(self, dodgeable, parryable, weapon_type):
         hit_chance = self.melee_hit_chance(self.BASE_DW_MISS_RATE, dodgeable, parryable, weapon_type)
-        if self.calculating_ep in ('yellow_hit','spell_hit','white_hit'):
+        if self.calculating_ep in ('yellow_hit', 'spell_hit', 'white_hit'):
             hit_chance -= self.stats.get_melee_hit_from_rating(1)
         return hit_chance
 
