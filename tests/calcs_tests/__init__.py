@@ -26,7 +26,7 @@ class TestDamageCalculator(unittest.TestCase):
 
     def test_melee_hit_chance(self):
         pass
-    
+
     def test_one_hand_melee_hit_chance(self):
         self.assertAlmostEqual(
             self.calculator.one_hand_melee_hit_chance(dodgeable=False, parryable=False),
@@ -48,7 +48,7 @@ class TestDamageCalculator(unittest.TestCase):
         self.assertAlmostEqual(
             self.calculator.one_hand_melee_hit_chance(dodgeable=True, parryable=False),
             1.0 - 0.065 - 0.08)
-    
+
     def test_dual_wield_mh_hit_chance(self):
         self.assertAlmostEqual(
             self.calculator.dual_wield_mh_hit_chance(dodgeable=False, parryable=False),
@@ -67,25 +67,25 @@ class TestDamageCalculator(unittest.TestCase):
         self.assertAlmostEqual(
             self.calculator.dual_wield_mh_hit_chance(dodgeable=False, parryable=True),
             1.0 - 0.27 - 0.14)
-        
+
     def test_dual_wield_oh_hit_chance(self):
         pass
-    
+
     def test_spell_hit_chance(self):
         self.assertAlmostEqual(self.calculator.spell_hit_chance(),
             1.0 - (0.17 - 0.01 * (1086 / 102.445999145507812)))
-            
+
     def test_buff_melee_crit(self):
         pass
-    
+
     def test_buff_spell_crit(self):
         pass
-    
+
     def test_target_armor(self):
         pass
 
     def test_raid_settings_modifiers(self):
-        self.assertRaises(exceptions.InvalidInputException, self.calculator.raid_settings_modifiers)
+        self.assertRaises(exceptions.InvalidInputException, self.calculator.raid_settings_modifiers, '')
 
     def test_mixology_no_flask(self):
         test_calculator = self.make_calculator(gear_buffs_list=['mixology'])
