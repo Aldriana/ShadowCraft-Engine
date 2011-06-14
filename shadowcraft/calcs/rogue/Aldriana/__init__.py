@@ -216,23 +216,16 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
     def set_matrix_restabilizer_stat(self, base_stats):
         base_stats_for_matrix_restabilizer = {}
-        for key in self.base_stats.keys():
+        for key in self.base_stats:
             if key in ('haste', 'mastery', 'crit'):
                 base_stats_for_matrix_restabilizer[key] = self.base_stats[key]
         sorted_list = base_stats_for_matrix_restabilizer.keys()
-        sorted_list.sort(cmp=lambda b, a: cmp(base_stats_for_matrix_restabilizer[a],base_stats_for_matrix_restabilizer[b]))
+        sorted_list.sort(cmp=lambda b, a: cmp(base_stats_for_matrix_restabilizer[a], base_stats_for_matrix_restabilizer[b]))
 
         if self.stats.procs.heroic_matrix_restabilizer:
             self.stats.procs.heroic_matrix_restabilizer.stat = sorted_list[0]
         if self.stats.procs.matrix_restabilizer:
             self.stats.procs.matrix_restabilizer.stat = sorted_list[0]
-
-    def unheeded_warning_bonus(self):
-        # This relies on set_uptime being called for the proc in compute_damage before any of the actual computation stuff is invoked.
-        proc = self.stats.procs.unheeded_warning
-        if not proc:
-            return 0
-        return proc.value * proc.uptime
 
     def get_t12_2p_damage(self, damage_breakdown):
         crit_damage = 0
@@ -458,6 +451,17 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         elif proc.stat == 'physical_damage':
             attacks_per_second[proc.proc_name] = self.get_procs_per_second(proc, attacks_per_second, crit_rates) * self.strike_hit_chance
 
+    def update_with_unheeded_warning(self, attacks_per_second, crit_rates):
+        if self.stats.procs.unheeded_warning:
+            proc = self.stats.procs.unheeded_warning
+            self.set_uptime(proc, attacks_per_second, crit_rates)
+            bonus = proc.value * proc.uptime
+        else:
+            bonus = None
+
+        self.stats.mh.update_with_weapon_bonus(bonus)
+        self.stats.oh.update_with_weapon_bonus(bonus)
+
     def update_crit_rates_for_4pc_t11(self, attacks_per_second, crit_rates):
         t11_4pc_bonus = self.stats.procs.rogue_t11_4pc
         if t11_4pc_bonus:
@@ -598,12 +602,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attacks_per_second, crit_rates = attack_counts_function(current_stats)
 
         self.update_crit_rates_for_4pc_t11(attacks_per_second, crit_rates)
+        self.update_with_unheeded_warning(attacks_per_second, crit_rates)
 
         for proc in damage_procs:
             self.update_with_damaging_proc(proc, attacks_per_second, crit_rates)
-
-        if self.stats.procs.unheeded_warning:
-            self.set_uptime(self.stats.procs.unheeded_warning, attacks_per_second, crit_rates)
 
         damage_breakdown = self.get_damage_breakdown(current_stats, attacks_per_second, crit_rates, damage_procs)
 

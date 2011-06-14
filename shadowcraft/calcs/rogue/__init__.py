@@ -134,7 +134,7 @@ class RogueDamageCalculator(DamageCalculator):
         return total_modifier
 
     def mh_damage(self, ap, armor=None, is_bleeding=True):
-        weapon_damage = self.stats.mh.damage(ap) + self.unheeded_warning_bonus()
+        weapon_damage = self.stats.mh.damage(ap)
         multiplier = self.talents_modifiers(['assassins_resolve'], is_bleeding=is_bleeding)
         multiplier *= self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
@@ -145,7 +145,7 @@ class RogueDamageCalculator(DamageCalculator):
         return damage, crit_damage
 
     def oh_damage(self, ap, armor=None, is_bleeding=True):
-        weapon_damage = self.stats.oh.damage(ap) + self.unheeded_warning_bonus()
+        weapon_damage = self.stats.oh.damage(ap)
         multiplier = self.talents_modifiers(['assassins_resolve'], is_bleeding=is_bleeding)
         multiplier *= self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
@@ -156,7 +156,7 @@ class RogueDamageCalculator(DamageCalculator):
         return damage, crit_damage
 
     def backstab_damage(self, ap, armor=None, is_bleeding=True):
-        weapon_damage = self.stats.mh.normalized_damage(ap) + self.unheeded_warning_bonus()
+        weapon_damage = self.stats.mh.normalized_damage(ap)
         multiplier = self.talents_modifiers(['opportunity', 'aggression', 'assassins_resolve'], is_bleeding=is_bleeding)
         multiplier *= self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
@@ -171,7 +171,7 @@ class RogueDamageCalculator(DamageCalculator):
         return damage, crit_damage
 
     def mh_mutilate_damage(self, ap, is_poisoned=True, armor=None):
-        mh_weapon_damage = self.stats.mh.normalized_damage(ap) + self.unheeded_warning_bonus()
+        mh_weapon_damage = self.stats.mh.normalized_damage(ap)
         multiplier = self.talents_modifiers(['opportunity', 'assassins_resolve'])
         multiplier *= self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
@@ -186,7 +186,7 @@ class RogueDamageCalculator(DamageCalculator):
         return mh_damage, crit_mh_damage
 
     def oh_mutilate_damage(self, ap, is_poisoned=True, armor=None):
-        oh_weapon_damage = self.stats.oh.normalized_damage(ap) + self.unheeded_warning_bonus()
+        oh_weapon_damage = self.stats.oh.normalized_damage(ap)
         multiplier = self.talents_modifiers(['opportunity', 'assassins_resolve'])
         multiplier *= self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
@@ -201,7 +201,7 @@ class RogueDamageCalculator(DamageCalculator):
         return oh_damage, crit_oh_damage
 
     def sinister_strike_damage(self, ap, armor=None, is_bleeding=True):
-        weapon_damage = self.stats.mh.normalized_damage(ap) + self.unheeded_warning_bonus()
+        weapon_damage = self.stats.mh.normalized_damage(ap)
         multiplier = self.talents_modifiers(['aggression', 'improved_sinister_strike', 'assassins_resolve'], is_bleeding=is_bleeding)
         multiplier *= self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
@@ -212,7 +212,7 @@ class RogueDamageCalculator(DamageCalculator):
         return damage, crit_damage
 
     def hemorrhage_damage(self, ap, armor=None, is_bleeding=True):
-        weapon_damage = self.stats.mh.normalized_damage(ap) + self.unheeded_warning_bonus()
+        weapon_damage = self.stats.mh.normalized_damage(ap)
         multiplier = self.talents_modifiers([], is_bleeding=is_bleeding)
         multiplier *= self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
@@ -243,7 +243,7 @@ class RogueDamageCalculator(DamageCalculator):
         return tick_damage[from_crit_hemo], crit_tick_damage[from_crit_hemo]
 
     def ambush_damage(self, ap, armor=None, is_bleeding=True):
-        weapon_damage = self.stats.mh.normalized_damage(ap) + self.unheeded_warning_bonus()
+        weapon_damage = self.stats.mh.normalized_damage(ap)
         multiplier = self.talents_modifiers(['opportunity', 'improved_ambush', 'assassins_resolve'], is_bleeding=is_bleeding)
         multiplier *= self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
@@ -258,7 +258,7 @@ class RogueDamageCalculator(DamageCalculator):
         return damage, crit_damage
 
     def revealing_strike_damage(self, ap, armor=None):
-        weapon_damage = self.stats.mh.damage(ap) + self.unheeded_warning_bonus()
+        weapon_damage = self.stats.mh.damage(ap)
         multiplier = self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
@@ -278,7 +278,7 @@ class RogueDamageCalculator(DamageCalculator):
         return damage, crit_damage
 
     def main_gauche_damage(self, ap, armor=None):
-        weapon_damage = self.stats.mh.normalized_damage(ap) + self.unheeded_warning_bonus()
+        weapon_damage = self.stats.mh.normalized_damage(ap)
         multiplier = self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
@@ -288,7 +288,7 @@ class RogueDamageCalculator(DamageCalculator):
         return damage, crit_damage
 
     def mh_killing_spree_damage(self, ap, armor=None):
-        mh_weapon_damage = self.stats.mh.normalized_damage(ap) + self.unheeded_warning_bonus()
+        mh_weapon_damage = self.stats.mh.normalized_damage(ap)
         multiplier = self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
@@ -298,7 +298,7 @@ class RogueDamageCalculator(DamageCalculator):
         return mh_damage, crit_mh_damage
 
     def oh_killing_spree_damage(self, ap, armor=None):
-        oh_weapon_damage = self.stats.oh.normalized_damage(ap) + self.unheeded_warning_bonus()
+        oh_weapon_damage = self.stats.oh.normalized_damage(ap)
         multiplier = self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
