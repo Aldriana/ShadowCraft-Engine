@@ -39,7 +39,7 @@ allowed_procs = {
         'stat': 'weird_proc',
         'value': 1730,
         'duration': 30,
-        'icd': 150,
+        'icd': 105,
         'proc_chance': .1,
         'trigger': 'all_attacks',
         'proc_name': 'Matrix Restabilizer'
@@ -57,7 +57,7 @@ allowed_procs = {
         'stat': 'haste',
         'value': 1730,
         'duration': 15,
-        'icd': 75,
+        'icd': 60,
         'proc_chance': .1,
         'trigger': 'all_attacks',
         'proc_name': 'Devour'
@@ -163,7 +163,7 @@ allowed_procs = {
         'stat': 'weird_proc',
         'value': 1532,
         'duration': 30,
-        'icd': 150,
+        'icd': 105,
         'proc_chance': .1,
         'trigger': 'all_attacks',
         'proc_name': 'Matrix Restabilizer'
@@ -218,7 +218,7 @@ allowed_procs = {
         'stat': 'haste',
         'value': 1532,
         'duration': 15,
-        'icd': 75,
+        'icd': 60,
         'proc_chance': .1,
         'trigger': 'all_attacks',
         'proc_name': 'Devour'

@@ -91,6 +91,10 @@ class TestRogueDamageCalculator(unittest.TestCase):
     def test_hemorrhage_damage(self):
         self.assertTrue(self.calculator.hemorrhage_damage(0) < self.calculator.hemorrhage_damage(1))
 
+    def test_hemorrhage_tick_damage(self):
+        self.assertTrue(self.calculator.hemorrhage_tick_damage(0) < self.calculator.hemorrhage_tick_damage(1))
+        self.assertTrue(self.calculator.hemorrhage_tick_damage(0, from_crit_hemo=False) < self.calculator.hemorrhage_tick_damage(0, from_crit_hemo=True))
+
     def test_ambush_damage(self):
         self.assertTrue(self.calculator.ambush_damage(0) < self.calculator.ambush_damage(1))
 

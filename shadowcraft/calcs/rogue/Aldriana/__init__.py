@@ -1394,7 +1394,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         del attacks_per_second['cp_builder']
 
         if self.glyphs.hemorrhage and 'hemorrhage' in attacks_per_second:
-            base_ticks_per_second = min(int(hemorrhage_interval / 3), 8.) / hemorrhage_interval
+            base_ticks_per_second = min(int(hemorrhage_interval / 3), 8) * 1. / hemorrhage_interval
             if hemorrhage_interval < 24 and self.talents.shadow_dance:
                 # Not particularly accurate but good enough a ballpark
                 # for something that won't get much of an use.
