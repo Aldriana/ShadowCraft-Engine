@@ -88,10 +88,9 @@ class RogueDamageCalculator(DamageCalculator):
             return .5
 
     def talents_modifiers(self, talents_list, mastery=None, is_bleeding=True):
-        # This function gets called in every ability affected by talents.
-        # talents passes a list distinguishing which talents affect the
-        # spell in question. It returns the final modifier for their
-        # respective additive/multiplicative values
+        # Call this function in every ability affected by talents. They get
+        # passed as strings in talents_list. It returns the final modifier for
+        # their respective additive/multiplicative values
         base_modifier = 1
         if 'opportunity' in talents_list:
             base_modifier += .1 * self.talents.opportunity

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-28 17:32+0100\n"
+"POT-Creation-Date: 2011-06-16 16:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,145 +16,169 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: assassination.py:117 combat.py:103 subtlety.py:104 core/jsoninput.py:162
+#: scripts/assassination.py:137 scripts/combat.py:106 scripts/subtlety.py:107
+#: shadowcraft/core/jsoninput.py:162
 msgid "total damage per second."
 msgstr ""
 
-#: calcs/__init__.py:100
+#: shadowcraft/calcs/__init__.py:171
 msgid "not allowed"
 msgstr ""
 
-#: calcs/__init__.py:125
+#: shadowcraft/calcs/__init__.py:195
 msgid "not supported"
 msgstr ""
 
-#: calcs/__init__.py:199
+#: shadowcraft/calcs/__init__.py:217 shadowcraft/calcs/__init__.py:251
 msgid "not implemented"
 msgstr ""
 
-#: calcs/__init__.py:324
-msgid ""
-"Attacks cannot benefit from more than one type of raid damage multiplier"
+#: shadowcraft/calcs/__init__.py:387
+msgid "Attacks must be categorized as physical, spell or bleed"
 msgstr ""
 
-#: calcs/armor_mitigation.py:17
+#: shadowcraft/calcs/armor_mitigation.py:17
 msgid "No armor mitigation parameters available for level {level}"
 msgstr ""
 
-#: calcs/rogue/__init__.py:67
+#: shadowcraft/calcs/rogue/__init__.py:71
 msgid "No {spell_name} formula available for level {level}"
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:30 calcs/rogue/Aldriana/__init__.py:41
+#: shadowcraft/calcs/rogue/Aldriana/__init__.py:31
+#: shadowcraft/calcs/rogue/Aldriana/__init__.py:42
 msgid "You must have 31 points in at least one talent tree."
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:326
+#: shadowcraft/calcs/rogue/Aldriana/__init__.py:418
 msgid "PPMs that also proc off spells are not yet modeled."
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:378
+#: shadowcraft/calcs/rogue/Aldriana/__init__.py:470
 msgid ""
 "Unable to model the 4pc T11 set bonus in a cycle that uses both eviscerate "
 "and envenom"
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:525
+#: shadowcraft/calcs/rogue/Aldriana/__init__.py:636
 msgid ""
 "You must specify an assassination cycle to match your assassination spec."
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:527
+#: shadowcraft/calcs/rogue/Aldriana/__init__.py:638
 msgid "Assassination modeling requires daggers in both hands"
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:530
+#: shadowcraft/calcs/rogue/Aldriana/__init__.py:641
 msgid ""
 "Assassination modeling requires instant poison on one weapon and deadly on "
 "the other"
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:536
+#: shadowcraft/calcs/rogue/Aldriana/__init__.py:647
 msgid "Assassination modeling requires one point in Master Poisoner"
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:538
+#: shadowcraft/calcs/rogue/Aldriana/__init__.py:649
 msgid "Assassination modeling requires three points in Cut to the Chase"
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:837
+#: shadowcraft/calcs/rogue/Aldriana/__init__.py:948
 msgid "You must specify a combat cycle to match your combat spec."
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:840
+#: shadowcraft/calcs/rogue/Aldriana/__init__.py:951
 msgid "Revealing strike usage must be set to always, sometimes, or never"
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:843
+#: shadowcraft/calcs/rogue/Aldriana/__init__.py:954
 msgid ""
 "Cannot specify revealing strike usage in cycle without taking the talent."
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:1066
+#: shadowcraft/calcs/rogue/Aldriana/__init__.py:1179
 msgid "You must specify a subtlety cycle to match your subtlety spec."
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:1069
-msgid "Subtlety modeling currently requires a MH dagger"
+#: shadowcraft/calcs/rogue/Aldriana/__init__.py:1182
+msgid ""
+"Subtlety modeling requires a MH dagger if Hemorrhage is not the main combo "
+"point builder"
 msgstr ""
 
-#: calcs/rogue/Aldriana/__init__.py:1072
+#: shadowcraft/calcs/rogue/Aldriana/__init__.py:1186
+msgid "Hemorrhage usage must be set to always, never or a positive number"
+msgstr ""
+
+#: shadowcraft/calcs/rogue/Aldriana/__init__.py:1188
+msgid "Interval between Hemorrhages cannot be higher than the fight duration"
+msgstr ""
+
+#: shadowcraft/calcs/rogue/Aldriana/__init__.py:1191
 msgid "Subtlety modeling currently requires 2 points in Serrated Blades"
 msgstr ""
 
-#: objects/buffs.py:33
+#: shadowcraft/calcs/rogue/Aldriana/__init__.py:1286
+msgid ""
+"Interval between Hemorrhages cannot be lower than {interval} for this gearset"
+msgstr ""
+
+#: shadowcraft/objects/buffs.py:33
 msgid "Invalid buff {buff}"
 msgstr ""
 
-#: objects/buffs.py:52 objects/stats.py:46
+#: shadowcraft/objects/buffs.py:52 shadowcraft/objects/stats.py:46
 msgid "No conversion factor available for level {level}"
 msgstr ""
 
-#: objects/procs.py:78
+#: shadowcraft/objects/procs.py:79
 msgid "Weapon speed needed to calculate the proc rate of {proc}"
 msgstr ""
 
-#: objects/procs.py:90
+#: shadowcraft/objects/procs.py:91
 msgid "Invalid data for proc {proc}"
 msgstr ""
 
-#: objects/procs.py:101
+#: shadowcraft/objects/procs.py:102
 msgid "No data for proc {proc}"
 msgstr ""
 
-#: objects/race.py:95
+#: shadowcraft/objects/race.py:95
 msgid "Unsupported race {race}"
 msgstr ""
 
-#: objects/race.py:99
+#: shadowcraft/objects/race.py:99
 msgid "Unsupported class {character_class}"
 msgstr ""
 
-#: objects/race.py:120
+#: shadowcraft/objects/race.py:128
 msgid "Unsupported class/level combination {character_class}/{level}"
 msgstr ""
 
-#: objects/talents.py:27
+#: shadowcraft/objects/stats.py:134
+msgid "Enchant {enchant} is not allowed."
+msgstr ""
+
+#: shadowcraft/objects/stats.py:136
+msgid "Only melee weapons can be enchanted with {enchant}."
+msgstr ""
+
+#: shadowcraft/objects/talents.py:26
 msgid "Invalid talent name {talent_name}"
 msgstr ""
 
-#: objects/talents.py:29
+#: shadowcraft/objects/talents.py:29
 msgid "Invalid value {talent_value} for talent {talent_name}"
 msgstr ""
 
-#: objects/talents.py:39
+#: shadowcraft/objects/talents.py:39
 msgid "Invalid talent string {talent_string}"
 msgstr ""
 
-#: core/jsoninput.py:37
+#: shadowcraft/core/jsoninput.py:37
 msgid "Missing settings"
 msgstr ""
 
-#: core/jsoninput.py:62
+#: shadowcraft/core/jsoninput.py:62
 msgid "Missing required input {key}"
 msgstr ""
