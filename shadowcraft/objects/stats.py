@@ -103,7 +103,6 @@ class Weapon(object):
     }
 
     def __init__(self, damage, speed, weapon_type, enchant=None):
-        self._weapon_damage = float(damage)
         self.speed = speed
         self.weapon_dps = damage * 1.0 / speed
         self.type = weapon_type
@@ -149,12 +148,6 @@ class Weapon(object):
 
     def is_melee(self):
         return not self.type in frozenset(['gun', 'bow', 'crossbow', 'thrown'])
-
-    def update_with_weapon_bonus(self, bonus):
-        if bonus is None:
-            self.weapon_dps = self._weapon_damage / self.speed
-        else:
-            self.weapon_dps = (self._weapon_damage + bonus) / self.speed
 
     def damage(self, ap=0):
         return self.speed * (self.weapon_dps + ap / 14.)

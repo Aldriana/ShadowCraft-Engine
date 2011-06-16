@@ -203,14 +203,16 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 modifier = self.raid_settings_modifiers('physical')
                 crit_multiplier = self.crit_damage_modifiers(is_spell=False)
                 crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
+                hit_chance = self.strike_hit_chance
             elif item['stat'] == 'spell_damage':
                 modifier = self.raid_settings_modifiers('spell')
                 crit_multiplier = self.crit_damage_modifiers(is_spell=True)
                 crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
+                hit_chance = self.spell_hit_chance()
             base_damage = item['value'] * modifier
             frequency = 1. / (item['cooldown'] + self.settings.response_time)
-            average_dps = base_damage * (1 + crit_rate * (crit_multiplier - 1)) * frequency
-            crit_contribution = base_damage * crit_rate * crit_multiplier * frequency
+            average_dps = base_damage * (1 + crit_rate * (crit_multiplier - 1)) * frequency * hit_chance
+            crit_contribution = base_damage * crit_rate * crit_multiplier * frequency * hit_chance
 
             damage_breakdown[item['name']] = average_dps, crit_contribution
 
@@ -451,16 +453,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         elif proc.stat == 'physical_damage':
             attacks_per_second[proc.proc_name] = self.get_procs_per_second(proc, attacks_per_second, crit_rates) * self.strike_hit_chance
 
-    def update_with_unheeded_warning(self, attacks_per_second, crit_rates):
+    def get_weapon_damage_bonus(self):
+        bonus = 0
         if self.stats.procs.unheeded_warning:
             proc = self.stats.procs.unheeded_warning
-            self.set_uptime(proc, attacks_per_second, crit_rates)
-            bonus = proc.value * proc.uptime
-        else:
-            bonus = None
+            bonus += proc.value * proc.uptime
 
-        self.stats.mh.update_with_weapon_bonus(bonus)
-        self.stats.oh.update_with_weapon_bonus(bonus)
+        return bonus
 
     def update_crit_rates_for_4pc_t11(self, attacks_per_second, crit_rates):
         t11_4pc_bonus = self.stats.procs.rogue_t11_4pc
@@ -533,12 +532,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         active_procs = []
         damage_procs = []
+        weapon_damage_procs = []
 
         for proc_info in self.stats.procs.get_all_procs_for_stat():
             if proc_info.stat in current_stats and not proc_info.is_ppm():
                 active_procs.append(proc_info)
             if proc_info.stat in ('spell_damage', 'physical_damage'):
                 damage_procs.append(proc_info)
+            if proc_info.stat == 'extra_weapon_damage':
+                weapon_damage_procs.append(proc_info)
 
         mh_landslide = self.stats.mh.landslide
         if mh_landslide:
@@ -602,10 +604,12 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attacks_per_second, crit_rates = attack_counts_function(current_stats)
 
         self.update_crit_rates_for_4pc_t11(attacks_per_second, crit_rates)
-        self.update_with_unheeded_warning(attacks_per_second, crit_rates)
 
         for proc in damage_procs:
             self.update_with_damaging_proc(proc, attacks_per_second, crit_rates)
+
+        for proc in weapon_damage_procs:
+            self.set_uptime(proc, attacks_per_second, crit_rates)
 
         damage_breakdown = self.get_damage_breakdown(current_stats, attacks_per_second, crit_rates, damage_procs)
 

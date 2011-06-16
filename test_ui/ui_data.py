@@ -303,8 +303,8 @@ trinkets = {
     # "Aella's Bottle": {'id': 71633, 'agi': 340, 'gear_buff': 'rickets_magnetic_fireball'}, # unobtainable
     "Ricket's Magnetic Fireball": {'id': 70144, 'agi': 340, 'gear_buff': 'rickets_magnetic_fireball', 'proc': 'rickets_magnetic_fireball_proc'},
     '(H)Matrix Restabilizer': {'id': 68150, 'agi': 433, 'proc': 'heroic_matrix_restabilizer'},
-    'Matrix Restabilizer': {'id': 68994, 'agi': 383, 'proc': 'matrix_restabilizer'},
-    '(H)The Hungerer': {'id': 69112, 'agi': 433, 'proc': 'heroic_the_hungerer'},
+    'Matrix Restabilizer': {'id': 68994, 'agi': 406, 'proc': 'matrix_restabilizer'},
+    '(H)The Hungerer': {'id': 69112, 'agi': 458, 'proc': 'heroic_the_hungerer'},
     'The Hungerer': {'id': 68927, 'agi': 383, 'proc': 'the_hungerer'},
     '(H)Ancient Petrified Seed': {'id': 69199, 'mastery': 433, 'gear_buff': 'heroic_ancient_petrified_seed'},
     'Ancient Petrified Seed': {'id': 69001, 'mastery': 383, 'gear_buff': 'ancient_petrified_seed'},
@@ -348,7 +348,7 @@ melee_weapons = {
     # '2.6m Shatterskull Bonecrusher': {'id': 71782, 'agi': 175, 'crit': 123, 'haste': 105, 'damage': 1435, 'speed': 2.6, 'type': 'mace'}, # throws error when included
     # '2.6m (H)Shatterskull Bonecrusher': {'id': 71783, 'agi': 197, 'crit': 139, 'haste': 119, 'damage': 1619.5, 'speed': 2.6, 'type': 'mace'}, # throws error when included
     # "2.6m Tremendous Tankard O' Terror": {'id': 71332, 'agi': 153, 'crit': 99, 'haste': 97, 'damage': 1271, 'speed': 2.6, 'type': 'mace'}, # seasonal, throws error when included
-    '2.6s Pyrium Spellward': {'id': 70162, 'agi': 155, 'hit': 103, 'mastery': 103, 'damage': 1271, 'speed': 2.6, 'type': 'sword'}, # New in 4.2
+    '2.6s Pyrium Spellward': {'id': 70162, 'agi': 155, 'hit': 103, 'mastery': 103, 'damage': 1271, 'speed': 2.6, 'type': 'sword'},
     # "2.6s The Horseman's Sinister Saber": {'id': 71325, 'agi': 103, 'hit': 103, 'exp': 103, 'damage': 1271, 'speed': 2.6, 'type': 'sword'}, # main hand - seasonal, not modeled gear_buff, throws error when included
     # ----- 4.1 -----
     # '1.8d Twinblade of the Hakkari': {'id': 69621, 'agi': 138, 'crit': 92, 'haste': 92, 'damage': 786.5, 'speed': 1.8, 'type': 'dagger'}, # throws error when included
