@@ -169,8 +169,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             self.set_matrix_restabilizer_stat(self.base_stats)
 
     def get_proc_damage_contribution(self, proc, proc_count, current_stats):
-        base_damage = proc.value
-
         if proc.stat == 'spell_damage':
             multiplier = self.raid_settings_modifiers('spell')
             crit_multiplier = self.crit_damage_modifiers(is_spell=True)
@@ -185,8 +183,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if proc.can_crit == False:
             crit_rate = 0
 
-        average_damage = base_damage * multiplier * (1 + crit_rate * (crit_multiplier - 1)) * proc_count
-        crit_contribution = base_damage * multiplier * crit_rate * proc_count
+        average_hit = proc.value * multiplier
+        average_damage = average_hit * (1 + crit_rate * (crit_multiplier - 1)) * proc_count
+        crit_contribution = average_hit * crit_multiplier * crit_rate * proc_count
         return average_damage, crit_contribution
 
     def append_damage_on_use(self, average_ap, current_stats, damage_breakdown):
@@ -209,10 +208,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 crit_multiplier = self.crit_damage_modifiers(is_spell=True)
                 crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
                 hit_chance = self.spell_hit_chance()
-            base_damage = item['value'] * modifier
+            average_hit = item['value'] * modifier
             frequency = 1. / (item['cooldown'] + self.settings.response_time)
-            average_dps = base_damage * (1 + crit_rate * (crit_multiplier - 1)) * frequency * hit_chance
-            crit_contribution = base_damage * crit_rate * crit_multiplier * frequency * hit_chance
+            average_dps = average_hit * (1 + crit_rate * (crit_multiplier - 1)) * frequency * hit_chance
+            crit_contribution = average_hit * crit_multiplier * crit_rate * frequency * hit_chance
 
             damage_breakdown[item['name']] = average_dps, crit_contribution
 
