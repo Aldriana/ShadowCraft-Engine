@@ -302,7 +302,7 @@ trinkets = {
     # ----- 4.2 -----
     # "Aella's Bottle": {'id': 71633, 'agi': 340, 'gear_buff': 'rickets_magnetic_fireball'}, # unobtainable
     "Ricket's Magnetic Fireball": {'id': 70144, 'agi': 340, 'gear_buff': 'rickets_magnetic_fireball', 'proc': 'rickets_magnetic_fireball_proc'},
-    '(H)Matrix Restabilizer': {'id': 68150, 'agi': 433, 'proc': 'heroic_matrix_restabilizer'},
+    '(H)Matrix Restabilizer': {'id': 69150, 'agi': 433, 'proc': 'heroic_matrix_restabilizer'},
     'Matrix Restabilizer': {'id': 68994, 'agi': 406, 'proc': 'matrix_restabilizer'},
     '(H)The Hungerer': {'id': 69112, 'agi': 458, 'proc': 'heroic_the_hungerer'},
     'The Hungerer': {'id': 68927, 'agi': 383, 'proc': 'the_hungerer'},
@@ -413,7 +413,6 @@ ranged = {
     'Spinerender': {'id': 68162, 'agi': 107, 'crit': 72, 'hit': 72, 'damage': 1371.5, 'speed': 2.2, 'type': 'thrown'},
     '(H)Slashing Thorns': {'id': 56420, 'agi': 95, 'crit': 63, 'hit': 63, 'damage': 1104.5, 'speed': 2, 'type': 'thrown'},
     'Slashing Thorns': {'id': 56001, 'agi': 84, 'crit': 56, 'hit': 56, 'damage': 978.5, 'speed': 2, 'type': 'thrown'},
-
 }
 
 default_talents = {

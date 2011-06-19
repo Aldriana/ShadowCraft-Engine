@@ -233,18 +233,17 @@ class RogueDamageCalculator(DamageCalculator):
         return damage, crit_damage
 
     def hemorrhage_tick_damage(self, ap, from_crit_hemo=False, armor=None):
-        # from_crit_hemo lets the modeler deal with crit chances by returning
-        # a different tuple depending on the crit/non-crit hemorrhage strike.
-        hemo_damage_tuple = self.hemorrhage_damage(ap, armor=armor)
+        # Call this function twice to get all four crit/non-crit hemo values.
+        hemo_damage = self.hemorrhage_damage(ap, armor=armor)[from_crit_hemo]
         multiplier = self.talents_modifiers([])
         multiplier *= self.raid_settings_modifiers('bleed')
         crit_multiplier = self.crit_damage_modifiers()
 
         tick_conversion_factor = .4 / 8
-        tick_damage = [i * multiplier * tick_conversion_factor for i in hemo_damage_tuple]
-        crit_tick_damage = [i * crit_multiplier for i in tick_damage]
+        tick_damage = hemo_damage * multiplier * tick_conversion_factor
+        crit_tick_damage = tick_damage * crit_multiplier
 
-        return tick_damage[from_crit_hemo], crit_tick_damage[from_crit_hemo]
+        return tick_damage, crit_tick_damage
 
     def ambush_damage(self, ap, armor=None, is_bleeding=True):
         weapon_damage = self.stats.mh.normalized_damage(ap) + self.get_weapon_damage_bonus()

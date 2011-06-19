@@ -1184,7 +1184,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.settings.cycle.use_hemorrhage not in ('always', 'never'):
             if float(self.settings.cycle.use_hemorrhage) <= 0:
                 raise InputNotModeledException(_('Hemorrhage usage must be set to always, never or a positive number'))
-            if self.settings.cycle.use_hemorrhage > self.settings.duration:
+            if float(self.settings.cycle.use_hemorrhage) > self.settings.duration:
                 raise InputNotModeledException(_('Interval between Hemorrhages cannot be higher than the fight duration'))
 
         if self.talents.serrated_blades != 2:
