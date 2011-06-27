@@ -44,7 +44,7 @@ class Stats(object):
             self.mastery_rating_conversion = self.mastery_rating_conversion_values[self.level]
         except KeyError:
             raise exceptions.InvalidLevelException(_('No conversion factor available for level {level}').format(level=self.level))
-    
+
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
         if name == 'level':
@@ -92,7 +92,7 @@ class Weapon(object):
             'proc_name': 'Hurricane'
         },
         'landslide': {          # Completely guessing at proc behavior.
-            'stat':'ap',
+            'stat': 'ap',
             'value': 1000,
             'duration': 12,
             'icd': 0,
@@ -157,31 +157,32 @@ class Weapon(object):
 
 # Catch-all for non-proc gear based buffs (static or activated)
 class GearBuffs(object):
-    allowed_buffs = frozenset([
+    activated_boosts = {
+        # Duration and cool down in seconds - name is mandatory for damage-on-use boosts
+        'unsolvable_riddle':              {'stat': 'agi', 'value': 1605, 'duration': 20, 'cooldown': 120},
+        'demon_panther':                  {'stat': 'agi', 'value': 1425, 'duration': 20, 'cooldown': 120},
+        'skardyns_grace':                 {'stat': 'mastery', 'value': 1260, 'duration': 20, 'cooldown': 120},
+        'heroic_skardyns_grace':          {'stat': 'mastery', 'value': 1425, 'duration': 20, 'cooldown': 120},
+        'potion_of_the_tolvir':           {'stat': 'agi', 'value': 1200, 'duration': 25, 'cooldown': None}, #Cooldown = fight length
+        'potion_of_the_tolvir_prepot':    {'stat': 'agi', 'value': 1200, 'duration': 23, 'cooldown': None}, #Very rough guesstimate; actual modeling should be done with the opener sequence, alas, there's no such thing.
+        'engineer_glove_enchant':         {'stat': 'haste', 'value': 340, 'duration': 12, 'cooldown': 60},
+        'lifeblood':                      {'stat': 'haste', 'value': 480, 'duration': 20, 'cooldown': 120},
+        'ancient_petrified_seed':         {'stat': 'agi', 'value': 1227, 'duration': 15, 'cooldown': 60},
+        'heroic_ancient_petrified_seed':  {'stat': 'agi', 'value': 1441, 'duration': 15, 'cooldown': 60},
+        'rickets_magnetic_fireball':      {'stat': 'crit', 'value': 1700, 'duration': 20, 'cooldown': 120},
+    }
+
+    other_gear_buffs = [
         'leather_specialization',       # Increase %stat by 5%
         'chaotic_metagem',              # Increase critical damage by 3%
         'rogue_t11_2pc',                # Increase crit chance for BS, Mut, SS by 5%
-        'engineer_glove_enchant',
-        'unsolvable_riddle',
-        'demon_panther',
-        'skardyns_grace',
-        'heroic_skardyns_grace',
-        'potion_of_the_tolvir',
-        'lifeblood',
+        'rogue_t12_2pc',                # Add 6% of melee crit damage as a fire DOT
+        'rogue_t12_4pc',                # Increase crit/haste/mastery rating by 25% every TotT
         'mixology',
-        'master_of_anatomy',
-    ])
+        'master_of_anatomy'
+    ]
 
-    # Format is (stat, value, duration, cool down) - duration and cool down in seconds
-    activated_boosts = {
-        'unsolvable_riddle':        {'stat': 'agi', 'value': 1605, 'duration': 20, 'cooldown': 120},
-        'demon_panther':            {'stat': 'agi', 'value': 1425, 'duration': 20, 'cooldown': 120},
-        'skardyns_grace':           {'stat': 'mastery', 'value': 1260, 'duration': 20, 'cooldown': 120},
-        'heroic_skardyns_grace':    {'stat': 'mastery', 'value': 1425, 'duration': 20, 'cooldown': 120},
-        'potion_of_the_tolvir':     {'stat': 'agi', 'value': 1200, 'duration': 25, 'cooldown': None}, #Cooldown = fight length
-        'engineer_glove_enchant':   {'stat': 'haste', 'value': 340, 'duration': 12, 'cooldown': 60},
-        'lifeblood':                {'stat': 'haste', 'value': 480, 'duration': 20, 'cooldown': 120},
-    }
+    allowed_buffs = frozenset(other_gear_buffs + activated_boosts.keys())
 
     def __init__(self, *args):
         for arg in args:
@@ -203,6 +204,18 @@ class GearBuffs(object):
     def rogue_t11_2pc_crit_bonus(self):
         if self.rogue_t11_2pc:
             return .05
+        else:
+            return 0
+
+    def rogue_t12_2pc_damage_bonus(self):
+        if self.rogue_t12_2pc:
+            return .06
+        else:
+            return 0
+
+    def rogue_t12_4pc_stat_bonus(self):
+        if self.rogue_t12_4pc:
+            return .25
         else:
             return 0
 

@@ -60,7 +60,7 @@ class GearPage(wx.Panel):
         "mainhand": 0,
         "offhand": 0,
         "ranged": 0
-        }
+    }
     stats = [
         'str',
         'agi',
@@ -268,12 +268,15 @@ class GearPage(wx.Panel):
         enchant_slots = self.enchants.keys()
 
         tier11_count = 0
+        tier12_count = 0
         for slot in self.gear_slots:
             for stat in self.stats:
                 current_stats[stat] += getattr(self.current_gear[slot], stat)
             gear_buff = self.current_gear[slot].gear_buff
             if 'tier_11' == gear_buff:
                 tier11_count += 1
+            elif 'tier_12' == gear_buff:
+                tier12_count += 1
             elif len(gear_buff) > 0:
                 current_stats['gear_buffs'].append(gear_buff)
             if len(self.current_gear[slot].proc) > 0:
@@ -304,6 +307,11 @@ class GearPage(wx.Panel):
             current_stats['gear_buffs'].append('rogue_t11_2pc')
             if tier11_count >= 4:
                 current_stats['procs'].append('rogue_t11_4pc')
+        if tier12_count >= 2:
+            current_stats['gear_buffs'].append('rogue_t12_2pc')
+            if tier12_count >= 4:
+                current_stats['gear_buffs'].append('rogue_t12_4pc')
+                
         mh = self.current_gear['mainhand']
         enchant = None
         if len(self.enchants['mainhand'].GetValue()) > 0:

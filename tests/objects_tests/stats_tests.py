@@ -2,28 +2,28 @@ import unittest
 from shadowcraft.core import exceptions
 from shadowcraft.objects import stats
 from shadowcraft.objects import procs
-    
+
 class TestStats(unittest.TestCase):
     def setUp(self):
         self.stats = stats.Stats(20, 3485, 190, 1517, 1086, 641, 899, 666, None, None, None, None, None)
 
     def test_stats(self):
         self.assertEqual(self.stats.agi, 3485)
-    
+
     def test_set_constants_for_level(self):
         self.assertRaises(exceptions.InvalidLevelException, self.stats.__setattr__, 'level', 86)
-    
+
     def test_get_mastery_from_rating(self):
         self.assertAlmostEqual(self.stats.get_mastery_from_rating(), 8 + 666 / 179.279998779296875)
         self.assertAlmostEqual(self.stats.get_mastery_from_rating(100),  8 + 100 / 179.279998779296875)
         self.stats.level = 80
         self.assertAlmostEqual(self.stats.get_mastery_from_rating(), 8 + 666 / 45.906)
         self.assertAlmostEqual(self.stats.get_mastery_from_rating(100),  8 + 100 / 45.906)
-    
+
     def test_get_melee_hit_from_rating(self):
         self.assertAlmostEqual(self.stats.get_melee_hit_from_rating(), .01 * 1086 / 120.109001159667969)
         self.assertAlmostEqual(self.stats.get_melee_hit_from_rating(100), .01 * 100 / 120.109001159667969)
-    
+
     def test_get_expertise_from_rating(self):
         self.assertAlmostEqual(self.stats.get_expertise_from_rating(), .01 * 641 / (30.027200698852539 * 4))
         self.assertAlmostEqual(self.stats.get_expertise_from_rating(100), .01 * 100 / (30.027200698852539 * 4))
@@ -31,7 +31,7 @@ class TestStats(unittest.TestCase):
     def test_get_spell_hit_from_rating(self):
         self.assertAlmostEqual(self.stats.get_spell_hit_from_rating(), .01 * 1086 / 102.445999145507812)
         self.assertAlmostEqual(self.stats.get_spell_hit_from_rating(100), .01 * 100 / 102.445999145507812)
-    
+
     def test_get_crit_from_rating(self):
         self.assertAlmostEqual(self.stats.get_crit_from_rating(), .01 * 1517 / 179.279998779296875)
         self.assertAlmostEqual(self.stats.get_crit_from_rating(100), .01 * 100 / 179.279998779296875)
@@ -45,7 +45,7 @@ class TestWeapon(unittest.TestCase):
     def setUp(self):
         self.mh = stats.Weapon(1000, 2.0, 'dagger', 'hurricane')
         self.ranged = stats.Weapon(1104, 2.0, 'thrown')
-    
+
     def test___init__(self):
         self.assertAlmostEqual(self.mh._normalization_speed, 1.7)
         self.assertAlmostEqual(self.mh.speed, 2.0)
@@ -63,17 +63,17 @@ class TestWeapon(unittest.TestCase):
         self.assertTrue(self.mh.hurricane)
         self.assertFalse(self.mh.landslide)
         self.assertRaises(AttributeError, self.mh.__getattr__, 'fake_enchant')
-    
+
     def test_is_melee(self):
         self.assertTrue(self.mh.is_melee())
         self.assertFalse(self.ranged.is_melee())
-    
+
     def test_damage(self):
         self.assertAlmostEqual(self.mh.damage(1000), 2.0 * (1000 / 2.0 + 1000 / 14.0))
-    
+
     def test_normalized_damage(self):
         self.assertAlmostEqual(self.mh.normalized_damage(1000), 1000 + (1.7 * 1000 / 14.0))
-    
+
     def test_weapon_enchant_proc_rate_exception(self):
         self.assertRaises(procs.InvalidProcException, self.mh.hurricane.proc_rate)
 

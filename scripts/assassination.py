@@ -81,7 +81,7 @@ main_tree_talents_ranking, off_tree_talents_ranking = calculator.get_talents_ran
 glyps_ranking = calculator.get_glyphs_ranking(['vendetta', 'backstab'])
 
 # Compute EP values for procs and gear buffs
-tier_ep_values = calculator.get_other_ep(['rogue_t11_4pc', 'rogue_t11_2pc'])
+tier_ep_values = calculator.get_other_ep(['rogue_t11_4pc', 'rogue_t11_2pc', 'rogue_t12_4pc', 'rogue_t12_2pc'])
 metagem_ep_value = calculator.get_other_ep(['chaotic_metagem'])
 trinkets_list = [
     'heroic_key_to_the_endless_chamber',

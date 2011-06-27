@@ -101,9 +101,17 @@ class Race(object):
         self.set_racials()
 
     def set_racials(self):
-        racials = Race.racials_by_race[self.race_name]
-        for racial in racials:
+        # Set all racials, so we don't invoke __getattr__ all the time
+        for race, racials in Race.racials_by_race.items():
+            for racial in racials:
+                setattr(self, racial, False)
+        for racial in Race.racials_by_race[self.race_name]:
             setattr(self, racial, True)
+        setattr(self, "racial_str", self.stats[0])
+        setattr(self, "racial_agi", self.stats[1])
+        setattr(self, "racial_sta", self.stats[2])
+        setattr(self, "racial_int", self.stats[3])
+        setattr(self, "racial_spi", self.stats[4])
 
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
@@ -123,16 +131,6 @@ class Race(object):
         # Any racial we haven't assigned a value to, we don't have.
         if name in self.allowed_racials:
             return False
-        elif name == 'racial_str':
-            return self.stats[0]
-        elif name == 'racial_agi':
-            return self.stats[1]
-        elif name == 'racial_sta':
-            return self.stats[2]
-        elif name == 'racial_int':
-            return self.stats[3]
-        elif name == 'racial_spi':
-            return self.stats[4]
         else:
             object.__getattribute__(self, name)
 

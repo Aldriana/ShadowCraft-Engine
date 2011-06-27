@@ -17,12 +17,12 @@ class TalentTree(object):
         # If someone tries to access a talent that is defined for the tree but
         # has not had a value assigned to it yet (i.e., the initialization did
         # not put any points into it), we return 0 for the value of the talent.
-        if name in self.allowed_talents.keys():
+        if name in self.allowed_talents:
             return 0
         object.__getattribute__(self, name)
 
     def set_talent(self, talent_name, talent_value):
-        if talent_name not in self.allowed_talents.keys():
+        if talent_name not in self.allowed_talents:
             raise InvalidTalentException(_('Invalid talent name {talent_name}').format(talent_name=talent_name))
         max_talent_value, talent_tier = self.allowed_talents[talent_name]
         if talent_value < 0 or talent_value > max_talent_value:
@@ -32,7 +32,7 @@ class TalentTree(object):
 
     def __init__(self, talent_string = '', **kwargs):
         if not talent_string:
-            for talent_name in kwargs.keys():
+            for talent_name in kwargs:
                 self.set_talent(talent_name, kwargs[talent_name])
         else:
             if len(talent_string) != len(self.allowed_talents):
@@ -41,7 +41,7 @@ class TalentTree(object):
 
     def talents_in_tree(self):
         points = 0
-        for talent_name in self.allowed_talents.keys():
+        for talent_name in self.allowed_talents:
             points += getattr(self, talent_name, 0)
         return points
 
@@ -65,6 +65,7 @@ class ClassTalents(object):
     def __init__(self, string1, string2, string3):
         self.trees = list()
         self.spec = None
+        self.cachedAttrs = list()
 
         # Instantiate the three trees using the specified strings. While we're
         # at it, find the tree with the most talents to determine spec. Since
@@ -81,7 +82,7 @@ class ClassTalents(object):
         # build up a dict of talents to trees for quicker access in __getattr__
         self.treeForTalent = dict()
         for tree in self.trees:
-            for name in tree.allowed_talents.keys():
+            for name in tree.allowed_talents:
                 self.treeForTalent[name] = tree
 
     def is_specced(self, treeClass):
@@ -91,9 +92,18 @@ class ClassTalents(object):
         max_talent_value, talent_tier = self.treeForTalent[name].allowed_talents[name]
         return talent_tier
 
+    def reset_cache(self):
+        for name in self.cachedAttrs:
+            delattr(self, name)
+        del self.cachedAttrs[:]
+            
     def __getattr__(self, name):
         # If someone tries to access a talent defined on one of the trees,
         # access it through that tree.
-        if name in self.treeForTalent.keys():
-            return getattr(self.treeForTalent[name], name)
+        if name in self.treeForTalent:
+            self.cachedAttrs.append(name)
+            r = getattr(self.treeForTalent[name], name)            
+            setattr(self, name, r)
+            return r
+            
         object.__getattribute__(self, name)
