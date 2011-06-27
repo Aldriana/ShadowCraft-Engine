@@ -447,10 +447,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 proc.uptime = P * (1 - P ** proc.max_stacks) / Q
 
     def update_with_damaging_proc(self, proc, attacks_per_second, crit_rates):
+        if proc.icd:
+            frequency = 1. / (proc.icd + 0.5 / self.get_procs_per_second(proc, attacks_per_second, crit_rates))
+        else:
+            frequency = self.get_procs_per_second(proc, attacks_per_second, crit_rates)
+
         if proc.stat == 'spell_damage':
-            attacks_per_second[proc.proc_name] = self.get_procs_per_second(proc, attacks_per_second, crit_rates) * self.spell_hit_chance()
+            attacks_per_second[proc.proc_name] = frequency * self.spell_hit_chance()
         elif proc.stat == 'physical_damage':
-            attacks_per_second[proc.proc_name] = self.get_procs_per_second(proc, attacks_per_second, crit_rates) * self.strike_hit_chance
+            attacks_per_second[proc.proc_name] = frequency * self.strike_hit_chance
 
     def get_weapon_damage_bonus(self):
         bonus = 0
