@@ -252,23 +252,4 @@ allowed_procs = {
         'trigger': 'all_attacks',
         'proc_name': 'Heedless Carnage'
     },
-    'schnottz_medallion_of_command': {
-        'stat': 'mastery',
-        'value': 918,
-        'duration': 20,
-        'icd': 100,
-        'proc_chance': .1,
-        'trigger': 'all_attacks',
-        'proc_name': 'Hardened Shell'
-    },
-    'swordguard_embroidery': {
-        'stat': 'ap',
-        'value': 1000,
-        'duration': 15,
-        'icd': 55,
-        'proc_chance': .15,
-        'trigger': 'all_attacks',
-        'proc_name': 'Swordguard Embroidery'
-    },
-
 }
