@@ -1087,7 +1087,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         ss_per_snd = (total_eviscerate_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp + 25) / sinister_strike_energy_cost
         snd_size = ss_per_snd * (1 + extra_cp_chance) + .2 * self.talents.ruthlessness
-        snd_cost = ss_per_snd * sinister_strike_energy_cost + 25 - snd_size * self.relentless_strikes_energy_return_per_cp
+        snd_cost = (ss_per_snd + .2 * self.talents.ruthlessness / (1 + extra_cp_chance)) * sinister_strike_energy_cost + 25 - snd_size * self.relentless_strikes_energy_return_per_cp
 
         snd_duration = self.get_snd_length(snd_size)
 
