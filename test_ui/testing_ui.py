@@ -60,7 +60,7 @@ class GearPage(wx.Panel):
         "mainhand": 0,
         "offhand": 0,
         "ranged": 0
-        }
+    }
     stats = [
         'str',
         'agi',
@@ -276,7 +276,7 @@ class GearPage(wx.Panel):
             if 'tier_11' == gear_buff:
                 tier11_count += 1
             elif 'tier_12' == gear_buff:
-                tier12_count +=1
+                tier12_count += 1
             elif len(gear_buff) > 0:
                 current_stats['gear_buffs'].append(gear_buff)
             if len(self.current_gear[slot].proc) > 0:

@@ -67,7 +67,7 @@ class DamageCalculator(object):
         # calculate and cache the level-dependent armor mitigation parameter
         self.armor_mitigation_parameter = armor_mitigation.parameter(self.level)
 
-    def ep_helper(self,stat):
+    def ep_helper(self, stat):
         if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp', 'mh_dodge_exp', 'oh_dodge_exp', 'mh_parry_exp', 'oh_parry_exp'):
             setattr(self.stats, stat, getattr(self.stats, stat) + 1.)
         else:
@@ -91,7 +91,7 @@ class DamageCalculator(object):
         baseline_dps = self.get_dps()
         normalize_dps = self.ep_helper(normalize_ep_stat)
         normalize_dps_difference = normalize_dps - baseline_dps
-        for stat in ep_values.keys():
+        for stat in ep_values:
             dps = self.ep_helper(stat)
             ep_values[stat] = abs(dps - baseline_dps) / normalize_dps_difference
 
@@ -101,7 +101,7 @@ class DamageCalculator(object):
         if not normalize_ep_stat:
             normalize_ep_stat = self.normalize_ep_stat
         weapons = ('mh', 'oh')
-        if speed_list != None or dps == True:
+        if speed_list is not None or dps:
             baseline_dps = self.get_dps()
             normalize_dps = self.ep_helper(normalize_ep_stat)
 
@@ -109,7 +109,7 @@ class DamageCalculator(object):
             ep_values = {}
 
             # Weapon dps EP
-            if dps == True:
+            if dps:
                 getattr(self.stats, hand).weapon_dps += 1.
                 new_dps = self.get_dps()
                 ep = abs(new_dps - baseline_dps) / (normalize_dps - baseline_dps)
@@ -117,7 +117,7 @@ class DamageCalculator(object):
                 getattr(self.stats, hand).weapon_dps -= 1.
 
             # Enchant EP
-            if enchants == True:
+            if enchants:
                 old_enchant = None
                 for enchant in getattr(self.stats, hand).allowed_melee_enchants:
                     if getattr(getattr(self.stats, hand), enchant):
@@ -134,13 +134,13 @@ class DamageCalculator(object):
                     getattr(self.stats, hand).set_enchant(old_enchant)
 
             # Weapon speed EP
-            if speed_list != None:
+            if speed_list is not None:
                 old_speed = getattr(self.stats, hand).speed
                 for speed in speed_list:
                     getattr(self.stats, hand).speed = speed
                     new_dps = self.get_dps()
                     ep = (new_dps - baseline_dps) / (normalize_dps - baseline_dps)
-                    ep_values[hand + '_' +  str(speed)] = ep
+                    ep_values[hand + '_' + str(speed)] = ep
                     getattr(self.stats, hand).speed = old_speed
 
             if hand == 'mh':
@@ -163,7 +163,7 @@ class DamageCalculator(object):
         procs_list = []
         gear_buffs_list = []
         for i in list:
-            if i in self.stats.procs.allowed_procs.keys():
+            if i in self.stats.procs.allowed_procs:
                 procs_list.append(i)
             elif i in self.stats.gear_buffs.allowed_buffs:
                 gear_buffs_list.append(i)
@@ -224,12 +224,12 @@ class DamageCalculator(object):
         baseline_dps = self.get_dps()
         talent_list = []
 
-        if list == None:
+        if list is None:
         # Build a list of talents that can be taken in the active spec
-            for talent in self.talents.treeForTalent.keys():
+            for talent in self.talents.treeForTalent:
                 if self.talents.get_talent_tier(talent) <= 2:
                     talent_list.append(talent)
-                elif talent in self.talents.spec.allowed_talents.keys():
+                elif talent in self.talents.spec.allowed_talents:
                     talent_list.append(talent)
         else:
             talent_list = list
@@ -290,7 +290,7 @@ class DamageCalculator(object):
 
     def melee_hit_chance(self, base_miss_chance, dodgeable, parryable, weapon_type):
         hit_chance = self.stats.get_melee_hit_from_rating() + self.race.get_racial_hit() + self.get_melee_hit_from_talents()
-        miss_chance = max(base_miss_chance - hit_chance,0)
+        miss_chance = max(base_miss_chance - hit_chance, 0)
 
         #Expertise represented as the reduced chance to be dodged or parried, not true "Expertise"
         expertise = self.stats.get_expertise_from_rating() + self.race.get_racial_expertise(weapon_type)
@@ -357,7 +357,7 @@ class DamageCalculator(object):
 
     def dual_wield_hit_chance(self, dodgeable, parryable, weapon_type):
         hit_chance = self.melee_hit_chance(self.BASE_DW_MISS_RATE, dodgeable, parryable, weapon_type)
-        if self.calculating_ep in ('yellow_hit','spell_hit','white_hit'):
+        if self.calculating_ep in ('yellow_hit', 'spell_hit', 'white_hit'):
             hit_chance -= self.stats.get_melee_hit_from_rating(1)
         return hit_chance
 
@@ -379,16 +379,16 @@ class DamageCalculator(object):
             armor = self.TARGET_BASE_ARMOR
         return self.buffs.armor_reduction_multiplier() * armor
 
-    def raid_settings_modifiers(self, is_spell=False, is_physical=False, is_bleed=False, armor=None):
+    def raid_settings_modifiers(self, attack_kind, armor=None):
         # This function wraps spell, bleed and physical debuffs from raid
         # along with all-damage buff and armor reduction. It should be called
         # from every damage dealing formula. Armor can be overridden if needed.
-        if is_spell + is_bleed + is_physical != 1:
-            raise exceptions.InvalidInputException(_('Attacks cannot benefit from more than one type of raid damage multiplier'))
-        armor_override = self.target_armor(armor)
-        if is_spell:
+        if attack_kind not in ('physical', 'spell', 'bleed'):
+            raise exceptions.InvalidInputException(_('Attacks must be categorized as physical, spell or bleed'))
+        elif attack_kind == 'spell':
             return self.buffs.spell_damage_multiplier()
-        elif is_bleed:
+        elif attack_kind == 'bleed':
             return self.buffs.bleed_damage_multiplier()
-        elif is_physical:
+        elif attack_kind == 'physical':
+            armor_override = self.target_armor(armor)
             return self.buffs.physical_damage_multiplier() * self.armor_mitigation_multiplier(armor_override)

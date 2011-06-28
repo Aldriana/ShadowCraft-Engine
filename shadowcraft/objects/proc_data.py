@@ -39,10 +39,10 @@ allowed_procs = {
         'stat': 'weird_proc',
         'value': 1730,
         'duration': 30,
-        'icd': 150,
+        'icd': 105,
         'proc_chance': .1,
         'trigger': 'all_attacks',
-        'proc_name': 'Matrix Restabilizer'
+        'proc_name': 'Matrix Restabilized'
     },
     'heroic_prestors_talisman_of_machination': {
         'stat': 'haste',
@@ -52,6 +52,15 @@ allowed_procs = {
         'proc_chance': .1,
         'trigger': 'all_attacks',
         'proc_name': 'Nefarious Plot'
+    },
+    'heroic_the_hungerer': {            # Proc_chance/ICD should be verified.
+        'stat': 'haste',
+        'value': 1730,
+        'duration': 15,
+        'icd': 60,
+        'proc_chance': 1.,
+        'trigger': 'all_attacks',
+        'proc_name': 'Devour'
     },
     'heroic_tias_grace': {
         'stat': 'agi',
@@ -74,13 +83,13 @@ allowed_procs = {
         'trigger': 'all_attacks',
         'proc_name': 'Lightning Strike'
     },
-    'corens_chilled_chromium_coaster': {    # PPM/ICD is a guess and should be verified.
+    'corens_chilled_chromium_coaster': {    # ICD is a guess and should be verified.
         'stat': 'ap',
         'value': 4000,
         'duration': 10,
         'max_stacks': 0,
-        'icd': 0,
-        'ppm': 1,
+        'icd': 50,
+        'proc_chance': .1,
         'trigger': 'all_attacks',
         'on_crit': True,
         'proc_name': 'Reflection of Torment'
@@ -154,10 +163,10 @@ allowed_procs = {
         'stat': 'weird_proc',
         'value': 1532,
         'duration': 30,
-        'icd': 150,
+        'icd': 105,
         'proc_chance': .1,
         'trigger': 'all_attacks',
-        'proc_name': 'Matrix Restabilizer'
+        'proc_name': 'Matrix Restabilized'
     },
     'prestors_talisman_of_machination': {
         'stat': 'haste',
@@ -167,6 +176,16 @@ allowed_procs = {
         'proc_chance': .1,
         'trigger': 'all_attacks',
         'proc_name': 'Nefarious Plot'
+    },
+    'rickets_magnetic_fireball_proc': { # Proc_chance/ICD should be verified.
+        'stat': 'physical_damage',
+        'value': 500,
+        'duration': 0,
+        'max_stacks': 0,
+        'icd': 120,
+        'proc_chance': .2,
+        'trigger': 'all_attacks',
+        'proc_name': 'Magnetic Fireball'
     },
     'rogue_t11_4pc': {
         'stat': 'weird_proc',
@@ -194,6 +213,15 @@ allowed_procs = {
         'proc_chance': .15,
         'trigger': 'all_attacks',
         'proc_name': 'Swordguard Embroidery'
+    },
+    'the_hungerer': {                   # Proc_chance/ICD should be verified.
+        'stat': 'haste',
+        'value': 1532,
+        'duration': 15,
+        'icd': 60,
+        'proc_chance': 1.,
+        'trigger': 'all_attacks',
+        'proc_name': 'Devour'
     },
     'the_twilight_blade': {             # PPM/ICD is a guess and should be verified.
         'stat': 'crit',

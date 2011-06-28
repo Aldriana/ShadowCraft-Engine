@@ -90,7 +90,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
     def get_cp_distribution_for_cycle(self, cp_distribution_per_move, target_cp_quantity):
         cur_min_cp = 0
         ruthlessness_chance = self.talents.ruthlessness * .2
-        cur_dist = {(0, 0): (1-ruthlessness_chance), (1, 0): ruthlessness_chance}
+        cur_dist = {(0, 0): (1 - ruthlessness_chance), (1, 0): ruthlessness_chance}
         while cur_min_cp < target_cp_quantity:
             cur_min_cp += 1
 
@@ -169,15 +169,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             self.set_matrix_restabilizer_stat(self.base_stats)
 
     def get_proc_damage_contribution(self, proc, proc_count, current_stats):
-        base_damage = proc.value
-
         if proc.stat == 'spell_damage':
-            multiplier = self.raid_settings_modifiers(is_spell=True)
+            multiplier = self.raid_settings_modifiers('spell')
             crit_multiplier = self.crit_damage_modifiers(is_spell=True)
             crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
         elif proc.stat == 'physical_damage':
-            multiplier = self.raid_settings_modifiers(is_physical=True)
-            crit_multiplier = self.crit_damage_modifiers(is_physical=True)
+            multiplier = self.raid_settings_modifiers('physical')
+            crit_multiplier = self.crit_damage_modifiers(is_spell=False)
             crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
         else:
             return 0, 0
@@ -185,58 +183,59 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if proc.can_crit == False:
             crit_rate = 0
 
-        average_damage = base_damage * multiplier * (1 + crit_rate * (crit_multiplier - 1)) * proc_count
-        crit_contribution = base_damage * multiplier * crit_rate * proc_count
+        average_hit = proc.value * multiplier
+        average_damage = average_hit * (1 + crit_rate * (crit_multiplier - 1)) * proc_count
+        crit_contribution = average_hit * crit_multiplier * crit_rate * proc_count
         return average_damage, crit_contribution
+
+    def append_damage_on_use(self, average_ap, current_stats, damage_breakdown):
+        on_use_damage_list = []
+        for i in ('spell_damage', 'physical_damage'):
+            on_use_damage_list += self.stats.gear_buffs.get_all_activated_boosts_for_stat(i)
+        if self.race.rocket_barrage:
+            rocket_barrage_dict = {'stat': 'spell_damage', 'cooldown': 120, 'name': 'Rocket Barrage'}
+            rocket_barrage_dict['value'] = self.race.calculate_rocket_barrage(average_ap, 0, 0)
+            on_use_damage_list.append(rocket_barrage_dict)
+
+        for item in on_use_damage_list:
+            if item['stat'] == 'physical_damage':
+                modifier = self.raid_settings_modifiers('physical')
+                crit_multiplier = self.crit_damage_modifiers(is_spell=False)
+                crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
+                hit_chance = self.strike_hit_chance
+            elif item['stat'] == 'spell_damage':
+                modifier = self.raid_settings_modifiers('spell')
+                crit_multiplier = self.crit_damage_modifiers(is_spell=True)
+                crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
+                hit_chance = self.spell_hit_chance()
+            average_hit = item['value'] * modifier
+            frequency = 1. / (item['cooldown'] + self.settings.response_time)
+            average_dps = average_hit * (1 + crit_rate * (crit_multiplier - 1)) * frequency * hit_chance
+            crit_contribution = average_hit * crit_multiplier * crit_rate * frequency * hit_chance
+
+            damage_breakdown[item['name']] = average_dps, crit_contribution
 
     def set_matrix_restabilizer_stat(self, base_stats):
         base_stats_for_matrix_restabilizer = {}
-        for key in self.base_stats.keys():
+        for key in self.base_stats:
             if key in ('haste', 'mastery', 'crit'):
                 base_stats_for_matrix_restabilizer[key] = self.base_stats[key]
         sorted_list = base_stats_for_matrix_restabilizer.keys()
-        sorted_list.sort(cmp=lambda b,a: cmp(base_stats_for_matrix_restabilizer[a],base_stats_for_matrix_restabilizer[b]))
+        sorted_list.sort(cmp=lambda b, a: cmp(base_stats_for_matrix_restabilizer[a], base_stats_for_matrix_restabilizer[b]))
 
         if self.stats.procs.heroic_matrix_restabilizer:
             self.stats.procs.heroic_matrix_restabilizer.stat = sorted_list[0]
         if self.stats.procs.matrix_restabilizer:
             self.stats.procs.matrix_restabilizer.stat = sorted_list[0]
 
-    def unheeded_warning_bonus(self):
-        # This relies on set_uptime being called for the proc in compute_damage before any of the actual computation stuff is invoked.
-        proc = self.stats.procs.unheeded_warning
-        if not proc:
-            return 0        
-        return proc.value * proc.uptime
-
-    def get_rocket_barrage_damage(self, ap, current_stats):
-        base_damage = self.race.calculate_rocket_barrage(ap, 0, 0) * self.raid_settings_modifiers(is_spell=True)
-        crit_multiplier = self.crit_damage_modifiers(is_spell=True)
-        crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
-        average_damage = base_damage * (1 + crit_rate * (crit_multiplier - 1))
-        crit_contribution = base_damage * crit_rate * crit_multiplier
-        frequency = 120 + self.settings.response_time
-
-        return average_damage / frequency, crit_contribution / frequency
-
-    def get_rickets_magnetic_fireball_damage(self, current_stats):
-        base_damage = self.stats.gear_buffs.calculate_rickets_magnetic_fireball() * self.raid_settings_modifiers(is_spell=True)
-        crit_multiplier = self.crit_damage_modifiers(is_spell=True)
-        crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
-        average_damage = base_damage * (1 + crit_rate * (crit_multiplier - 1))
-        crit_contribution = base_damage * crit_rate * crit_multiplier
-        frequency = 180 + self.settings.response_time
-
-        return average_damage / frequency, crit_contribution / frequency
-
     def get_t12_2p_damage(self, damage_breakdown):
         crit_damage = 0
-        for key in damage_breakdown.keys():
+        for key in damage_breakdown:
             if key in ('mutilate', 'hemorrhage', 'backstab', 'sinister_strike', 'revealing_strike', 'main_gauche', 'ambush', 'killing_spree', 'envenom', 'eviscerate', 'autoattack'):
                 average_damage, crit_contribution = damage_breakdown[key]
                 crit_damage += crit_contribution
 
-        return crit_damage * .06, 0
+        return crit_damage * self.stats.gear_buffs.rogue_t12_2pc_damage_bonus(), 0
 
     def get_damage_breakdown(self, current_stats, attacks_per_second, crit_rates, damage_procs):
         # Vendetta may want to be handled elsewhere.
@@ -336,17 +335,12 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             damage_breakdown['hemorrhage_glyph'] = dps_from_hit_hemo[0] + dps_from_crit_hemo[0], dps_from_hit_hemo[1] + dps_from_crit_hemo[1]
 
         for proc in damage_procs:
-            if proc.proc_name not in damage_breakdown:
-                damage_breakdown[proc.proc_name] = 0, 0
+            damage_breakdown.setdefault(proc.proc_name, (0, 0))
             old_value = damage_breakdown[proc.proc_name]
             new_value = self.get_proc_damage_contribution(proc, attacks_per_second[proc.proc_name], current_stats)
-            damage_breakdown[proc.proc_name] = [sum(pair) for pair in zip(old_value, new_value)] 
+            damage_breakdown[proc.proc_name] = [sum(pair) for pair in zip(old_value, new_value)]
 
-        if self.race.rocket_barrage:
-            damage_breakdown['rocket_barrage'] = self.get_rocket_barrage_damage(average_ap, current_stats)
-
-        if self.stats.gear_buffs.rickets_magnetic_fireball:
-            damage_breakdown['rickets_magnetic_fireball'] = self.get_rickets_magnetic_fireball_damage(current_stats)
+        self.append_damage_on_use(average_ap, current_stats, damage_breakdown)
 
         return damage_breakdown
 
@@ -453,10 +447,23 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 proc.uptime = P * (1 - P ** proc.max_stacks) / Q
 
     def update_with_damaging_proc(self, proc, attacks_per_second, crit_rates):
+        if proc.icd:
+            frequency = 1. / (proc.icd + 0.5 / self.get_procs_per_second(proc, attacks_per_second, crit_rates))
+        else:
+            frequency = self.get_procs_per_second(proc, attacks_per_second, crit_rates)
+
         if proc.stat == 'spell_damage':
-            attacks_per_second[proc.proc_name] = self.get_procs_per_second(proc, attacks_per_second, crit_rates) * self.spell_hit_chance()
+            attacks_per_second[proc.proc_name] = frequency * self.spell_hit_chance()
         elif proc.stat == 'physical_damage':
-            attacks_per_second[proc.proc_name] = self.get_procs_per_second(proc, attacks_per_second, crit_rates) * self.strike_hit_chance
+            attacks_per_second[proc.proc_name] = frequency * self.strike_hit_chance
+
+    def get_weapon_damage_bonus(self):
+        bonus = 0
+        if self.stats.procs.unheeded_warning:
+            proc = self.stats.procs.unheeded_warning
+            bonus += proc.value * proc.uptime
+
+        return bonus
 
     def update_crit_rates_for_4pc_t11(self, attacks_per_second, crit_rates):
         t11_4pc_bonus = self.stats.procs.rogue_t11_4pc
@@ -471,7 +478,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             if direct_damage_finisher:
                 procs_per_second = self.get_procs_per_second(t11_4pc_bonus, attacks_per_second, crit_rates)
                 finisher_spacing = min(1 / sum(attacks_per_second[direct_damage_finisher]), t11_4pc_bonus.duration)
-                p = 1 - (1-procs_per_second) ** finisher_spacing
+                p = 1 - (1 - procs_per_second) ** finisher_spacing
                 crit_rates[direct_damage_finisher] = p + (1 - p) * crit_rates[direct_damage_finisher]
 
     def update_current_stats_for_4pc_t12(self, stats):
@@ -483,7 +490,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
     def get_poison_counts(self, total_mh_hits, total_oh_hits, attacks_per_second):
         if self.settings.mh_poison == 'dp' or self.settings.oh_poison == 'dp':
-            attacks_per_second['deadly_poison'] = 1./3
+            attacks_per_second['deadly_poison'] = 1. / 3
 
         if self.settings.mh_poison == 'ip':
             mh_proc_rate = self.stats.mh.speed / 7.
@@ -502,7 +509,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         mh_poison_procs = total_mh_hits * mh_proc_rate * self.spell_hit_chance()
         oh_poison_procs = total_oh_hits * oh_proc_rate * self.spell_hit_chance()
 
-        poison_setup = self.settings.mh_poison + self.settings.oh_poison
+        poison_setup = ''.join((self.settings.mh_poison, self.settings.oh_poison))
         if poison_setup in ['ipip', 'ipdp', 'dpip']:
             attacks_per_second['instant_poison'] = mh_poison_procs + oh_poison_procs
         elif poison_setup in ['wpwp', 'wpdp', 'dpwp']:
@@ -529,12 +536,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         active_procs = []
         damage_procs = []
+        weapon_damage_procs = []
 
         for proc_info in self.stats.procs.get_all_procs_for_stat():
             if proc_info.stat in current_stats and not proc_info.is_ppm():
                 active_procs.append(proc_info)
             if proc_info.stat in ('spell_damage', 'physical_damage'):
                 damage_procs.append(proc_info)
+            if proc_info.stat == 'extra_weapon_damage':
+                weapon_damage_procs.append(proc_info)
 
         mh_landslide = self.stats.mh.landslide
         if mh_landslide:
@@ -602,8 +612,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         for proc in damage_procs:
             self.update_with_damaging_proc(proc, attacks_per_second, crit_rates)
 
-        if self.stats.procs.unheeded_warning:
-            self.set_uptime(self.stats.procs.unheeded_warning, attacks_per_second, crit_rates)
+        for proc in weapon_damage_procs:
+            self.set_uptime(proc, attacks_per_second, crit_rates)
 
         damage_breakdown = self.get_damage_breakdown(current_stats, attacks_per_second, crit_rates, damage_procs)
 
@@ -611,12 +621,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             damage_breakdown['burning_wounds'] = self.get_t12_2p_damage(damage_breakdown)
 
         # Discard the crit component.
-        average_damage_breakdown = {}
         for key in damage_breakdown:
-            average_damage, crit_damage = damage_breakdown[key]
-            average_damage_breakdown[key] = average_damage
+            damage_breakdown[key] = damage_breakdown[key][0]
 
-        return average_damage_breakdown
+        return damage_breakdown
 
     # This relies on set_uptime being called for the proc in compute_damage before any of the actual computation stuff is invoked.
     def unheeded_warning_bonus(self):
@@ -641,7 +649,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.stats.mh.type != 'dagger' or self.stats.oh.type != 'dagger':
             raise InputNotModeledException(_('Assassination modeling requires daggers in both hands'))
 
-        if self.settings.mh_poison + self.settings.oh_poison not in ('ipdp', 'dpip'):
+        if ''.join((self.settings.mh_poison, self.settings.oh_poison)) not in ('ipdp', 'dpip'):
             raise InputNotModeledException(_('Assassination modeling requires instant poison on one weapon and deadly on the other'))
 
         # These talents have huge, hard-to-model implications on cycle and will
@@ -861,7 +869,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             backstab_energy_cost -= 5 * backstab_crit_rate
 
         seal_fate_proc_rate = backstab_crit_rate * .5 * self.talents.seal_fate
-        cp_per_backstab = {1: 1-seal_fate_proc_rate, 2: seal_fate_proc_rate}
+        cp_per_backstab = {1: 1 - seal_fate_proc_rate, 2: seal_fate_proc_rate}
         cp_distribution = self.get_cp_distribution_for_cycle(cp_per_backstab, self.settings.cycle.min_envenom_size_backstab)
 
         # This cycle need a *lot* of work, but in the interest of getting some
@@ -1164,7 +1172,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             ticks_per_rupture = 3 + i + 2 * self.glyphs.rupture
             attacks_per_second['rupture_ticks'][i] = ticks_per_rupture * attacks_per_second['rupture'] * finisher_size_breakdown[i]
 
-        total_mh_hits = attacks_per_second['mh_autoattack_hits'] + attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'] + attacks_per_second['mh_killing_spree'] + attacks_per_second['rupture'] + total_evis_per_second  + attacks_per_second['main_gauche']
+        total_mh_hits = attacks_per_second['mh_autoattack_hits'] + attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'] + attacks_per_second['mh_killing_spree'] + attacks_per_second['rupture'] + total_evis_per_second + attacks_per_second['main_gauche']
         total_oh_hits = attacks_per_second['oh_autoattack_hits'] + attacks_per_second['oh_killing_spree']
 
         self.get_poison_counts(total_mh_hits, total_oh_hits, attacks_per_second)
@@ -1185,8 +1193,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.stats.mh.type != 'dagger' and self.settings.cycle.use_hemorrhage != 'always':
             raise InputNotModeledException(_('Subtlety modeling requires a MH dagger if Hemorrhage is not the main combo point builder'))
 
-        if self.settings.cycle.use_hemorrhage not in ('always', 'never') and self.settings.cycle.use_hemorrhage > self.settings.duration:
-            raise InputNotModeledException(_('Interval between Hemorrhages cannot be higher than the fight duration'))
+        if self.settings.cycle.use_hemorrhage not in ('always', 'never'):
+            if float(self.settings.cycle.use_hemorrhage) <= 0:
+                raise InputNotModeledException(_('Hemorrhage usage must be set to always, never or a positive number'))
+            if float(self.settings.cycle.use_hemorrhage) > self.settings.duration:
+                raise InputNotModeledException(_('Interval between Hemorrhages cannot be higher than the fight duration'))
 
         if self.talents.serrated_blades != 2:
             raise InputNotModeledException(_('Subtlety modeling currently requires 2 points in Serrated Blades'))
@@ -1216,7 +1227,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             if key in ('autoattack', 'backstab', 'eviscerate', 'hemorrhage'):
                 damage_breakdown[key] *= find_weakness_multiplier
             if key == 'ambush':
-                damage_breakdown[key] *= ((1.3 * self.ambush_shadowstep_rate) + (1-self.ambush_shadowstep_rate) * find_weakness_damage_boost)
+                damage_breakdown[key] *= ((1.3 * self.ambush_shadowstep_rate) + (1 - self.ambush_shadowstep_rate) * find_weakness_damage_boost)
 
         return damage_breakdown
 
@@ -1323,8 +1334,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         snd_size = .2 * self.talents.ruthlessness + hat_cp_per_snd + cp_builders_per_snd
         snd_duration = self.get_snd_length(snd_size)
-        snd_per_second = 1. / (snd_duration - self.settings.response_time)
-        snd_net_energy_cost = 25 - snd_size * self.relentless_strikes_energy_return_per_cp
+        # snd_per_second = 1. / (snd_duration - self.settings.response_time)
+        # snd_net_energy_cost = 25 - snd_size * self.relentless_strikes_energy_return_per_cp
         snd_per_cycle = cycle_length / snd_duration
 
         vanish_cooldown = 180 - 30 * self.talents.elusiveness
@@ -1349,7 +1360,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attacks_per_second['ambush'] = ambushes_from_vanish
 
         if self.talents.shadow_dance:
-            shadow_dance_duration = 6 + 2 * self.glyphs.shadow_dance
+            shadow_dance_duration = 6. + 2 * self.glyphs.shadow_dance
             shadow_dance_frequency = 1. / (60 + self.settings.response_time)
 
             shadow_dance_bonus_cp_regen = shadow_dance_duration * hat_cp_gen + 2 * self.talents.premeditation
@@ -1398,9 +1409,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         del attacks_per_second['cp_builder']
 
         if self.glyphs.hemorrhage and 'hemorrhage' in attacks_per_second:
-            if hemorrhage_interval >= 24:
-                attacks_per_second['hemorrhage_ticks'] = 8. / hemorrhage_interval
+            base_ticks_per_second = min(int(hemorrhage_interval / 3), 8) * 1. / hemorrhage_interval
+            if hemorrhage_interval < 24 and self.talents.shadow_dance:
+                # Not particularly accurate but good enough a ballpark
+                # for something that won't get much of an use.
+                shadow_dance_uptime = shadow_dance_duration * shadow_dance_frequency
+                ticks_per_second_during_shadow_dance = 1. / 3
+                ticks_per_second = base_ticks_per_second * (1 - shadow_dance_uptime) + ticks_per_second_during_shadow_dance * shadow_dance_uptime
             else:
-                raise InputNotModeledException(_('Hemorrhage Glyph modeling currently requires Hemorrhage strikes at least 24 seconds apart'))
+                ticks_per_second = base_ticks_per_second
+            attacks_per_second['hemorrhage_ticks'] = ticks_per_second
 
         return attacks_per_second, crit_rates
