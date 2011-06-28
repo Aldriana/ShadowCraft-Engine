@@ -251,5 +251,5 @@ allowed_procs = {
         'proc_chance': .1,
         'trigger': 'all_attacks',
         'proc_name': 'Heedless Carnage'
-    }
+    },
 }
