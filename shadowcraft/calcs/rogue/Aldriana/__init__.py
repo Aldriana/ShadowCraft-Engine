@@ -679,6 +679,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.base_energy_regen = 10
         if self.talents.overkill:
             self.base_energy_regen += 60 / (180. + self.settings.response_time - 30 * self.talents.elusiveness)
+            self.base_energy_regen += 60. / self.settings.duration * (1 - 20. / self.settings.duration)
 
         if self.talents.cold_blood:
             self.bonus_energy_regen += 25. / (120 + self.settings.response_time)
@@ -750,8 +751,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         garrote_energy_return = 6 * self.talents.venomous_wounds * 3 * self.strike_hit_chance
         garrote_net_cost = garrote_base_cost - garrote_energy_return
         garrote_spacing = (180. + self.settings.response_time - 30 * self.talents.elusiveness)
+        total_garrotes_per_second = (1 - 20. / self.settings.duration) / self.settings.duration + 1 / garrote_spacing
         
-        energy_regen -= garrote_net_cost / garrote_spacing
+        energy_regen -= garrote_net_cost * total_garrotes_per_second
 
         energy_regen_with_rupture = energy_regen + 1.5 * self.talents.venomous_wounds
 
@@ -825,7 +827,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         envenoms_per_second = envenoms_per_cycle / avg_cycle_length
         attacks_per_second['rupture'] = 1 / avg_cycle_length
         attacks_per_second[cpg] = envenoms_per_second * cpg_per_finisher + attacks_per_second['rupture'] * cpg_per_rupture
-        attacks_per_second['garrote'] = self.strike_hit_chance / garrote_spacing
+        attacks_per_second['garrote'] = self.strike_hit_chance * total_garrotes_per_second
 
         envenoms_per_second += attacks_per_second['garrote'] / cp_per_finisher
 
