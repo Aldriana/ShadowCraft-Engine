@@ -88,6 +88,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         return 1 + .3 * self.heroism_uptime_per_fight()
 
     def get_cp_distribution_for_cycle(self, cp_distribution_per_move, target_cp_quantity):
+        time_spent_at_cp = [0, 0, 0, 0, 0, 0]
         cur_min_cp = 0
         ruthlessness_chance = self.talents.ruthlessness * .2
         cur_dist = {(0, 0): (1 - ruthlessness_chance), (1, 0): ruthlessness_chance}
@@ -107,13 +108,21 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                         if total_cps > 5:
                             total_cps = 5
                         dist_entry = (total_cps, moves + 1)
+                        time_spent_at_cp[total_cps] += move_prob * prob
                         if dist_entry in new_dist:
                             new_dist[dist_entry] += move_prob * prob
                         else:
                             new_dist[dist_entry] = move_prob * prob
             cur_dist = new_dist
 
-        return cur_dist
+        for (cps, moves), prob in cur_dist.items():
+            time_spent_at_cp[cps] += prob
+
+        total_weight = sum(time_spent_at_cp)
+        for i in xrange(6):
+            time_spent_at_cp[i] /= total_weight
+
+        return cur_dist, time_spent_at_cp
 
     def get_snd_length(self, size):
         duration = 6 + 3 * size
@@ -703,10 +712,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         return dps_breakdown
 
     def assassination_dps_breakdown_mutilate(self):
-        self.mutilate_energy_cost = 48 + 12 / self.strike_hit_chance
-        if self.glyphs.mutilate:
-            self.mutilate_energy_cost -= 5
-
         damage_breakdown = self.compute_damage(self.assassination_attack_counts_mutilate)
 
         for key in damage_breakdown:
@@ -722,7 +727,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         return damage_breakdown
 
-    def assassination_attack_counts_mutilate(self, current_stats):
+    def assassination_attack_counts(self, current_stats, cpg, finisher_size):
         base_melee_crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
         base_spell_crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
 
@@ -734,62 +739,84 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
 
-        mutilate_crit_rate = base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus() + .05 * self.talents.puncturing_wounds
-        if mutilate_crit_rate > 1:
-            mutilate_crit_rate = 1.
-
+        cpg_crit_rate = base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus()
+        if cpg == 'mutilate':
+            cpg_crit_rate += .05 * self.talents.puncturing_wounds
+        else:
+            cpg_crit_rate += .1 * self.talents.puncturing_wounds
+        
+        if cpg_crit_rate > 1:
+            cpg_crit_rate = 1
+        
         crit_rates = {
             'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
             'oh_autoattacks': min(base_melee_crit_rate, self.dual_wield_oh_hit_chance() - self.GLANCE_RATE),
-            'mutilate': mutilate_crit_rate,
+            cpg: cpg_crit_rate,
             'envenom': base_melee_crit_rate,
             'rupture_ticks': base_melee_crit_rate,
             'venomous_wounds': base_spell_crit_rate,
             'instant_poison': base_spell_crit_rate,
             'deadly_poison': base_spell_crit_rate
-        }
+        } 
 
-        seal_fate_proc_rate = 1 - (1 - mutilate_crit_rate * .5 * self.talents.seal_fate) ** 2
-        cp_per_mut = {2: 1 - seal_fate_proc_rate, 3: seal_fate_proc_rate}
-        cp_distribution = self.get_cp_distribution_for_cycle(cp_per_mut, self.settings.cycle.min_envenom_size_mutilate)
+        if cpg == 'mutilate':
+            cpg_energy_cost = 48 + 12 / self.strike_hit_chance
+            if self.glyphs.mutilate:
+                cpg_energy_cost -= 5
+            cpg_base_cost = cpg_energy_cost
+        else:
+            cpg_base_cost = cpg_energy_cost = 48 + 12 / self.strike_hit_chance
+            cpg_energy_cost -= 15 * self.talents.murderous_intent
+            if self.glyphs.backstab:
+                cpg_energy_cost -= 5 * cpg_crit_rate
 
-        # This cycle need a *lot* of work, but in the interest of getting some
-        # sort of numbers out of this, I'm going to go with ye olde cheap hack
-        # for the moment.
+        if cpg == 'mutilate':
+            seal_fate_proc_rate = 1 - (1 - cpg_crit_rate * .5 * self.talents.seal_fate) ** 2
+            cp_per_cpg = {2: 1 - seal_fate_proc_rate, 3: seal_fate_proc_rate}
+        else:
+            seal_fate_proc_rate = cpg_crit_rate * .5 * self.talents.seal_fate
+            cp_per_cpg = {1: 1 - seal_fate_proc_rate, 2: seal_fate_proc_rate}
+        avg_cp_per_cpg = sum([key * cp_per_cpg[key] for key in cp_per_cpg])
 
-        muts_per_finisher = 0
+        cp_distribution, rupture_sizes = self.get_cp_distribution_for_cycle(cp_per_cpg, finisher_size)
+        
+        avg_rupture_size = sum([i * rupture_sizes[i] for i in xrange(6)])
+        avg_rupture_length = 2 * (3 + avg_rupture_size + 2 * self.glyphs.rupture)
+        avg_gap = .5 * (1 / self.strike_hit_chance - 1 + .5 * self.settings.response_time)
+        avg_cycle_length = avg_gap + avg_rupture_length
+
+        cpg_per_rupture = (avg_rupture_size - .2 * self.talents.ruthlessness) / avg_cp_per_cpg
+        energy_for_rupture = cpg_per_rupture * cpg_energy_cost + self.base_rupture_energy_cost - avg_rupture_size * self.relentless_strikes_energy_return_per_cp
+
+        cpg_per_finisher = 0
         cp_per_finisher = 0
-        finisher_size_breakdown = [0, 0, 0, 0, 0, 0]
-        for (cps, muts), probability in cp_distribution.items():
-            muts_per_finisher += muts * probability
+        envenom_size_breakdown = [0, 0, 0, 0, 0, 0]
+        for (cps, cpgs), probability in cp_distribution.items():
+            cpg_per_finisher += cpgs * probability
             cp_per_finisher += cps * probability
-            finisher_size_breakdown[cps] += probability
+            envenom_size_breakdown[cps] += probability
 
-        energy_for_rupture = muts_per_finisher * self.mutilate_energy_cost + self.base_rupture_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
-        rupture_downtime = .5 * energy_for_rupture / energy_regen
-        average_rupture_length = 2 * (3 + cp_per_finisher + 2 * self.glyphs.rupture)
-        average_cycle_length = rupture_downtime + average_rupture_length
-
-        energy_for_envenoms = average_rupture_length * energy_regen_with_rupture - .5 * energy_for_rupture
-        envenom_energy_cost = muts_per_finisher * self.mutilate_energy_cost + self.envenom_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
+        energy_per_cycle = avg_rupture_length * energy_regen_with_rupture + avg_gap * energy_regen
+        energy_for_envenoms = energy_per_cycle - energy_for_rupture
+        envenom_energy_cost = cpg_per_finisher * cpg_energy_cost + self.envenom_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
         envenoms_per_cycle = energy_for_envenoms / envenom_energy_cost
 
         attacks_per_second = {}
 
-        envenoms_per_second = envenoms_per_cycle / average_cycle_length
-        attacks_per_second['rupture'] = 1 / average_cycle_length
-        attacks_per_second['mutilate'] = (envenoms_per_second + attacks_per_second['rupture']) * muts_per_finisher
+        envenoms_per_second = envenoms_per_cycle / avg_cycle_length
+        attacks_per_second['rupture'] = 1 / avg_cycle_length
+        attacks_per_second[cpg] = envenoms_per_second * cpg_per_finisher + attacks_per_second['rupture'] * cpg_per_rupture
 
         if self.talents.cold_blood:
             envenoms_per_cold_blood = 120 * envenoms_per_second
             crit_rates['envenom'] = ((envenoms_per_cold_blood - 1) * crit_rates['envenom'] + 1) / envenoms_per_cold_blood
 
-        attacks_per_second['envenom'] = [finisher_chance * envenoms_per_second for finisher_chance in finisher_size_breakdown]
+        attacks_per_second['envenom'] = [finisher_chance * envenoms_per_second for finisher_chance in envenom_size_breakdown]
 
         attacks_per_second['rupture_ticks'] = [0, 0, 0, 0, 0, 0]
         for i in xrange(1, 6):
             ticks_per_rupture = 3 + i + 2 * self.glyphs.rupture
-            attacks_per_second['rupture_ticks'][i] = ticks_per_rupture * attacks_per_second['rupture'] * finisher_size_breakdown[i]
+            attacks_per_second['rupture_ticks'][i] = ticks_per_rupture * attacks_per_second['rupture'] * rupture_sizes[i]
 
         total_rupture_ticks = sum(attacks_per_second['rupture_ticks'])
         attacks_per_second['venomous_wounds'] = total_rupture_ticks * .3 * self.talents.venomous_wounds * self.spell_hit_chance()
@@ -800,8 +827,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attacks_per_second['mh_autoattack_hits'] = attacks_per_second['mh_autoattacks'] * self.dual_wield_mh_hit_chance()
         attacks_per_second['oh_autoattack_hits'] = attacks_per_second['oh_autoattacks'] * self.dual_wield_oh_hit_chance()
 
-        total_mh_hits_per_second = attacks_per_second['mh_autoattack_hits'] + attacks_per_second['mutilate'] + envenoms_per_second + attacks_per_second['rupture']
-        total_oh_hits_per_second = attacks_per_second['oh_autoattack_hits'] + attacks_per_second['mutilate']
+        total_mh_hits_per_second = attacks_per_second['mh_autoattack_hits'] + attacks_per_second[cpg] + envenoms_per_second + attacks_per_second['rupture']
+        total_oh_hits_per_second = attacks_per_second['oh_autoattack_hits']
+        if cpg == 'mutilate':
+            total_oh_hits_per_second += attacks_per_second[cpg]
 
         if self.settings.mh_poison == 'ip':
             ip_base_proc_rate = .3 * self.stats.mh.speed / 1.4
@@ -828,118 +857,12 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attacks_per_second['deadly_poison'] = 1. / 3
 
         return attacks_per_second, crit_rates
+
+    def assassination_attack_counts_mutilate(self, current_stats):
+        return self.assassination_attack_counts(current_stats, 'mutilate', self.settings.cycle.min_envenom_size_mutilate)
 
     def assassination_attack_counts_backstab(self, current_stats):
-        base_melee_crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
-        base_spell_crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
-
-        haste_multiplier = self.stats.get_haste_multiplier_from_rating(current_stats['haste'])
-
-        energy_regen = self.base_energy_regen * haste_multiplier
-        energy_regen += self.bonus_energy_regen
-        energy_regen_with_rupture = energy_regen + 1.5 * self.talents.venomous_wounds
-
-        attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
-
-        backstab_crit_rate = base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus() + .1 * self.talents.puncturing_wounds
-        if backstab_crit_rate > 1:
-            backstab_crit_rate = 1.
-
-        crit_rates = {
-            'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
-            'oh_autoattacks': min(base_melee_crit_rate, self.dual_wield_oh_hit_chance() - self.GLANCE_RATE),
-            'backstab': backstab_crit_rate,
-            'envenom': base_melee_crit_rate,
-            'rupture_ticks': base_melee_crit_rate,
-            'venomous_wounds': base_spell_crit_rate,
-            'instant_poison': base_spell_crit_rate,
-            'deadly_poison': base_spell_crit_rate
-        }
-
-        backstab_energy_cost = 48 + 12 / self.strike_hit_chance
-        backstab_energy_cost -= 15 * self.talents.murderous_intent
-        if self.glyphs.backstab:
-            backstab_energy_cost -= 5 * backstab_crit_rate
-
-        seal_fate_proc_rate = backstab_crit_rate * .5 * self.talents.seal_fate
-        cp_per_backstab = {1: 1 - seal_fate_proc_rate, 2: seal_fate_proc_rate}
-        cp_distribution = self.get_cp_distribution_for_cycle(cp_per_backstab, self.settings.cycle.min_envenom_size_backstab)
-
-        # This cycle need a *lot* of work, but in the interest of getting some
-        # sort of numbers out of this, I'm going to go with ye olde cheap hack
-        # for the moment.
-
-        bs_per_finisher = 0
-        cp_per_finisher = 0
-        finisher_size_breakdown = [0, 0, 0, 0, 0, 0]
-        for (cps, bs), probability in cp_distribution.items():
-            bs_per_finisher += bs * probability
-            cp_per_finisher += cps * probability
-            finisher_size_breakdown[cps] += probability
-
-        energy_for_rupture = bs_per_finisher * backstab_energy_cost + self.base_rupture_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
-        rupture_downtime = .5 * energy_for_rupture / energy_regen
-        average_rupture_length = 2 * (3 + cp_per_finisher + 2 * self.glyphs.rupture)
-        average_cycle_length = rupture_downtime + average_rupture_length
-
-        energy_for_envenoms = average_rupture_length * energy_regen_with_rupture - .5 * energy_for_rupture
-        envenom_energy_cost = bs_per_finisher * backstab_energy_cost + self.envenom_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
-        envenoms_per_cycle = energy_for_envenoms / envenom_energy_cost
-
-        attacks_per_second = {}
-
-        envenoms_per_second = envenoms_per_cycle / average_cycle_length
-        attacks_per_second['rupture'] = 1 / average_cycle_length
-        attacks_per_second['backstab'] = (envenoms_per_second + attacks_per_second['rupture']) * bs_per_finisher
-
-        if self.talents.cold_blood:
-            envenoms_per_cold_blood = 120 * envenoms_per_second
-            crit_rates['envenom'] = ((envenoms_per_cold_blood - 1) * crit_rates['envenom'] + 1) / envenoms_per_cold_blood
-
-        attacks_per_second['envenom'] = [finisher_chance * envenoms_per_second for finisher_chance in finisher_size_breakdown]
-
-        attacks_per_second['rupture_ticks'] = [0, 0, 0, 0, 0, 0]
-        for i in xrange(1, 6):
-            ticks_per_rupture = 3 + i + 2 * self.glyphs.rupture
-            attacks_per_second['rupture_ticks'][i] = ticks_per_rupture * attacks_per_second['rupture'] * finisher_size_breakdown[i]
-
-        total_rupture_ticks = sum(attacks_per_second['rupture_ticks'])
-        attacks_per_second['venomous_wounds'] = total_rupture_ticks * .3 * self.talents.venomous_wounds * self.spell_hit_chance()
-
-        attacks_per_second['mh_autoattacks'] = attack_speed_multiplier / self.stats.mh.speed
-        attacks_per_second['oh_autoattacks'] = attack_speed_multiplier / self.stats.oh.speed
-
-        attacks_per_second['mh_autoattack_hits'] = attacks_per_second['mh_autoattacks'] * self.dual_wield_mh_hit_chance()
-        attacks_per_second['oh_autoattack_hits'] = attacks_per_second['oh_autoattacks'] * self.dual_wield_oh_hit_chance()
-
-        total_mh_hits_per_second = attacks_per_second['mh_autoattack_hits'] + attacks_per_second['backstab'] + envenoms_per_second + attacks_per_second['rupture']
-        total_oh_hits_per_second = attacks_per_second['oh_autoattack_hits']
-
-        if self.settings.mh_poison == 'ip':
-            ip_base_proc_rate = .3 * self.stats.mh.speed / 1.4
-        else:
-            ip_base_proc_rate = .3 * self.stats.oh.speed / 1.4
-
-        ip_envenom_proc_rate = ip_base_proc_rate * 1.5
-
-        dp_base_proc_rate = .5
-        dp_envenom_proc_rate = dp_base_proc_rate + .15
-
-        envenom_uptime = min(sum([(1 / self.strike_hit_chance + cps) * attacks_per_second['envenom'][cps] for cps in xrange(1,6)]), 1)
-        avg_ip_proc_rate = ip_base_proc_rate * (1 - envenom_uptime) + ip_envenom_proc_rate * envenom_uptime
-        avg_dp_proc_rate = dp_base_proc_rate * (1 - envenom_uptime) + dp_envenom_proc_rate * envenom_uptime
-
-        if self.settings.mh_poison == 'ip':
-            mh_poison_procs = avg_ip_proc_rate * total_mh_hits_per_second
-            oh_poison_procs = avg_dp_proc_rate * total_oh_hits_per_second
-        else:
-            mh_poison_procs = avg_dp_proc_rate * total_mh_hits_per_second
-            oh_poison_procs = avg_ip_proc_rate * total_oh_hits_per_second
-
-        attacks_per_second['instant_poison'] = (mh_poison_procs + oh_poison_procs) * self.spell_hit_chance()
-        attacks_per_second['deadly_poison'] = 1. / 3
-
-        return attacks_per_second, crit_rates
+        return self.assassination_attack_counts(current_stats, 'backstab', self.settings.cycle.min_envenom_size_backstab)
 
     ###########################################################################
     # Combat DPS functions
@@ -1040,7 +963,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         FINISHER_SIZE = 5
 
         if self.settings.cycle.use_revealing_strike == 'never':
-            cp_distribution = self.get_cp_distribution_for_cycle(cp_per_ss, FINISHER_SIZE)
+            cp_distribution = self.get_cp_distribution_for_cycle(cp_per_ss, FINISHER_SIZE)[0]
 
             rvs_per_finisher = 0
             ss_per_finisher = 0
@@ -1051,7 +974,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 cp_per_finisher += cps * probability
                 finisher_size_breakdown[cps] += probability
         elif self.settings.cycle.use_revealing_strike == 'sometimes':
-            cp_distribution = self.get_cp_distribution_for_cycle(cp_per_ss, FINISHER_SIZE - 1)
+            cp_distribution = self.get_cp_distribution_for_cycle(cp_per_ss, FINISHER_SIZE - 1)[0]
 
             rvs_per_finisher = 0
             ss_per_finisher = 0
@@ -1067,7 +990,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 cp_per_finisher += actual_cps * probability
                 finisher_size_breakdown[actual_cps] += probability
         else:
-            cp_distribution = self.get_cp_distribution_for_cycle(cp_per_ss, FINISHER_SIZE - 1)
+            cp_distribution = self.get_cp_distribution_for_cycle(cp_per_ss, FINISHER_SIZE - 1)[0]
 
             rvs_per_finisher = 1
             ss_per_finisher = 0
