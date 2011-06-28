@@ -844,8 +844,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attacks_per_second['garrote_ticks'] = 6 * attacks_per_second['garrote']
         attacks_per_second['venomous_wounds'] = (total_rupture_ticks + attacks_per_second['garrote_ticks']) * .3 * self.talents.venomous_wounds * self.spell_hit_chance()
 
-        attacks_per_second['mh_autoattacks'] = attack_speed_multiplier / self.stats.mh.speed * (1 - 1 / garrote_spacing)
-        attacks_per_second['oh_autoattacks'] = attack_speed_multiplier / self.stats.oh.speed * (1 - 1 / garrote_spacing)
+        attacks_per_second['mh_autoattacks'] = attack_speed_multiplier / self.stats.mh.speed * (1 - max((1 - .5 * self.stats.mh.speed / attack_speed_multiplier), 0) / garrote_spacing)
+        attacks_per_second['oh_autoattacks'] = attack_speed_multiplier / self.stats.oh.speed * (1 - max((1 - .5 * self.stats.oh.speed / attack_speed_multiplier), 0) / garrote_spacing)
 
         attacks_per_second['mh_autoattack_hits'] = attacks_per_second['mh_autoattacks'] * self.dual_wield_mh_hit_chance()
         attacks_per_second['oh_autoattack_hits'] = attacks_per_second['oh_autoattacks'] * self.dual_wield_oh_hit_chance()
