@@ -383,6 +383,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             if 'garrote' in attacks_per_second:
                 if not proc.procs_off_crit_only():
                     triggers_per_second += attacks_per_second['garrote']
+            if 'hemorrhage_ticks' in attacks_per_second:
+                if not proc.procs_off_crit_only():
+                    triggers_per_second += attacks_per_second['hemorrhage']
 
         return triggers_per_second * proc.proc_rate(self.stats.mh.speed)
 
@@ -430,6 +433,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                     triggers_per_second += attacks_per_second['garrote_ticks'] * crit_rates['garrote']
                 else:
                     triggers_per_second += attacks_per_second['garrote_ticks']
+            if 'hemorrhage_ticks' in attacks_per_second:
+                if proc.procs_off_crit_only():
+                    triggers_per_second += attacks_per_second['hemorrhage_ticks'] * crit_rates['hemorrhage']
+                else:
+                    triggers_per_second += attacks_per_second['hemorrhage_ticks']
         if proc.is_ppm():
             if triggers_per_second == 0:
                 return 0
