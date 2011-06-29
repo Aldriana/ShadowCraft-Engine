@@ -310,6 +310,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 crit_dps += dps_tuple[1]
             damage_breakdown['rupture'] = average_dps, crit_dps
 
+        if 'garrote_ticks' in attacks_per_second:
+            damage_breakdown['garrote'] = self.get_dps_contribution(self.garrote_tick_damage(average_ap), crit_rates['garrote'], attacks_per_second['garrote_ticks'])
+
         if 'envenom' in attacks_per_second:
             average_dps = crit_dps = 0
             for i in xrange(1, 6):
@@ -377,6 +380,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             if 'rupture' in attacks_per_second:
                 if not proc.procs_off_crit_only():
                     triggers_per_second += attacks_per_second['rupture']
+            if 'garrote' in attacks_per_second:
+                if not proc.procs_off_crit_only():
+                    triggers_per_second += attacks_per_second['garrote']
 
         return triggers_per_second * proc.proc_rate(self.stats.mh.speed)
 
@@ -419,7 +425,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                     triggers_per_second += sum(attacks_per_second['rupture_ticks']) * crit_rates['rupture']
                 else:
                     triggers_per_second += sum(attacks_per_second['rupture_ticks'])
-
+            if 'garrote_ticks' in attacks_per_second:
+                if proc.procs_off_crit_only():
+                    triggers_per_second += attacks_per_second['garrote_ticks'] * crit_rates['garrote']
+                else:
+                    triggers_per_second += attacks_per_second['garrote_ticks']
         if proc.is_ppm():
             if triggers_per_second == 0:
                 return 0
@@ -676,6 +686,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.base_energy_regen = 10
         if self.talents.overkill:
             self.base_energy_regen += 60 / (180. + self.settings.response_time - 30 * self.talents.elusiveness)
+            self.base_energy_regen += 60. / self.settings.duration * (1 - 20. / self.settings.duration)
 
         if self.talents.cold_blood:
             self.bonus_energy_regen += 25. / (120 + self.settings.response_time)
@@ -742,6 +753,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         energy_regen = self.base_energy_regen * haste_multiplier
         energy_regen += self.bonus_energy_regen
+
+        garrote_base_cost = 9 + 36 * self.strike_hit_chance
+        garrote_energy_return = 6 * self.talents.venomous_wounds * 3 * self.strike_hit_chance
+        garrote_net_cost = garrote_base_cost - garrote_energy_return
+        garrote_spacing = (180. + self.settings.response_time - 30 * self.talents.elusiveness)
+        total_garrotes_per_second = (1 - 20. / self.settings.duration) / self.settings.duration + 1 / garrote_spacing
+        
+        energy_regen -= garrote_net_cost * total_garrotes_per_second
+
         energy_regen_with_rupture = energy_regen + 1.5 * self.talents.venomous_wounds
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
@@ -763,7 +783,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'rupture_ticks': base_melee_crit_rate,
             'venomous_wounds': base_spell_crit_rate,
             'instant_poison': base_spell_crit_rate,
-            'deadly_poison': base_spell_crit_rate
+            'deadly_poison': base_spell_crit_rate,
+            'garrote': base_melee_crit_rate
         } 
 
         if cpg == 'mutilate':
@@ -813,6 +834,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         envenoms_per_second = envenoms_per_cycle / avg_cycle_length
         attacks_per_second['rupture'] = 1 / avg_cycle_length
         attacks_per_second[cpg] = envenoms_per_second * cpg_per_finisher + attacks_per_second['rupture'] * cpg_per_rupture
+        attacks_per_second['garrote'] = self.strike_hit_chance * total_garrotes_per_second
+
+        envenoms_per_second += attacks_per_second['garrote'] / cp_per_finisher
 
         if self.talents.cold_blood:
             envenoms_per_cold_blood = 120 * envenoms_per_second
@@ -826,15 +850,16 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second['rupture_ticks'][i] = ticks_per_rupture * attacks_per_second['rupture'] * rupture_sizes[i]
 
         total_rupture_ticks = sum(attacks_per_second['rupture_ticks'])
-        attacks_per_second['venomous_wounds'] = total_rupture_ticks * .3 * self.talents.venomous_wounds * self.spell_hit_chance()
+        attacks_per_second['garrote_ticks'] = 6 * attacks_per_second['garrote']
+        attacks_per_second['venomous_wounds'] = (total_rupture_ticks + attacks_per_second['garrote_ticks']) * .3 * self.talents.venomous_wounds * self.spell_hit_chance()
 
-        attacks_per_second['mh_autoattacks'] = attack_speed_multiplier / self.stats.mh.speed
-        attacks_per_second['oh_autoattacks'] = attack_speed_multiplier / self.stats.oh.speed
+        attacks_per_second['mh_autoattacks'] = attack_speed_multiplier / self.stats.mh.speed * (1 - max((1 - .5 * self.stats.mh.speed / attack_speed_multiplier), 0) / garrote_spacing)
+        attacks_per_second['oh_autoattacks'] = attack_speed_multiplier / self.stats.oh.speed * (1 - max((1 - .5 * self.stats.oh.speed / attack_speed_multiplier), 0) / garrote_spacing)
 
         attacks_per_second['mh_autoattack_hits'] = attacks_per_second['mh_autoattacks'] * self.dual_wield_mh_hit_chance()
         attacks_per_second['oh_autoattack_hits'] = attacks_per_second['oh_autoattacks'] * self.dual_wield_oh_hit_chance()
 
-        total_mh_hits_per_second = attacks_per_second['mh_autoattack_hits'] + attacks_per_second[cpg] + envenoms_per_second + attacks_per_second['rupture']
+        total_mh_hits_per_second = attacks_per_second['mh_autoattack_hits'] + attacks_per_second[cpg] + envenoms_per_second + attacks_per_second['rupture'] + attacks_per_second['garrote']
         total_oh_hits_per_second = attacks_per_second['oh_autoattack_hits']
         if cpg == 'mutilate':
             total_oh_hits_per_second += attacks_per_second[cpg]
