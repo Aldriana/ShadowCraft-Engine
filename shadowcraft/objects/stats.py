@@ -167,6 +167,7 @@ class GearBuffs(object):
         'potion_of_the_tolvir_prepot':    {'stat': 'agi', 'value': 1200, 'duration': 23, 'cooldown': None}, #Very rough guesstimate; actual modeling should be done with the opener sequence, alas, there's no such thing.
         'engineer_glove_enchant':         {'stat': 'haste', 'value': 340, 'duration': 12, 'cooldown': 60},  #WotLK tinker
         'synapse_springs':                {'stat': 'varies', 'value': 480, 'duration': 10, 'cooldown': 60}, #Overwrite stat in the model for the highest of agi, str, int
+        'tazik_shocker':                  {'stat': 'spell_damage', 'value': 4800, 'duration': 0, 'cooldown': 60, 'name': 'Tazik Shocker'},
         'lifeblood':                      {'stat': 'haste', 'value': 480, 'duration': 20, 'cooldown': 120},
         'ancient_petrified_seed':         {'stat': 'agi', 'value': 1227, 'duration': 15, 'cooldown': 60},
         'heroic_ancient_petrified_seed':  {'stat': 'agi', 'value': 1441, 'duration': 15, 'cooldown': 60},
