@@ -150,6 +150,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             if boost['stat'] in self.base_stats:
                 self.base_stats[boost['stat']] += boost['value'] * boost['duration'] * 1.0 / (boost['cooldown'] + self.settings.response_time)
 
+        if getattr(self.stats.gear_buffs, 'synapse_springs'):
+            self.stats.gear_buffs.activated_boosts['synapse_springs']['stat'] = 'agi'
+            
         for stat in self.base_stats:
             for boost in self.stats.gear_buffs.get_all_activated_boosts_for_stat(stat):
                 if boost['cooldown'] is not None:
