@@ -37,7 +37,7 @@ allowed_procs = {
     },
     'heroic_matrix_restabilizer': {     # Proc_chance/ICD is a guess and should be verified.
         'stat': 'weird_proc',
-        'value': 1730,
+        'value': 1834,
         'duration': 30,
         'icd': 105,
         'proc_chance': .1,
@@ -161,7 +161,7 @@ allowed_procs = {
     },
     'matrix_restabilizer': {            # Proc_chance/ICD is a guess and should be verified.
         'stat': 'weird_proc',
-        'value': 1532,
+        'value': 1624,
         'duration': 30,
         'icd': 105,
         'proc_chance': .1,
