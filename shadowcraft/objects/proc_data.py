@@ -35,9 +35,9 @@ allowed_procs = {
         'on_crit': True,
         'proc_name': 'Eye of Vengeance'
     },
-    'heroic_matrix_restabilizer': {     # Proc_chance/ICD is a guess and should be verified.
+    'heroic_matrix_restabilizer': {     # Proc_chance/ICD/value is a guess and should be verified.
         'stat': 'weird_proc',
-        'value': 1834,
+        'value': 1830,
         'duration': 30,
         'icd': 105,
         'proc_chance': .1,
