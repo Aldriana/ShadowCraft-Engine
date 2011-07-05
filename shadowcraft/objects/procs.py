@@ -6,17 +6,35 @@ class InvalidProcException(exceptions.InvalidInputException):
 
 
 class Proc(object):
-    def __init__(self, stat, value, duration, trigger, icd, proc_name, ppm=False, proc_chance=False, on_crit=False, max_stacks=1, can_crit=True):
+    def __init__(self, stat, value, duration, proc_name, default_behaviour, max_stacks=1, can_crit=True, spell_behaviour=None):
         self.stat = stat
         self.value = value
         self.can_crit = can_crit
         self.duration = duration
+        self.max_stacks = max_stacks
+        self.proc_name = proc_name
+        self.allowed_behaviours = {
+            'default': default_behaviour,
+            'spell': spell_behaviour
+            }
+        self.behaviour_toggle = 'default'
+
+    def __setattr__(self, name, value):
+        object.__setattr__(self, name, value)
+        if name == 'behaviour_toggle':
+            # Set behaviour attributes when this is modified.
+            if value in self.allowed_behaviours and self.allowed_behaviours[value] is not None:
+                self._set_behaviour(**proc_data.behaviours[self.allowed_behaviours[value]])
+            else:
+                raise InvalidProcException(_('Behaviour \'{behaviour}\' is not defined for {proc}').format(proc=self.proc_name, behaviour=value))
+
+    def _set_behaviour(self, icd, trigger, proc_chance=False, ppm=False, on_crit=False):
+        # This could be merged with __setattr__; its sole purpose is
+        # to clearly surface the parameters passed with the behaviours.
         self.proc_chance = proc_chance
         self.trigger = trigger
         self.icd = icd
-        self.max_stacks = max_stacks
         self.on_crit = on_crit
-        self.proc_name = proc_name
         self.ppm = ppm
 
     def procs_off_auto_attacks(self):
@@ -98,7 +116,6 @@ class ProcsList(object):
             if arg in self.allowed_procs:
                 setattr(self, arg, Proc(**self.allowed_procs[arg]))
             else:
-                # Throw invalid input exception here
                 raise InvalidProcException(_('No data for proc {proc}').format(proc=arg))
 
     def set_proc(self, proc):
