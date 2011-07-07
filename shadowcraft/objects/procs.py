@@ -6,25 +6,29 @@ class InvalidProcException(exceptions.InvalidInputException):
 
 
 class Proc(object):
-    def __init__(self, stat, value, duration, proc_name, default_behaviour, max_stacks=1, can_crit=True, spell_behaviour=None):
+    allowed_behaviours = proc_data.behaviours
+
+    def __init__(self, stat, value, duration, proc_name, behaviours, max_stacks=1, can_crit=True):
         self.stat = stat
         self.value = value
         self.can_crit = can_crit
         self.duration = duration
         self.max_stacks = max_stacks
         self.proc_name = proc_name
-        self.allowed_behaviours = {
-            'default': default_behaviour,
-            'spell': spell_behaviour
-            }
+        self.proc_behaviours = {}
+        for i in behaviours:
+            if behaviours[i] in self.allowed_behaviours:
+                self.proc_behaviours[i] = self.allowed_behaviours[behaviours[i]]
+            else:
+                raise InvalidProcException(_('Behaviour {behaviour}:{behaviour_name} is not allowed').format(behaviour=i, behaviour_name=behaviours[i]))
         self.behaviour_toggle = 'default'
 
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
         if name == 'behaviour_toggle':
             # Set behaviour attributes when this is modified.
-            if value in self.allowed_behaviours and self.allowed_behaviours[value] is not None:
-                self._set_behaviour(**proc_data.behaviours[self.allowed_behaviours[value]])
+            if value in self.proc_behaviours:
+                self._set_behaviour(**self.proc_behaviours[value])
             else:
                 raise InvalidProcException(_('Behaviour \'{behaviour}\' is not defined for {proc}').format(proc=self.proc_name, behaviour=value))
 

@@ -2,48 +2,49 @@
 # The Proc class takes these parameters:
 # stat, value, duration, proc_name, default_behaviour, max_stacks=1, can_crit=True, spell_behaviour=None
 # Assumed heroic trinkets have the same behaviour as the non-heroic kin.
+# behaviours must have a 'default' key so that the proc is properly initialized.
 allowed_procs = {
     'heroic_grace_of_the_herald': {
         'stat': 'crit',
         'value': 1710,
         'duration': 10,
         'proc_name': 'Herald of Doom',
-        'default_behaviour': 'grace_of_the_herald'
+        'behaviours': {'default': 'grace_of_the_herald'}
     },
     'heroic_key_to_the_endless_chamber': {
         'stat': 'agi',
         'value': 1710,
         'duration': 15,
         'proc_name': 'Final Key',
-        'default_behaviour': 'key_to_the_endless_chamber'
+        'behaviours': {'default': 'key_to_the_endless_chamber'}
     },
     'heroic_left_eye_of_rajh': {
         'stat': 'agi',
         'value': 1710,
         'duration': 10,
         'proc_name': 'Eye of Vengeance',
-        'default_behaviour': 'left_eye_of_rajh'
+        'behaviours': {'default': 'left_eye_of_rajh'}
     },
     'heroic_matrix_restabilizer': {         # Value is a guess and should be verified.
         'stat': 'weird_proc',
         'value': 1830,
         'duration': 30,
         'proc_name': 'Matrix Restabilized',
-        'default_behaviour': 'matrix_restabilizer'
+        'behaviours': {'default': 'matrix_restabilizer'}
     },
     'heroic_prestors_talisman_of_machination': {
         'stat': 'haste',
         'value': 2178,
         'duration': 15,
         'proc_name': 'Nefarious Plot',
-        'default_behaviour': 'prestors_talisman_of_machination'
+        'behaviours': {'default': 'prestors_talisman_of_machination'}
     },
     'heroic_the_hungerer': {
         'stat': 'haste',
         'value': 1730,
         'duration': 15,
         'proc_name': 'Devour',
-        'default_behaviour': 'the_hungerer'
+        'behaviours': {'default': 'the_hungerer'}
     },
     'heroic_tias_grace': {
         'stat': 'agi',
@@ -51,7 +52,7 @@ allowed_procs = {
         'duration': 15,
         'max_stacks': 10,
         'proc_name': 'Grace',
-        'default_behaviour': 'tias_grace'
+        'behaviours': {'default': 'tias_grace'}
     },
     'darkmoon_card_hurricane': {
         'stat': 'spell_damage',
@@ -60,7 +61,7 @@ allowed_procs = {
         'duration': 0,
         'max_stacks': 0,
         'proc_name': 'Lightning Strike',
-        'default_behaviour': 'darkmoon_card_hurricane'
+        'behaviours': {'default': 'darkmoon_card_hurricane'}
     },
     'corens_chilled_chromium_coaster': {
         'stat': 'ap',
@@ -68,21 +69,21 @@ allowed_procs = {
         'duration': 10,
         'max_stacks': 0,
         'proc_name': 'Reflection of Torment',
-        'default_behaviour': 'corens_chilled_chromium_coaster'
+        'behaviours': {'default': 'corens_chilled_chromium_coaster'}
     },
     'essence_of_the_cyclone': {
         'stat': 'crit',
         'value': 1926,
         'duration': 10,
         'proc_name': 'Twisted',
-        'default_behaviour': 'essence_of_the_cyclone'
+        'behaviours': {'default': 'essence_of_the_cyclone'}
     },
     'heroic_essence_of_the_cyclone': {
         'stat': 'crit',
         'value': 2178,
         'duration': 10,
         'proc_name': 'Twisted',
-        'default_behaviour': 'essence_of_the_cyclone'
+        'behaviours': {'default': 'essence_of_the_cyclone'}
     },
     'fluid_death': {
         'stat': 'agi',
@@ -90,49 +91,50 @@ allowed_procs = {
         'duration': 15,
         'max_stacks': 10,
         'proc_name': 'River of Death',
-        'default_behaviour': 'fluid_death'
+        'behaviours': {'default': 'fluid_death'}
     },
     'grace_of_the_herald': {
         'stat': 'crit',
         'value': 924,
         'duration': 10,
         'proc_name': 'Herald of Doom',
-        'default_behaviour': 'grace_of_the_herald'
+        'behaviours': {'default': 'grace_of_the_herald'}
     },
     'heart_of_the_vile': {
         'stat': 'crit',
         'value': 924,
         'duration': 10,
         'proc_name': 'Herald of Doom',
-        'default_behaviour': 'heart_of_the_vile'
+        'behaviours': {'default': 'heart_of_the_vile'}
     },
     'key_to_the_endless_chamber': {
         'stat': 'agi',
         'value': 1290,
         'duration': 15,
         'proc_name': 'Final Key',
-        'default_behaviour': 'key_to_the_endless_chamber'
+        'behaviours': {'default': 'key_to_the_endless_chamber'}
     },
     'left_eye_of_rajh': {
         'stat': 'agi',
         'value': 1512,
         'duration': 10,
         'proc_name': 'Eye of Vengeance',
-        'default_behaviour': 'left_eye_of_rajh'
+        'behaviours': {'default': 'left_eye_of_rajh'}
     },
     'matrix_restabilizer': {
         'stat': 'weird_proc',
         'value': 1624,
         'duration': 30,
         'proc_name': 'Matrix Restabilized',
-        'default_behaviour': 'matrix_restabilizer'
+        'behaviours': {'default': 'matrix_restabilizer'}
+
     },
     'prestors_talisman_of_machination': {
         'stat': 'haste',
         'value': 1926,
         'duration': 15,
         'proc_name': 'Nefarious Plot',
-        'default_behaviour': 'prestors_talisman_of_machination'
+        'behaviours': {'default': 'prestors_talisman_of_machination'}
     },
     'rickets_magnetic_fireball_proc': {
         'stat': 'physical_damage',
@@ -140,35 +142,35 @@ allowed_procs = {
         'duration': 0,
         'max_stacks': 0,
         'proc_name': 'Magnetic Fireball',
-        'default_behaviour': 'rickets_magnetic_fireball'
+        'behaviours': {'default': 'rickets_magnetic_fireball'}
     },
     'rogue_t11_4pc': {
         'stat': 'weird_proc',
         'value': 1,
         'duration': 15,
         'proc_name': 'Deadly Scheme',
-        'default_behaviour': 'rogue_t11_4pc'
+        'behaviours': {'default': 'rogue_t11_4pc'}
     },
     'schnottz_medallion_of_command': {
         'stat': 'mastery',
         'value': 918,
         'duration': 20,
         'proc_name': 'Hardened Shell',
-        'default_behaviour': 'schnottz_medallion_of_command'
+        'behaviours': {'default': 'schnottz_medallion_of_command'}
     },
     'swordguard_embroidery': {
         'stat': 'ap',
         'value': 1000,
         'duration': 15,
         'proc_name': 'Swordguard Embroidery',
-        'default_behaviour': 'swordguard_embroidery'
+        'behaviours': {'default': 'swordguard_embroidery'}
     },
     'the_hungerer': {
         'stat': 'haste',
         'value': 1532,
         'duration': 15,
         'proc_name': 'Devour',
-        'default_behaviour': 'the_hungerer'
+        'behaviours': {'default': 'the_hungerer'}
     },
     'the_twilight_blade': {
         'stat': 'crit',
@@ -176,7 +178,7 @@ allowed_procs = {
         'duration': 10,
         'max_stacks': 3,
         'proc_name': 'The Deepest Night',
-        'default_behaviour': 'the_twilight_blade'
+        'behaviours': {'default': 'the_twilight_blade'}
     },
     'tias_grace': {
         'stat': 'agi',
@@ -184,14 +186,14 @@ allowed_procs = {
         'duration': 15,
         'max_stacks': 10,
         'proc_name': 'Grace',
-        'default_behaviour': 'tias_grace'
+        'behaviours': {'default': 'tias_grace'}
     },
     'unheeded_warning': {
         'stat': 'extra_weapon_damage',
         'value': 680,
         'duration': 10,
         'proc_name': 'Heedless Carnage',
-        'default_behaviour': 'unheeded_warning'
+        'behaviours': {'default': 'unheeded_warning'}
     }
 }
 
@@ -201,23 +203,21 @@ allowed_melee_enchants = {
         'value': 500,
         'duration': 0,
         'proc_name': 'Avalanche',
-        'default_behaviour': 'avalanche_melee',
-        'spell_behaviour': 'avalanche_spell'
+        'behaviours': {'default': 'avalanche_melee', 'spell': 'avalanche_spell'}
     },
     'hurricane': {
         'stat': 'haste',
         'value': 450,
         'duration': 12,
         'proc_name': 'Hurricane',
-        'default_behaviour': 'hurricane_melee',
-        'spell_behaviour': 'hurricane_spell'
+        'behaviours': {'default': 'hurricane_melee', 'spell': 'hurricane_spell'}
     },
     'landslide': {
         'stat': 'ap',
         'value': 1000,
         'duration': 12,
         'proc_name': 'Landslide',
-        'default_behaviour': 'landslide',
+        'behaviours': {'default': 'landslide'}
     }
 }
 
