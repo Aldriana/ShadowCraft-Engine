@@ -240,17 +240,24 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.stats.procs.matrix_restabilizer:
             self.stats.procs.matrix_restabilizer.stat = sorted_list[0]
 
-    def get_t12_2p_damage(self, damage_breakdown):
+    def get_t12_2p_damage(self, damage_breakdown, crit_rates, attacks_per_second, average_ap):
         crit_damage = 0
         for key in damage_breakdown:
             if key in ('mutilate', 'hemorrhage', 'backstab', 'sinister_strike', 'revealing_strike', 'main_gauche', 'ambush', 'killing_spree', 'envenom', 'eviscerate', 'autoattack'):
                 average_damage, crit_contribution = damage_breakdown[key]
                 crit_damage += crit_contribution
+            if key == 'mutilate':
+                double_crit_prob = crit_rates[key] ** 2
+                munching_per_second = attacks_per_second['mutilate'] * double_crit_prob
+                crit_damage -= self.mh_mutilate_damage(average_ap)[1] * munching_per_second
+            if key == 'killing_spree':
+                double_crit_prob = crit_rates[key] ** 2
+                munching_per_second = attacks_per_second['mh_killing_spree'] * double_crit_prob
+                crit_damage -= self.mh_killing_spree_damage(average_ap)[1] * munching_per_second
 
         return crit_damage * self.stats.gear_buffs.rogue_t12_2pc_damage_bonus(), 0
 
     def get_damage_breakdown(self, current_stats, attacks_per_second, crit_rates, damage_procs):
-        # Vendetta may want to be handled elsewhere.
         average_ap = current_stats['ap'] + 2 * current_stats['agi'] + self.base_strength
         average_ap *= self.buffs.attack_power_multiplier()
         if self.talents.is_combat_rogue():
@@ -301,8 +308,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             damage_breakdown['ambush'] = self.get_dps_contribution(self.ambush_damage(average_ap), crit_rates['ambush'], attacks_per_second['ambush'])
 
         if 'mh_killing_spree' in attacks_per_second:
-            mh_killing_spree_dps = self.get_dps_contribution(self.mh_killing_spree_damage(average_ap), crit_rates['mh_killing_spree'], attacks_per_second['mh_killing_spree'])
-            oh_killing_spree_dps = self.get_dps_contribution(self.oh_killing_spree_damage(average_ap), crit_rates['oh_killing_spree'], attacks_per_second['oh_killing_spree'])
+            mh_killing_spree_dps = self.get_dps_contribution(self.mh_killing_spree_damage(average_ap), crit_rates['killing_spree'], attacks_per_second['mh_killing_spree'])
+            oh_killing_spree_dps = self.get_dps_contribution(self.oh_killing_spree_damage(average_ap), crit_rates['killing_spree'], attacks_per_second['oh_killing_spree'])
             damage_breakdown['killing_spree'] = mh_killing_spree_dps[0] + oh_killing_spree_dps[0], mh_killing_spree_dps[1] + oh_killing_spree_dps[1]
 
         if 'rupture_ticks' in attacks_per_second:
@@ -356,6 +363,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             damage_breakdown[proc.proc_name] = [sum(pair) for pair in zip(old_value, new_value)]
 
         self.append_damage_on_use(average_ap, current_stats, damage_breakdown)
+
+        if self.stats.gear_buffs.rogue_t12_2pc:
+            damage_breakdown['burning_wounds'] = self.get_t12_2p_damage(damage_breakdown, crit_rates, attacks_per_second, average_ap)
 
         return damage_breakdown
 
@@ -649,9 +659,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             self.set_uptime(proc, attacks_per_second, crit_rates)
 
         damage_breakdown = self.get_damage_breakdown(current_stats, attacks_per_second, crit_rates, damage_procs)
-
-        if self.stats.gear_buffs.rogue_t12_2pc:
-            damage_breakdown['burning_wounds'] = self.get_t12_2p_damage(damage_breakdown)
 
         # Discard the crit component.
         for key in damage_breakdown:
@@ -986,8 +993,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'sinister_strike': base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus(),
             'revealing_strike': base_melee_crit_rate,
             'eviscerate': base_melee_crit_rate + .1 * self.glyphs.eviscerate,
-            'mh_killing_spree': base_melee_crit_rate,
-            'oh_killing_spree': base_melee_crit_rate,
+            'killing_spree': base_melee_crit_rate,
             'rupture_ticks': base_melee_crit_rate,
             'instant_poison': base_spell_crit_rate,
             'deadly_poison': base_spell_crit_rate,
@@ -1179,7 +1185,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             find_weakness_multiplier = 1
 
         for key in damage_breakdown:
-            if key in ('autoattack', 'backstab', 'eviscerate', 'hemorrhage'):
+            if key in ('autoattack', 'backstab', 'eviscerate', 'hemorrhage') or key in ('hemorrhage_glyph', 'burning_wounds'):
+                # Hemo dot and 2pc_t12 derive from physical attacks too.
+                # Testing needed for physical damage procs.
                 damage_breakdown[key] *= find_weakness_multiplier
             if key == 'ambush':
                 damage_breakdown[key] *= ((1.3 * self.ambush_shadowstep_rate) + (1 - self.ambush_shadowstep_rate) * find_weakness_damage_boost)
@@ -1364,15 +1372,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         del attacks_per_second['cp_builder']
 
         if self.glyphs.hemorrhage and 'hemorrhage' in attacks_per_second:
-            base_ticks_per_second = min(int(hemorrhage_interval / 3), 8) * 1. / hemorrhage_interval
-            if hemorrhage_interval < 24 and self.talents.shadow_dance:
-                # Not particularly accurate but good enough a ballpark
-                # for something that won't get much of an use.
-                shadow_dance_uptime = shadow_dance_duration * shadow_dance_frequency
-                ticks_per_second_during_shadow_dance = 1. / 3
-                ticks_per_second = base_ticks_per_second * (1 - shadow_dance_uptime) + ticks_per_second_during_shadow_dance * shadow_dance_uptime
-            else:
-                ticks_per_second = base_ticks_per_second
+            # Not particularly accurate but good enough a ballpark for
+            # something that won't get much of an use.
+            ticks_per_second = min(1. / 3, 8 / hemorrhage_interval)
             attacks_per_second['hemorrhage_ticks'] = ticks_per_second
 
         return attacks_per_second, crit_rates
