@@ -150,6 +150,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             if boost['stat'] in self.base_stats:
                 self.base_stats[boost['stat']] += boost['value'] * boost['duration'] * 1.0 / (boost['cooldown'] + self.settings.response_time)
 
+        if getattr(self.stats.gear_buffs, 'synapse_springs'):
+            self.stats.gear_buffs.activated_boosts['synapse_springs']['stat'] = 'agi'
+            
         for stat in self.base_stats:
             for boost in self.stats.gear_buffs.get_all_activated_boosts_for_stat(stat):
                 if boost['cooldown'] is not None:
@@ -383,6 +386,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             if 'garrote' in attacks_per_second:
                 if not proc.procs_off_crit_only():
                     triggers_per_second += attacks_per_second['garrote']
+            if 'hemorrhage_ticks' in attacks_per_second:
+                if not proc.procs_off_crit_only():
+                    triggers_per_second += attacks_per_second['hemorrhage']
 
         return triggers_per_second * proc.proc_rate(self.stats.mh.speed)
 
@@ -430,6 +436,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                     triggers_per_second += attacks_per_second['garrote_ticks'] * crit_rates['garrote']
                 else:
                     triggers_per_second += attacks_per_second['garrote_ticks']
+            if 'hemorrhage_ticks' in attacks_per_second:
+                if proc.procs_off_crit_only():
+                    triggers_per_second += attacks_per_second['hemorrhage_ticks'] * crit_rates['hemorrhage']
+                else:
+                    triggers_per_second += attacks_per_second['hemorrhage_ticks']
         if proc.is_ppm():
             if triggers_per_second == 0:
                 return 0
@@ -500,12 +511,12 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 p = 1 - (1 - procs_per_second) ** finisher_spacing
                 crit_rates[direct_damage_finisher] = p + (1 - p) * crit_rates[direct_damage_finisher]
 
-    def update_current_stats_for_4pc_t12(self, stats):
-        for stat in stats:
-            if self.settings.tricks_on_cooldown and stat in ('haste', 'crit', 'mastery'):
-                uptime = 30. / (30 + self.settings.response_time)
-                uptime_per_stat = uptime / 3
-                stats[stat] *= 1 + self.stats.gear_buffs.rogue_t12_4pc_stat_bonus() * uptime_per_stat
+    def get_4pc_t12_multiplier(self):
+        if self.settings.tricks_on_cooldown:
+            tricks_uptime = 30. / (30 + self.settings.response_time)
+            return 1 + self.stats.gear_buffs.rogue_t12_4pc_stat_bonus() * tricks_uptime / 3
+        else:
+            return 1.
 
     def get_poison_counts(self, total_mh_hits, total_oh_hits, attacks_per_second):
         if self.settings.mh_poison == 'dp' or self.settings.oh_poison == 'dp':
@@ -597,7 +608,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             }
 
             self.update_crit_rates_for_4pc_t11(attacks_per_second, crit_rates)
-            self.update_current_stats_for_4pc_t12(current_stats)
 
             for proc in damage_procs:
                 if not proc.icd:
@@ -609,6 +619,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                     current_stats[proc.stat] += proc.uptime * proc.value
 
             current_stats['agi'] *= self.agi_multiplier
+            for stat in ('crit','haste','mastery'):
+                current_stats[stat] *= self.get_4pc_t12_multiplier()
 
             old_attacks_per_second = attacks_per_second
             attacks_per_second, crit_rates = attack_counts_function(current_stats)
@@ -621,6 +633,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 self.set_uptime(proc, attacks_per_second, crit_rates)
                 if proc.stat == 'agi':
                     current_stats[proc.stat] += proc.uptime * proc.value * self.agi_multiplier
+                elif proc.stat in ('crit', 'haste', 'mastery'):
+                    current_stats[proc.stat] += proc.uptime * proc.value * self.get_4pc_t12_multiplier()
                 else:
                     current_stats[proc.stat] += proc.uptime * proc.value
 
