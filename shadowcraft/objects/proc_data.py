@@ -244,8 +244,8 @@ allowed_procs = {
         'proc_name': 'Grace'
     },
     'unheeded_warning': {
-        'stat': 'extra_weapon_damage',
-        'value': 680,
+        'stat': 'ap',
+        'value': 1926,
         'duration': 10,
         'icd': 50,
         'proc_chance': .1,

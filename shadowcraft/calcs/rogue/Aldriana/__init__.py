@@ -506,13 +506,17 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         elif proc.stat == 'physical_damage':
             attacks_per_second[proc.proc_name] = frequency * self.strike_hit_chance
 
+    """
     def get_weapon_damage_bonus(self):
+        # Unheeded Warning does not proc as weapon damage anymore. I'll leave
+        # this here in case they implement anything alike.
         bonus = 0
         if self.stats.procs.unheeded_warning:
             proc = self.stats.procs.unheeded_warning
             bonus += proc.value * proc.uptime
 
         return bonus
+    """
 
     def update_crit_rates_for_4pc_t11(self, attacks_per_second, crit_rates):
         t11_4pc_bonus = self.stats.procs.rogue_t11_4pc
@@ -590,9 +594,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         for proc_info in self.stats.procs.get_all_procs_for_stat():
             if proc_info.stat in current_stats and not proc_info.is_ppm():
                 active_procs.append(proc_info)
-            if proc_info.stat in ('spell_damage', 'physical_damage'):
+            elif proc_info.stat in ('spell_damage', 'physical_damage'):
                 damage_procs.append(proc_info)
-            if proc_info.stat == 'extra_weapon_damage':
+            elif proc_info.stat == 'extra_weapon_damage':
                 weapon_damage_procs.append(proc_info)
 
         mh_landslide = self.stats.mh.landslide
