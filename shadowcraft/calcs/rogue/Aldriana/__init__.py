@@ -240,20 +240,17 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.stats.procs.matrix_restabilizer:
             self.stats.procs.matrix_restabilizer.stat = sorted_list[0]
 
-    def get_t12_2p_damage(self, damage_breakdown, crit_rates, attacks_per_second, average_ap):
+    def get_t12_2p_damage(self, damage_breakdown):
         crit_damage = 0
         for key in damage_breakdown:
             if key in ('mutilate', 'hemorrhage', 'backstab', 'sinister_strike', 'revealing_strike', 'main_gauche', 'ambush', 'killing_spree', 'envenom', 'eviscerate', 'autoattack'):
                 average_damage, crit_contribution = damage_breakdown[key]
                 crit_damage += crit_contribution
-            if key == 'mutilate':
-                double_crit_prob = crit_rates[key] ** 2
-                munching_per_second = attacks_per_second['mutilate'] * double_crit_prob
-                crit_damage -= self.mh_mutilate_damage(average_ap)[1] * munching_per_second
-            if key == 'killing_spree':
-                double_crit_prob = crit_rates[key] ** 2
-                munching_per_second = attacks_per_second['mh_killing_spree'] * double_crit_prob
-                crit_damage -= self.mh_killing_spree_damage(average_ap)[1] * munching_per_second
+        for key in ('mut_munch', 'ksp_munch'):
+            if damage_breakdown.has_key(key):
+                average_damage, crit_contribution = damage_breakdown[key]
+                crit_damage -= crit_contribution
+                del damage_breakdown[key]
 
         return crit_damage * self.stats.gear_buffs.rogue_t12_2pc_damage_bonus(), 0
 
@@ -285,9 +282,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 del attacks_per_second[key]
 
         if 'mutilate' in attacks_per_second:
-            mh_mutilate_dps = self.get_dps_contribution(self.mh_mutilate_damage(average_ap), crit_rates['mutilate'], attacks_per_second['mutilate'])
-            oh_mutilate_dps = self.get_dps_contribution(self.oh_mutilate_damage(average_ap), crit_rates['mutilate'], attacks_per_second['mutilate'])
+            mh_dmg = self.mh_mutilate_damage(average_ap)
+            oh_dmg = self.oh_mutilate_damage(average_ap)
+            mh_mutilate_dps = self.get_dps_contribution(mh_dmg, crit_rates['mutilate'], attacks_per_second['mutilate'])
+            oh_mutilate_dps = self.get_dps_contribution(oh_dmg, crit_rates['mutilate'], attacks_per_second['mutilate'])
             damage_breakdown['mutilate'] = mh_mutilate_dps[0] + oh_mutilate_dps[0], mh_mutilate_dps[1] + oh_mutilate_dps[1]
+            if self.stats.gear_buffs.rogue_t12_2pc:
+                p_double_crit = crit_rates['mutilate'] ** 2
+                munch_per_sec = attacks_per_second['mutilate'] * p_double_crit
+                damage_breakdown['mut_munch'] = 0, munch_per_sec * mh_dmg[1]
 
         if 'hemorrhage' in attacks_per_second:
             damage_breakdown['hemorrhage'] = self.get_dps_contribution(self.hemorrhage_damage(average_ap), crit_rates['hemorrhage'], attacks_per_second['hemorrhage'])
@@ -308,9 +311,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             damage_breakdown['ambush'] = self.get_dps_contribution(self.ambush_damage(average_ap), crit_rates['ambush'], attacks_per_second['ambush'])
 
         if 'mh_killing_spree' in attacks_per_second:
-            mh_killing_spree_dps = self.get_dps_contribution(self.mh_killing_spree_damage(average_ap), crit_rates['killing_spree'], attacks_per_second['mh_killing_spree'])
-            oh_killing_spree_dps = self.get_dps_contribution(self.oh_killing_spree_damage(average_ap), crit_rates['killing_spree'], attacks_per_second['oh_killing_spree'])
+            mh_dmg = self.mh_killing_spree_damage(average_ap)
+            oh_dmg = self.oh_killing_spree_damage(average_ap)
+            mh_killing_spree_dps = self.get_dps_contribution(mh_dmg, crit_rates['killing_spree'], attacks_per_second['mh_killing_spree'])
+            oh_killing_spree_dps = self.get_dps_contribution(oh_dmg, crit_rates['killing_spree'], attacks_per_second['oh_killing_spree'])
             damage_breakdown['killing_spree'] = mh_killing_spree_dps[0] + oh_killing_spree_dps[0], mh_killing_spree_dps[1] + oh_killing_spree_dps[1]
+            if self.stats.gear_buffs.rogue_t12_2pc:
+                p_double_crit = crit_rates['killing_spree'] ** 2
+                munch_per_sec = attacks_per_second['mh_killing_spree'] * p_double_crit
+                damage_breakdown['ksp_munch'] = 0, munch_per_sec * mh_dmg[1]
 
         if 'rupture_ticks' in attacks_per_second:
             average_dps = crit_dps = 0
@@ -365,7 +374,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.append_damage_on_use(average_ap, current_stats, damage_breakdown)
 
         if self.stats.gear_buffs.rogue_t12_2pc:
-            damage_breakdown['burning_wounds'] = self.get_t12_2p_damage(damage_breakdown, crit_rates, attacks_per_second, average_ap)
+            damage_breakdown['burning_wounds'] = self.get_t12_2p_damage(damage_breakdown)
 
         return damage_breakdown
 
