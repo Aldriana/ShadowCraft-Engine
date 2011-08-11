@@ -818,9 +818,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             cpg_energy_cost = 48 + 12 / self.strike_hit_chance
             if self.glyphs.mutilate:
                 cpg_energy_cost -= 5
-            cpg_base_cost = cpg_energy_cost
         else:
-            cpg_base_cost = cpg_energy_cost = 48 + 12 / self.strike_hit_chance
+            cpg_energy_cost = 48 + 12 / self.strike_hit_chance
             cpg_energy_cost -= 15 * self.talents.murderous_intent
             if self.glyphs.backstab:
                 cpg_energy_cost -= 5 * cpg_crit_rate
