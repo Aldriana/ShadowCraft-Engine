@@ -1107,18 +1107,18 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second[attack] *= ar_autoattack_multiplier
 
         total_restless_blades_benefit = (total_evis_per_second + attacks_per_second['rupture']) * cp_per_finisher * self.talents.restless_blades
-        ksp_cooldown = 120 / total_restless_blades_benefit + self.settings.response_time
+        ksp_cooldown = 120 / (1 + total_restless_blades_benefit) + self.settings.response_time
 
         attacks_per_second['sinister_strike'] = (total_evis_per_second + attacks_per_second['rupture']) * ss_per_finisher + ss_per_snd / (snd_duration - self.settings.response_time)
         attacks_per_second['revealing_strike'] = (total_evis_per_second + attacks_per_second['rupture']) * rvs_per_finisher
         attacks_per_second['main_gauche'] += (attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'] + total_evis_per_second + attacks_per_second['rupture']) * main_gauche_proc_rate
 
         if self.talents.bandits_guile:
-            time_at_level = 9 / ((attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike']) * self.talents.bandits_guile)
-            cycle_duration = 3 * time_at_level + 15
+            time_at_level = 12 / ((attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike']) * self.talents.bandits_guile)
             if not self.settings.cycle.ksp_immediately:
-                avg_wait_till_full_stack = 1.5 * time_at_level / cycle_duration
+                avg_wait_till_full_stack = 3. * time_at_level / 2
                 ksp_cooldown += avg_wait_till_full_stack
+            cycle_duration = 3 * time_at_level + 15
             avg_stacks = (3 * time_at_level + 45) / cycle_duration
             self.bandits_guile_multiplier = 1 + .1 * avg_stacks
         else:

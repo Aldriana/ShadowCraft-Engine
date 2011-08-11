@@ -35,9 +35,9 @@ allowed_procs = {
         'on_crit': True,
         'proc_name': 'Eye of Vengeance'
     },
-    'heroic_matrix_restabilizer': {     # Proc_chance/ICD/value is a guess and should be verified.
+    'heroic_matrix_restabilizer': {     # Proc_chance is a guess and should be verified.
         'stat': 'weird_proc',
-        'value': 1830,
+        'value': 1834,
         'duration': 30,
         'icd': 105,
         'proc_chance': .1,
@@ -53,7 +53,7 @@ allowed_procs = {
         'trigger': 'all_attacks',
         'proc_name': 'Nefarious Plot'
     },
-    'heroic_the_hungerer': {            # Proc_chance/ICD should be verified.
+    'heroic_the_hungerer': {
         'stat': 'haste',
         'value': 1730,
         'duration': 15,
@@ -159,7 +159,7 @@ allowed_procs = {
         'on_crit': True,
         'proc_name': 'Eye of Vengeance'
     },
-    'matrix_restabilizer': {            # Proc_chance/ICD is a guess and should be verified.
+    'matrix_restabilizer': {            # Proc_chance is a guess and should be verified.
         'stat': 'weird_proc',
         'value': 1624,
         'duration': 30,
@@ -177,7 +177,7 @@ allowed_procs = {
         'trigger': 'all_attacks',
         'proc_name': 'Nefarious Plot'
     },
-    'rickets_magnetic_fireball_proc': { # Proc_chance/ICD should be verified.
+    'rickets_magnetic_fireball_proc': { # ICD should be verified.
         'stat': 'physical_damage',
         'value': 500,
         'duration': 0,
@@ -214,7 +214,7 @@ allowed_procs = {
         'trigger': 'all_attacks',
         'proc_name': 'Swordguard Embroidery'
     },
-    'the_hungerer': {                   # Proc_chance/ICD should be verified.
+    'the_hungerer': {
         'stat': 'haste',
         'value': 1532,
         'duration': 15,
