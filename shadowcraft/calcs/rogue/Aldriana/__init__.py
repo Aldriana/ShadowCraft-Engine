@@ -386,7 +386,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             else:
                 triggers_per_second += attacks_per_second['mh_autoattack_hits']
         if proc.procs_off_strikes():
-            for ability in ('mutilate', 'backstab', 'revealing_strike', 'sinister_strike', 'ambush', 'hemorrhage', 'mh_killing_spree'):
+            for ability in ('mutilate', 'backstab', 'revealing_strike', 'sinister_strike', 'ambush', 'hemorrhage', 'mh_killing_spree', 'main_gauche'):
                 if ability in attacks_per_second:
                     if proc.procs_off_crit_only():
                         triggers_per_second += attacks_per_second[ability] * crit_rates[ability]
@@ -419,7 +419,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             else:
                 triggers_per_second += attacks_per_second['oh_autoattack_hits']
         if proc.procs_off_strikes():
-            for ability in ('mutilate', 'main_gauche', 'oh_killing_spree'):
+            for ability in ('mutilate', 'oh_killing_spree'):
                 if ability in attacks_per_second:
                     if proc.procs_off_crit_only():
                         triggers_per_second += attacks_per_second[ability] * crit_rates[ability]
@@ -1114,10 +1114,12 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         if self.talents.bandits_guile:
             time_at_level = 12 / ((attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike']) * self.talents.bandits_guile)
-            if not self.settings.cycle.ksp_immediately:
-                avg_wait_till_full_stack = 3. * time_at_level / 2
-                ksp_cooldown += avg_wait_till_full_stack
             cycle_duration = 3 * time_at_level + 15
+            if not self.settings.cycle.ksp_immediately:
+                wait_prob = 3. * time_at_level / cycle_duration
+                avg_wait_if_waiting = 1.5 * time_at_level
+                avg_wait_till_full_stack = wait_prob * avg_wait_if_waiting
+                ksp_cooldown += avg_wait_till_full_stack
             avg_stacks = (3 * time_at_level + 45) / cycle_duration
             self.bandits_guile_multiplier = 1 + .1 * avg_stacks
         else:
@@ -1194,6 +1196,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             find_weakness_damage_boost = self.armor_mitigation_multiplier(armor_reduction * armor_value) / self.armor_mitigation_multiplier(armor_value)
             find_weakness_multiplier = 1 + (find_weakness_damage_boost - 1) * self.find_weakness_uptime
         else:
+            find_weakness_damage_boost = 0
             find_weakness_multiplier = 1
 
         for key in damage_breakdown:
