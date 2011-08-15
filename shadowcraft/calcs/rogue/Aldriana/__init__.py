@@ -152,7 +152,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         if getattr(self.stats.gear_buffs, 'synapse_springs'):
             self.stats.gear_buffs.activated_boosts['synapse_springs']['stat'] = 'agi'
-            
+
         for stat in self.base_stats:
             for boost in self.stats.gear_buffs.get_all_activated_boosts_for_stat(stat):
                 if boost['cooldown'] is not None:
@@ -642,7 +642,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                     current_stats[proc.stat] += proc.uptime * proc.value
 
             current_stats['agi'] *= self.agi_multiplier
-            for stat in ('crit','haste','mastery'):
+            for stat in ('crit', 'haste', 'mastery'):
                 current_stats[stat] *= self.get_4pc_t12_multiplier()
 
             old_attacks_per_second = attacks_per_second
@@ -786,7 +786,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         garrote_net_cost = garrote_base_cost - garrote_energy_return
         garrote_spacing = (180. + self.settings.response_time - 30 * self.talents.elusiveness)
         total_garrotes_per_second = (1 - 20. / self.settings.duration) / self.settings.duration + 1 / garrote_spacing
-        
+
         energy_regen -= garrote_net_cost * total_garrotes_per_second
 
         energy_regen_with_rupture = energy_regen + 1.5 * self.talents.venomous_wounds
@@ -798,10 +798,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             cpg_crit_rate += .05 * self.talents.puncturing_wounds
         else:
             cpg_crit_rate += .1 * self.talents.puncturing_wounds
-        
+
         if cpg_crit_rate > 1:
             cpg_crit_rate = 1
-        
+
         crit_rates = {
             'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
             'oh_autoattacks': min(base_melee_crit_rate, self.dual_wield_oh_hit_chance() - self.GLANCE_RATE),
@@ -812,7 +812,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'instant_poison': base_spell_crit_rate,
             'deadly_poison': base_spell_crit_rate,
             'garrote': base_melee_crit_rate
-        } 
+        }
 
         if cpg == 'mutilate':
             cpg_energy_cost = 48 + 12 / self.strike_hit_chance
@@ -833,7 +833,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         avg_cp_per_cpg = sum([key * cp_per_cpg[key] for key in cp_per_cpg])
 
         cp_distribution, rupture_sizes = self.get_cp_distribution_for_cycle(cp_per_cpg, finisher_size)
-        
+
         avg_rupture_size = sum([i * rupture_sizes[i] for i in xrange(6)])
         avg_rupture_length = 2 * (3 + avg_rupture_size + 2 * self.glyphs.rupture)
         avg_gap = .5 * (1 / self.strike_hit_chance - 1 + .5 * self.settings.response_time)
