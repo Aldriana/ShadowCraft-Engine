@@ -180,6 +180,8 @@ class GearBuffs(object):
         'rogue_t11_2pc',                # Increase crit chance for BS, Mut, SS by 5%
         'rogue_t12_2pc',                # Add 6% of melee crit damage as a fire DOT
         'rogue_t12_4pc',                # Increase crit/haste/mastery rating by 25% every TotT
+        'rogue_t13_2pc',                # Decrease energy cost by 20% for 6secs every TotT
+        'rogue_t13_4pc',                # ShD +2secs, AR +3secs, Vendetta +9secs
         'mixology',
         'master_of_anatomy'
     ]
@@ -220,6 +222,12 @@ class GearBuffs(object):
             return .25
         else:
             return 0
+
+    def rogue_t13_2pc_cost_multiplier(self):
+        if self.rogue_t13_2pc:
+            return .96 # 1 - .2 * 6 / 30
+        else:
+            return 1
 
     def leather_specialization_multiplier(self):
         if self.leather_specialization:

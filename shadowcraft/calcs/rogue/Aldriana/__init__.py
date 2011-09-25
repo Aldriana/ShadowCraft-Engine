@@ -175,7 +175,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         self.strike_hit_chance = self.one_hand_melee_hit_chance()
         self.base_rupture_energy_cost = 20 + 5 / self.strike_hit_chance
+        self.base_rupture_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
         self.base_eviscerate_energy_cost = 28 + 7 / self.strike_hit_chance
+        self.base_eviscerate_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
 
         if self.stats.procs.heroic_matrix_restabilizer or self.stats.procs.matrix_restabilizer:
             self.set_matrix_restabilizer_stat(self.base_stats)
@@ -709,6 +711,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.set_constants()
 
         self.envenom_energy_cost = 28 + 7 / self.strike_hit_chance
+        self.envenom_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
 
         self.base_energy_regen = 10
         if self.talents.overkill:
@@ -719,10 +722,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             self.bonus_energy_regen += 25. / (120 + self.settings.response_time)
 
         if self.talents.vendetta:
-            if self.glyphs.vendetta:
-                self.vendetta_mult = 1.06
-            else:
-                self.vendetta_mult = 1.05
+            vendetta_duration = 30 * (1 + self.glyphs.vendetta * .20)
+            vendetta_duration += self.stats.gear_buffs.rogue_t13_4pc * 9
+            self.vendetta_mult = 1 + .2 * vendetta_duration / 120
         else:
             self.vendetta_mult = 1
 
@@ -782,6 +784,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         energy_regen += self.bonus_energy_regen
 
         garrote_base_cost = 9 + 36 * self.strike_hit_chance
+        garrote_base_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
         garrote_energy_return = 6 * self.talents.venomous_wounds * 3 * self.strike_hit_chance
         garrote_net_cost = garrote_base_cost - garrote_energy_return
         garrote_spacing = (180. + self.settings.response_time - 30 * self.talents.elusiveness)
@@ -823,6 +826,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             cpg_energy_cost -= 15 * self.talents.murderous_intent
             if self.glyphs.backstab:
                 cpg_energy_cost -= 5 * cpg_crit_rate
+        cpg_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
 
         if cpg == 'mutilate':
             seal_fate_proc_rate = 1 - (1 - cpg_crit_rate * .5 * self.talents.seal_fate) ** 2
@@ -947,7 +951,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             self.max_bandits_guile_buff = 1
 
         self.base_revealing_strike_energy_cost = 32 + 8 / self.strike_hit_chance
+        self.base_revealing_strike_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
         self.base_sinister_strike_energy_cost = 36 + 9 / self.strike_hit_chance - 2 * self.talents.improved_sinister_strike
+        self.base_sinister_strike_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
 
         self.base_energy_regen = 12.5
 
@@ -1067,7 +1073,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         ss_per_snd = (total_eviscerate_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp + 25) / sinister_strike_energy_cost
         snd_size = ss_per_snd * (1 + extra_cp_chance) + .2 * self.talents.ruthlessness
-        snd_cost = (ss_per_snd + .2 * self.talents.ruthlessness / (1 + extra_cp_chance)) * sinister_strike_energy_cost + 25 - snd_size * self.relentless_strikes_energy_return_per_cp
+        snd_base_cost = 25 * self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
+        snd_cost = (ss_per_snd + .2 * self.talents.ruthlessness / (1 + extra_cp_chance)) * sinister_strike_energy_cost + snd_base_cost - snd_size * self.relentless_strikes_energy_return_per_cp
 
         snd_duration = self.get_snd_length(snd_size)
 
@@ -1088,6 +1095,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         if self.talents.adrenaline_rush:
             ar_duration = 15 + 5 * self.glyphs.adrenaline_rush
+            ar_duration += self.stats.gear_buffs.rogue_t13_4pc * 3
         else:
             ar_duration = 0
 
@@ -1180,10 +1188,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.set_constants()
 
         self.base_hemo_cost = 28 + 7 / self.strike_hit_chance - 2 * self.talents.slaughter_from_the_shadows
+        self.base_hemo_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
 
         cost_reduction = (0, 7, 14, 20)[self.talents.slaughter_from_the_shadows]
         self.base_backstab_energy_cost = 48 + 12 / self.strike_hit_chance - cost_reduction
+        self.base_backstab_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
         self.base_ambush_energy_cost = 48 + 12 / self.strike_hit_chance - cost_reduction
+        self.base_ambush_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
 
         self.base_energy_regen = 10
 
@@ -1293,8 +1304,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.settings.cycle.clip_recuperate:
             cycle_length = recuperate_duration - .5 * total_eviscerate_duration
             total_cycle_regen = cycle_length * modified_energy_regen
+            #TODO t13_2pc
         else:
-            recuperate_net_energy_cost = 30 - 5 * self.relentless_strikes_energy_return_per_cp
+            recuperate_base_energy_cost = 30 * self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
+            recuperate_net_energy_cost = recuperate_base_energy_cost - 5 * self.relentless_strikes_energy_return_per_cp
             recuperate_net_cp_cost = recuperate_net_energy_cost * hat_cp_gen / energy_regen
             cp_builders_under_previous_recuperate = .5 * total_eviscerate_duration / cp_builder_energy_cost
             cp_gained_under_previous_recuperate = cp_builders_under_previous_recuperate * cp_per_cp_builder
@@ -1306,7 +1319,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             total_cycle_regen = 30 * modified_energy_regen + energy_spent_after_recuperate
 
         snd_build_time = total_eviscerate_duration / 2
-        snd_build_energy_for_cp_builders = 5 * self.relentless_strikes_energy_return_per_cp + modified_energy_regen * snd_build_time - 25
+        snd_base_cost = 25 * self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
+        snd_build_energy_for_cp_builders = 5 * self.relentless_strikes_energy_return_per_cp + modified_energy_regen * snd_build_time - snd_base_cost
         cp_builders_per_snd = snd_build_energy_for_cp_builders / cp_builder_energy_cost
         hat_cp_per_snd = snd_build_time * hat_cp_gen
 
@@ -1339,6 +1353,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         if self.talents.shadow_dance:
             shadow_dance_duration = 6. + 2 * self.glyphs.shadow_dance
+            shadow_dance_duration += self.stats.gear_buffs.rogue_t13_4pc * 2
             shadow_dance_frequency = 1. / (60 + self.settings.response_time)
 
             shadow_dance_bonus_cp_regen = shadow_dance_duration * hat_cp_gen + 2 * self.talents.premeditation
