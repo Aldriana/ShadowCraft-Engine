@@ -1,3 +1,4 @@
+import copy
 import gettext
 import __builtin__
 
@@ -152,7 +153,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         if getattr(self.stats.gear_buffs, 'synapse_springs'):
             self.stats.gear_buffs.activated_boosts['synapse_springs']['stat'] = 'agi'
-            
+
         for stat in self.base_stats:
             for boost in self.stats.gear_buffs.get_all_activated_boosts_for_stat(stat):
                 if boost['cooldown'] is not None:
@@ -350,10 +351,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             damage_breakdown['hemorrhage_glyph'] = dps_from_hit_hemo[0] + dps_from_crit_hemo[0], dps_from_hit_hemo[1] + dps_from_crit_hemo[1]
 
         for proc in damage_procs:
-            damage_breakdown.setdefault(proc.proc_name, (0, 0))
-            old_value = damage_breakdown[proc.proc_name]
-            new_value = self.get_proc_damage_contribution(proc, attacks_per_second[proc.proc_name], current_stats)
-            damage_breakdown[proc.proc_name] = [sum(pair) for pair in zip(old_value, new_value)]
+            if proc.proc_name not in damage_breakdown:
+                # Toss multiple damage procs with the same name (Avalanche):
+                # attacks_per_second is already being updated with that key.
+                damage_breakdown[proc.proc_name] = self.get_proc_damage_contribution(proc, attacks_per_second[proc.proc_name], current_stats)
 
         self.append_damage_on_use(average_ap, current_stats, damage_breakdown)
 
@@ -482,10 +483,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         else:
             frequency = self.get_procs_per_second(proc, attacks_per_second, crit_rates)
 
+        attacks_per_second.setdefault(proc.proc_name, 0)
         if proc.stat == 'spell_damage':
-            attacks_per_second[proc.proc_name] = frequency * self.spell_hit_chance()
+            attacks_per_second[proc.proc_name] += frequency * self.spell_hit_chance()
         elif proc.stat == 'physical_damage':
-            attacks_per_second[proc.proc_name] = frequency * self.strike_hit_chance
+            attacks_per_second[proc.proc_name] += frequency * self.strike_hit_chance
 
     def get_weapon_damage_bonus(self):
         bonus = 0
@@ -576,25 +578,27 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             if proc_info.stat == 'extra_weapon_damage':
                 weapon_damage_procs.append(proc_info)
 
-        mh_landslide = self.stats.mh.landslide
-        if mh_landslide:
-            mh_landslide.mh_only = True
-            active_procs.append(mh_landslide)
+        weapon_enchants = set([])
+        for hand, enchant in [(x, y) for x in ('mh', 'oh') for y in ('landslide', 'hurricane', 'avalanche')]:
+            proc = getattr(getattr(self.stats, hand), enchant)
+            if proc:
+                setattr(proc, '_'.join((hand, 'only')), True)
+                if proc.stat in current_stats:
+                    active_procs.append(proc)
+                elif enchant == 'avalanche':
+                    damage_procs.append(proc)
 
-        mh_hurricane = self.stats.mh.hurricane
-        if mh_hurricane:
-            mh_hurricane.mh_only = True
-            active_procs.append(mh_hurricane)
-
-        oh_landslide = self.stats.oh.landslide
-        if oh_landslide:
-            oh_landslide.oh_only = True
-            active_procs.append(oh_landslide)
-
-        oh_hurricane = self.stats.oh.hurricane
-        if oh_hurricane:
-            oh_hurricane.oh_only = True
-            active_procs.append(oh_hurricane)
+                if enchant not in weapon_enchants and enchant in ('hurricane', 'avalanche'):
+                    weapon_enchants.add(enchant)
+                    spell_component = copy.copy(proc)
+                    delattr(spell_component, '_'.join((hand, 'only')))
+                    spell_component.behaviour_toggle = 'spell'
+                    if enchant == 'hurricane':
+                        # This would heavily overestimate Hurricane by ignoring the refresh mechanic.
+                        # active_procs.append(spell_component)
+                        pass
+                    elif enchant == 'avalanche':
+                        damage_procs.append(spell_component)
 
         attacks_per_second, crit_rates = attack_counts_function(current_stats)
 
@@ -766,7 +770,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         garrote_net_cost = garrote_base_cost - garrote_energy_return
         garrote_spacing = (180. + self.settings.response_time - 30 * self.talents.elusiveness)
         total_garrotes_per_second = (1 - 20. / self.settings.duration) / self.settings.duration + 1 / garrote_spacing
-        
+
         energy_regen -= garrote_net_cost * total_garrotes_per_second
 
         energy_regen_with_rupture = energy_regen + 1.5 * self.talents.venomous_wounds
@@ -778,10 +782,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             cpg_crit_rate += .05 * self.talents.puncturing_wounds
         else:
             cpg_crit_rate += .1 * self.talents.puncturing_wounds
-        
+
         if cpg_crit_rate > 1:
             cpg_crit_rate = 1
-        
+
         crit_rates = {
             'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
             'oh_autoattacks': min(base_melee_crit_rate, self.dual_wield_oh_hit_chance() - self.GLANCE_RATE),
@@ -792,7 +796,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'instant_poison': base_spell_crit_rate,
             'deadly_poison': base_spell_crit_rate,
             'garrote': base_melee_crit_rate
-        } 
+        }
 
         if cpg == 'mutilate':
             cpg_energy_cost = 48 + 12 / self.strike_hit_chance
@@ -814,7 +818,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         avg_cp_per_cpg = sum([key * cp_per_cpg[key] for key in cp_per_cpg])
 
         cp_distribution, rupture_sizes = self.get_cp_distribution_for_cycle(cp_per_cpg, finisher_size)
-        
+
         avg_rupture_size = sum([i * rupture_sizes[i] for i in xrange(6)])
         avg_rupture_length = 2 * (3 + avg_rupture_size + 2 * self.glyphs.rupture)
         avg_gap = .5 * (1 / self.strike_hit_chance - 1 + .5 * self.settings.response_time)
