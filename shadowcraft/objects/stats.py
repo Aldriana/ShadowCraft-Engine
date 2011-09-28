@@ -1,4 +1,5 @@
 from shadowcraft.objects import procs
+from shadowcraft.objects import proc_data
 from shadowcraft.core import exceptions
 
 class Stats(object):
@@ -81,26 +82,7 @@ class Stats(object):
         return 1 + rating / (100 * self.haste_rating_conversion)
 
 class Weapon(object):
-    allowed_melee_enchants = {  # Completely guessing at proc behavior.  Also at the proc name.
-        'hurricane': {
-            'stat': 'haste',
-            'value': 450,
-            'duration': 12,
-            'icd': 0,
-            'ppm': 1,
-            'trigger': 'all_spells_and_attacks',
-            'proc_name': 'Hurricane'
-        },
-        'landslide': {          # Completely guessing at proc behavior.
-            'stat': 'ap',
-            'value': 1000,
-            'duration': 12,
-            'icd': 0,
-            'ppm': 1,
-            'trigger': 'all_attacks',
-            'proc_name': 'Landslide'
-        }
-    }
+    allowed_melee_enchants = proc_data.allowed_melee_enchants
 
     def __init__(self, damage, speed, weapon_type, enchant=None):
         self.speed = speed
