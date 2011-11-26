@@ -545,6 +545,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         else:
             return 1.
 
+    def get_rogue_t13_legendary_combat_multiplier(self):
+        # This only deals with the SS/RvS damage increase.
+        if self.stats.gear_buffs.rogue_t13_legendary or self.stats.procs.jaws_of_retribution or self.stats.procs.maw_of_oblivion or self.stats.procs.fangs_of_the_father:
+            return 1.45
+        else:
+            return 1.
+
     def get_poison_counts(self, total_mh_hits, total_oh_hits, attacks_per_second):
         if self.settings.mh_poison == 'dp' or self.settings.oh_poison == 'dp':
             attacks_per_second['deadly_poison'] = 1. / 3
@@ -594,6 +601,18 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         active_procs = []
         damage_procs = []
         weapon_damage_procs = []
+
+        for proc in ('jaws_of_retribution', 'maw_of_oblivion', 'fangs_of_the_father'):
+            # We need to set these behaviours before calling any other method.
+            # The stage 3 will very likely need a different set of behaviours
+            # once we figure the whole thing.
+            if getattr(self.stats.procs, proc):
+                if self.talents.is_assassination_rogue():
+                    getattr(self.stats.procs, proc).behaviour_toggle = 'assassination'
+                elif self.talents.is_combat_rogue():
+                    getattr(self.stats.procs, proc).behaviour_toggle = 'combat'
+                elif self.talents.is_subtlety_rogue():
+                    getattr(self.stats.procs, proc).behaviour_toggle = 'subtlety'
 
         for proc_info in self.stats.procs.get_all_procs_for_stat():
             if proc_info.stat in current_stats and not proc_info.is_ppm():
@@ -970,6 +989,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                     damage_breakdown[key] *= self.max_bandits_guile_buff * (1.2 + .1 * self.glyphs.killing_spree)
             elif key in ('sinister_strike', 'revealing_strike'):
                 damage_breakdown[key] *= self.bandits_guile_multiplier
+                damage_breakdown[key] *= self.get_rogue_t13_legendary_combat_multiplier()
             elif key == 'eviscerate':
                 damage_breakdown[key] *= self.bandits_guile_multiplier * self.revealing_strike_multiplier
             elif key == 'rupture':

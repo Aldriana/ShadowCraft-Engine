@@ -25,12 +25,20 @@ allowed_procs = {
         'proc_name': 'Eye of Vengeance',
         'behaviours': {'default': 'left_eye_of_rajh'}
     },
-    'heroic_matrix_restabilizer': { # Proc_chance is a guess and should be verified.
+    'heroic_matrix_restabilizer': {     # Proc_chance is a guess and should be verified.
         'stat': 'weird_proc',
         'value': 1834,
         'duration': 30,
         'proc_name': 'Matrix Restabilized',
         'behaviours': {'default': 'matrix_restabilizer'}
+    },
+    'heroic_nokaled_the_elements_of_death': {
+        'stat': 'spell_damage',
+        'value': 10800,
+        'duration': 0,
+        'max_stacks': 0,
+        'proc_name': 'Iceblast Shadowblast Flameblast',
+        'behaviours': {'default': 'nokaled_the_elements_of_death'}
     },
     'heroic_prestors_talisman_of_machination': {
         'stat': 'haste',
@@ -38,6 +46,13 @@ allowed_procs = {
         'duration': 15,
         'proc_name': 'Nefarious Plot',
         'behaviours': {'default': 'prestors_talisman_of_machination'}
+    },
+    'heroic_starcatcher_compass': {
+        'stat': 'haste',
+        'value': 3278,
+        'duration': 20,
+        'proc_name': 'Velocity',
+        'behaviours': {'default': 'starcatcher_compass'}
     },
     'heroic_the_hungerer': {
         'stat': 'haste',
@@ -53,6 +68,22 @@ allowed_procs = {
         'max_stacks': 10,
         'proc_name': 'Grace',
         'behaviours': {'default': 'tias_grace'}
+    },
+    'heroic_vial_of_shadows': {
+        'stat': 'physical_damage',
+        'value': 17050.5,
+        'duration': 0,
+        'max_stacks': 0,
+        'proc_name': 'Lightning Strike',
+        'behaviours': {'default': 'vial_of_shadows'}
+    },
+    'heroic_wrath_of_unchaining': {
+        'stat': 'agi',
+        'value': 99,
+        'duration': 10,
+        'max_stacks': 10,
+        'proc_name': 'Combat Trance',
+        'behaviours': {'default': 'wrath_of_unchaining'}
     },
     'darkmoon_card_hurricane': {
         'stat': 'spell_damage',
@@ -121,13 +152,52 @@ allowed_procs = {
         'proc_name': 'Eye of Vengeance',
         'behaviours': {'default': 'left_eye_of_rajh'}
     },
-    'matrix_restabilizer': { # Proc_chance is a guess and should be verified.
+    'lfr_nokaled_the_elements_of_death': {
+        'stat': 'spell_damage',
+        'value': 8476,
+        'duration': 0,
+        'max_stacks': 0,
+        'proc_name': 'Iceblast Shadowblast Flameblast',
+        'behaviours': {'default': 'nokaled_the_elements_of_death'}
+    },
+    'lfr_starcatcher_compass': {
+        'stat': 'haste',
+        'value': 2573,
+        'duration': 20,
+        'proc_name': 'Velocity',
+        'behaviours': {'default': 'starcatcher_compass'}
+    },
+    'lfr_vial_of_shadows': {
+        'stat': 'physical_damage',
+        'value': 13382.5,
+        'duration': 0,
+        'max_stacks': 0,
+        'proc_name': 'Lightning Strike',
+        'behaviours': {'default': 'vial_of_shadows'}
+    },
+    'lfr_wrath_of_unchaining': {
+        'stat': 'agi',
+        'value': 78,
+        'duration': 10,
+        'max_stacks': 10,
+        'proc_name': 'Combat Trance',
+        'behaviours': {'default': 'wrath_of_unchaining'}
+    },
+    'matrix_restabilizer': {            # Proc_chance is a guess and should be verified.
         'stat': 'weird_proc',
         'value': 1624,
         'duration': 30,
         'proc_name': 'Matrix Restabilized',
         'behaviours': {'default': 'matrix_restabilizer'}
 
+    },
+    'nokaled_the_elements_of_death': {
+        'stat': 'spell_damage',
+        'value': 9567.5,
+        'duration': 0,
+        'max_stacks': 0,
+        'proc_name': 'Iceblast Shadowblast Flameblast',
+        'behaviours': {'default': 'nokaled_the_elements_of_death'}
     },
     'prestors_talisman_of_machination': {
         'stat': 'haste',
@@ -157,6 +227,13 @@ allowed_procs = {
         'duration': 20,
         'proc_name': 'Hardened Shell',
         'behaviours': {'default': 'schnottz_medallion_of_command'}
+    },
+    'starcatcher_compass': {
+        'stat': 'haste',
+        'value': 2904,
+        'duration': 20,
+        'proc_name': 'Velocity',
+        'behaviours': {'default': 'starcatcher_compass'}
     },
     'swordguard_embroidery': {
         'stat': 'ap',
@@ -194,6 +271,46 @@ allowed_procs = {
         'duration': 10,
         'proc_name': 'Heedless Carnage',
         'behaviours': {'default': 'unheeded_warning'}
+    },
+    'vial_of_shadows': {
+        'stat': 'physical_damage',
+        'value': 15105.5,
+        'duration': 0,
+        'max_stacks': 0,
+        'proc_name': 'Lightning Strike',
+        'behaviours': {'default': 'vial_of_shadows'}
+    },
+    'wrath_of_unchaining': {
+        'stat': 'agi',
+        'value': 88,
+        'duration': 10,
+        'max_stacks': 10,
+        'proc_name': 'Combat Trance',
+        'behaviours': {'default': 'wrath_of_unchaining'}
+    },
+    'jaws_of_retribution': {            # Legendary proc stage 1
+        'stat': 'agi',
+        'value': 2,
+        'duration': 30,
+        'max_stacks': 50,
+        'proc_name': 'Suffering',
+        'behaviours': {'default': 'rogue_t13_legendary_proc', 'assassination': 'rogue_t13_legendary_assassination', 'combat': 'rogue_t13_legendary_combat', 'subtlety': 'rogue_t13_legendary_subtlety'}
+    },
+    'maw_of_oblivion': {                # Legendary proc stage 2
+        'stat': 'agi',
+        'value': 5,
+        'duration': 30,
+        'max_stacks': 50,
+        'proc_name': 'Nightmare',
+        'behaviours': {'default': 'rogue_t13_legendary_proc', 'assassination': 'rogue_t13_legendary_assassination', 'combat': 'rogue_t13_legendary_combat', 'subtlety': 'rogue_t13_legendary_subtlety'}
+    },
+    'fangs_of_the_father': {            # Legendary proc stage 3. Given that the behaviour changes past the 30 stacks, this'll need an update
+        'stat': 'agi',
+        'value': 17,
+        'duration': 30,
+        'max_stacks': 50,
+        'proc_name': 'Shadows of the Destroyer',
+        'behaviours': {'default': 'rogue_t13_legendary_proc', 'assassination': 'rogue_t13_legendary_assassination', 'combat': 'rogue_t13_legendary_combat', 'subtlety': 'rogue_t13_legendary_subtlety'}
     }
 }
 
@@ -234,12 +351,12 @@ behaviours = {
         'ppm': 5,
         'trigger': 'all_attacks'
     },
-    'avalanche_spell': { # As per EnhSim and SimCraft
+    'avalanche_spell': {                    # As per EnhSim and SimCraft
         'icd': 10,
         'proc_chance': .25,
         'trigger': 'all_periodic_damage'
     },
-    'hurricane_melee': { # Completely guessing at proc behavior.
+    'hurricane_melee': {                    # Completely guessing at proc behavior.
         'icd': 0,
         'ppm': 1,
         'trigger': 'all_spells_and_attacks',
@@ -249,12 +366,12 @@ behaviours = {
         'proc_chance': .15,
         'trigger': 'all_spells'
     },
-    'landslide': { # Completely guessing at proc behavior.
+    'landslide': {                          # Completely guessing at proc behavior.
         'icd': 0,
         'ppm': 1,
         'trigger': 'all_attacks'
     },
-    'corens_chilled_chromium_coaster': { # ICD is a guess and should be verified.
+    'corens_chilled_chromium_coaster': {    # ICD is a guess and should be verified.
         'icd': 50,
         'proc_chance': .1,
         'trigger': 'all_attacks',
@@ -296,9 +413,14 @@ behaviours = {
         'trigger': 'all_attacks',
         'on_crit': True
     },
-    'matrix_restabilizer': { # Proc_chance is a guess and should be verified.
+    'matrix_restabilizer': {                # Proc_chance is a guess and should be verified.
         'icd': 105,
         'proc_chance': .1,
+        'trigger': 'all_attacks'
+    },
+    'nokaled_the_elements_of_death': {      # Proc_chance/ICD should be verified.
+        'icd': 2,
+        'proc_chance': .065,
         'trigger': 'all_attacks'
     },
     'prestors_talisman_of_machination': {
@@ -306,7 +428,7 @@ behaviours = {
         'proc_chance': .1,
         'trigger': 'all_attacks'
     },
-    'rickets_magnetic_fireball': { # ICD should be verified.
+    'rickets_magnetic_fireball': {          # ICD should be verified.
         'icd': 120,
         'proc_chance': .2,
         'trigger': 'all_attacks'
@@ -321,6 +443,11 @@ behaviours = {
         'proc_chance': .1,
         'trigger': 'all_attacks'
     },
+    'starcatcher_compass': {                # ICD should be verified.
+        'icd': 115,
+        'proc_chance': .15,
+        'trigger': 'all_attacks'
+    },
     'swordguard_embroidery': {
         'icd': 55,
         'proc_chance': .15,
@@ -331,7 +458,7 @@ behaviours = {
         'proc_chance': 1.,
         'trigger': 'all_attacks'
     },
-    'the_twilight_blade': { # PPM/ICD is a guess and should be verified.
+    'the_twilight_blade': {                 # PPM/ICD is a guess and should be verified.
         'icd': 0,
         'ppm': 1,
         'trigger': 'all_attacks'
@@ -344,6 +471,36 @@ behaviours = {
     'unheeded_warning': {
         'icd': 50,
         'proc_chance': .1,
+        'trigger': 'all_attacks'
+    },
+    'vial_of_shadows': {                    # ICD should be verified.
+        'icd': 25,
+        'proc_chance': .15,
+        'trigger': 'all_attacks'
+    },
+    'wrath_of_unchaining': {                # ICD should be verified.
+        'icd': None,
+        'proc_chance': 1,
+        'trigger': 'all_attacks'
+    },
+    'rogue_t13_legendary_proc': {           # Must toggle behaviour to any of the other three, this one will trigger an exception.
+        'icd': None,
+        'proc_chance': 0,
+        'trigger': 'all_attacks'
+    },
+    'rogue_t13_legendary_assassination': {
+        'icd': None,
+        'proc_chance': .18,
+        'trigger': 'all_attacks'
+    }, 
+    'rogue_t13_legendary_combat': {
+        'icd': None,
+        'proc_chance': .1,
+        'trigger': 'all_attacks'
+    },
+    'rogue_t13_legendary_subtlety': {
+        'icd': None,
+        'proc_chance': .23,
         'trigger': 'all_attacks'
     }
 }

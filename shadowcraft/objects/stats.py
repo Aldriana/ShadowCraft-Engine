@@ -154,6 +154,9 @@ class GearBuffs(object):
         'ancient_petrified_seed':         {'stat': 'agi', 'value': 1277, 'duration': 15, 'cooldown': 60},
         'heroic_ancient_petrified_seed':  {'stat': 'agi', 'value': 1441, 'duration': 15, 'cooldown': 60},
         'rickets_magnetic_fireball':      {'stat': 'crit', 'value': 1700, 'duration': 20, 'cooldown': 120},
+        'kiroptyric_sigil':               {'stat': 'agi', 'value': 2290, 'duration': 15, 'cooldown': 90},
+        'heroic_kiroptyric_sigil':        {'stat': 'agi', 'value': 2585, 'duration': 15, 'cooldown': 90},  #Not available in-game
+        'lfr_kiroptyric_sigil':           {'stat': 'agi', 'value': 2029, 'duration': 15, 'cooldown': 90},  #Not available in-game
     }
 
     other_gear_buffs = [
@@ -164,6 +167,7 @@ class GearBuffs(object):
         'rogue_t12_4pc',                # Increase crit/haste/mastery rating by 25% every TotT
         'rogue_t13_2pc',                # Decrease energy cost by 20% for 6secs every TotT
         'rogue_t13_4pc',                # ShD +2secs, AR +3secs, Vendetta +9secs
+        'rogue_t13_legendary',          # Increase 45% damage on SS and RvS, used in case the rogue only equips the mh of a set.
         'mixology',
         'master_of_anatomy'
     ]
