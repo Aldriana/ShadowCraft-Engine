@@ -1,3 +1,4 @@
+import copy
 import gettext
 import __builtin__
 
@@ -368,10 +369,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             damage_breakdown['hemorrhage_glyph'] = dps_from_hit_hemo[0] + dps_from_crit_hemo[0], dps_from_hit_hemo[1] + dps_from_crit_hemo[1]
 
         for proc in damage_procs:
-            damage_breakdown.setdefault(proc.proc_name, (0, 0))
-            old_value = damage_breakdown[proc.proc_name]
-            new_value = self.get_proc_damage_contribution(proc, attacks_per_second[proc.proc_name], current_stats)
-            damage_breakdown[proc.proc_name] = [sum(pair) for pair in zip(old_value, new_value)]
+            if proc.proc_name not in damage_breakdown:
+                # Toss multiple damage procs with the same name (Avalanche):
+                # attacks_per_second is already being updated with that key.
+                damage_breakdown[proc.proc_name] = self.get_proc_damage_contribution(proc, attacks_per_second[proc.proc_name], current_stats)
 
         self.append_damage_on_use(average_ap, current_stats, damage_breakdown)
 
@@ -503,10 +504,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         else:
             frequency = self.get_procs_per_second(proc, attacks_per_second, crit_rates)
 
+        attacks_per_second.setdefault(proc.proc_name, 0)
         if proc.stat == 'spell_damage':
-            attacks_per_second[proc.proc_name] = frequency * self.spell_hit_chance()
+            attacks_per_second[proc.proc_name] += frequency * self.spell_hit_chance()
         elif proc.stat == 'physical_damage':
-            attacks_per_second[proc.proc_name] = frequency * self.strike_hit_chance
+            attacks_per_second[proc.proc_name] += frequency * self.strike_hit_chance
 
     """
     def get_weapon_damage_bonus(self):
@@ -601,25 +603,27 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             elif proc_info.stat == 'extra_weapon_damage':
                 weapon_damage_procs.append(proc_info)
 
-        mh_landslide = self.stats.mh.landslide
-        if mh_landslide:
-            mh_landslide.mh_only = True
-            active_procs.append(mh_landslide)
+        weapon_enchants = set([])
+        for hand, enchant in [(x, y) for x in ('mh', 'oh') for y in ('landslide', 'hurricane', 'avalanche')]:
+            proc = getattr(getattr(self.stats, hand), enchant)
+            if proc:
+                setattr(proc, '_'.join((hand, 'only')), True)
+                if proc.stat in current_stats:
+                    active_procs.append(proc)
+                elif enchant == 'avalanche':
+                    damage_procs.append(proc)
 
-        mh_hurricane = self.stats.mh.hurricane
-        if mh_hurricane:
-            mh_hurricane.mh_only = True
-            active_procs.append(mh_hurricane)
-
-        oh_landslide = self.stats.oh.landslide
-        if oh_landslide:
-            oh_landslide.oh_only = True
-            active_procs.append(oh_landslide)
-
-        oh_hurricane = self.stats.oh.hurricane
-        if oh_hurricane:
-            oh_hurricane.oh_only = True
-            active_procs.append(oh_hurricane)
+                if enchant not in weapon_enchants and enchant in ('hurricane', 'avalanche'):
+                    weapon_enchants.add(enchant)
+                    spell_component = copy.copy(proc)
+                    delattr(spell_component, '_'.join((hand, 'only')))
+                    spell_component.behaviour_toggle = 'spell'
+                    if enchant == 'hurricane':
+                        # This would heavily overestimate Hurricane by ignoring the refresh mechanic.
+                        # active_procs.append(spell_component)
+                        pass
+                    elif enchant == 'avalanche':
+                        damage_procs.append(spell_component)
 
         attacks_per_second, crit_rates = attack_counts_function(current_stats)
 
