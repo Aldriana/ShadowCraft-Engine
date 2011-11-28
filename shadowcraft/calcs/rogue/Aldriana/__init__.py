@@ -608,11 +608,18 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             # once we figure the whole thing.
             if getattr(self.stats.procs, proc):
                 if self.talents.is_assassination_rogue():
-                    getattr(self.stats.procs, proc).behaviour_toggle = 'assassination'
+                    spec = 'assassination'
                 elif self.talents.is_combat_rogue():
-                    getattr(self.stats.procs, proc).behaviour_toggle = 'combat'
+                    spec = 'combat'
                 elif self.talents.is_subtlety_rogue():
-                    getattr(self.stats.procs, proc).behaviour_toggle = 'subtlety'
+                    spec = 'subtlety'
+                getattr(self.stats.procs, proc).behaviour_toggle = spec
+
+        # Tie Nokaled to the MH (equipping it in the OH, as a rogue, is unlikely)
+        for i in ('', 'heroic_', 'lfr_'):
+            proc = getattr(self.stats.procs, ''.join((i, 'nokaled_the_elements_of_death')))
+            if proc:
+                setattr(proc, 'mh_only', True)
 
         for proc_info in self.stats.procs.get_all_procs_for_stat():
             if proc_info.stat in current_stats and not proc_info.is_ppm():
