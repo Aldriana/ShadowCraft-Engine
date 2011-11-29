@@ -69,12 +69,12 @@ allowed_procs = {
         'proc_name': 'Grace',
         'behaviours': {'default': 'tias_grace'}
     },
-    'heroic_vial_of_shadows': {
+    'heroic_vial_of_shadows': {         # Name is a compromise to avoid conflicts
         'stat': 'physical_damage',
         'value': 17050.5,
         'duration': 0,
         'max_stacks': 0,
-        'proc_name': 'Lightning Strike',
+        'proc_name': 'Lightning Strike (vial hc)',
         'behaviours': {'default': 'vial_of_shadows'}
     },
     'heroic_wrath_of_unchaining': {
@@ -167,12 +167,12 @@ allowed_procs = {
         'proc_name': 'Velocity',
         'behaviours': {'default': 'starcatcher_compass'}
     },
-    'lfr_vial_of_shadows': {
+    'lfr_vial_of_shadows': {            # Name is a compromise to avoid conflicts
         'stat': 'physical_damage',
         'value': 13382.5,
         'duration': 0,
         'max_stacks': 0,
-        'proc_name': 'Lightning Strike',
+        'proc_name': 'Lightning Strike (vial lfr)',
         'behaviours': {'default': 'vial_of_shadows'}
     },
     'lfr_wrath_of_unchaining': {
@@ -272,12 +272,12 @@ allowed_procs = {
         'proc_name': 'Heedless Carnage',
         'behaviours': {'default': 'unheeded_warning'}
     },
-    'vial_of_shadows': {
+    'vial_of_shadows': {                # Name is a compromise to avoid conflicts
         'stat': 'physical_damage',
         'value': 15105.5,
         'duration': 0,
         'max_stacks': 0,
-        'proc_name': 'Lightning Strike',
+        'proc_name': 'Lightning Strike (vial n)',
         'behaviours': {'default': 'vial_of_shadows'}
     },
     'wrath_of_unchaining': {

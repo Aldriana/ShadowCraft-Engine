@@ -198,7 +198,14 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if proc.can_crit == False:
             crit_rate = 0
 
-        average_hit = proc.value * multiplier
+        proc_value = proc.value
+        # Vial of Shadows scales with AP.
+        for i in ('', 'heroic_', 'lfr_'):
+            if proc is getattr(self.stats.procs, ''.join((i, 'vial_of_shadows'))):
+                average_ap = current_stats['ap'] + 2 * current_stats['agi'] + self.base_strength
+                proc_value += average_ap
+
+        average_hit = proc_value * multiplier
         average_damage = average_hit * (1 + crit_rate * (crit_multiplier - 1)) * proc_count
         crit_contribution = average_hit * crit_multiplier * crit_rate * proc_count
         return average_damage, crit_contribution
@@ -552,6 +559,26 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         else:
             return 1.
 
+    def setup_unique_procs(self):
+        # We need to set these behaviours before calling any other method.
+        # The stage 3 will very likely need a different set of behaviours
+        # once we figure the whole thing.
+        for proc in ('jaws_of_retribution', 'maw_of_oblivion', 'fangs_of_the_father'):
+            if getattr(self.stats.procs, proc):
+                if self.talents.is_assassination_rogue():
+                    spec = 'assassination'
+                elif self.talents.is_combat_rogue():
+                    spec = 'combat'
+                elif self.talents.is_subtlety_rogue():
+                    spec = 'subtlety'
+                getattr(self.stats.procs, proc).behaviour_toggle = spec
+
+        # Tie Nokaled to the MH (equipping it in the OH, as a rogue, is unlikely)
+        for i in ('', 'heroic_', 'lfr_'):
+            proc = getattr(self.stats.procs, ''.join((i, 'nokaled_the_elements_of_death')))
+            if proc:
+                setattr(proc, 'mh_only', True)
+
     def get_poison_counts(self, total_mh_hits, total_oh_hits, attacks_per_second):
         if self.settings.mh_poison == 'dp' or self.settings.oh_poison == 'dp':
             attacks_per_second['deadly_poison'] = 1. / 3
@@ -602,24 +629,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         damage_procs = []
         weapon_damage_procs = []
 
-        for proc in ('jaws_of_retribution', 'maw_of_oblivion', 'fangs_of_the_father'):
-            # We need to set these behaviours before calling any other method.
-            # The stage 3 will very likely need a different set of behaviours
-            # once we figure the whole thing.
-            if getattr(self.stats.procs, proc):
-                if self.talents.is_assassination_rogue():
-                    spec = 'assassination'
-                elif self.talents.is_combat_rogue():
-                    spec = 'combat'
-                elif self.talents.is_subtlety_rogue():
-                    spec = 'subtlety'
-                getattr(self.stats.procs, proc).behaviour_toggle = spec
-
-        # Tie Nokaled to the MH (equipping it in the OH, as a rogue, is unlikely)
-        for i in ('', 'heroic_', 'lfr_'):
-            proc = getattr(self.stats.procs, ''.join((i, 'nokaled_the_elements_of_death')))
-            if proc:
-                setattr(proc, 'mh_only', True)
+        self.setup_unique_procs()
 
         for proc_info in self.stats.procs.get_all_procs_for_stat():
             if proc_info.stat in current_stats and not proc_info.is_ppm():
