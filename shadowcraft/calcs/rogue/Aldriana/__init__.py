@@ -200,10 +200,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         proc_value = proc.value
         # Vial of Shadows scales with AP.
-        for i in ('', 'heroic_', 'lfr_'):
-            if proc is getattr(self.stats.procs, ''.join((i, 'vial_of_shadows'))):
+        vial_of_shadows_modifiers = {
+            'heroic_vial_of_shadows': 1.016,
+            'vial_of_shadows': .9,
+            'lfr_vial_of_shadows': .797
+            }
+        for i in vial_of_shadows_modifiers:
+            if proc is getattr(self.stats.procs, i):
                 average_ap = current_stats['ap'] + 2 * current_stats['agi'] + self.base_strength
-                proc_value += average_ap
+                proc_value += vial_of_shadows_modifiers[i] * average_ap
 
         average_hit = proc_value * multiplier
         average_damage = average_hit * (1 + crit_rate * (crit_multiplier - 1)) * proc_count
