@@ -85,6 +85,13 @@ allowed_procs = {
         'proc_name': 'Combat Trance',
         'behaviours': {'default': 'wrath_of_unchaining'}
     },
+    'arrow_of_time': {
+        'stat': 'haste',
+        'value': 1149,
+        'duration': 20,
+        'proc_name': 'Arrow of Time',
+        'behaviours': {'default': 'arrow_of_time'}
+    },
     'darkmoon_card_hurricane': {
         'stat': 'spell_damage',
         'value': 7000,
@@ -371,6 +378,11 @@ behaviours = {
         'ppm': 1,
         'trigger': 'all_attacks'
     },
+    'arrow_of_time': {                      # ICD is a guess and should be verified.
+        'icd': 60,
+        'proc_chance': .2,
+        'trigger': 'all_attacks'
+    },
     'corens_chilled_chromium_coaster': {    # ICD is a guess and should be verified.
         'icd': 50,
         'proc_chance': .1,
@@ -444,7 +456,7 @@ behaviours = {
         'trigger': 'all_attacks'
     },
     'starcatcher_compass': {                # ICD should be verified.
-        'icd': 115,
+        'icd': 100,
         'proc_chance': .15,
         'trigger': 'all_attacks'
     },
