@@ -49,7 +49,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
     PRECISION_REQUIRED = 10 ** -7
 
     def are_close_enough(self, old_dist, new_dist):
-        for item in new_dist.keys():
+        for item in new_dist:
             if item not in old_dist:
                 return False
             elif not hasattr(new_dist[item], '__iter__'):
@@ -292,7 +292,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         damage_breakdown['autoattack'] = mh_dps_tuple[0] + oh_dps_tuple[0], mh_dps_tuple[1] + oh_dps_tuple[1]
 
-        for key in attacks_per_second.keys():
+        for key in attacks_per_second:
             if not attacks_per_second[key]:
                 del attacks_per_second[key]
 
@@ -668,7 +668,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         attacks_per_second, crit_rates = attack_counts_function(current_stats)
 
-        while True:
+        for _loop in range(20):
             current_stats = {
                 'agi': self.base_stats['agi'],
                 'ap': self.base_stats['ap'],
