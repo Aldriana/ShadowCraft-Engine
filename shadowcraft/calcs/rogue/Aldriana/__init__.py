@@ -1076,6 +1076,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'revealing_strike': base_melee_crit_rate,
             'eviscerate': base_melee_crit_rate + .1 * self.glyphs.eviscerate,
             'killing_spree': base_melee_crit_rate,
+            'oh_killing_spree': base_melee_crit_rate,
+            'mh_killing_spree': base_melee_crit_rate,
             'rupture_ticks': base_melee_crit_rate,
             'instant_poison': base_spell_crit_rate,
             'deadly_poison': base_spell_crit_rate,
