@@ -175,7 +175,6 @@ chest = {
     'Tunic of Sinking Envy': {'id': 58131, 'agi': 262, 'crit': 202, 'hit': 162, 'sockets': ['red', 'blue'], 'bonus_stat': 'crit', 'bonus_value': 20},
     '(H)Vest of Misshapen Hides': {'id': 56455, 'agi': 262, 'crit': 162, 'mastery': 202, 'sockets': ['red', 'blue'], 'bonus_stat': 'mastery', 'bonus_value': 20},
     'Vest of Misshapen Hides': {'id': 56128, 'agi': 268, 'crit': 178, 'mastery': 178},
-
 }
 wrists = {
     # ----- 4.2 -----
