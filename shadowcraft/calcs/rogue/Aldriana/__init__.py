@@ -292,7 +292,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         damage_breakdown['autoattack'] = mh_dps_tuple[0] + oh_dps_tuple[0], mh_dps_tuple[1] + oh_dps_tuple[1]
 
-        for key in attacks_per_second:
+        for key in attacks_per_second.keys():
             if not attacks_per_second[key]:
                 del attacks_per_second[key]
 
