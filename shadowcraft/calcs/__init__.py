@@ -224,6 +224,8 @@ class DamageCalculator(object):
         baseline_dps = self.get_dps()
         talent_list = []
 
+        self.talents.reset_cache()
+
         if list is None:
         # Build a list of talents that can be taken in the active spec
             for talent in self.talents.treeForTalent:
@@ -259,6 +261,7 @@ class DamageCalculator(object):
             else:
                 off_trees_talents_ranking[talent] = talents_ranking[talent]
 
+        self.talents.reset_cache()
         return main_tree_talents_ranking, off_trees_talents_ranking
 
     def get_dps(self):
