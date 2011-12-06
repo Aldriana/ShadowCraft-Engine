@@ -378,8 +378,8 @@ behaviours = {
         'ppm': 1,
         'trigger': 'all_attacks'
     },
-    'arrow_of_time': {                      # ICD is a guess and should be verified.
-        'icd': 60,
+    'arrow_of_time': {
+        'icd': 50,
         'proc_chance': .2,
         'trigger': 'all_attacks'
     },
@@ -430,9 +430,9 @@ behaviours = {
         'proc_chance': .1,
         'trigger': 'all_attacks'
     },
-    'nokaled_the_elements_of_death': {      # Proc_chance/ICD should be verified.
-        'icd': 2,
-        'proc_chance': .065,
+    'nokaled_the_elements_of_death': {
+        'icd': None,
+        'proc_chance': .07,
         'trigger': 'all_attacks'
     },
     'prestors_talisman_of_machination': {
@@ -455,8 +455,8 @@ behaviours = {
         'proc_chance': .1,
         'trigger': 'all_attacks'
     },
-    'starcatcher_compass': {                # ICD should be verified.
-        'icd': 100,
+    'starcatcher_compass': {
+        'icd': 115,
         'proc_chance': .15,
         'trigger': 'all_attacks'
     },
@@ -502,17 +502,17 @@ behaviours = {
     },
     'rogue_t13_legendary_assassination': {
         'icd': None,
-        'proc_chance': .18,
+        'proc_chance': .235,
         'trigger': 'all_attacks'
     }, 
     'rogue_t13_legendary_combat': {
         'icd': None,
-        'proc_chance': .1,
+        'proc_chance': .095,
         'trigger': 'all_attacks'
     },
     'rogue_t13_legendary_subtlety': {
         'icd': None,
-        'proc_chance': .23,
+        'proc_chance': .275,
         'trigger': 'all_attacks'
     }
 }
