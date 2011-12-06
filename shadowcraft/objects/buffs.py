@@ -81,9 +81,9 @@ class Buffs(object):
         else:
             return self.physical_damage_multiplier()
 
-    def attack_power_multiplier(self):
+    def attack_power_multiplier(self, ranged=False):
         if self.attack_power_buff:
-            return 1.1
+            return [1.2, 1.1][ranged]
         else:
             return 1
 
