@@ -159,8 +159,6 @@ allowed_procs = {
         'proc_name': 'Eye of Vengeance',
         'behaviours': {'default': 'left_eye_of_rajh'}
     },
-<<<<<<< HEAD
-=======
     'lfr_nokaled_the_elements_of_death': {
         'stat': 'spell_damage',
         'value': 8476,
@@ -192,7 +190,6 @@ allowed_procs = {
         'proc_name': 'Combat Trance',
         'behaviours': {'default': 'wrath_of_unchaining'}
     },
->>>>>>> e2ad088adb327bf56f5f39f19a2b84bfed78be2c
     'matrix_restabilizer': {            # Proc_chance is a guess and should be verified.
         'stat': 'weird_proc',
         'value': 1624,
