@@ -101,9 +101,9 @@ class ClassTalents(object):
         # If someone tries to access a talent defined on one of the trees,
         # access it through that tree.
         if name in self.treeForTalent:
-            # self.cachedAttrs.append(name)
+            self.cachedAttrs.append(name)
             r = getattr(self.treeForTalent[name], name)            
-            # setattr(self, name, r)
+            setattr(self, name, r)
             return r
             
         object.__getattribute__(self, name)

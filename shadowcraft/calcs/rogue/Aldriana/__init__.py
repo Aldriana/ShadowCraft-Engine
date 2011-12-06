@@ -49,7 +49,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
     PRECISION_REQUIRED = 10 ** -7
 
     def are_close_enough(self, old_dist, new_dist):
-        for item in new_dist.keys():
+        for item in new_dist:
             if item not in old_dist:
                 return False
             elif not hasattr(new_dist[item], '__iter__'):
@@ -670,7 +670,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         attacks_per_second, crit_rates = attack_counts_function(current_stats)
 
-        while True:
+        for _loop in range(20):
             current_stats = {
                 'agi': self.base_stats['agi'],
                 'ap': self.base_stats['ap'],
@@ -728,6 +728,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         return damage_breakdown
 
+    # This relies on set_uptime being called for the proc in compute_damage before any of the actual computation stuff is invoked.
+    def unheeded_warning_bonus(self):
+        proc = self.stats.procs.unheeded_warning
+        if not proc:
+            return 0        
+        return proc.value * proc.uptime
+        
     ###########################################################################
     # Assassination DPS functions
     ###########################################################################
@@ -1060,6 +1067,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'revealing_strike': base_melee_crit_rate,
             'eviscerate': base_melee_crit_rate + .1 * self.glyphs.eviscerate,
             'killing_spree': base_melee_crit_rate,
+            'oh_killing_spree': base_melee_crit_rate,
+            'mh_killing_spree': base_melee_crit_rate,
             'rupture_ticks': base_melee_crit_rate,
             'instant_poison': base_spell_crit_rate,
             'deadly_poison': base_spell_crit_rate,

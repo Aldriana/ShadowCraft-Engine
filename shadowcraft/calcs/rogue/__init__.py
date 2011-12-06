@@ -223,7 +223,7 @@ class RogueDamageCalculator(DamageCalculator):
 
         percentage_damage_bonus = 1.55
         if self.stats.mh.type == 'dagger':
-            percentage_damage_bonus *= 1.45
+            percentage_damage_bonus = 2.25
         if self.talents.is_subtlety_rogue():
             percentage_damage_bonus *= 1.4
 
