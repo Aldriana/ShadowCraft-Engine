@@ -496,21 +496,34 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         return procs_per_second
 
+    def set_uptime_for_ramping_proc(self, proc, procs_per_second):
+        time_for_one_stack = 1 / procs_per_second
+        if time_for_one_stack * proc.max_stacks > self.settings.duration:
+            max_stacks_reached = self.settings.duration * procs_per_second
+            proc.uptime = max_stacks_reached / 2
+        else:
+            missing_stacks = proc.max_stacks * (proc.max_stacks + 1) / 2
+            stack_time_lost = missing_stacks * time_for_one_stack
+            proc.uptime = proc.max_stacks - stack_time_lost / self.settings.duration
+
     def set_uptime(self, proc, attacks_per_second, crit_rates):
         procs_per_second = self.get_procs_per_second(proc, attacks_per_second, crit_rates)
 
         if proc.icd:
             proc.uptime = proc.duration / (proc.icd + 1. / procs_per_second)
         else:
+            if procs_per_second >= 1:
+                self.set_uptime_for_ramping_proc(proc, procs_per_second)
+            else:
             # See http://elitistjerks.com/f31/t20747-advanced_rogue_mechanics_discussion/#post621369
             # for the derivation of this formula.
-            if procs_per_second >= 1 and proc.duration >= 1:
-                proc.uptime = proc.max_stacks
-            else:
                 q = 1 - procs_per_second
                 Q = q ** proc.duration
-                P = 1 - Q
-                proc.uptime = P * (1 - P ** proc.max_stacks) / Q
+                if Q < .0001:
+                    self.set_uptime_for_ramping_proc(proc, procs_per_second)
+                else:
+                    P = 1 - Q
+                    proc.uptime = P * (1 - P ** proc.max_stacks) / Q
 
     def update_with_damaging_proc(self, proc, attacks_per_second, crit_rates):
         if proc.icd:
