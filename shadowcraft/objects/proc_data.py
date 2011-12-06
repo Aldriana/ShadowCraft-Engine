@@ -346,7 +346,7 @@ allowed_melee_enchants = {
 }
 
 # The _set_behaviour method takes these parameters:
-# trigger, icd, proc_chance=False, ppm=False, on_crit=False
+# trigger, icd, proc_chance=False, ppm=False, on_crit=False, on_procced_strikes=True
 # You can't set a value for both 'ppm' and 'proc_chance': one must be False
 # Allowed triggers are: 'all_spells_and_attacks', 'all_damaging_attacks',
 # 'all_attacks', 'strikes', 'auto_attacks', 'damaging_spells', 'all_spells',
@@ -433,7 +433,8 @@ behaviours = {
     'nokaled_the_elements_of_death': {
         'icd': None,
         'proc_chance': .07,
-        'trigger': 'all_attacks'
+        'trigger': 'all_attacks',
+        'on_procced_strikes': False
     },
     'prestors_talisman_of_machination': {
         'icd': 75,

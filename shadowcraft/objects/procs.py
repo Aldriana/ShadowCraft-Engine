@@ -32,7 +32,7 @@ class Proc(object):
             else:
                 raise InvalidProcException(_('Behaviour \'{behaviour}\' is not defined for {proc}').format(proc=self.proc_name, behaviour=value))
 
-    def _set_behaviour(self, icd, trigger, proc_chance=False, ppm=False, on_crit=False):
+    def _set_behaviour(self, icd, trigger, proc_chance=False, ppm=False, on_crit=False, on_procced_strikes=True):
         # This could be merged with __setattr__; its sole purpose is
         # to clearly surface the parameters passed with the behaviours.
         self.proc_chance = proc_chance
@@ -40,6 +40,7 @@ class Proc(object):
         self.icd = icd
         self.on_crit = on_crit
         self.ppm = ppm
+        self.on_procced_strikes = on_procced_strikes  # Main Gauche and its kin
 
     def procs_off_auto_attacks(self):
         if self.trigger in ('all_attacks', 'auto_attacks', 'all_spells_and_attacks'):
@@ -91,6 +92,12 @@ class Proc(object):
 
     def procs_off_apply_debuff(self):
         if self.trigger in ('all_spells_and_attacks', 'all_attacks'):
+            return True
+        else:
+            return False
+
+    def procs_off_procced_strikes(self):
+        if self.on_procced_strikes:
             return True
         else:
             return False

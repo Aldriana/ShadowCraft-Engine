@@ -402,7 +402,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 triggers_per_second += attacks_per_second['mh_autoattack_hits']
         if proc.procs_off_strikes():
             for ability in ('mutilate', 'backstab', 'revealing_strike', 'sinister_strike', 'ambush', 'hemorrhage', 'mh_killing_spree', 'main_gauche'):
-                if ability in attacks_per_second:
+                if ability == 'main_gauche' and not proc.procs_off_procced_strikes():
+                    pass
+                elif ability in attacks_per_second:
                     if proc.procs_off_crit_only():
                         triggers_per_second += attacks_per_second[ability] * crit_rates[ability]
                     else:
