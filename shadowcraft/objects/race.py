@@ -46,6 +46,7 @@ class Race(object):
         "human_spirit",             #Human
         "sword_2h_specialization",  #Human
         "quickness",                #Night Elf
+        "shadowmeld",               #Night Elf
         "heroic_presence",          #Draenei
         "viciousness",              #Worgen
         "blood_fury_physical",      #Orc
@@ -73,18 +74,18 @@ class Race(object):
     }
 
     racials_by_race = {
-                "human":        ["mace_specialization", "sword_1h_specialization", "sword_2h_specialization", "human_spirit"],
-                "night_elf":    ["quickness"],
-                "dwarf":        ["stoneform", "gun_specialization", "mace_specialization"],
-                "gnome":        ["expansive_mind", "dagger_specialization", "sword_1h_specialization"],
-                "draenei":      ["heroic_presence"],
-                "worgen":       ["viciousness"],
-                "orc":          ["blood_fury_physical", "blood_fury_spell", "fist_specialization", "axe_specialization"],
-                "undead":       [],
-                "tauren":       ["endurance"],
-                "troll":        ["regeneration", "beast_slaying", "throwing_specialization", "bow_specialization", "berserking"],
-                "blood_elf":    ["arcane_torrent"],
-                "goblin":       ["rocket_barrage", "time_is_money"],
+        "human":        ["mace_specialization", "sword_1h_specialization", "sword_2h_specialization", "human_spirit"],
+        "night_elf":    ["quickness", "shadowmeld"],
+        "dwarf":        ["stoneform", "gun_specialization", "mace_specialization"],
+        "gnome":        ["expansive_mind", "dagger_specialization", "sword_1h_specialization"],
+        "draenei":      ["heroic_presence"],
+        "worgen":       ["viciousness"],
+        "orc":          ["blood_fury_physical", "blood_fury_spell", "fist_specialization", "axe_specialization"],
+        "undead":       [],
+        "tauren":       ["endurance"],
+        "troll":        ["regeneration", "beast_slaying", "throwing_specialization", "bow_specialization", "berserking"],
+        "blood_elf":    ["arcane_torrent"],
+        "goblin":       ["rocket_barrage", "time_is_money"],
     }
 
     #Note this allows invalid class-race combos
