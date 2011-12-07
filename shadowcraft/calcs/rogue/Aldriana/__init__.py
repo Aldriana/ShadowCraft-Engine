@@ -848,6 +848,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         garrote_energy_return = 6 * self.talents.venomous_wounds * 3 * self.strike_hit_chance
         garrote_net_cost = garrote_base_cost - garrote_energy_return
         garrote_spacing = (180. + self.settings.response_time - 30 * self.talents.elusiveness)
+        if self.race.shadowmeld:
+            shadowmeld_spacing = 120. + self.settings.response_time
+            garrote_spacing = 1 / (1 / garrote_spacing + 1 / shadowmeld_spacing)
         total_garrotes_per_second = (1 - 20. / self.settings.duration) / self.settings.duration + 1 / garrote_spacing
 
         energy_regen -= garrote_net_cost * total_garrotes_per_second
