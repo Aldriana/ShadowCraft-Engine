@@ -1396,6 +1396,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         vanish_cooldown = 180 - 30 * self.talents.elusiveness
         ambushes_from_vanish = 1. / (vanish_cooldown + self.settings.response_time) + self.talents.preparation / (300. + self.settings.response_time)
+        if self.race.shadowmeld:
+            ambushes_from_vanish += 1. / (120 + self.settings.response_time)
         if self.talents.find_weakness:
             self.find_weakness_uptime = 10 * ambushes_from_vanish
         else:
