@@ -211,7 +211,7 @@ class GearBuffs(object):
 
     def rogue_t13_2pc_cost_multiplier(self):
         if self.rogue_t13_2pc:
-            return .96 # 1 - .2 * 6 / 30
+            return 1 / 1.05
         else:
             return 1
 
