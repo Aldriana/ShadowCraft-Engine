@@ -50,10 +50,12 @@ class Talents(object):
         return top_tier
 
     def initialize_talents(self, talent_string):
-        assert len(talent_string) <= 6
+        if len(talent_string) > 6:
+            raise InvalidTalentException(_('Talent strings must be 6 or less characters long'))
         j = 0
         for i in talent_string:
-            assert int(i) in range(4)
+            if int(i) not in range(4):
+                raise InvalidTalentException(_('Values in the talent string must be 1, 2, 3 or 0'))
             if int(i) == 0:
                 pass
             else:

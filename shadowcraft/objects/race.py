@@ -5,14 +5,16 @@ class InvalidRaceException(exceptions.InvalidInputException):
 
 class Race(object):
     rogue_base_stats = {
-        80:(113,189,105,43,67),
-        85:(122,206,114,46,73)
+        80: (113, 189, 105, 43, 67),
+        85: (122, 206, 114, 46, 73),
+        90: (132, 225, 123, 48, 77)
     }
 
     #(ap,sp)
     blood_fury_bonuses = {
-        80: { 'ap': 330, 'sp': 165},
-        85: { 'ap': 1170, 'sp': 585},
+        80: {'ap': 346, 'sp': 173},
+        85: {'ap': 1344, 'sp': 672},
+        90: {'ap': 4514, 'sp': 2257}
     }
 
     #Arguments are ap, spellpower:fire, and int
@@ -21,18 +23,20 @@ class Race(object):
         return 1 + 0.25 * ap + .429 * spfi + self.level * 2 + int * 0.50193
 
     racial_stat_offset = {
-        "human":        (0,0,0,0,0),
-        "night_elf":    (-4,4,0,0,0),
-        "dwarf":        (5,-4,1,-1,-1),
-        "gnome":        (-5,2,0,3,0),
-        "draenei":      (1,-3,0,0,2),
-        "worgen":       (3,2,0,-4,-1),
-        "orc":          (3,-3,1,-3,2),
-        "undead":       (-1,-2,0,-2,5),
-        "tauren":       (5,-4,1,-4,2),
-        "troll":        (1,2,0,-4,1),
-        "blood_elf":    (-3,2,0,3,-2),
-        "goblin":       (-3,2,0,3,-2),
+        "human":        (0, 0, 0, 0, 0),
+        "night_elf":    (-4, 4, 0, 0, 0),
+        "dwarf":        (5, -4, 1, -1, -1),
+        "gnome":        (-5, 2, 0, 3, 0),
+        "draenei":      (1, -3, 0, 0, 2),
+        "worgen":       (3, 2, 0, -4, -1),
+        "pandaren":     (0, -2, 1, -1, 2),
+        "orc":          (3, -3, 1, -3, 2),
+        "undead":       (-1, -2, 0, -2, 5),
+        "tauren":       (5, -4, 1, -4, 2),
+        "troll":        (1, 2, 0, -4, 1),
+        "blood_elf":    (-3, 2, 0, 3, -2),
+        "goblin":       (-3, 2, 0, 3, -2),
+
     }
 
     allowed_racials = frozenset([
@@ -56,12 +60,13 @@ class Race(object):
         "berserking",               #Troll
         "regeneration",             #Troll
         "beast_slaying",            #Troll
-        "throwing_specialization",  #Troll
-        "bow_specialization",       #Troll
-        "gun_specialization",       #Dwarf
+        "ranged_specialization",    #Troll, Dwarf
         "arcane_torrent",           #Blood Elf
         "rocket_barrage",           #Goblin
-        "time_is_money"             #Goblin
+        "time_is_money",            #Goblin
+        "epicurean",                #Pandaren
+        "touch_of_the_grave",       #Undead
+        "cannibalize",              #Undead
     ])
 
     activated_racial_data = {
@@ -76,16 +81,17 @@ class Race(object):
     racials_by_race = {
         "human":        ["mace_specialization", "sword_1h_specialization", "sword_2h_specialization", "human_spirit"],
         "night_elf":    ["quickness", "shadowmeld"],
-        "dwarf":        ["stoneform", "gun_specialization", "mace_specialization"],
+        "dwarf":        ["stoneform", "ranged_specialization", "mace_specialization"],
         "gnome":        ["expansive_mind", "dagger_specialization", "sword_1h_specialization"],
         "draenei":      ["heroic_presence"],
         "worgen":       ["viciousness"],
         "orc":          ["blood_fury_physical", "blood_fury_spell", "fist_specialization", "axe_specialization"],
-        "undead":       [],
+        "undead":       ["touch_of_the_grave", "cannibalize"],
         "tauren":       ["endurance"],
-        "troll":        ["regeneration", "beast_slaying", "throwing_specialization", "bow_specialization", "berserking"],
+        "troll":        ["regeneration", "beast_slaying", "ranged_specialization", "berserking"],
         "blood_elf":    ["arcane_torrent"],
         "goblin":       ["rocket_barrage", "time_is_money"],
+        "pandaren":     ["epicurean"]
     }
 
     #Note this allows invalid class-race combos
@@ -151,6 +157,9 @@ class Race(object):
         elif weapon_type == 'dagger':
             if self.dagger_specialization:
                 return .0075
+        elif weapon_type in ['bow', 'crossbow', 'gun']:
+            if self.ranged_specialization:
+                return .0075
 
         return 0
 
@@ -158,13 +167,6 @@ class Race(object):
         crit_bonus = 0
         if self.viciousness:
             crit_bonus = .01
-        elif not weapon_type is None:
-            if weapon_type == 'thrown' and self.throwing_specialization:
-                crit_bonus = .01
-            elif weapon_type == 'gun' and self.gun_specialization:
-                crit_bonus = .01
-            elif weapon_type == 'bow'and self.bow_specialization:
-                crit_bonus = .01
 
         return crit_bonus
 
