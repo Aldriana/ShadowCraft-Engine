@@ -87,10 +87,10 @@ class Buffs(object):
         if self.guild_feast + self.food_250 + self.food_275 + self.food_300_agi > 1:
             raise InvalidBuffException(_('You can only have one type of Well Fed buff active'))
         food_agi = 0
-        food_agi += [0, 90][self.guild_feast]
-        food_agi += [0, 250][self.food_250]
-        food_agi += [0, 275][self.food_275]
-        food_agi += [0, 300][self.food_300_agi]
+        food_agi += 90 * self.guild_feast
+        food_agi += 250 * self.food_250
+        food_agi += 275 * self.food_275
+        food_agi += 300 * self.food_300_agi
 
         return food_agi + flask_agi
 

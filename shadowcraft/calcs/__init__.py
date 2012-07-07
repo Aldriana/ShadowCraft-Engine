@@ -267,7 +267,6 @@ class DamageCalculator(object):
     def get_dps(self):
         # Overwrite this function with your calculations/simulations/whatever;
         # this is what callers will (initially) be looking at.
-        self.talents.reset_cache()
         pass
 
     def get_spell_hit_from_talents(self):

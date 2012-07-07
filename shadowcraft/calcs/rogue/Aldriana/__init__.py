@@ -21,26 +21,26 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
     def get_dps(self):
         super(AldrianasRogueDamageCalculator, self).get_dps()
-        if self.talents.is_assassination_rogue():
+        if self.settings.cycle._cycle_type == 'assassination':
             self.init_assassination()
             return self.assassination_dps_estimate()
-        elif self.talents.is_combat_rogue():
+        elif self.settings.cycle._cycle_type == 'combat':
             return self.combat_dps_estimate()
-        elif self.talents.is_subtlety_rogue():
+        elif self.settings.cycle._cycle_type == 'subtlety':
             return self.subtlety_dps_estimate()
         else:
-            raise InputNotModeledException(_('You must have 31 points in at least one talent tree.'))
+            raise InputNotModeledException(_('You must specify a spec.'))
 
     def get_dps_breakdown(self):
-        if self.talents.is_assassination_rogue():
+        if self.settings.cycle._cycle_type == 'assassination':
             self.init_assassination()
             return self.assassination_dps_breakdown()
-        elif self.talents.is_combat_rogue():
+        elif self.settings.cycle._cycle_type == 'combat':
             return self.combat_dps_breakdown()
-        elif self.talents.is_subtlety_rogue():
+        elif self.settings.cycle._cycle_type == 'subtlety':
             return self.subtlety_dps_breakdown()
         else:
-            raise InputNotModeledException(_('You must have 31 points in at least one talent tree.'))
+            raise InputNotModeledException(_('You must specify a spec.'))
 
     ###########################################################################
     # General object manipulation functions that we'll use multiple places.
@@ -272,7 +272,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
     def get_damage_breakdown(self, current_stats, attacks_per_second, crit_rates, damage_procs):
         average_ap = current_stats['ap'] + 2 * current_stats['agi'] + self.base_strength
         average_ap *= self.buffs.attack_power_multiplier()
-        if self.talents.is_combat_rogue():
+        if self.settings.cycle._cycle_type == 'combat':
             average_ap *= 1.3
         average_ap *= (1 + .03 * self.talents.savage_combat)
 
@@ -759,14 +759,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         if ''.join((self.settings.mh_poison, self.settings.oh_poison)) not in ('ipdp', 'dpip'):
             raise InputNotModeledException(_('Assassination modeling requires instant poison on one weapon and deadly on the other'))
-
-        # These talents have huge, hard-to-model implications on cycle and will
-        # always be taken in any serious DPS build.  Hence, I'm not going to
-        # worry about modeling them for the foreseeable future.
-        if self.talents.master_poisoner != 1:
-            raise InputNotModeledException(_('Assassination modeling requires one point in Master Poisoner'))
-        if self.talents.cut_to_the_chase != 3:
-            raise InputNotModeledException(_('Assassination modeling requires three points in Cut to the Chase'))
 
         self.set_constants()
 

@@ -82,7 +82,7 @@ class RogueDamageCalculator(DamageCalculator):
         return 0
 
     def oh_penalty(self):
-        if self.talents.is_combat_rogue():
+        if self.settings.cycle._cycle_type == 'combat':
             return .875
         else:
             return .5
@@ -96,7 +96,7 @@ class RogueDamageCalculator(DamageCalculator):
             base_modifier += .1 * self.talents.opportunity
         if 'coup_de_grace' in talents_list:
             base_modifier += (0, .07, .14, .2)[self.talents.coup_de_grace]
-        if 'executioner' in talents_list and self.talents.is_subtlety_rogue():
+        if 'executioner' in talents_list and self.settings.cycle._cycle_type == 'subtlety':
             base_modifier += .025 * self.stats.get_mastery_from_rating(mastery)
         if 'aggression' in talents_list:
             base_modifier += (0, .07, .14, .2)[self.talents.aggression]
@@ -106,9 +106,9 @@ class RogueDamageCalculator(DamageCalculator):
             base_modifier += .12 * self.talents.vile_poisons
         if 'improved_ambush' in talents_list:
             base_modifier += .05 * self.talents.improved_ambush
-        if 'potent_poisons' in talents_list and self.talents.is_assassination_rogue():
+        if 'potent_poisons' in talents_list and self.settings.cycle._cycle_type == 'assassination':
             base_modifier += .035 * self.stats.get_mastery_from_rating(mastery)
-        if 'assassins_resolve' in talents_list and self.talents.is_assassination_rogue() and (self.stats.mh.type == 'dagger'):
+        if 'assassins_resolve' in talents_list and self.settings.cycle._cycle_type == 'assassination' and (self.stats.mh.type == 'dagger'):
             base_modifier *= 1.2
         if is_bleeding: # Passing Sanguinary Vein without talent lookup (it affects all damage).
             base_modifier *= (1 + .08 * self.talents.sanguinary_vein)
@@ -166,7 +166,7 @@ class RogueDamageCalculator(DamageCalculator):
         crit_multiplier = self.crit_damage_modifiers(lethality=True)
 
         percentage_damage_bonus = 2
-        if self.talents.is_subtlety_rogue():
+        if self.settings.cycle._cycle_type == 'subtlety':
             percentage_damage_bonus *= 1.4
 
         damage = percentage_damage_bonus * (weapon_damage + self.bs_bonus_dmg) * multiplier
