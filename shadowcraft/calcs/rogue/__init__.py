@@ -15,24 +15,25 @@ class RogueDamageCalculator(DamageCalculator):
     # backstab damage as a function of AP - that (almost) any rogue damage
     # calculator will need to know, so things like that go here.
 
-    bs_bonus_dmg_values =         {80:310, 81:317, 82:324, 83:331, 84:338, 85:345}
-    mut_bonus_dmg_values =        {80:180, 85:201}
-    ss_bonus_dmg_values =         {80:180, 81:184, 82:188, 83:192, 84:196, 85:200}
-    ambush_bonus_dmg_values =     {80:330, 81:338, 82:345, 83:353, 84:360, 85:368}
-    vw_base_dmg_values =          {80:363, 85:675}
-    vw_percentage_dmg_values =    {80:.135, 85:.176}
-    ip_base_dmg_values =          {80:350, 85:352}
-    dp_base_dmg_values =          {80:296, 85:540}
-    dp_percentage_dmg_values =    {80:.108, 85:.14}
-    wp_base_dmg_values =          {80:231, 85:276}
-    wp_percentage_dmg_values =    {80:.036, 85:.04}
-    garrote_base_dmg_values =     {80:119, 81:122, 82:125, 83:127, 84:130, 85:133}
-    rup_base_dmg_values =         {80:127, 81:130, 82:133, 83:136, 84:139, 85:142}
-    rup_bonus_dmg_values =        {80:18, 81:19, 82:19, 83:19, 84:20, 85:20}
-    evis_base_dmg_values =        {80:329, 81:334, 82:339, 83:344, 84:349, 85:354}
-    evis_bonus_dmg_values =       {80:481, 81:488, 82:495, 83:503, 84:510, 85:517}
-    env_base_dmg_values =         {80:216, 81:221, 82:226, 83:231, 84:236, 85:241}
-    agi_per_crit_values =         {80:83.15 * 100, 81:109.18 * 100, 82:143.37 * 100, 83:188.34 * 100, 84:247.3 * 100, 85:324.72 * 100}
+    # Factors for levels other than 90 haven't been checked.
+    bs_bonus_dmg_values =         {80:310, 81:317, 82:324, 83:331, 84:338, 85:345, 90:1053}
+    mut_bonus_dmg_values =        {80:180, 85:201, 90:446}
+    ss_bonus_dmg_values =         {80:180, 81:184, 82:188, 83:192, 84:196, 85:200, 90:388}
+    ambush_bonus_dmg_values =     {80:330, 81:338, 82:345, 83:353, 84:360, 85:368, 90:1000}
+    vw_base_dmg_values =          {80:363, 85:675, 90:0} # Needs testing
+    vw_percentage_dmg_values =    {80:.135, 85:.176, 90:0} # Needs testing
+    ip_base_dmg_values =          {80:350, 85:352, 90:0} # Secondary effect of DP. Needs testing
+    dp_base_dmg_values =          {80:296, 85:540, 90:0} # Needs testing
+    dp_percentage_dmg_values =    {80:.108, 85:.14, 90:0} # Needs testing
+    wp_base_dmg_values =          {80:231, 85:276, 90:0} # Needs testing
+    wp_percentage_dmg_values =    {80:.036, 85:.04, 90:0} # Needs testing
+    garrote_base_dmg_values =     {80:119, 81:122, 82:125, 83:127, 84:130, 85:133, 90:147}
+    rup_base_dmg_values =         {80:127, 81:130, 82:133, 83:136, 84:139, 85:142, 90:231}
+    rup_bonus_dmg_values =        {80:18, 81:19, 82:19, 83:19, 84:20, 85:20, 90:32}
+    evis_base_dmg_values =        {80:329, 81:334, 82:339, 83:344, 84:349, 85:354, 90:590.5}
+    evis_bonus_dmg_values =       {80:481, 81:488, 82:495, 83:503, 84:510, 85:517, 90:862}
+    env_base_dmg_values =         {80:216, 81:221, 82:226, 83:231, 84:236, 85:241, 90:400}
+    agi_per_crit_values =         {80:83.15 * 100, 81:109.18 * 100, 82:143.37 * 100, 83:188.34 * 100, 84:247.3 * 100, 85:324.72 * 100, 90:10000} # removed?
     AGI_CRIT_INTERCEPT =          -.00295
     MELEE_CRIT_REDUCTION =        .048
     SPELL_CRIT_REDUCTION =        .021
@@ -81,8 +82,9 @@ class RogueDamageCalculator(DamageCalculator):
         else:
             return .5
 
-    def talents_modifiers(self, talents_list, mastery=None, is_bleeding=True):
-        # Call this function in every ability affected by talents. They get
+    def get_modifiers(self, talents_list, mastery=None, is_bleeding=True):
+        # Former talent modifiers method.
+        # Call this function in every ability affected by modifiers. They get
         # passed as strings in talents_list. It returns the final modifier for
         # their respective additive/multiplicative values
         base_modifier = 1
@@ -92,8 +94,10 @@ class RogueDamageCalculator(DamageCalculator):
             base_modifier += .025 * self.stats.get_mastery_from_rating(mastery)
         if 'potent_poisons' in talents_list and self.settings.cycle._cycle_type == 'assassination':
             base_modifier += .035 * self.stats.get_mastery_from_rating(mastery)
-        if 'assassins_resolve' in talents_list and self.settings.cycle._cycle_type == 'assassination' and (self.stats.mh.type == 'dagger'):
+        # Assassasins's Resolve
+        if self.settings.cycle._cycle_type == 'assassination' and (self.stats.mh.type == 'dagger'):
             base_modifier *= 1.2
+        # Sanguinary Vein
         if is_bleeding and self.settings.cycle._cycle_type == 'subtlety':
             base_modifier *= 1.25
 
@@ -101,7 +105,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def mh_damage(self, ap, armor=None, is_bleeding=True):
         weapon_damage = self.stats.mh.damage(ap) + self.get_weapon_damage_bonus()
-        multiplier = self.talents_modifiers(['assassins_resolve'], is_bleeding=is_bleeding)
+        multiplier = self.get_modifiers([], is_bleeding=is_bleeding)
         multiplier *= self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
@@ -112,7 +116,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def oh_damage(self, ap, armor=None, is_bleeding=True):
         weapon_damage = self.stats.oh.damage(ap) + self.get_weapon_damage_bonus()
-        multiplier = self.talents_modifiers(['assassins_resolve'], is_bleeding=is_bleeding)
+        multiplier = self.get_modifiers([], is_bleeding=is_bleeding)
         multiplier *= self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
@@ -123,13 +127,11 @@ class RogueDamageCalculator(DamageCalculator):
 
     def backstab_damage(self, ap, armor=None, is_bleeding=True):
         weapon_damage = self.stats.mh.normalized_damage(ap) + self.get_weapon_damage_bonus()
-        multiplier = self.talents_modifiers(['assassins_resolve'], is_bleeding=is_bleeding)
+        multiplier = self.get_modifiers([], is_bleeding=is_bleeding)
         multiplier *= self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
-        percentage_damage_bonus = 2
-        if self.settings.cycle._cycle_type == 'subtlety':
-            percentage_damage_bonus *= 1.4
+        percentage_damage_bonus = 2.75
 
         damage = percentage_damage_bonus * (weapon_damage + self.bs_bonus_dmg) * multiplier
         crit_damage = damage * crit_multiplier
@@ -138,14 +140,11 @@ class RogueDamageCalculator(DamageCalculator):
 
     def mh_mutilate_damage(self, ap, is_poisoned=True, armor=None):
         mh_weapon_damage = self.stats.mh.normalized_damage(ap) + self.get_weapon_damage_bonus()
-        multiplier = self.talents_modifiers(['assassins_resolve'])
+        multiplier = self.get_modifiers([])
         multiplier *= self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
-        mh_damage = 1.5 * (mh_weapon_damage + self.mut_bonus_dmg) * multiplier
-
-        if is_poisoned:
-            mh_damage *= 1.2
+        mh_damage = 2. * (mh_weapon_damage + self.mut_bonus_dmg) * multiplier
 
         crit_mh_damage = mh_damage * crit_multiplier
 
@@ -153,14 +152,11 @@ class RogueDamageCalculator(DamageCalculator):
 
     def oh_mutilate_damage(self, ap, is_poisoned=True, armor=None):
         oh_weapon_damage = self.stats.oh.normalized_damage(ap) + self.get_weapon_damage_bonus()
-        multiplier = self.talents_modifiers(['assassins_resolve'])
+        multiplier = self.get_modifiers([])
         multiplier *= self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
-        oh_damage = 1.5 * (self.oh_penalty() * oh_weapon_damage + self.mut_bonus_dmg) * multiplier
-
-        if is_poisoned:
-            oh_damage *= 1.2
+        oh_damage = 2 * (self.oh_penalty() * oh_weapon_damage + self.mut_bonus_dmg) * multiplier
 
         crit_oh_damage = oh_damage * crit_multiplier
 
@@ -168,18 +164,18 @@ class RogueDamageCalculator(DamageCalculator):
 
     def sinister_strike_damage(self, ap, armor=None, is_bleeding=True):
         weapon_damage = self.stats.mh.normalized_damage(ap) + self.get_weapon_damage_bonus()
-        multiplier = self.talents_modifiers(['assassins_resolve'], is_bleeding=is_bleeding)
+        multiplier = self.get_modifiers([], is_bleeding=is_bleeding)
         multiplier *= self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
-        damage = (weapon_damage + self.ss_bonus_dmg) * multiplier
+        damage = 1.75 * (weapon_damage + self.ss_bonus_dmg) * multiplier
         crit_damage = damage * crit_multiplier
 
         return damage, crit_damage
 
     def hemorrhage_damage(self, ap, armor=None, is_bleeding=True):
         weapon_damage = self.stats.mh.normalized_damage(ap) + self.get_weapon_damage_bonus()
-        multiplier = self.talents_modifiers([], is_bleeding=is_bleeding)
+        multiplier = self.get_modifiers([], is_bleeding=is_bleeding)
         multiplier *= self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
@@ -197,7 +193,7 @@ class RogueDamageCalculator(DamageCalculator):
     def hemorrhage_tick_damage(self, ap, from_crit_hemo=False, armor=None):
         # Call this function twice to get all four crit/non-crit hemo values.
         hemo_damage = self.hemorrhage_damage(ap, armor=armor)[from_crit_hemo]
-        multiplier = self.talents_modifiers([])
+        multiplier = self.get_modifiers([])
         multiplier *= self.raid_settings_modifiers('bleed')
         crit_multiplier = self.crit_damage_modifiers()
 
@@ -209,13 +205,15 @@ class RogueDamageCalculator(DamageCalculator):
 
     def ambush_damage(self, ap, armor=None, is_bleeding=True):
         weapon_damage = self.stats.mh.normalized_damage(ap) + self.get_weapon_damage_bonus()
-        multiplier = self.talents_modifiers(['assassins_resolve'], is_bleeding=is_bleeding)
+        multiplier = self.get_modifiers([], is_bleeding=is_bleeding)
         multiplier *= self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
-        percentage_damage_bonus = 1.9
+        percentage_damage_bonus = 2.45
+        bonus_dmg = self.ambush_bonus_dmg
         if self.stats.mh.type == 'dagger':
             percentage_damage_bonus *= 1.447
+            bonus_dmg *= 1.447
 
         damage = percentage_damage_bonus * (weapon_damage + self.ambush_bonus_dmg) * multiplier
         crit_damage = damage * crit_multiplier
@@ -233,7 +231,7 @@ class RogueDamageCalculator(DamageCalculator):
         return damage, crit_damage
 
     def venomous_wounds_damage(self, ap, mastery=None):
-        multiplier = self.talents_modifiers(['potent_poisons'], mastery=mastery)
+        multiplier = self.get_modifiers(['potent_poisons'], mastery=mastery)
         multiplier *= self.raid_settings_modifiers('spell')
         crit_multiplier = self.crit_damage_modifiers()
 
@@ -273,7 +271,7 @@ class RogueDamageCalculator(DamageCalculator):
         return oh_damage, crit_oh_damage
 
     def instant_poison_damage(self, ap, mastery=None, is_bleeding=True):
-        multiplier = self.talents_modifiers(['potent_poisons'], mastery=mastery, is_bleeding=is_bleeding)
+        multiplier = self.get_modifiers(['potent_poisons'], mastery=mastery, is_bleeding=is_bleeding)
         multiplier *= self.raid_settings_modifiers('spell')
         crit_multiplier = self.crit_damage_modifiers()
 
@@ -283,7 +281,7 @@ class RogueDamageCalculator(DamageCalculator):
         return damage, crit_damage
 
     def deadly_poison_tick_damage(self, ap, mastery=None, dp_stacks=5, is_bleeding=True):
-        multiplier = self.talents_modifiers(['potent_poisons'], mastery=mastery, is_bleeding=is_bleeding)
+        multiplier = self.get_modifiers(['potent_poisons'], mastery=mastery, is_bleeding=is_bleeding)
         multiplier *= self.raid_settings_modifiers('spell')
         crit_multiplier = self.crit_damage_modifiers()
 
@@ -293,7 +291,7 @@ class RogueDamageCalculator(DamageCalculator):
         return tick_damage, crit_tick_damage
 
     def wound_poison_damage(self, ap, mastery=None, is_bleeding=True):
-        multiplier = self.talents_modifiers(['potent_poisons'], mastery=mastery, is_bleeding=is_bleeding)
+        multiplier = self.get_modifiers(['potent_poisons'], mastery=mastery, is_bleeding=is_bleeding)
         multiplier *= self.raid_settings_modifiers('spell')
         crit_multiplier = self.crit_damage_modifiers()
 
@@ -306,7 +304,7 @@ class RogueDamageCalculator(DamageCalculator):
         multiplier = self.raid_settings_modifiers('bleed')
         crit_multiplier = self.crit_damage_modifiers()
 
-        tick_damage = (self.garrote_base_dmg + ap * 1 * 0.07) * multiplier
+        tick_damage = (self.garrote_base_dmg + ap * 1 * 0.078) * multiplier
         crit_tick_damage = tick_damage * crit_multiplier
 
         return tick_damage, crit_tick_damage
@@ -315,11 +313,11 @@ class RogueDamageCalculator(DamageCalculator):
         # Assassasin's resolve was tested on melee, poisons, weapon strikes and
         # ap strikes, not bleeds. Although there's no reason to believe it doesn't
         # affect bleeds, I'm setting it to false until some testing is done
-        multiplier = self.talents_modifiers(['executioner'])
+        multiplier = self.get_modifiers(['executioner'])
         multiplier *= self.raid_settings_modifiers('bleed')
         crit_multiplier = self.crit_damage_modifiers()
 
-        ap_multiplier_tuple = (0, .015, .024, .03, .03428571, .0375)
+        ap_multiplier_tuple = (0, .025, .04, .05, .056, .062)
         tick_damage = (self.rup_base_dmg + self.rup_bonus_dmg * cp + ap_multiplier_tuple[cp] * ap) * multiplier
         crit_tick_damage = tick_damage * crit_multiplier
 
@@ -333,22 +331,21 @@ class RogueDamageCalculator(DamageCalculator):
         return tick_damage, crit_tick_damage
 
     def eviscerate_damage(self, ap, cp, armor=None, is_bleeding=True):
-        multiplier = self.talents_modifiers(['executioner', 'assassins_resolve'], is_bleeding=is_bleeding)
+        multiplier = self.get_modifiers(['executioner'], is_bleeding=is_bleeding)
         multiplier *= self.raid_settings_modifiers('physical', armor=armor)
         crit_multiplier = self.crit_damage_modifiers()
 
-        damage = (self.evis_base_dmg + self.evis_bonus_dmg * cp + .091 * cp * ap) * multiplier
+        damage = (self.evis_base_dmg + self.evis_bonus_dmg * cp + .16 * cp * ap) * multiplier
         crit_damage = damage * crit_multiplier
 
         return damage, crit_damage
 
-    def envenom_damage(self, ap, cp, mastery=None, dp_charges=5, is_bleeding=True):
-        multiplier = self.talents_modifiers(['executioner', 'assassins_resolve', 'potent_poisons'],
-                                            mastery=mastery, is_bleeding=is_bleeding)
+    def envenom_damage(self, ap, cp, mastery=None, is_bleeding=True):
+        multiplier = self.get_modifiers(['executioner', 'potent_poisons'], mastery=mastery, is_bleeding=is_bleeding)
         multiplier *= self.raid_settings_modifiers('spell')
         crit_multiplier = self.crit_damage_modifiers()
 
-        damage = (self.env_base_dmg * min(dp_charges, cp) + .09 * cp * ap) * multiplier
+        damage = (self.env_base_dmg * cp + .112 * cp * ap) * multiplier
         crit_damage = damage * crit_multiplier
 
         return damage, crit_damage
