@@ -90,18 +90,7 @@ talents = {
 }
 
 old_talents = frozenset([
-    'deadly_momentum', 'coup_de_grace', 'lethality', 'ruthlessness', 'quickening',
-    'puncturing_wounds', 'blackjack', 'deadly_brew', 'cold_blood', 'vile_poisons',
-    'deadened_nerves', 'seal_fate', 'murderous_intent', 'overkill', 'master_poisoner',
-    'improved_expose_armor', 'cut_to_the_chase', 'venomous_wounds', 'vendetta',
-    'improved_recuperate', 'improved_sinister_strike', 'precision', 'improved_slice_and_dice',
-    'improved_sprint', 'aggression', 'improved_kick', 'lightning_reflexes',
-    'revealing_strike', 'reinforced_leather', 'improved_gouge', 'combat_potency',
-    'blade_twisting', 'throwing_specialization', 'adrenaline_rush', 'savage_combat',
-    'bandits_guile', 'restless_blades', 'killing_spree', 'nightstalker', 
-    'improved_ambush', 'relentless_strikes', 'elusiveness', 'waylay', 'opportunity', 
-    'initiative', 'energetic_recovery', 'find_weakness', 'hemorrhage',
-    'honor_among_thieves', 'premeditation', 'enveloping_shadows', 'cheat_death',
-    'preparation', 'sanguinary_vein', 'slaughter_from_the_shadows',
-    'serrated_blades', 'shadow_dance'
+    'ruthlessness', 'cold_blood', 'overkill',
+    'lightning_reflexes', 'combat_potency', 'bandits_guile',
+    'initiative', 'energetic_recovery',
 ])

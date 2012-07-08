@@ -375,6 +375,14 @@ class DamageCalculator(object):
     def buff_spell_crit(self):
         return self.buffs.buff_spell_crit() + self.buffs.buff_all_crit()
 
+    def crit_damage_modifiers(self, crit_damage_bonus_modifier=1):
+        # The obscure formulae for the different crit enhancers can be found here
+        # http://elitistjerks.com/f31/t13300-shaman_relentless_earthstorm_ele/#post404567
+        base_modifier = 2
+        crit_damage_modifier = self.stats.gear_buffs.metagem_crit_multiplier()
+        total_modifier = 1 + (base_modifier * crit_damage_modifier - 1) * crit_damage_bonus_modifier
+        return total_modifier
+
     def target_armor(self, armor=None):
         # Passes base armor reduced by armor debuffs or overridden armor
         if armor is None:
