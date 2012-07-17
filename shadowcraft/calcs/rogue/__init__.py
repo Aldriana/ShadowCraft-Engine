@@ -71,7 +71,6 @@ class RogueDamageCalculator(DamageCalculator):
             self.env_base_dmg =          self.env_base_dmg_values[self.level]
             self.agi_per_crit =          self.agi_per_crit_values[self.level]
         except KeyError as e:
-            print e
             raise exceptions.InvalidLevelException(_('No {spell_name} formula available for level {level}').format(spell_name=str(e), level=self.level))
 
     def get_weapon_damage_bonus(self):

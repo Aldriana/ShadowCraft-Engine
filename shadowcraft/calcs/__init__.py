@@ -19,9 +19,9 @@ class DamageCalculator(object):
     # If someone wants to have __init__ take a target level as well and use it
     # to initialize these to a level-dependent value, they're welcome to.  At
     # the moment I'm hardcoding them to level 85 values.
-    TARGET_BASE_ARMOR = 11977.
+    TARGET_BASE_ARMOR_VALUES = {88:11977., 93:24835.}
     BASE_ONE_HAND_MISS_RATE = .08
-    BASE_DW_MISS_RATE = .27
+    BASE_DW_MISS_RATE = BASE_ONE_HAND_MISS_RATE + .19
     BASE_SPELL_MISS_RATE = .17
     BASE_DODGE_CHANCE = .065
     BASE_PARRY_CHANCE = .14
@@ -36,7 +36,7 @@ class DamageCalculator(object):
     # normalize_ep_stat is the stat with value 1 EP, override in your subclass
     normalize_ep_stat = None
 
-    def __init__(self, stats, talents, glyphs, buffs, race, settings=None, level=85):
+    def __init__(self, stats, talents, glyphs, buffs, race, settings=None, level=85, target_level=None):
         self.stats = stats
         self.talents = talents
         self.glyphs = glyphs
@@ -44,6 +44,14 @@ class DamageCalculator(object):
         self.race = race
         self.settings = settings
         self.level = level
+        if target_level is None:
+            self.target_level = level + 3
+        else:
+            self.target_level = target_level
+        try:
+            self.target_base_armor = self.TARGET_BASE_ARMOR_VALUES[self.target_level]
+        except KeyError as e:
+            raise exceptions.InvalidInputException(_('There\'s no armor value for a target level {level}').format(level=str(e)))
         if self.stats.gear_buffs.mixology and self.buffs.agi_flask:
             self.stats.agi += 80
         if self.stats.gear_buffs.master_of_anatomy:
@@ -386,7 +394,7 @@ class DamageCalculator(object):
     def target_armor(self, armor=None):
         # Passes base armor reduced by armor debuffs or overridden armor
         if armor is None:
-            armor = self.TARGET_BASE_ARMOR
+            armor = self.target_base_armor
         return self.buffs.armor_reduction_multiplier() * armor
 
     def raid_settings_modifiers(self, attack_kind, armor=None):

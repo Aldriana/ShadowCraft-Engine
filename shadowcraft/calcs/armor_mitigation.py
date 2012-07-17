@@ -3,10 +3,9 @@ from shadowcraft.core.exceptions import InvalidLevelException
 # tiered parameters for use in armor mitigation calculations. first tuple
 # element is the minimum level of the tier. the tuples must be in descending
 # order of minimum level for the lookup to work. parameters taken from
-# http://elitistjerks.com/f15/t29453-combat_ratings_level_85_cataclysm/. it is
-# confirmed that the 81+ ratings are in effect in pre-cata 4.0.1 in
-# http://blue.mmo-champion.com/topic/22463/physical-mitigation-change-intentional
-PARAMETERS = [ (81, 2167.5, 158167.5),
+# http://code.google.com/p/simulationcraft/source/browse/branches/mop/engine/sc_player.cpp#1365
+PARAMETERS = [ (86, 4037.5, 317117.5),
+               (81, 2167.5, 158167.5),
                (60,  467.5,  22167.5),
                ( 1,   85.0,   -400.0) ] # yes, negative 400
 
