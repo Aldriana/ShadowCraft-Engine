@@ -8,6 +8,7 @@ class InvalidTalentException(exceptions.InvalidInputException):
 class Talents(object):
 
     def __init__(self, talent_string, game_class='rogue', level='90'):
+        self.game_class = game_class
         self.old_talents = talents_data.old_talents  # Making sure nothing breaks for a while.
         self.class_talents = talents_data.talents[game_class]
         self.level = level

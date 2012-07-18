@@ -5,6 +5,7 @@ __builtin__._ = gettext.gettext
 
 from shadowcraft.core import exceptions
 from shadowcraft.calcs import armor_mitigation
+from shadowcraft.objects import class_data
 from shadowcraft.objects.procs import InvalidProcException
 
 class DamageCalculator(object):
@@ -43,19 +44,14 @@ class DamageCalculator(object):
         self.buffs = buffs
         self.race = race
         self.settings = settings
+        self.target_level = [target_level, level + 3][target_level is None]
+        self.level_difference = max(self.target_level - level, 0)
         self.level = level
-        if target_level is None:
-            self.target_level = level + 3
-        else:
-            self.target_level = target_level
-        try:
-            self.target_base_armor = self.TARGET_BASE_ARMOR_VALUES[self.target_level]
-        except KeyError as e:
-            raise exceptions.InvalidInputException(_('There\'s no armor value for a target level {level}').format(level=str(e)))
         if self.stats.gear_buffs.mixology and self.buffs.agi_flask:
             self.stats.agi += 80
         if self.stats.gear_buffs.master_of_anatomy:
             self.stats.crit += 80
+        self._set_constants_for_class()
 
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
@@ -74,6 +70,23 @@ class DamageCalculator(object):
         self.race.level = self.level
         # calculate and cache the level-dependent armor mitigation parameter
         self.armor_mitigation_parameter = armor_mitigation.parameter(self.level)
+        # target level dependent constants
+        try:
+            self.target_base_armor = self.TARGET_BASE_ARMOR_VALUES[self.target_level]
+        except KeyError as e:
+            raise exceptions.InvalidInputException(_('There\'s no armor value for a target level {level}').format(level=str(e)))
+        self.melee_crit_reduction = .01 * self.level_difference
+        self.spell_crit_reduction = .01 * self.level_difference
+
+    def _set_constants_for_class(self):
+        # These factors are class-specific. Generaly those go in the class module,
+        # unless it's basic stuff like combat ratings or base stats that we can
+        # datamine for all classess/specs at once.
+        if self.talents.game_class != self.glyphs.game_class:
+            raise exceptions.InvalidInputException(_('You must specify the same class for your talents and glyphs'))
+        tools = class_data.Util()
+        self.game_class = self.talents.game_class
+        self.agi_crit_intercept = tools.get_agi_intercept(self.game_class)
 
     def ep_helper(self, stat):
         if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp', 'mh_dodge_exp', 'oh_dodge_exp', 'mh_parry_exp', 'oh_parry_exp'):

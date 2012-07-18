@@ -3,6 +3,7 @@ from shadowcraft.objects import glyphs_data
 class Glyphs(object):
 
     def __init__(self, game_class='rogue', *args):
+        self.game_class = game_class
         self.allowed_glyphs = glyphs_data.glyphs[game_class]
         for arg in args:
             if arg in self.allowed_glyphs:

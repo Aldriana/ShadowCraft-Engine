@@ -35,9 +35,6 @@ class RogueDamageCalculator(DamageCalculator):
     evis_bonus_dmg_values =       {80:481, 81:488, 82:495, 83:503, 84:510, 85:517, 90:862}
     env_base_dmg_values =         {80:216, 81:221, 82:226, 83:231, 84:236, 85:241, 90:400}
     agi_per_crit_values =         {80:83.15 * 100, 81:109.18 * 100, 82:143.37 * 100, 83:188.34 * 100, 84:247.3 * 100, 85:324.72 * 100, 90:1259.51806640625 * 100}
-    AGI_CRIT_INTERCEPT =          -.00295
-    MELEE_CRIT_REDUCTION =        .03 # 1% * level_diff
-    SPELL_CRIT_REDUCTION =        .03
 
     default_ep_stats = ['white_hit', 'spell_hit', 'yellow_hit', 'str', 'agi', 'haste',
         'crit', 'mastery', 'dodge_exp']
@@ -382,10 +379,10 @@ class RogueDamageCalculator(DamageCalculator):
     def melee_crit_rate(self, agi=None, crit=None):
         if agi == None:
             agi = self.stats.agi
-        base_crit = self.AGI_CRIT_INTERCEPT + agi / self.agi_per_crit
+        base_crit = self.agi_crit_intercept + agi / self.agi_per_crit
         base_crit += self.stats.get_crit_from_rating(crit)
-        return base_crit + self.buffs.buff_all_crit() + self.race.get_racial_crit() - self.MELEE_CRIT_REDUCTION
+        return base_crit + self.buffs.buff_all_crit() + self.race.get_racial_crit() - self.melee_crit_reduction
 
     def spell_crit_rate(self, crit=None):
         base_crit = self.stats.get_crit_from_rating(crit)
-        return base_crit + self.buffs.buff_all_crit() + self.buffs.buff_spell_crit() + self.race.get_racial_crit() - self.SPELL_CRIT_REDUCTION
+        return base_crit + self.buffs.buff_all_crit() + self.buffs.buff_spell_crit() + self.race.get_racial_crit() - self.spell_crit_reduction
