@@ -5,8 +5,8 @@ class Util(object):
 
     GAME_CLASS_NUMBER = {
         1:"warrior", 2:"paladin", 3:"hunter", 4:"rogue", 5:"priest",
-        6:"death_knight", 7:"shaman", 8:"mage", 9:"warlock", 11:"druid"
-    } # monk?
+        6:"death_knight", 7:"shaman", 8:"mage", 9:"warlock", 10:"monk", 11:"druid"
+    } # monk? (Pathal: #10 according to wowhead and armory api)
 
     AGI_CRIT_INTERCEPT_VALUES = [
         0.000000000000000,    0.000000000000000,    0.006519999820739,   -0.015320000238717,   -0.002950000111014,

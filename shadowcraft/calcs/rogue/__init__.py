@@ -15,28 +15,32 @@ class RogueDamageCalculator(DamageCalculator):
     # backstab damage as a function of AP - that (almost) any rogue damage
     # calculator will need to know, so things like that go here.
 
-    # Factors for levels other than 90 haven't been checked.
-    bs_bonus_dmg_values =         {80:310, 81:317, 82:324, 83:331, 84:338, 85:345, 90:1053}
-    dsp_bonus_dmg_values =        {85:1, 90:1340}
-    mut_bonus_dmg_values =        {80:180, 85:201, 90:446}
-    ss_bonus_dmg_values =         {80:180, 81:184, 82:188, 83:192, 84:196, 85:200, 90:388}
-    ambush_bonus_dmg_values =     {80:330, 81:338, 82:345, 83:353, 84:360, 85:368, 90:1000}
-    vw_base_dmg_values =          {80:363, 85:675, 90:1} # Needs testing
-    vw_percentage_dmg_values =    {80:.135, 85:.176, 90:.1} # Needs testing
-    ip_base_dmg_values =          {80:350, 85:352, 90:1} # Secondary effect of DP. Needs testing
-    dp_base_dmg_values =          {80:296, 85:540, 90:1} # Needs testing
-    dp_percentage_dmg_values =    {80:.108, 85:.14, 90:.1} # Needs testing
-    wp_base_dmg_values =          {80:231, 85:276, 90:1} # Needs testing
-    wp_percentage_dmg_values =    {80:.036, 85:.04, 90:.01} # Needs testing
+    # Factors for levels other than 90 haven't been checked. lvl90 values are from SimC
+    bs_bonus_dmg_values =         {80:310, 81:317, 82:324, 83:331, 84:338, 85:345, 90:383}
+    dsp_bonus_dmg_values =        {80:1, 85:345, 90:383}
+    mut_bonus_dmg_values =        {80:180, 85:201, 90:223}
+    ss_bonus_dmg_values =         {80:180, 81:184, 82:188, 83:192, 84:196, 85:200, 90:221}
+    ambush_bonus_dmg_values =     {80:330, 81:338, 82:345, 83:353, 84:360, 85:368, 90:408}
+    vw_base_dmg_values =          {80:363, 85:675, 90:748}
+    vw_percentage_dmg_values =    {80:.135, 85:.176, 90:.168}
+    ip_base_dmg_values =          {80:350, 85:352, 90:390} # 335.479 - 444.704
+    dp_base_dmg_values =          {80:296, 85:540, 90:748}
+    dp_percentage_dmg_values =    {80:.108, 85:.14, 90:.213}
+    wp_base_dmg_values =          {80:231, 85:276, 90:390} # 335.479 - 444.704
+    wp_percentage_dmg_values =    {80:.036, 85:.04, 90:0.09}
     garrote_base_dmg_values =     {80:119, 81:122, 82:125, 83:127, 84:130, 85:133, 90:147}
     rup_base_dmg_values =         {80:127, 81:130, 82:133, 83:136, 84:139, 85:142, 90:231}
     rup_bonus_dmg_values =        {80:18, 81:19, 82:19, 83:19, 84:20, 85:20, 90:32}
     evis_base_dmg_values =        {80:329, 81:334, 82:339, 83:344, 84:349, 85:354, 90:590.5}
     evis_bonus_dmg_values =       {80:481, 81:488, 82:495, 83:503, 84:510, 85:517, 90:862}
+    ct_base_dmg_values =          {80:0, 90:593}
     env_base_dmg_values =         {80:216, 81:221, 82:226, 83:231, 84:236, 85:241, 90:400}
+    fok_base_dmg_values =         {80:1, 90:1246} # 997.039 - 1495.56
+    st_base_dmg_values =          {80:0, 90:1246}
+    gouge_base_dmg_values =       {80:1, 90:130}
     agi_per_crit_values =         {80:83.15 * 100, 81:109.18 * 100, 82:143.37 * 100, 83:188.34 * 100, 84:247.3 * 100, 85:324.72 * 100, 90:1259.51806640625 * 100}
 
-    default_ep_stats = ['white_hit', 'spell_hit', 'yellow_hit', 'str', 'agi', 'haste',
+    default_ep_stats = ['white_hit', 'yellow_hit', 'str', 'agi', 'haste',
         'crit', 'mastery', 'dodge_exp']
     normalize_ep_stat = 'ap'
 
@@ -65,6 +69,10 @@ class RogueDamageCalculator(DamageCalculator):
             self.rup_bonus_dmg =         self.rup_bonus_dmg_values[self.level]
             self.evis_base_dmg =         self.evis_base_dmg_values[self.level]
             self.evis_bonus_dmg =        self.evis_bonus_dmg_values[self.level]
+            self.ct_base_dmg =           self.ct_base_dmg_values[self.level]
+            self.fok_base_dmg =          self.fok_base_dmg_values[self.level]
+            self.st_base_dmg =           self.st_base_dmg_values[self.level]
+            self.gouge_base_dmg =        self.gouge_base_damage_values[self.level]
             self.env_base_dmg =          self.env_base_dmg_values[self.level]
             self.agi_per_crit =          self.agi_per_crit_values[self.level]
         except KeyError as e:
@@ -157,7 +165,7 @@ class RogueDamageCalculator(DamageCalculator):
         mh_weapon_damage = self.get_weapon_damage('mh', ap)
         mult, crit_mult = self.get_modifiers('physical', armor=armor)
 
-        mh_damage = 2. * (mh_weapon_damage + self.mut_bonus_dmg) * mult
+        mh_damage = 2.0 * (mh_weapon_damage + self.mut_bonus_dmg) * mult
         crit_mh_damage = mh_damage * crit_mult
 
         return mh_damage, crit_mh_damage
@@ -166,7 +174,7 @@ class RogueDamageCalculator(DamageCalculator):
         oh_weapon_damage = self.get_weapon_damage('oh', ap)
         mult, crit_mult = self.get_modifiers('physical', armor=armor)
 
-        oh_damage = 2 * (self.oh_penalty() * oh_weapon_damage + self.mut_bonus_dmg) * mult
+        oh_damage = 2.0 * (self.oh_penalty() * oh_weapon_damage + self.mut_bonus_dmg) * mult
         crit_oh_damage = oh_damage * crit_mult
 
         return oh_damage, crit_oh_damage
@@ -196,19 +204,19 @@ class RogueDamageCalculator(DamageCalculator):
         hemo_damage = self.hemorrhage_damage(ap, armor=armor)[from_crit_hemo]
         mult, crit_mult = self.get_modifiers('bleed')
 
-        tick_conversion_factor = .4 / 8
+        tick_conversion_factor = .5 / 8
         tick_damage = hemo_damage * mult * tick_conversion_factor
-        crit_tick_damage = tick_damage * crit_mult
 
-        return tick_damage, crit_tick_damage
+        return tick_damage, tick_damage #can't crit in 5.0 anymore, the lazy solution
 
     def ambush_damage(self, ap, armor=None, is_bleeding=True):
+        #TODO clean up
         weapon_damage = self.get_weapon_damage('mh', ap)
         mult, crit_mult = self.get_modifiers('physical', armor=armor, is_bleeding=is_bleeding)
 
         dagger_bonus = [1, 1.447][self.stats.mh.type == 'dagger']
         percentage_damage_bonus = 2.45 * dagger_bonus
-        bonus_dmg = self.ambush_bonus_dmg * dagger_bonus
+        bonus_dmg = self.ambush_bonus_dmg * dagger_bonus #dead code?
 
         damage = percentage_damage_bonus * (weapon_damage + self.ambush_bonus_dmg) * mult
         crit_damage = damage * crit_mult
@@ -355,26 +363,69 @@ class RogueDamageCalculator(DamageCalculator):
         return damage, crit_damage
 
     def fan_of_knives_damage(self, ap, is_bleeding=True):
-        # TODO
-        pass
+        mult, crit_mult = self.get_modifiers('physical', is_bleeding=is_bleeding)
+        
+        damage = (self.fok_base_dmg + .14 * ap) * mult
+        crit_damage = damage * crit_mult
+        
+        return damage, crit_damage
 
-    def crimson_tempest_damage(self, ap, cp, mastery=None, is_bleeding=True):
-        # TODO
-        pass
+    def crimson_tempest_damage(self, ap, cp, armor=None, mastery=None, is_bleeding=True):
+        # TODO this doesn't look right
+        mult, crit_mult = self.get_modifiers('physical', 'executioner', is_bleeding=is_bleeding)
+        
+        damage = (self.ct_base_dmg + .0275 * cp * ap) * mult
+        crit_damage = damage * crit_mult
+        
+        return damage, crit_damage
 
-    def shiv_damage(self, ap, is_bleeding=True):
-        pass
+    def crimson_tempest_tick_damage(self, ap, cp, armor=None):
+        ct_damage = self.crimson_tempest_damage(ap, armor=armor)
+        mult, crit_mult = self.get_modifiers('bleed', is_bleeding=True)
+
+        tick_conversion_factor = .3 / 6
+        tick_damage = ct_damage * mult * tick_conversion_factor
+
+        return tick_damage, tick_damage
+
+    def shiv_damage(self, ap, armor=None, is_bleeding=True):
+        # TODO this doesn't look right
+        oh_weapon_damage = self.get_weapon_damage('oh', ap)
+        mult, crit_mult = self.get_modifiers('physical')
+
+        oh_damage = .25 * (self.oh_penalty() * oh_weapon_damage) * mult
+        crit_oh_damage = oh_damage * crit_mult
+
+        return oh_damage, crit_oh_damage
 
     def throw_damage(self, ap, is_bleeding=True):
-        if self.talents.shuriken_toss:
-            return self.shuriken_toss_damage(ap, is_bleeding=is_bleeding)
-        pass
+        mult, crit_mult = self.get_modifiers('physical', is_bleeding=is_bleeding)
+        
+        damage = (249.2595 + .05 * ap) * mult
+        crit_damage = damage * crit_mult
+        
+        return damage, crit_damage
+        # this can't be right
+        #if self.talents.shuriken_toss:
+        #    return self.shuriken_toss_damage(ap, is_bleeding=is_bleeding)
 
     def shuriken_toss_damage(self, ap, is_bleeding=True):
-        pass
+        # TODO verify data
+        mult, crit_mult = self.get_modifiers('physical', is_bleeding=is_bleeding)
+        
+        damage = (self.st_base_dmg + .3 * ap) * mult
+        crit_damage = damage * crit_mult
+        
+        return damage, crit_damage
 
     def gouge_damage(self, ap, is_bleeding=True):
-        pass
+        # TODO verify data
+        mult, crit_mult = self.get_modifiers('physical', is_bleeding=is_bleeding)
+        
+        damage = (self.gouge_base_dmg + .21 * ap) * mult
+        crit_damage = damage * crit_mult
+        
+        return damage, crit_damage
 
     def melee_crit_rate(self, agi=None, crit=None):
         if agi == None:
