@@ -225,7 +225,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def revealing_strike_damage(self, ap, armor=None):
         weapon_damage = self.get_weapon_damage('mh', ap, is_normalized=False)
-        mult, crit_mult = self.get_modifiers('physical', armor=armor)
+        mult, crit_mult = self.get_modifiers('physical', armor)
 
         damage = 1.5 * weapon_damage * mult
         crit_damage = damage * crit_mult
@@ -233,7 +233,7 @@ class RogueDamageCalculator(DamageCalculator):
         return damage, crit_damage
 
     def venomous_wounds_damage(self, ap, mastery=None):
-        mult, crit_mult = self.get_modifiers('spell', 'potent_poisons', mastery=mastery)
+        mult, crit_mult = self.get_modifiers('spell', 'potent_poisons', mastery)
 
         damage = (self.vw_base_dmg + self.vw_percentage_dmg * ap) * mult
         crit_damage = damage * crit_mult
@@ -242,7 +242,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def main_gauche_damage(self, ap, armor=None):
         weapon_damage = self.get_weapon_damage('mh', ap)
-        mult, crit_mult = self.get_modifiers('physical', armor=armor)
+        mult, crit_mult = self.get_modifiers('physical', armor)
 
         damage = 1.2 * weapon_damage * mult
         crit_damage = damage * crit_mult
@@ -251,7 +251,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def mh_killing_spree_damage(self, ap, armor=None):
         mh_weapon_damage = self.get_weapon_damage('mh', ap)
-        mult, crit_mult = self.get_modifiers('physical', armor=armor)
+        mult, crit_mult = self.get_modifiers('physical', armor)
 
         mh_damage = mh_weapon_damage * mult
         crit_mh_damage = mh_damage * crit_mult
@@ -260,7 +260,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def oh_killing_spree_damage(self, ap, armor=None):
         oh_weapon_damage = self.get_weapon_damage('oh', ap)
-        mult, crit_mult = self.get_modifiers('physical', armor=armor)
+        mult, crit_mult = self.get_modifiers('physical', armor)
 
         oh_damage = self.oh_penalty() * oh_weapon_damage * mult
         crit_oh_damage = oh_damage * crit_mult
@@ -270,7 +270,7 @@ class RogueDamageCalculator(DamageCalculator):
     def mh_shadow_blades_damage(self, ap, is_bleeding=True):
         # TODO: normalized? percentage modifier? confirmed master poisoner stacks.
         mh_weapon_damage = self.get_weapon_damage('mh', ap)
-        mult, crit_mult = self.get_modifiers('spell', is_bleeding=is_bleeding)
+        mult, crit_mult = self.get_modifiers('spell', is_bleeding)
 
         mh_damage = mh_weapon_damage * mult
         crit_mh_damage = mh_damage * crit_mult
@@ -280,7 +280,7 @@ class RogueDamageCalculator(DamageCalculator):
     def oh_shadow_blades_damage(self, ap, is_bleeding=True):
         # TODO
         oh_weapon_damage = self.get_weapon_damage('oh', ap)
-        mult, crit_mult = self.get_modifiers('spell', is_bleeding=is_bleeding)
+        mult, crit_mult = self.get_modifiers('spell', is_bleeding)
 
         oh_damage = oh_weapon_damage * mult
         crit_mh_damage = oh_damage * crit_mult
@@ -289,7 +289,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def instant_poison_damage(self, ap, mastery=None, is_bleeding=True):
         # Deprecated
-        mult, crit_mult = self.get_modifiers('spell', 'potent_poisons', mastery=mastery, is_bleeding=is_bleeding)
+        mult, crit_mult = self.get_modifiers('spell', 'potent_poisons', mastery, is_bleeding)
 
         damage = (self.ip_base_dmg + 0.09 * ap) * mult
         crit_damage = damage * crit_mult
@@ -297,7 +297,7 @@ class RogueDamageCalculator(DamageCalculator):
         return damage, crit_damage
 
     def deadly_poison_tick_damage(self, ap, mastery=None, is_bleeding=True):
-        mult, crit_mult = self.get_modifiers('spell', 'potent_poisons', mastery=mastery, is_bleeding=is_bleeding)
+        mult, crit_mult = self.get_modifiers('spell', 'potent_poisons', mastery, is_bleeding)
 
         # doesn't have charges
         tick_damage = ((self.dp_base_dmg + self.dp_percentage_dmg * ap) * 1.25) * mult
@@ -310,7 +310,7 @@ class RogueDamageCalculator(DamageCalculator):
         return damage, crit_damage
 
     def wound_poison_damage(self, ap, mastery=None, is_bleeding=True):
-        mult, crit_mult = self.get_modifiers('spell', 'potent_poisons', mastery=mastery, is_bleeding=is_bleeding)
+        mult, crit_mult = self.get_modifiers('spell', 'potent_poisons', mastery, is_bleeding)
 
         damage = (self.wp_base_dmg + self.wp_percentage_dmg * ap) * mult
         crit_damage = damage * crit_mult
@@ -346,11 +346,11 @@ class RogueDamageCalculator(DamageCalculator):
 
         damage = (self.evis_base_dmg + self.evis_bonus_dmg * cp + .16 * cp * ap) * mult
         crit_damage = damage * crit_mult
-
+        
         return damage, crit_damage
 
     def envenom_damage(self, ap, cp, mastery=None):
-        mult, crit_mult = self.get_modifiers('spell', 'executioner', 'potent_poisons', mastery=mastery)
+        mult, crit_mult = self.get_modifiers('spell', 'executioner', 'potent_poisons', mastery)
 
         damage = (self.env_base_dmg * cp + .112 * cp * ap) * mult
         crit_damage = damage * crit_mult
@@ -386,7 +386,7 @@ class RogueDamageCalculator(DamageCalculator):
     def shiv_damage(self, ap, armor=None, is_bleeding=True):
         # TODO this doesn't look right
         oh_weapon_damage = self.get_weapon_damage('oh', ap)
-        mult, crit_mult = self.get_modifiers('physical')
+        mult, crit_mult = self.get_modifiers('physical', armor)
 
         oh_damage = .25 * (self.oh_penalty() * oh_weapon_damage) * mult
         crit_oh_damage = oh_damage * crit_mult
@@ -394,7 +394,7 @@ class RogueDamageCalculator(DamageCalculator):
         return oh_damage, crit_oh_damage
 
     def throw_damage(self, ap, is_bleeding=True):
-        mult, crit_mult = self.get_modifiers('physical', is_bleeding=is_bleeding)
+        mult, crit_mult = self.get_modifiers('physical', is_bleeding)
         
         damage = (249.2595 + .05 * ap) * mult
         crit_damage = damage * crit_mult
@@ -406,7 +406,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def shuriken_toss_damage(self, ap, is_bleeding=True):
         # TODO verify data
-        mult, crit_mult = self.get_modifiers('physical', is_bleeding=is_bleeding)
+        mult, crit_mult = self.get_modifiers('physical', is_bleeding)
         
         damage = (self.st_base_dmg + .3 * ap) * mult
         crit_damage = damage * crit_mult
@@ -415,7 +415,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def gouge_damage(self, ap, is_bleeding=True):
         # TODO verify data
-        mult, crit_mult = self.get_modifiers('physical', is_bleeding=is_bleeding)
+        mult, crit_mult = self.get_modifiers('physical', is_bleeding)
         
         damage = (self.gouge_base_dmg + .21 * ap) * mult
         crit_damage = damage * crit_mult
