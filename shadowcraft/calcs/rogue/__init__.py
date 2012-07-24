@@ -72,7 +72,7 @@ class RogueDamageCalculator(DamageCalculator):
             self.ct_base_dmg =           self.ct_base_dmg_values[self.level]
             self.fok_base_dmg =          self.fok_base_dmg_values[self.level]
             self.st_base_dmg =           self.st_base_dmg_values[self.level]
-            self.gouge_base_dmg =        self.gouge_base_damage_values[self.level]
+            self.gouge_base_dmg =        self.gouge_base_dmg_values[self.level]
             self.env_base_dmg =          self.env_base_dmg_values[self.level]
             self.agi_per_crit =          self.agi_per_crit_values[self.level]
         except KeyError as e:
@@ -306,12 +306,7 @@ class RogueDamageCalculator(DamageCalculator):
         return tick_damage, crit_tick_damage
 
     def deadly_instant_poison_damage(self, ap, mastery=None, is_bleeding=True):
-        # TODO http://www.wowdb.com/spells/113780-deadly-poison
-        mult, crit_mult = self.get_modifiers('spell', 'potent_poisons', mastery=mastery, is_bleeding=is_bleeding)
-
-        damage = None
-        crit_damage = damage * crit_mult
-
+        damage, crit_damage = self.wound_poison_damage(ap, mastery, is_bleeding)
         return damage, crit_damage
 
     def wound_poison_damage(self, ap, mastery=None, is_bleeding=True):
@@ -330,8 +325,8 @@ class RogueDamageCalculator(DamageCalculator):
 
         return tick_damage, crit_tick_damage
 
-    def rupture_tick_damage(self, ap, cp):
-        mult, crit_mult = self.get_modifiers('bleed', 'executioner')
+    def rupture_tick_damage(self, ap, cp, mastery=None):
+        mult, crit_mult = self.get_modifiers('bleed', 'executioner', mastery)
 
         ap_multiplier_tuple = (0, .025, .04, .05, .056, .062)
         tick_damage = (self.rup_base_dmg + self.rup_bonus_dmg * cp + ap_multiplier_tuple[cp] * ap) * mult
@@ -346,8 +341,8 @@ class RogueDamageCalculator(DamageCalculator):
 
         return tick_damage, crit_tick_damage
 
-    def eviscerate_damage(self, ap, cp, armor=None, is_bleeding=True):
-        mult, crit_mult = self.get_modifiers('physical', 'executioner', is_bleeding=is_bleeding)
+    def eviscerate_damage(self, ap, cp, armor=None, mastery=None, is_bleeding=True):
+        mult, crit_mult = self.get_modifiers('physical', 'executioner', mastery, armor, is_bleeding)
 
         damage = (self.evis_base_dmg + self.evis_bonus_dmg * cp + .16 * cp * ap) * mult
         crit_damage = damage * crit_mult
@@ -362,8 +357,8 @@ class RogueDamageCalculator(DamageCalculator):
 
         return damage, crit_damage
 
-    def fan_of_knives_damage(self, ap, is_bleeding=True):
-        mult, crit_mult = self.get_modifiers('physical', is_bleeding=is_bleeding)
+    def fan_of_knives_damage(self, ap, armor=None, is_bleeding=True):
+        mult, crit_mult = self.get_modifiers('physical', armor, is_bleeding)
         
         damage = (self.fok_base_dmg + .14 * ap) * mult
         crit_damage = damage * crit_mult
@@ -372,15 +367,15 @@ class RogueDamageCalculator(DamageCalculator):
 
     def crimson_tempest_damage(self, ap, cp, armor=None, mastery=None, is_bleeding=True):
         # TODO this doesn't look right
-        mult, crit_mult = self.get_modifiers('physical', 'executioner', is_bleeding=is_bleeding)
+        mult, crit_mult = self.get_modifiers('physical', 'executioner', mastery, armor, is_bleeding)
         
         damage = (self.ct_base_dmg + .0275 * cp * ap) * mult
         crit_damage = damage * crit_mult
         
         return damage, crit_damage
 
-    def crimson_tempest_tick_damage(self, ap, cp, armor=None):
-        ct_damage = self.crimson_tempest_damage(ap, armor=armor)
+    def crimson_tempest_tick_damage(self, ap, cp, armor=None, mastery=None, is_bleeding=True, from_crit_ct=False):
+        ct_damage = self.crimson_tempest_damage(ap, cp, armor, mastery, is_bleeding)[from_crit_ct]
         mult, crit_mult = self.get_modifiers('bleed', is_bleeding=True)
 
         tick_conversion_factor = .3 / 6
