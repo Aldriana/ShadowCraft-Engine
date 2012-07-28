@@ -60,7 +60,7 @@ talents = {
         ('deadly_throw', 'nerve_strike', 'combat_readiness'),
         ('cheat_death', 'leeching_poison', 'elusiveness'),
         ('preparation', 'shadowstep', 'burst_of_speed'),
-        ('deadly_brew', 'paralytic_poison', 'dirty_tricks'),
+        ('prey_on_the_weak', 'paralytic_poison', 'dirty_tricks'),
         ('shuriken_toss', 'versatility', 'anticipation')
     ),
     'shaman': (
@@ -88,9 +88,3 @@ talents = {
         ('avatar', 'bloodbath', 'storm_bolt')
     ),
 }
-
-old_talents = frozenset([
-    'ruthlessness', 'cold_blood', 'overkill',
-    'lightning_reflexes', 'combat_potency', 'bandits_guile',
-    'initiative', 'energetic_recovery',
-])

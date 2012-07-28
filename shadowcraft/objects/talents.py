@@ -9,7 +9,6 @@ class Talents(object):
 
     def __init__(self, talent_string, game_class='rogue', level='90'):
         self.game_class = game_class
-        self.old_talents = talents_data.old_talents  # Making sure nothing breaks for a while.
         self.class_talents = talents_data.talents[game_class]
         self.level = level
         self.allowed_talents = [talent for tier in self.class_talents for talent in tier]
@@ -24,9 +23,6 @@ class Talents(object):
         # string was shorter than 6) we return False
         if name in self.allowed_talents:
             return False
-        # TODO: get rid of all old talent calls in the modeler.
-        elif name in self.old_talents:
-            return 0
         object.__getattribute__(self, name)
 
     def get_allowed_talents_for_level(self):
