@@ -38,6 +38,7 @@ class DamageCalculator(object):
     normalize_ep_stat = None
 
     def __init__(self, stats, talents, glyphs, buffs, race, settings=None, level=85, target_level=None):
+        self.tools = class_data.Util()
         self.stats = stats
         self.talents = talents
         self.glyphs = glyphs
@@ -81,12 +82,11 @@ class DamageCalculator(object):
     def _set_constants_for_class(self):
         # These factors are class-specific. Generaly those go in the class module,
         # unless it's basic stuff like combat ratings or base stats that we can
-        # datamine for all classess/specs at once.
+        # datamine for all classes/specs at once.
         if self.talents.game_class != self.glyphs.game_class:
             raise exceptions.InvalidInputException(_('You must specify the same class for your talents and glyphs'))
-        tools = class_data.Util()
         self.game_class = self.talents.game_class
-        self.agi_crit_intercept = tools.get_agi_intercept(self.game_class)
+        self.agi_crit_intercept = self.tools.get_agi_intercept(self.game_class)
 
     def ep_helper(self, stat):
         if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp', 'mh_dodge_exp', 'oh_dodge_exp', 'mh_parry_exp', 'oh_parry_exp'):
