@@ -44,7 +44,6 @@ class RogueDamageCalculator(DamageCalculator):
         self.mut_bonus_dmg =    round(0.1790000051 * spell_scaling) # spell effect id: 1920, 17065
         self.ss_bonus_dmg =     round(0.1780000031 * spell_scaling) # spell effect id: 535
         self.ambush_bonus_dmg = round(0.3269999921 * spell_scaling) # spell effect id: 3612
-        self.ip_base_dmg =      round(0.3129999936 * spell_scaling) # wound poison
         self.dp_base_dmg =      round(0.6000000238 * spell_scaling) # spell effect id: 853
         self.wp_base_dmg =      round(0.3129999936 * spell_scaling) # spell effect id: 3617
         self.garrote_base_dmg = round(0.1180000007 * spell_scaling) # spell effect id: 280
@@ -274,15 +273,6 @@ class RogueDamageCalculator(DamageCalculator):
 
         return oh_damage, crit_oh_damage
 
-    def instant_poison_damage(self, ap, mastery=None, is_bleeding=True):
-        # Deprecated
-        mult, crit_mult = self.get_modifiers('spell', 'potent_poisons', mastery=mastery, is_bleeding=is_bleeding)
-
-        damage = (self.ip_base_dmg + 0.09 * ap) * mult
-        crit_damage = damage * crit_mult
-
-        return damage, crit_damage
-
     def deadly_poison_tick_damage(self, ap, mastery=None, is_bleeding=True):
         mult, crit_mult = self.get_modifiers('spell', 'potent_poisons', mastery=mastery, is_bleeding=is_bleeding)
 
@@ -397,6 +387,22 @@ class RogueDamageCalculator(DamageCalculator):
         crit_damage = damage * crit_mult
         
         return damage, crit_damage
+
+    def get_formula(self, name):
+        # TODO: Not finished
+        formulas = {
+            'backstab':              self.backstab_damage,
+            'hemorrhage':            self.hemorrhage_damage,
+            'sinister_strike':       self.sinister_strike_damage,
+            'revealing_strike':      self.revealing_strike_damage,
+            'main_gauche':           self.main_gauche_damage,
+            'ambush':                self.ambush_damage,
+            'venomous_wounds':       self.venomous_wounds_damage,
+            'deadly_poison':         self.deadly_poison_tick_damage,
+            'wound_poison':          self.wound_poison_damage,
+            'deadly_instant_poison': self.deadly_instant_poison_damage
+        }
+        return formulas[name]
 
     def melee_crit_rate(self, agi=None, crit=None):
         if agi == None:

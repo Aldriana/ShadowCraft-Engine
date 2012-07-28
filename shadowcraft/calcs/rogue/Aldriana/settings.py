@@ -1,14 +1,20 @@
+from shadowcraft.core import exceptions
+
 class Settings(object):
     # Settings object for AldrianasRogueDamageCalculator.
 
-    def __init__(self, cycle, time_in_execute_range=.35, tricks_on_cooldown=True, response_time=.5, mh_poison='ip', oh_poison='dp', duration=300):
+    def __init__(self, cycle, time_in_execute_range=.35, tricks_on_cooldown=True, response_time=.5, dmg_poison='dp', utl_poison=None, duration=300):
         self.cycle = cycle
         self.time_in_execute_range = time_in_execute_range
         self.tricks_on_cooldown = tricks_on_cooldown
         self.response_time = response_time
-        self.mh_poison = mh_poison
-        self.oh_poison = oh_poison
+        self.dmg_poison = dmg_poison
+        self.utl_poison = utl_poison
         self.duration = duration
+        if dmg_poison not in (None, 'dp', 'wp'):
+            raise exceptions.InvalidInputException(_('You can only choose Deadly(dp) or Wound(wp) as a damage poison'))
+        if utl_poison not in (None, 'cp', 'mnp', 'lp', 'pp'):
+            raise exceptions.InvalidInputException(_('You can only choose Crippling(cp), Mind-Numbing(mnp), Leeching(lp) or Paralytic(pp) as a non-lethal poison'))
 
 
 class Cycle(object):

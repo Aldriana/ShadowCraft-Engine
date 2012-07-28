@@ -305,23 +305,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 munch_per_sec = attacks_per_second['mutilate'] * p_double_crit
                 damage_breakdown['mut_munch'] = 0, munch_per_sec * mh_dmg[1]
 
-        if 'hemorrhage' in attacks_per_second:
-            damage_breakdown['hemorrhage'] = self.get_dps_contribution(self.hemorrhage_damage(average_ap), crit_rates['hemorrhage'], attacks_per_second['hemorrhage'])
+        for strike in ('hemorrhage', 'backstab', 'sinister_strike', 'revealing_strike', 'main_gauche', 'ambush'):
+            if strike in attacks_per_second.keys():
+                damage_breakdown[strike] = self.get_dps_contribution(self.get_formula(strike)(average_ap), crit_rates[strike], attacks_per_second[strike])
 
-        if 'backstab' in attacks_per_second:
-            damage_breakdown['backstab'] = self.get_dps_contribution(self.backstab_damage(average_ap), crit_rates['backstab'], attacks_per_second['backstab'])
-
-        if 'sinister_strike' in attacks_per_second:
-            damage_breakdown['sinister_strike'] = self.get_dps_contribution(self.sinister_strike_damage(average_ap), crit_rates['sinister_strike'], attacks_per_second['sinister_strike'])
-
-        if 'revealing_strike' in attacks_per_second:
-            damage_breakdown['revealing_strike'] = self.get_dps_contribution(self.revealing_strike_damage(average_ap), crit_rates['revealing_strike'], attacks_per_second['revealing_strike'])
-
-        if 'main_gauche' in attacks_per_second:
-            damage_breakdown['main_gauche'] = self.get_dps_contribution(self.main_gauche_damage(average_ap), crit_rates['main_gauche'], attacks_per_second['main_gauche'])
-
-        if 'ambush' in attacks_per_second:
-            damage_breakdown['ambush'] = self.get_dps_contribution(self.ambush_damage(average_ap), crit_rates['ambush'], attacks_per_second['ambush'])
+        for poison in ('venomous_wounds', 'deadly_poison', 'wound_poison', 'deadly_instant_poison'):
+            if poison in attacks_per_second.keys():
+                damage_breakdown[poison] = self.get_dps_contribution(self.get_formula(poison)(average_ap, mastery=current_stats['mastery']), crit_rates[poison], attacks_per_second[poison])
 
         if 'mh_killing_spree' in attacks_per_second:
             mh_dmg = self.mh_killing_spree_damage(average_ap)
@@ -360,21 +350,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 average_dps += dps_tuple[0]
                 crit_dps += dps_tuple[1]
             damage_breakdown['eviscerate'] = average_dps, crit_dps
-
-        if 'venomous_wounds' in attacks_per_second:
-            damage_breakdown['venomous_wounds'] = self.get_dps_contribution(self.venomous_wounds_damage(average_ap, mastery=current_stats['mastery']), crit_rates['venomous_wounds'], attacks_per_second['venomous_wounds'])
-
-        if 'instant_poison' in attacks_per_second:
-            damage_breakdown['instant_poison'] = self.get_dps_contribution(self.instant_poison_damage(average_ap, mastery=current_stats['mastery']), crit_rates['instant_poison'], attacks_per_second['instant_poison'])
-
-        if 'deadly_poison' in attacks_per_second:
-            damage_breakdown['deadly_poison'] = self.get_dps_contribution(self.deadly_poison_tick_damage(average_ap, mastery=current_stats['mastery']), crit_rates['deadly_poison'], attacks_per_second['deadly_poison'])
-
-        if 'wound_poison' in attacks_per_second:
-            damage_breakdown['wound_poison'] = self.get_dps_contribution(self.wound_poison_damage(average_ap, mastery=current_stats['mastery']), crit_rates['wound_poison'], attacks_per_second['wound_poison'])
-
-        if 'deadly_instant_poison' in attacks_per_second:
-            damage_breakdown['deadly_instant_poison'] = self.get_dps_contribution(self.wound_poison_damage(average_ap, mastery=current_stats['mastery']), crit_rates['deadly_instant_poison'], attacks_per_second['deadly_instant_poison'])
 
         if 'hemorrhage_ticks' in attacks_per_second:
             dps_from_hit_hemo = self.get_dps_contribution(self.hemorrhage_tick_damage(average_ap, from_crit_hemo=False), crit_rates['hemorrhage'], attacks_per_second['hemorrhage_ticks'] * (1 - crit_rates['hemorrhage']))
@@ -600,38 +575,12 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             if proc:
                 setattr(proc, 'mh_only', True)
 
-    def get_poison_counts(self, total_mh_hits, total_oh_hits, attacks_per_second):
-        if self.settings.mh_poison == 'dp' or self.settings.oh_poison == 'dp':
+    def get_poison_counts(self, total_hits, attacks_per_second):
+        if self.settings.dmg_poison == 'dp':
             attacks_per_second['deadly_poison'] = 1. / 3
-
-        if self.settings.mh_poison == 'ip':
-            mh_proc_rate = self.stats.mh.speed / 7.
-        elif self.settings.mh_poison == 'wp':
-            mh_proc_rate = self.stats.mh.speed / 2.8
-        else: # Deadly Poison
-            mh_proc_rate = .3
-
-        if self.settings.oh_poison == 'ip':
-            oh_proc_rate = self.stats.oh.speed / 7.
-        elif self.settings.oh_poison == 'wp':
-            oh_proc_rate = self.stats.oh.speed / 2.8
-        else: # Deadly Poison
-            oh_proc_rate = .3
-
-        mh_poison_procs = total_mh_hits * mh_proc_rate * self.spell_hit_chance()
-        oh_poison_procs = total_oh_hits * oh_proc_rate * self.spell_hit_chance()
-
-        poison_setup = ''.join((self.settings.mh_poison, self.settings.oh_poison))
-        if poison_setup in ['ipip', 'ipdp', 'dpip']:
-            attacks_per_second['instant_poison'] = mh_poison_procs + oh_poison_procs
-        elif poison_setup in ['wpwp', 'wpdp', 'dpwp']:
-            attacks_per_second['wound_poison'] = mh_poison_procs + oh_poison_procs
-        elif poison_setup == 'ipwp':
-            attacks_per_second['instant_poison'] = mh_poison_procs
-            attacks_per_second['wound_poison'] = oh_poison_procs
-        elif poison_setup == 'wpip':
-            attacks_per_second['wound_poison'] = mh_poison_procs
-            attacks_per_second['instant_poison'] = oh_poison_procs
+            attacks_per_second['deadly_instant_poison'] = total_hits * .3 * self.strike_hit_chance
+        elif self.settings.dmg_poison == 'wp':
+            attacks_per_second['wound_poison'] = total_hits * .3 * self.strike_hit_chance
 
     def compute_damage(self, attack_counts_function):
         # TODO: Crit cap
@@ -757,9 +706,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             raise InputNotModeledException(_('You must specify an assassination cycle to match your assassination spec.'))
         if self.stats.mh.type != 'dagger' or self.stats.oh.type != 'dagger':
             raise InputNotModeledException(_('Assassination modeling requires daggers in both hands'))
-
-        if ''.join((self.settings.mh_poison, self.settings.oh_poison)) not in ('ipdp', 'dpip'):
-            raise InputNotModeledException(_('Assassination modeling requires instant poison on one weapon and deadly on the other'))
+        if self.settings.dmg_poison != 'dp':
+            raise InputNotModeledException(_('Assassination modeling requires deadly poison'))
 
         self.set_constants()
 
@@ -858,9 +806,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             cpg: cpg_crit_rate,
             'envenom': base_melee_crit_rate,
             'rupture_ticks': base_melee_crit_rate,
-            'venomous_wounds': base_spell_crit_rate,
-            'instant_poison': base_spell_crit_rate,
-            'deadly_poison': base_spell_crit_rate,
+            'venomous_wounds': base_melee_crit_rate,
+            'deadly_instant_poison': base_melee_crit_rate,
+            'deadly_poison': base_melee_crit_rate,
             'garrote': base_melee_crit_rate
         }
 
@@ -931,29 +879,17 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         total_oh_hits_per_second = attacks_per_second['oh_autoattack_hits']
         if cpg == 'mutilate':
             total_oh_hits_per_second += attacks_per_second[cpg]
+        total_hits_per_second = total_mh_hits_per_second + total_oh_hits_per_second
 
-        if self.settings.mh_poison == 'ip':
-            ip_base_proc_rate = .3 * self.stats.mh.speed / 1.4
-        else:
-            ip_base_proc_rate = .3 * self.stats.oh.speed / 1.4
-
-        ip_envenom_proc_rate = ip_base_proc_rate * 1.5
-
-        dp_base_proc_rate = .5
+        dp_base_proc_rate = .3
         dp_envenom_proc_rate = dp_base_proc_rate + .15
 
         envenom_uptime = min(sum([(1 / self.strike_hit_chance + cps) * attacks_per_second['envenom'][cps] for cps in xrange(1,6)]), 1)
-        avg_ip_proc_rate = ip_base_proc_rate * (1 - envenom_uptime) + ip_envenom_proc_rate * envenom_uptime
         avg_dp_proc_rate = dp_base_proc_rate * (1 - envenom_uptime) + dp_envenom_proc_rate * envenom_uptime
 
-        if self.settings.mh_poison == 'ip':
-            mh_poison_procs = avg_ip_proc_rate * total_mh_hits_per_second
-            oh_poison_procs = avg_dp_proc_rate * total_oh_hits_per_second
-        else:
-            mh_poison_procs = avg_dp_proc_rate * total_mh_hits_per_second
-            oh_poison_procs = avg_ip_proc_rate * total_oh_hits_per_second
+        poison_procs = avg_dp_proc_rate * total_hits_per_second
 
-        attacks_per_second['instant_poison'] = (mh_poison_procs + oh_poison_procs) * self.spell_hit_chance()
+        attacks_per_second['deadly_instant_poison'] = poison_procs * self.strike_hit_chance
         attacks_per_second['deadly_poison'] = 1. / 3
 
         return attacks_per_second, crit_rates
@@ -1049,9 +985,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'oh_killing_spree': base_melee_crit_rate,
             'mh_killing_spree': base_melee_crit_rate,
             'rupture_ticks': base_melee_crit_rate,
-            'instant_poison': base_spell_crit_rate,
-            'deadly_poison': base_spell_crit_rate,
-            'wound_poison': base_spell_crit_rate
+            'deadly_instant_poison': base_melee_crit_rate,
+            'deadly_poison': base_melee_crit_rate,
+            'wound_poison': base_melee_crit_rate
         }
 
         extra_cp_chance = 0 #TODO: the glyph of SS is now baked into RvS
@@ -1184,7 +1120,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         total_mh_hits = attacks_per_second['mh_autoattack_hits'] + attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'] + attacks_per_second['mh_killing_spree'] + attacks_per_second['rupture'] + total_evis_per_second + attacks_per_second['main_gauche']
         total_oh_hits = attacks_per_second['oh_autoattack_hits'] + attacks_per_second['oh_killing_spree']
 
-        self.get_poison_counts(total_mh_hits, total_oh_hits, attacks_per_second)
+        self.get_poison_counts(total_mh_hits + total_oh_hits, attacks_per_second)
 
         return attacks_per_second, crit_rates
 
@@ -1273,9 +1209,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'ambush': ambush_crit_rate,
             'hemorrhage': base_melee_crit_rate,
             'rupture_ticks': base_melee_crit_rate,
-            'instant_poison': base_spell_crit_rate,
-            'deadly_poison': base_spell_crit_rate,
-            'wound_poison': base_spell_crit_rate
+            'deadly_instant_poison': base_melee_crit_rate,
+            'deadly_poison': base_melee_crit_rate,
+            'wound_poison': base_melee_crit_rate
         }
 
         backstab_energy_cost = self.base_backstab_energy_cost
@@ -1403,7 +1339,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         total_mh_hits = attacks_per_second['mh_autoattack_hits'] + attacks_per_second['cp_builder'] + sum(attacks_per_second['eviscerate']) + attacks_per_second['ambush']
         total_oh_hits = attacks_per_second['oh_autoattack_hits']
 
-        self.get_poison_counts(total_mh_hits, total_oh_hits, attacks_per_second)
+        self.get_poison_counts(total_mh_hits + total_oh_hits, attacks_per_second)
 
         if self.settings.cycle.use_hemorrhage == 'always':
             attacks_per_second['hemorrhage'] = attacks_per_second['cp_builder']
