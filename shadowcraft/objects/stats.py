@@ -16,7 +16,7 @@ class Stats(object):
     haste_rating_conversion_values = {60:10.0, 70:15.7692, 80:32.79, 85:128.057, 90:425.0}
     mastery_rating_conversion_values = {60:14, 70:22.0769, 80:45.906, 85:179.28, 90:600.0}
 
-    def __init__(self, str, agi, ap, crit, hit, exp, haste, mastery, mh, oh, ranged, procs, gear_buffs, level=85):
+    def __init__(self, str, agi, ap, crit, hit, exp, haste, mastery, mh, oh, procs, gear_buffs, level=85):
         # This will need to be adjusted if at any point we want to support
         # other classes, but this is probably the easiest way to do it for
         # the moment.
@@ -30,7 +30,6 @@ class Stats(object):
         self.mastery = mastery
         self.mh = mh
         self.oh = oh
-        self.ranged = ranged
         self.procs = procs
         self.gear_buffs = gear_buffs
         self.level = level
