@@ -174,9 +174,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             self.base_speed_multiplier *= 1.01
 
         self.strike_hit_chance = self.one_hand_melee_hit_chance()
-        self.base_rupture_energy_cost = 20 + 5 / self.strike_hit_chance
+        self.base_rupture_energy_cost = self.get_net_energy_cost('rupture')
         self.base_rupture_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
-        self.base_eviscerate_energy_cost = 28 + 7 / self.strike_hit_chance
+        self.base_eviscerate_energy_cost = self.get_net_energy_cost('eviscerate')
         self.base_eviscerate_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
 
         if self.stats.procs.heroic_matrix_restabilizer or self.stats.procs.matrix_restabilizer:
@@ -305,7 +305,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 munch_per_sec = attacks_per_second['mutilate'] * p_double_crit
                 damage_breakdown['mut_munch'] = 0, munch_per_sec * mh_dmg[1]
 
-        for strike in ('hemorrhage', 'backstab', 'sinister_strike', 'revealing_strike', 'main_gauche', 'ambush'):
+        for strike in ('hemorrhage', 'backstab', 'sinister_strike', 'revealing_strike', 'main_gauche', 'ambush', 'dispatch'):
             if strike in attacks_per_second.keys():
                 damage_breakdown[strike] = self.get_dps_contribution(self.get_formula(strike)(average_ap), crit_rates[strike], attacks_per_second[strike])
 
@@ -368,6 +368,22 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             damage_breakdown['burning_wounds'] = self.get_t12_2p_damage(damage_breakdown)
 
         return damage_breakdown
+
+    def get_net_energy_cost(self, ability):
+        stats = self.get_spell_stats(ability)
+        hit_chance = (1, self.strike_hit_chance)[stats[1] == 'strike']
+        return stats[0] * (.8 + .2 / hit_chance)
+
+    def get_activated_uptime(self, duration, cooldown, on_the_gcd=True):
+        if on_the_gcd:
+            response_time = self.settings.response_time
+        else:
+            response_time = 0
+        return 1. * duration / (cooldown + response_time)
+
+    def get_shadow_blades_uptime(self, cooldown=None):
+        # 'cooldown' used as an overide for combat cycles
+        return get_activated_uptime(12, (cooldown, 30)[cooldown is None])
 
     def get_mh_procs_per_second(self, proc, attacks_per_second, crit_rates):
         triggers_per_second = 0
@@ -711,55 +727,55 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         self.set_constants()
 
-        self.envenom_energy_cost = 28 + 7 / self.strike_hit_chance
+        self.envenom_energy_cost = self.get_net_energy_cost('envenom')
         self.envenom_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
 
         self.base_energy_regen = 10
 
-        vendetta_duration = 30 * (1 + self.glyphs.vendetta * .20) #TODO: fix the glyph model
+        vendetta_duration = 20 + 10 * self.glyphs.vendetta
         vendetta_duration += self.stats.gear_buffs.rogue_t13_4pc * 9
-        self.vendetta_mult = 1 + .2 * vendetta_duration / 120
+        self.vendetta_mult = 1 + (.3 - .05 * self.glyphs.vendetta) * vendetta_duration / 120
 
     def assassination_dps_estimate(self):
-        mutilate_dps = self.assassination_dps_estimate_mutilate() * (1 - self.settings.time_in_execute_range)
-        backstab_dps = self.assassination_dps_estimate_backstab() * self.settings.time_in_execute_range
+        mutilate_dps = self.assassination_dps_estimate_non_execute() * (1 - self.settings.time_in_execute_range)
+        backstab_dps = self.assassination_dps_estimate_execute() * self.settings.time_in_execute_range
         return backstab_dps + mutilate_dps
 
-    def assassination_dps_estimate_backstab(self):
-        return sum(self.assassination_dps_breakdown_backstab().values())
+    def assassination_dps_estimate_execute(self):
+        return sum(self.assassination_dps_breakdown_execute().values())
 
-    def assassination_dps_estimate_mutilate(self):
-        return sum(self.assassination_dps_breakdown_mutilate().values())
+    def assassination_dps_estimate_non_execute(self):
+        return sum(self.assassination_dps_breakdown_non_execute().values())
 
     def assassination_dps_breakdown(self):
-        mutilate_dps_breakdown = self.assassination_dps_breakdown_mutilate()
-        backstab_dps_breakdown = self.assassination_dps_breakdown_backstab()
+        non_execute_dps_breakdown = self.assassination_dps_breakdown_non_execute()
+        execute_dps_breakdown = self.assassination_dps_breakdown_execute()
 
-        mutilate_weight = 1 - self.settings.time_in_execute_range
-        backstab_weight = self.settings.time_in_execute_range
+        non_execute_weight = 1 - self.settings.time_in_execute_range
+        execute_weight = self.settings.time_in_execute_range
 
         dps_breakdown = {}
-        for source, quantity in mutilate_dps_breakdown.items():
-            dps_breakdown[source] = quantity * mutilate_weight
+        for source, quantity in non_execute_dps_breakdown.items():
+            dps_breakdown[source] = quantity * non_execute_weight
 
-        for source, quantity in backstab_dps_breakdown.items():
+        for source, quantity in execute_dps_breakdown.items():
             if source in dps_breakdown:
-                dps_breakdown[source] += quantity * backstab_weight
+                dps_breakdown[source] += quantity * execute_weight
             else:
-                dps_breakdown[source] = quantity * backstab_weight
+                dps_breakdown[source] = quantity * execute_weight
 
         return dps_breakdown
 
-    def assassination_dps_breakdown_mutilate(self):
-        damage_breakdown = self.compute_damage(self.assassination_attack_counts_mutilate)
+    def assassination_dps_breakdown_non_execute(self):
+        damage_breakdown = self.compute_damage(self.assassination_attack_counts_non_execute)
 
         for key in damage_breakdown:
             damage_breakdown[key] *= self.vendetta_mult
 
         return damage_breakdown
 
-    def assassination_dps_breakdown_backstab(self):
-        damage_breakdown = self.compute_damage(self.assassination_attack_counts_backstab)
+    def assassination_dps_breakdown_execute(self):
+        damage_breakdown = self.compute_damage(self.assassination_attack_counts_execute)
 
         for key in damage_breakdown:
             damage_breakdown[key] *= self.vendetta_mult
@@ -768,7 +784,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
     def assassination_attack_counts(self, current_stats, cpg, finisher_size):
         base_melee_crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
-        base_spell_crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
 
         haste_multiplier = self.stats.get_haste_multiplier_from_rating(current_stats['haste'])
 
@@ -776,18 +791,25 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         energy_regen += self.bonus_energy_regen
 
         vw_energy_return = 10
-        vw_proc_chance = .7
+        vw_proc_chance = .75
         vw_energy_per_bleed_tick = vw_energy_return * vw_proc_chance
 
-        garrote_base_cost = 9 + 36 * self.strike_hit_chance
-        garrote_base_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
-        garrote_energy_return = 6 * vw_energy_per_bleed_tick * self.strike_hit_chance #TODO: doesn't stack with rup ticks
-        garrote_net_cost = garrote_base_cost - garrote_energy_return
-        garrote_spacing = (180. + self.settings.response_time - 30 * self.talents.elusiveness)
-        if self.race.shadowmeld:
-            shadowmeld_spacing = 120. + self.settings.response_time
-            garrote_spacing = 1 / (1 / garrote_spacing + 1 / shadowmeld_spacing)
-        total_garrotes_per_second = (1 - 20. / self.settings.duration) / self.settings.duration + 1 / garrote_spacing
+        if self.talents.shadow_focus:
+            garrote_net_cost = 0
+        else:
+            garrote_net_cost = self.get_net_energy_cost('garrote')
+            garrote_net_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
+
+        if self.settings.cycle.garrote_from_stealth:
+            garrote_spacing = (180. + self.settings.response_time)
+            if self.race.shadowmeld:
+                shadowmeld_spacing = 120. + self.settings.response_time
+                garrote_spacing = 1 / (1 / garrote_spacing + 1 / shadowmeld_spacing)
+            total_garrotes_per_second = (1 - 20. / self.settings.duration) / self.settings.duration + 1 / garrote_spacing
+        elif cpg == 'mutilate' and not self.settings.cycle.garrote_from_stealth:
+            total_garrotes_per_second = 1. / self.settings.duration
+        else:
+            total_garrotes_per_second = 0
 
         energy_regen -= garrote_net_cost * total_garrotes_per_second
 
@@ -795,7 +817,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
 
-        cpg_crit_rate = base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus()
+        cpg_crit_rate = base_melee_crit_rate
+        if cpg == 'mutilate':
+            cpg_crit_rate += self.stats.gear_buffs.rogue_t11_2pc_crit_bonus()
 
         if cpg_crit_rate > 1:
             cpg_crit_rate = 1
@@ -812,10 +836,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'garrote': base_melee_crit_rate
         }
 
-        if cpg == 'mutilate':
-            cpg_energy_cost = 48 + 12 / self.strike_hit_chance
-        else:
-            cpg_energy_cost = 24 + 6 / self.strike_hit_chance
+        cpg_energy_cost = self.get_net_energy_cost(cpg)
         cpg_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
 
         if cpg == 'mutilate':
@@ -894,11 +915,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         return attacks_per_second, crit_rates
 
-    def assassination_attack_counts_mutilate(self, current_stats):
-        return self.assassination_attack_counts(current_stats, 'mutilate', self.settings.cycle.min_envenom_size_mutilate)
+    def assassination_attack_counts_non_execute(self, current_stats):
+        return self.assassination_attack_counts(current_stats, 'mutilate', self.settings.cycle.min_envenom_size_non_execute)
 
-    def assassination_attack_counts_backstab(self, current_stats):
-        return self.assassination_attack_counts(current_stats, 'backstab', self.settings.cycle.min_envenom_size_backstab)
+    def assassination_attack_counts_execute(self, current_stats):
+        return self.assassination_attack_counts(current_stats, 'dispatch', self.settings.cycle.min_envenom_size_execute)
 
     ###########################################################################
     # Combat DPS functions

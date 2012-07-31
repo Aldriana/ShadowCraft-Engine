@@ -387,12 +387,48 @@ class RogueDamageCalculator(DamageCalculator):
             'revealing_strike':      self.revealing_strike_damage,
             'main_gauche':           self.main_gauche_damage,
             'ambush':                self.ambush_damage,
+            'dispatch':              self.dispatch_damage,
             'venomous_wounds':       self.venomous_wounds_damage,
             'deadly_poison':         self.deadly_poison_tick_damage,
             'wound_poison':          self.wound_poison_damage,
             'deadly_instant_poison': self.deadly_instant_poison_damage
         }
         return formulas[name]
+
+    def get_spell_stats(self, ability):
+        base_cost = {
+            'ambush':              (60, 'strike'),
+            'backstab':            (35, 'strike'),
+            'dispatch':            (30, 'strike'),
+            'envenom':             (35, 'strike'),
+            'eviscerate':          (35, 'strike'),
+            'garrote':             (45, 'strike'),
+            'hemorrhage':          (30, 'strike'),
+            'mutilate':            (55, 'strike'),
+            'recuperate':          (30, 'buff'),
+            'revealing_strike':    (40, 'strike'),
+            'rupture':             (25, 'strike'),
+            'sinister_strike':     (40, 'strike'),
+            'slice_and_dice':      (25, 'buff'),
+            'tricks_of_the_trade': (15, 'buff'),
+            # 'crimson_tempest':     (35, 'strike'),
+            # 'deadly_throw':        (35, 'strike'),
+            # 'expose_armor':        (25, 'strike'),
+            # 'feint':               (20, 'buff'),
+            # 'fan_of_knives':       (35, 'point_blank'),
+            # 'shuriken_toss':       (20, 'strike'),
+            # 'blind':               (15, 'debuff'),
+            # 'burst_of_speed':      (60, 'buff'),
+            # 'cheap_shot':          (40, 'debuff'),
+            # 'dismantle':           (25, 'debuff'),
+            # 'distract':            (30, 'debuff'),
+            # 'gouge':               (45, 'debuff'),
+            # 'kick':                (15, 'debuff'),
+            # 'kidney_shot':         (25, 'debuff'),
+            # 'sap':                 (35, 'debuff'),
+            # 'shiv':                (20, 'strike'),
+        }
+        return base_cost[ability]
 
     def melee_crit_rate(self, agi=None, crit=None):
         if agi == None:

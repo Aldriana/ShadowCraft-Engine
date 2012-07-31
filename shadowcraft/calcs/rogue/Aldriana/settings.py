@@ -33,12 +33,12 @@ class AssassinationCycle(Cycle):
 
     allowed_values = (1, 2, 3, 4, 5)
 
-    def __init__(self, min_envenom_size_mutilate=4, min_envenom_size_backstab=5, prioritize_rupture_uptime_mutilate=True, prioritize_rupture_uptime_backstab=True):
-        assert min_envenom_size_mutilate in self.allowed_values
-        self.min_envenom_size_mutilate = min_envenom_size_mutilate
+    def __init__(self, min_envenom_size_non_execute=4, min_envenom_size_execute=5, prioritize_rupture_uptime_non_execute=True, prioritize_rupture_uptime_execute=True, garrote_from_stealth=True):
+        assert min_envenom_size_non_execute in self.allowed_values
+        self.min_envenom_size_non_execute = min_envenom_size_non_execute
 
-        assert min_envenom_size_backstab in self.allowed_values
-        self.min_envenom_size_backstab = min_envenom_size_backstab
+        assert min_envenom_size_execute in self.allowed_values
+        self.min_envenom_size_execute = min_envenom_size_execute
 
         # There are two fundamental ways you can manage rupture; one is to
         # reapply with whatever CP you have as soon as you can after the old
@@ -50,8 +50,10 @@ class AssassinationCycle(Cycle):
         # 5+ ruptures) but such things are significantly harder to model so I'm
         # not going to worry about them until we have reason to believe they're
         # actually better.
-        self.prioritize_rupture_uptime_mutilate = prioritize_rupture_uptime_mutilate
-        self.prioritize_rupture_uptime_backstab = prioritize_rupture_uptime_backstab
+        self.prioritize_rupture_uptime_non_execute = prioritize_rupture_uptime_non_execute
+        self.prioritize_rupture_uptime_execute = prioritize_rupture_uptime_execute
+
+        self.garrote_from_stealth = garrote_from_stealth
 
 
 class CombatCycle(Cycle):
