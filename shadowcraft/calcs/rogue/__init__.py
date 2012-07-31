@@ -15,16 +15,6 @@ class RogueDamageCalculator(DamageCalculator):
     # backstab damage as a function of AP - that (almost) any rogue damage
     # calculator will need to know, so things like that go here.
 
-    # Factors for levels other than 90 haven't been checked. lvl90 values are from SimC
-    vw_base_dmg_values =          {80:363, 85:675, 90:748}
-    vw_percentage_dmg_values =    {80:.135, 85:.176, 90:.168}
-    dp_percentage_dmg_values =    {80:.108, 85:.14, 90:.213}
-    wp_percentage_dmg_values =    {80:.036, 85:.04, 90:0.09}
-    ct_base_dmg_values =          {80:0, 90:593}
-    fok_base_dmg_values =         {80:1, 90:1246} # 997.039 - 1495.56
-    st_base_dmg_values =          {80:0, 90:1246}
-    gouge_base_dmg_values =       {80:1, 90:130}
-
     default_ep_stats = ['white_hit', 'yellow_hit', 'str', 'agi', 'haste',
         'crit', 'mastery', 'dodge_exp']
     normalize_ep_stat = 'ap'
@@ -38,33 +28,39 @@ class RogueDamageCalculator(DamageCalculator):
         super(RogueDamageCalculator, self)._set_constants_for_level()
         self.agi_per_crit = self.tools.get_agi_per_crit('rogue', self.level) * 100
 
-        spell_scaling = self.tools.get_spell_scaling('rogue', self.level)
-        self.bs_bonus_dmg =     round(0.3070000112 * spell_scaling) # spell effect id: 30
-        self.dsp_bonus_dmg =    round(0.3070000112 * spell_scaling) # spell effect id: 123503
-        self.mut_bonus_dmg =    round(0.1790000051 * spell_scaling) # spell effect id: 1920, 17065
-        self.ss_bonus_dmg =     round(0.1780000031 * spell_scaling) # spell effect id: 535
-        self.ambush_bonus_dmg = round(0.3269999921 * spell_scaling) # spell effect id: 3612
-        self.dp_base_dmg =      round(0.6000000238 * spell_scaling) # spell effect id: 853
-        self.wp_base_dmg =      round(0.3129999936 * spell_scaling) # spell effect id: 3617
-        self.garrote_base_dmg = round(0.1180000007 * spell_scaling) # spell effect id: 280
-        self.rup_base_dmg =     round(0.1850000024 * spell_scaling) # spell effect id: 586
-        self.rup_bonus_dmg =    round(0.0260000005 * spell_scaling) # spell effect id: 586
-        self.evis_base_dmg =    round(0.4740000069 * spell_scaling) # spell effect id: 622
-        self.evis_bonus_dmg =   round(0.6919999719 * spell_scaling) # spell effect id: 622
-        self.env_base_dmg =     round(0.3210000098 * spell_scaling) # spell effect id: 22420
-        # TODO we should also figure the scaling for these. Automatic fetching
-        # should be the final goal. Also: are they 'really' rounded?
-        try:
-            self.vw_base_dmg =           self.vw_base_dmg_values[self.level]
-            self.vw_percentage_dmg =     self.vw_percentage_dmg_values[self.level]
-            self.dp_percentage_dmg =     self.dp_percentage_dmg_values[self.level]
-            self.wp_percentage_dmg =     self.wp_percentage_dmg_values[self.level]
-            self.ct_base_dmg =           self.ct_base_dmg_values[self.level]
-            self.fok_base_dmg =          self.fok_base_dmg_values[self.level]
-            self.st_base_dmg =           self.st_base_dmg_values[self.level]
-            self.gouge_base_dmg =        self.gouge_base_dmg_values[self.level]
-        except KeyError as e:
-            raise exceptions.InvalidLevelException(_('No {spell_name} formula available for level {level}').format(spell_name=str(e), level=self.level))
+        # These factors are taken from sc_spell_data.inc in SimulationCraft.
+        # At some point we should automate the process to fetch them. Numbers
+        # in comments show the id for the spell effect, not the spell itself.
+        self.spell_scaling_for_level = self.tools.get_spell_scaling('rogue', self.level)
+        self.bs_bonus_dmg =     self.get_factor(0.3070000112) # 30
+        self.dsp_bonus_dmg =    self.get_factor(0.3070000112) # 123503
+        self.mut_bonus_dmg =    self.get_factor(0.1790000051) # 1920, 17065
+        self.ss_bonus_dmg =     self.get_factor(0.1780000031) # 535
+        self.ambush_bonus_dmg = self.get_factor(0.3269999921) # 3612
+        self.vw_base_dmg =      self.get_factor(0.6000000238) # 68389
+        self.dp_base_dmg =      self.get_factor(0.6000000238) # 853
+        self.wp_base_dmg =      self.get_factor(0.3129999936, 0.2800000012) # 3617
+        self.garrote_base_dmg = self.get_factor(0.1180000007) # 280
+        self.rup_base_dmg =     self.get_factor(0.1850000024) # 586
+        self.rup_bonus_dmg =    self.get_factor(0.0260000005) # 586 - 'unknown' field
+        self.evis_base_dmg =    self.get_factor(0.4740000069,  1.0000000000) # 622
+        self.evis_bonus_dmg =   self.get_factor(0.6919999719) # 622 - 'unknown' field
+        self.env_base_dmg =     self.get_factor(0.3210000098) # 22420
+        self.ct_base_dmg =      self.get_factor(0.4760000110) # 50471
+        self.fok_base_dmg =     self.get_factor(1.0000000000, 0.4000000060) # 44107
+        self.st_base_dmg =      self.get_factor(1.0000000000) # 127100
+        self.vw_percentage_dmg = .168
+        self.dp_percentage_dmg = .213
+        self.wp_percentage_dmg = .090
+
+    def get_factor(self, avg, delta=0):
+        avg_for_level = avg * self.spell_scaling_for_level
+        if delta == 0:
+            return round(avg_for_level)
+        else:
+            min = round(avg_for_level * (1 - delta / 2))
+            max = round(avg_for_level * (1 + delta / 2))
+            return (min + max) / 2 # Not rounded: this is the average for us.
 
     def get_weapon_damage_bonus(self):
         # Override this in your modeler to implement weapon damage boosts
@@ -86,6 +82,9 @@ class RogueDamageCalculator(DamageCalculator):
             return .5
 
     def get_modifiers(self, *args, **kwargs):
+        # A note on stacking: both executioner and potent poisons are expected
+        # to stack additively as per my notes on issue #12. In mists they don't
+        # have anything to stack additively with.
         base_modifier = 1
         kwargs.setdefault('mastery', None)
         if 'executioner' in args and self.settings.cycle._cycle_type == 'subtlety':
@@ -375,15 +374,6 @@ class RogueDamageCalculator(DamageCalculator):
         mult, crit_mult = self.get_modifiers('physical', is_bleeding=is_bleeding)
         
         damage = (self.st_base_dmg + .3 * ap) * mult
-        crit_damage = damage * crit_mult
-        
-        return damage, crit_damage
-
-    def gouge_damage(self, ap, is_bleeding=True):
-        # TODO verify data
-        mult, crit_mult = self.get_modifiers('physical', is_bleeding=is_bleeding)
-        
-        damage = (self.gouge_base_dmg + .21 * ap) * mult
         crit_damage = damage * crit_mult
         
         return damage, crit_damage

@@ -140,7 +140,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         self.base_stats = {
             'agi': self.stats.agi + self.buffs.buff_agi() + self.race.racial_agi,
-            'ap': self.stats.ap + 140,
+            'ap': self.stats.ap + 2 * self.level - 30,
             'crit': self.stats.crit,
             'haste': self.stats.haste,
             'mastery': self.stats.mastery

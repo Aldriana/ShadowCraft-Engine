@@ -36,7 +36,6 @@ class Race(object):
         "troll":        (1, 2, 0, -4, 1),
         "blood_elf":    (-3, 2, 0, 3, -2),
         "goblin":       (-3, 2, 0, 3, -2),
-
     }
 
     allowed_racials = frozenset([
