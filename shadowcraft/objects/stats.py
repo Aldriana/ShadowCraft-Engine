@@ -220,6 +220,22 @@ class GearBuffs(object):
         else:
             return 1
 
+    def tradeskill_bonus(self, level, tradeskill=None):
+        # Hardcoded to use maxed tradeskills for the character level.
+        if level == 90:
+            return 320
+        tradeskill_base_bonus = {
+            (01, 60): (0, None),
+            (60, 70): (300, 9),
+            (70, 80): (375, 12),
+            (80, 85): (450, 20),
+            (85, 90): (525, 80),
+            (90, 95): (600, 320)
+        }
+        for i, j in tradeskill_base_bonus.keys():
+            if level in range(i, j):
+                return tradeskill_base_bonus[(i, j)][1]
+
     def get_all_activated_agi_boosts(self):
         return self.get_all_activated_boosts_for_stat('agi')
 

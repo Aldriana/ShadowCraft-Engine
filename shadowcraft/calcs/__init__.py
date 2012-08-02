@@ -17,15 +17,7 @@ class DamageCalculator(object):
     # calcs.<class>.<Class>DamageCalculator instead - for an example, see
     # calcs.rogue.RogueDamageCalculator
 
-    # If someone wants to have __init__ take a target level as well and use it
-    # to initialize these to a level-dependent value, they're welcome to.  At
-    # the moment I'm hardcoding them to level 85 values.
     TARGET_BASE_ARMOR_VALUES = {88:11977., 93:24835.}
-    BASE_ONE_HAND_MISS_RATE = .08
-    BASE_DW_MISS_RATE = BASE_ONE_HAND_MISS_RATE + .19
-    BASE_SPELL_MISS_RATE = .17
-    BASE_DODGE_CHANCE = .065
-    BASE_PARRY_CHANCE = .14
     GLANCE_RATE = .24
     GLANCE_MULTIPLIER = .75
 
@@ -49,10 +41,17 @@ class DamageCalculator(object):
         self.level_difference = max(self.target_level - level, 0)
         self.level = level
         if self.stats.gear_buffs.mixology and self.buffs.agi_flask:
-            self.stats.agi += 80
+            self.stats.agi += self.stats.gear_buffs.tradeskill_bonus(self.level)
         if self.stats.gear_buffs.master_of_anatomy:
-            self.stats.crit += 80
+            self.stats.crit += self.stats.gear_buffs.tradeskill_bonus(self.level)
         self._set_constants_for_class()
+
+        self.base_one_hand_miss_rate = .03 + .015 * self.level_difference
+        self.base_dw_miss_rate = self.base_one_hand_miss_rate + .19
+        self.base_spell_miss_rate = .06 + .03 * self.level_difference
+        self.base_dodge_chance = .03 + .015 * self.level_difference
+        self.base_parry_chance = .03 + .015 * self.level_difference
+        self.base_block_chance = .03 + .015 * self.level_difference
 
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
@@ -319,20 +318,22 @@ class DamageCalculator(object):
         expertise = self.stats.get_expertise_from_rating() + self.race.get_racial_expertise(weapon_type)
 
         if dodgeable:
-            dodge_chance = max(self.BASE_DODGE_CHANCE - expertise, 0)
+            dodge_chance = max(self.base_dodge_chance - expertise, 0)
             if self.calculating_ep == 'dodge_exp':
                 dodge_chance += self.stats.get_expertise_from_rating(1)
         else:
             dodge_chance = 0
 
         if parryable:
-            parry_chance = max(self.BASE_PARRY_CHANCE - expertise, 0)
+            parry_chance = max(self.base_parry_chance + self.base_dodge_chance - expertise, 0)
             if self.calculating_ep in ('parry_exp', 'dodge_exp'):
                 parry_chance += self.stats.get_expertise_from_rating(1)
         else:
             parry_chance = 0
 
-        return 1 - (miss_chance + dodge_chance + parry_chance)
+        block_chance = self.base_block_chance * parryable
+
+        return (1 - (miss_chance + dodge_chance + parry_chance)) * (1 - block_chance)
 
     def one_hand_melee_hit_chance(self, dodgeable=True, parryable=False, weapon=None):
         # Most attacks by DPS aren't parryable due to positional negation. But
@@ -340,7 +341,7 @@ class DamageCalculator(object):
         # to True.
         if weapon == None:
             weapon = self.stats.mh
-        hit_chance = self.melee_hit_chance(self.BASE_ONE_HAND_MISS_RATE, dodgeable, parryable, weapon.type)
+        hit_chance = self.melee_hit_chance(self.base_one_hand_miss_rate, dodgeable, parryable, weapon.type)
         if self.calculating_ep == 'yellow_hit':
             hit_chance -= self.stats.get_melee_hit_from_rating(1)
         if (self.calculating_ep == 'mh_dodge_exp' and dodgeable) or (self.calculating_ep == 'mh_parry_exp' and parryable):
@@ -353,7 +354,7 @@ class DamageCalculator(object):
         # to True.
         if weapon == None:
             weapon = self.stats.oh
-        hit_chance = self.melee_hit_chance(self.BASE_ONE_HAND_MISS_RATE, dodgeable, parryable, weapon.type)
+        hit_chance = self.melee_hit_chance(self.base_one_hand_miss_rate, dodgeable, parryable, weapon.type)
         if self.calculating_ep == 'yellow_hit':
             hit_chance -= self.stats.get_melee_hit_from_rating(1)
         if (self.calculating_ep == 'oh_dodge_exp' and dodgeable) or (self.calculating_ep == 'oh_parry_exp' and parryable):
@@ -379,13 +380,13 @@ class DamageCalculator(object):
         return hit_chance
 
     def dual_wield_hit_chance(self, dodgeable, parryable, weapon_type):
-        hit_chance = self.melee_hit_chance(self.BASE_DW_MISS_RATE, dodgeable, parryable, weapon_type)
+        hit_chance = self.melee_hit_chance(self.base_dw_miss_rate, dodgeable, parryable, weapon_type)
         if self.calculating_ep in ('yellow_hit', 'spell_hit', 'white_hit'):
             hit_chance -= self.stats.get_melee_hit_from_rating(1)
         return hit_chance
 
     def spell_hit_chance(self):
-        hit_chance = 1 - max(self.BASE_SPELL_MISS_RATE - self.stats.get_spell_hit_from_rating() - self.get_spell_hit_from_talents() - self.race.get_racial_hit(), 0)
+        hit_chance = 1 - max(self.base_spell_miss_rate - self.stats.get_spell_hit_from_rating() - self.get_spell_hit_from_talents() - self.race.get_racial_hit(), 0)
         if self.calculating_ep in ('yellow_hit', 'spell_hit'):
             hit_chance -= self.stats.get_spell_hit_from_rating(1)
         return hit_chance
