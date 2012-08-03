@@ -40,24 +40,24 @@ test_buffs = buffs.Buffs(
     )
 
 # Set up weapons.
-test_mh = stats.Weapon(1121, 1.8, 'dagger', 'landslide')
-test_oh = stats.Weapon(872, 1.4, 'dagger', 'landslide')
-test_ranged = stats.Weapon(1679.5, 2.0, 'thrown')
+test_mh = stats.Weapon(6733, 1.8, 'dagger', 'landslide')
+test_oh = stats.Weapon(6733, 1.8, 'dagger', 'landslide')
 
 # Set up procs.
 test_procs = procs.ProcsList('heroic_the_hungerer', 'heroic_matrix_restabilizer')
 
 # Set up gear buffs.
-test_gear_buffs = stats.GearBuffs('rogue_t12_2pc', 'rogue_t12_4pc', 'leather_specialization', 'potion_of_the_tolvir', 'chaotic_metagem')
+test_gear_buffs = stats.GearBuffs('rogue_t14_2pc', 'rogue_t14_4pc', 'leather_specialization', 'potion_of_the_tolvir', 'chaotic_metagem')
 
 # Set up a calcs object..
-test_stats = stats.Stats(20, 6248, 190, 624, 1331, 297, 1719, 2032, test_mh, test_oh, test_procs, test_gear_buffs)
+#                       str,  agi, ap, crit,  hit, exp, haste, mast,      mh,      oh,      procs,      gear_buffs,      level
+test_stats = stats.Stats(80, 12000, 0, 2500, 2200, 2200, 2300, 3000, test_mh, test_oh, test_procs, test_gear_buffs, test_level)
 
 # Initialize talents..
-test_talents = talents.Talents('000000', test_class, test_level)
+test_talents = talents.Talents('322213', test_class, test_level)
 
 # Set up glyphs.
-glyph_list = ['tricks_of_the_trade']
+glyph_list = ['recuperate', 'sprint'] #just to have something
 test_glyphs = glyphs.Glyphs(test_class, *glyph_list)
 
 # Set up settings.

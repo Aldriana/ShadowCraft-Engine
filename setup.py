@@ -7,7 +7,7 @@ setup(
     packages=['shadowcraft',
         'shadowcraft.calcs', 'shadowcraft.calcs.rogue', 'shadowcraft.calcs.rogue.Aldriana',
         'shadowcraft.core',
-        'shadowcraft.objects', 'shadowcraft.objects.rogue'],
+        'shadowcraft.objects'],
     license='LGPL',
     long_description=open('README').read(),
 )

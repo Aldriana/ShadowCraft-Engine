@@ -342,7 +342,21 @@ allowed_melee_enchants = {
         'duration': 12,
         'proc_name': 'Landslide',
         'behaviours': {'default': 'landslide'}
-    }
+    },
+    'windsong': { # Needs to be improved!
+        'stat': 'weird_proc',
+        'value': 1500,
+        'duration': 12,
+        'proc_name': 'Windsong',
+        'behaviours': {'default': 'windsong'}
+    },
+    'dancing_steel': { # Needs to be improved!
+        'stat': 'agi',
+        'value': 1650,
+        'value': 12,
+        'proc_name': 'Dancing Steel',
+        'behaviours': {'default': 'dancing_steel'}
+    },
 }
 
 # The _set_behaviour method takes these parameters:
@@ -376,6 +390,16 @@ behaviours = {
     'landslide': {                          # Completely guessing at proc behavior.
         'icd': 0,
         'ppm': 1,
+        'trigger': 'all_attacks'
+    },
+    'dancing_steel': { # Needs to be improved!
+        'icd': 0,
+        'ppm': 1,
+        'trigger': 'all_attacks'
+    },
+    'windsong': { # Needs to be improved!
+        'icd': 0,
+        'ppm': 3,
         'trigger': 'all_attacks'
     },
     'arrow_of_time': {
