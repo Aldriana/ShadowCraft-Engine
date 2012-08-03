@@ -317,7 +317,7 @@ class DamageCalculator(object):
         # damage value.
         return damage * self.armor_mitigation_multiplier(armor)
 
-    def melee_hit_chance(self, base_miss_chance, dodgeable, parryable, weapon_type):
+    def melee_hit_chance(self, base_miss_chance, dodgeable, parryable, weapon_type, blockable=False):
         hit_chance = self.stats.get_melee_hit_from_rating() + self.race.get_racial_hit() + self.get_melee_hit_from_talents()
         miss_chance = max(base_miss_chance - hit_chance, 0)
 
@@ -338,9 +338,12 @@ class DamageCalculator(object):
         else:
             parry_chance = 0
 
-        block_chance = self.base_block_chance * parryable
+        block_chance = self.base_block_chance * blockable
 
         return (1 - (miss_chance + dodge_chance + parry_chance)) * (1 - block_chance)
+
+    def melee_spells_hit_chance(self):
+        return self.melee_hit_chance(self.base_one_hand_miss_rate, dodgeable=False, parryable=False, weapon_type=None)
 
     def one_hand_melee_hit_chance(self, dodgeable=True, parryable=False, weapon=None):
         # Most attacks by DPS aren't parryable due to positional negation. But

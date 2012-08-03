@@ -4,6 +4,13 @@
 # Assumed heroic trinkets have the same behaviour as the non-heroic kin.
 # behaviours must have a 'default' key so that the proc is properly initialized.
 allowed_procs = {
+    'rogue_poison': {
+        'stat': 'weird_proc',
+        'value': 0,
+        'duration': 0,
+        'proc_name': 'rogue_poison',
+        'behaviours': {'default': 'rogue_poison'}
+    },
     'heroic_grace_of_the_herald': {
         'stat': 'crit',
         'value': 1710,
@@ -367,6 +374,11 @@ allowed_melee_enchants = {
 # 'healing_spells', 'all_periodic_damage', 'bleeds',
 # 'spell_periodic_damage' and 'hots'.
 behaviours = {
+    'rogue_poison': {
+        'icd': 0,
+        'proc_chance': 1,
+        'trigger': 'all_attacks'
+    },
     'avalanche_melee': {
         'icd': 0,
         'ppm': 5,

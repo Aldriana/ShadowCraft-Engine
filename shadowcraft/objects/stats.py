@@ -167,8 +167,8 @@ class GearBuffs(object):
         'rogue_t13_2pc',                # Decrease energy cost by 20% for 6secs every TotT
         'rogue_t13_4pc',                # ShD +2secs, AR +3secs, Vendetta +9secs
         'rogue_t13_legendary',          # Increase 45% damage on SS and RvS, used in case the rogue only equips the mh of a set.
-        'rogue_t14_2pc',                 # Venom Wound damage by 20%, Sinister Strike by 15%, Backstab by 10%
-        'rogue_t14_4pc',                 # Shadow Blades by +12s
+        'rogue_t14_2pc',                # Venom Wound damage by 20%, Sinister Strike by 15%, Backstab by 10%
+        'rogue_t14_4pc',                # Shadow Blades by +12s
         'mixology',
         'master_of_anatomy'
     ]
@@ -215,17 +215,22 @@ class GearBuffs(object):
             return 1 / 1.05
         else:
             return 1
-        
-    def rogue_t14_2pc_damage_bonus(self):
+
+    def rogue_t14_2pc_damage_bonus(self, spell):
         if self.rogue_t14_2pc:
-            if self.talents.is_assassination_rogue():
-                return 1.2
-            elif self.talents.is_combat_rogue():
-                return 1.15
-            elif self.talents.is_subtlety_rogue():
-                return 1.1
+            bonus = {
+                ('assassination', 'vw', 'venomous_wounds'): 0.2,
+                ('combat', 'ss', 'sinister_strike'): 0.15,
+                ('subtlety', 'bs', 'backstab'): 0.1
+            }
+            for spells in bonus.keys():
+                if spell in spells:
+                    return 1 + bonus[spells]
         return 1
-    
+
+    def rogue_t14_4pc_extra_time(self):
+        return self.rogue_t14_4pc * 12
+
     def leather_specialization_multiplier(self):
         if self.leather_specialization:
             return 1.05

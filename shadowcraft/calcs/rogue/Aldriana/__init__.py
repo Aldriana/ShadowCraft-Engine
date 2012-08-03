@@ -6,6 +6,8 @@ __builtin__._ = gettext.gettext
 
 from shadowcraft.calcs.rogue import RogueDamageCalculator
 from shadowcraft.core import exceptions
+from shadowcraft.objects import procs
+from shadowcraft.objects import proc_data
 
 
 class InputNotModeledException(exceptions.InvalidInputException):
@@ -174,6 +176,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             self.base_speed_multiplier *= 1.01
 
         self.strike_hit_chance = self.one_hand_melee_hit_chance()
+        self.poison_hit_chance = self.melee_spells_hit_chance()
         self.base_rupture_energy_cost = self.get_net_energy_cost('rupture')
         self.base_rupture_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
         self.base_eviscerate_energy_cost = self.get_net_energy_cost('eviscerate')
@@ -257,7 +260,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
     def get_t12_2p_damage(self, damage_breakdown):
         crit_damage = 0
         for key in damage_breakdown:
-            if key in ('mutilate', 'hemorrhage', 'backstab', 'sinister_strike', 'revealing_strike', 'main_gauche', 'ambush', 'killing_spree', 'envenom', 'eviscerate', 'autoattack'):
+            if key in ('mutilate', 'hemorrhage', 'dispatch', 'backstab', 'sinister_strike', 'revealing_strike', 'main_gauche', 'ambush', 'killing_spree', 'envenom', 'eviscerate', 'autoattack'):
                 average_damage, crit_contribution = damage_breakdown[key]
                 crit_damage += crit_contribution
         for key in ('mut_munch', 'ksp_munch'):
@@ -375,10 +378,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         return stats[0] * (.8 + .2 / hit_chance)
 
     def get_activated_uptime(self, duration, cooldown, on_the_gcd=True):
-        if on_the_gcd:
-            response_time = self.settings.response_time
-        else:
-            response_time = 0
+        response_time = [0, self.settings.response_time][on_the_gcd]
         return 1. * duration / (cooldown + response_time)
 
     def get_shadow_blades_uptime(self, cooldown=None):
@@ -393,7 +393,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             else:
                 triggers_per_second += attacks_per_second['mh_autoattack_hits']
         if proc.procs_off_strikes():
-            for ability in ('mutilate', 'backstab', 'revealing_strike', 'sinister_strike', 'ambush', 'hemorrhage', 'mh_killing_spree', 'main_gauche'):
+            for ability in ('mutilate', 'dispatch', 'backstab', 'revealing_strike', 'sinister_strike', 'ambush', 'hemorrhage', 'mh_killing_spree', 'main_gauche'):
                 if ability == 'main_gauche' and not proc.procs_off_procced_strikes():
                     pass
                 elif ability in attacks_per_second:
@@ -407,16 +407,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                         triggers_per_second += sum(attacks_per_second[ability]) * crit_rates[ability]
                     else:
                         triggers_per_second += sum(attacks_per_second[ability])
-        if proc.procs_off_apply_debuff():
+        if proc.procs_off_apply_debuff() and not proc.procs_off_crit_only():
             if 'rupture' in attacks_per_second:
-                if not proc.procs_off_crit_only():
-                    triggers_per_second += attacks_per_second['rupture']
+                triggers_per_second += attacks_per_second['rupture']
             if 'garrote' in attacks_per_second:
-                if not proc.procs_off_crit_only():
-                    triggers_per_second += attacks_per_second['garrote']
+                triggers_per_second += attacks_per_second['garrote']
             if 'hemorrhage_ticks' in attacks_per_second:
-                if not proc.procs_off_crit_only():
-                    triggers_per_second += attacks_per_second['hemorrhage']
+                triggers_per_second += attacks_per_second['hemorrhage']
 
         return triggers_per_second * proc.proc_rate(self.stats.mh.speed)
 
@@ -591,12 +588,48 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             if proc:
                 setattr(proc, 'mh_only', True)
 
-    def get_poison_counts(self, total_hits, attacks_per_second):
+    def get_poison_counts(self, attacks_per_second):
+        # Builds a phony 'poison' proc object to count triggers through the proc
+        # methods. Removes first poison hit.
+        poison = procs.Proc(**proc_data.allowed_procs['rogue_poison'])
+        mh_hits_per_second = self.get_mh_procs_per_second(poison, attacks_per_second, None)
+        oh_hits_per_second = self.get_oh_procs_per_second(poison, attacks_per_second, None)
+        total_hits_per_second = mh_hits_per_second + oh_hits_per_second
         if self.settings.dmg_poison == 'dp':
-            attacks_per_second['deadly_poison'] = 1. / 3
-            attacks_per_second['deadly_instant_poison'] = total_hits * .3 * self.strike_hit_chance
+            dp_base_proc_rate = .3
+            if self.settings.cycle._cycle_type == 'assassination':
+                dp_base_proc_rate += .2
+                dp_envenom_proc_rate = dp_base_proc_rate + .15
+                envenom_uptime = min(sum([(1 / self.strike_hit_chance + cps) * attacks_per_second['envenom'][cps] for cps in xrange(1, 6)]), 1)
+                avg_dp_proc_rate = dp_base_proc_rate * (1 - envenom_uptime) + dp_envenom_proc_rate * envenom_uptime
+            else:
+                avg_dp_proc_rate = dp_base_proc_rate
+            poison_procs = avg_dp_proc_rate * total_hits_per_second - 1 / self.settings.duration
+            attacks_per_second['deadly_instant_poison'] = poison_procs * self.poison_hit_chance
+            attacks_per_second['deadly_poison'] = 1. / 3 * (1 - total_hits_per_second / self.settings.duration)
         elif self.settings.dmg_poison == 'wp':
-            attacks_per_second['wound_poison'] = total_hits * .3 * self.strike_hit_chance
+            wp_proc_rate = .3
+            if self.settings.cycle._cycle_type == 'assassination':
+                wp_proc_rate += .2
+            attacks_per_second['wound_poison'] = total_hits_per_second * wp_proc_rate * self.poison_hit_chance
+
+    def get_self_healing(self, dps_breakdown=None):
+        # TODO: Needs better implementation, should be usable for now
+        if dps_breakdown is None:
+            dps_breakdown = self.get_dps_breakdown()
+        healing_breakdown = {
+            'leeching': 0,
+            'recuperate': 0, #if we ever allow recup weaving
+            'shiv_effect': 0 #if we ever allow shiv weaving (only with lp)
+        }
+        healing_sum = 0
+        if self.settings.utl_poison == 'lp':
+            for key in dps_breakdown:
+                if key in ('mutilate', 'dispatch', 'envenom', 'autoattack', 'backstab', 'hemorrhage', 'eviscerate', 'sinister_strike', 'revealing_strike', 'main_gauche'):
+                    healing_breakdown['leeching'] += dps_breakdown[key]*.1
+        for entry in healing_breakdown:
+            healing_sum += healing_breakdown[entry]
+        return healing_sum, healing_breakdown
 
     def compute_damage(self, attack_counts_function):
         # TODO: Crit cap
@@ -737,9 +770,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.vendetta_mult = 1 + (.3 - .05 * self.glyphs.vendetta) * vendetta_duration / 120
 
     def assassination_dps_estimate(self):
-        mutilate_dps = self.assassination_dps_estimate_non_execute() * (1 - self.settings.time_in_execute_range)
-        backstab_dps = self.assassination_dps_estimate_execute() * self.settings.time_in_execute_range
-        return backstab_dps + mutilate_dps
+        non_execute_dps = self.assassination_dps_estimate_non_execute() * (1 - self.settings.time_in_execute_range)
+        execute_dps = self.assassination_dps_estimate_execute() * self.settings.time_in_execute_range
+        return non_execute_dps + execute_dps
 
     def assassination_dps_estimate_execute(self):
         return sum(self.assassination_dps_breakdown_execute().values())
@@ -800,14 +833,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             garrote_net_cost = self.get_net_energy_cost('garrote')
             garrote_net_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
 
-        if self.settings.cycle.garrote_from_stealth:
+        garrote_spacing = self.settings.duration
+        if self.settings.cycle.use_garrote == 'always':
             garrote_spacing = (180. + self.settings.response_time)
             if self.race.shadowmeld:
                 shadowmeld_spacing = 120. + self.settings.response_time
                 garrote_spacing = 1 / (1 / garrote_spacing + 1 / shadowmeld_spacing)
             total_garrotes_per_second = (1 - 20. / self.settings.duration) / self.settings.duration + 1 / garrote_spacing
-        elif cpg == 'mutilate' and not self.settings.cycle.garrote_from_stealth:
-            total_garrotes_per_second = 1. / self.settings.duration
+        elif self.settings.cycle.use_garrote == 'opener':
+            total_garrotes_per_second = (1 - 20. / self.settings.duration) / self.settings.duration
         else:
             total_garrotes_per_second = 0
 
@@ -888,7 +922,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         total_rupture_ticks = sum(attacks_per_second['rupture_ticks'])
         attacks_per_second['garrote_ticks'] = 6 * attacks_per_second['garrote']
-        attacks_per_second['venomous_wounds'] = (total_rupture_ticks + attacks_per_second['garrote_ticks']) * vw_proc_chance * self.spell_hit_chance()
+        attacks_per_second['venomous_wounds'] = (total_rupture_ticks + attacks_per_second['garrote_ticks']) * vw_proc_chance * self.poison_hit_chance
 
         attacks_per_second['mh_autoattacks'] = attack_speed_multiplier / self.stats.mh.speed * (1 - max((1 - .5 * self.stats.mh.speed / attack_speed_multiplier), 0) / garrote_spacing)
         attacks_per_second['oh_autoattacks'] = attack_speed_multiplier / self.stats.oh.speed * (1 - max((1 - .5 * self.stats.oh.speed / attack_speed_multiplier), 0) / garrote_spacing)
@@ -898,20 +932,12 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         total_mh_hits_per_second = attacks_per_second['mh_autoattack_hits'] + attacks_per_second[cpg] + envenoms_per_second + attacks_per_second['rupture'] + attacks_per_second['garrote']
         total_oh_hits_per_second = attacks_per_second['oh_autoattack_hits']
+
         if cpg == 'mutilate':
             total_oh_hits_per_second += attacks_per_second[cpg]
         total_hits_per_second = total_mh_hits_per_second + total_oh_hits_per_second
 
-        dp_base_proc_rate = .3
-        dp_envenom_proc_rate = dp_base_proc_rate + .15
-
-        envenom_uptime = min(sum([(1 / self.strike_hit_chance + cps) * attacks_per_second['envenom'][cps] for cps in xrange(1,6)]), 1)
-        avg_dp_proc_rate = dp_base_proc_rate * (1 - envenom_uptime) + dp_envenom_proc_rate * envenom_uptime
-
-        poison_procs = avg_dp_proc_rate * total_hits_per_second
-
-        attacks_per_second['deadly_instant_poison'] = poison_procs * self.strike_hit_chance
-        attacks_per_second['deadly_poison'] = 1. / 3
+        self.get_poison_counts(attacks_per_second)
 
         return attacks_per_second, crit_rates
 
@@ -1138,10 +1164,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             ticks_per_rupture = 2 * (1 + i)
             attacks_per_second['rupture_ticks'][i] = ticks_per_rupture * attacks_per_second['rupture'] * finisher_size_breakdown[i]
 
-        total_mh_hits = attacks_per_second['mh_autoattack_hits'] + attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'] + attacks_per_second['mh_killing_spree'] + attacks_per_second['rupture'] + total_evis_per_second + attacks_per_second['main_gauche']
-        total_oh_hits = attacks_per_second['oh_autoattack_hits'] + attacks_per_second['oh_killing_spree']
-
-        self.get_poison_counts(total_mh_hits + total_oh_hits, attacks_per_second)
+        self.get_poison_counts(attacks_per_second)
 
         return attacks_per_second, crit_rates
 
@@ -1357,11 +1380,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         attacks_per_second['rupture_ticks'] = (0, 0, 0, 0, 0, .5)
 
-        total_mh_hits = attacks_per_second['mh_autoattack_hits'] + attacks_per_second['cp_builder'] + sum(attacks_per_second['eviscerate']) + attacks_per_second['ambush']
-        total_oh_hits = attacks_per_second['oh_autoattack_hits']
-
-        self.get_poison_counts(total_mh_hits + total_oh_hits, attacks_per_second)
-
         if self.settings.cycle.use_hemorrhage == 'always':
             attacks_per_second['hemorrhage'] = attacks_per_second['cp_builder']
         elif self.settings.cycle.use_hemorrhage == 'never':
@@ -1376,5 +1394,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             # something that won't get much of an use.
             ticks_per_second = min(1. / 3, 8 / hemorrhage_interval)
             attacks_per_second['hemorrhage_ticks'] = ticks_per_second
+
+        self.get_poison_counts(attacks_per_second)
 
         return attacks_per_second, crit_rates
