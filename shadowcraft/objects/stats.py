@@ -144,10 +144,14 @@ class GearBuffs(object):
         'demon_panther':                  {'stat': 'agi', 'value': 1425, 'duration': 20, 'cooldown': 120},
         'skardyns_grace':                 {'stat': 'mastery', 'value': 1260, 'duration': 20, 'cooldown': 120},
         'heroic_skardyns_grace':          {'stat': 'mastery', 'value': 1425, 'duration': 20, 'cooldown': 120},
+        'virmens_bite':                   {'stat': 'agi', 'value': 4000, 'duration': 25, 'cooldown': None}, #Cooldown = fight length
+        'virmens_bite_prepot':            {'stat': 'agi', 'value': 4000, 'duration': 23, 'cooldown': None}, #guesstimate
         'potion_of_the_tolvir':           {'stat': 'agi', 'value': 1200, 'duration': 25, 'cooldown': None}, #Cooldown = fight length
         'potion_of_the_tolvir_prepot':    {'stat': 'agi', 'value': 1200, 'duration': 23, 'cooldown': None}, #Very rough guesstimate; actual modeling should be done with the opener sequence, alas, there's no such thing.
         'engineer_glove_enchant':         {'stat': 'haste', 'value': 340, 'duration': 12, 'cooldown': 60},  #WotLK tinker
         'synapse_springs':                {'stat': 'varies', 'value': 480, 'duration': 10, 'cooldown': 60}, #Overwrite stat in the model for the highest of agi, str, int
+        #rename?
+        'synapse_springs_II':             {'stat': 'varies', 'value': 2940, 'duration': 10, 'cooldown': 60}, #Overwrite stat in the model for the highest of agi, str, int
         'tazik_shocker':                  {'stat': 'spell_damage', 'value': 4800, 'duration': 0, 'cooldown': 60, 'name': 'Tazik Shocker'},
         'lifeblood':                      {'stat': 'haste', 'value': 480, 'duration': 20, 'cooldown': 120},
         'ancient_petrified_seed':         {'stat': 'agi', 'value': 1277, 'duration': 15, 'cooldown': 60},
@@ -237,22 +241,6 @@ class GearBuffs(object):
         else:
             return 1
     
-    def tradeskill_bonus(self, level, tradeskill=None):
-        # Hardcoded to use maxed tradeskills for the character level.
-        if level == 90:
-            return 320
-        tradeskill_base_bonus = {
-            (01, 60): (0, None),
-            (60, 70): (300, 9),
-            (70, 80): (375, 12),
-            (80, 85): (450, 20),
-            (85, 90): (525, 80),
-            (90, 95): (600, 320)
-        }
-        for i, j in tradeskill_base_bonus.keys():
-            if level in range(i, j):
-                return tradeskill_base_bonus[(i, j)][1]
-
     def tradeskill_bonus(self, level, tradeskill=None):
         # Hardcoded to use maxed tradeskills for the character level.
         if level == 90:

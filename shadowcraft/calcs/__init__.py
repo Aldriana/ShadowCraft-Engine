@@ -53,13 +53,6 @@ class DamageCalculator(object):
         self.base_parry_chance = .03 + .015 * self.level_difference
         self.base_block_chance = .03 + .015 * self.level_difference
 
-        self.base_one_hand_miss_rate = .03 + .015 * self.level_difference
-        self.base_dw_miss_rate = self.base_one_hand_miss_rate + .19
-        self.base_spell_miss_rate = .06 + .03 * self.level_difference
-        self.base_dodge_chance = .03 + .015 * self.level_difference
-        self.base_parry_chance = .03 + .015 * self.level_difference
-        self.base_block_chance = .03 + .015 * self.level_difference
-
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
         if name == 'level':

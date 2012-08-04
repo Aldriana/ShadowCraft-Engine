@@ -128,6 +128,22 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         return cur_dist, time_spent_at_cp
 
+    def get_cp_dist_per_move(self, base_cp_per_cpg=1, *probs):
+        # Computes the combined probabilites of getting an additional cp from
+        # each of the items in probs.
+        cp_per_cpg = {base_cp_per_cpg: 1}
+        for prob in probs:
+            if prob == 0:
+                continue
+            new_cp_per_cpg = {}
+            for cp in cp_per_cpg:
+                new_cp_per_cpg.setdefault(cp, 0)
+                new_cp_per_cpg.setdefault(cp + 1, 0)
+                new_cp_per_cpg[cp] += cp_per_cpg[cp] * (1 - prob)
+                new_cp_per_cpg[cp + 1] += cp_per_cpg[cp] * prob
+            cp_per_cpg = new_cp_per_cpg
+        return cp_per_cpg
+
     def get_snd_length(self, size):
         duration = 6 + 6 * size
         return duration
@@ -377,13 +393,14 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         hit_chance = (1, self.strike_hit_chance)[stats[1] == 'strike']
         return stats[0] * (.8 + .2 / hit_chance)
 
-    def get_activated_uptime(self, duration, cooldown, on_the_gcd=True):
-        response_time = [0, self.settings.response_time][on_the_gcd]
+    def get_activated_uptime(self, duration, cooldown, use_response_time=True):
+        response_time = [0, self.settings.response_time][use_response_time]
         return 1. * duration / (cooldown + response_time)
 
     def get_shadow_blades_uptime(self, cooldown=None):
         # 'cooldown' used as an overide for combat cycles
-        return get_activated_uptime(12, (cooldown, 30)[cooldown is None])
+        duration = 12 + self.stats.gear_buffs.rogue_t14_4pc_extra_time()
+        return self.get_activated_uptime(12, (cooldown, 180)[cooldown is None])
 
     def get_mh_procs_per_second(self, proc, attacks_per_second, crit_rates):
         triggers_per_second = 0
@@ -816,6 +833,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         return damage_breakdown
 
     def assassination_attack_counts(self, current_stats, cpg, finisher_size):
+        attacks_per_second = {}
+
         base_melee_crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
 
         haste_multiplier = self.stats.get_haste_multiplier_from_rating(current_stats['haste'])
@@ -861,7 +880,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         crit_rates = {
             'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
             'oh_autoattacks': min(base_melee_crit_rate, self.dual_wield_oh_hit_chance() - self.GLANCE_RATE),
-            cpg: cpg_crit_rate,
+            'dispatch': cpg_crit_rate,
+            'mutilate': cpg_crit_rate,
             'envenom': base_melee_crit_rate,
             'rupture_ticks': base_melee_crit_rate,
             'venomous_wounds': base_melee_crit_rate,
@@ -873,12 +893,19 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         cpg_energy_cost = self.get_net_energy_cost(cpg)
         cpg_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
 
+        shadow_blades_uptime = self.get_shadow_blades_uptime()
+
+        blindside_proc_rate = .3
+
         if cpg == 'mutilate':
-            seal_fate_proc_rate = 1 - (1 - cpg_crit_rate) ** 2
-            cp_per_cpg = {2: 1 - seal_fate_proc_rate, 3: seal_fate_proc_rate}
+            seal_fate_proc_rate = (1 - (1 - cpg_crit_rate) ** 2) * (1 - blindside_proc_rate) + cpg_crit_rate * blindside_proc_rate
+            prob_mut = 1 - blindside_proc_rate
         else:
             seal_fate_proc_rate = cpg_crit_rate
-            cp_per_cpg = {1: 1 - seal_fate_proc_rate, 2: seal_fate_proc_rate}
+            prob_mut = 0
+
+        cp_per_cpg = self.get_cp_dist_per_move(1, seal_fate_proc_rate, shadow_blades_uptime, prob_mut)
+
         avg_cp_per_cpg = sum([key * cp_per_cpg[key] for key in cp_per_cpg])
 
         cp_distribution, rupture_sizes = self.get_cp_distribution_for_cycle(cp_per_cpg, finisher_size)
@@ -904,8 +931,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         envenom_energy_cost = cpg_per_finisher * cpg_energy_cost + self.envenom_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
         envenoms_per_cycle = energy_for_envenoms / envenom_energy_cost
 
-        attacks_per_second = {}
-
         envenoms_per_second = envenoms_per_cycle / avg_cycle_length
         attacks_per_second['rupture'] = 1 / avg_cycle_length
         attacks_per_second[cpg] = envenoms_per_second * cpg_per_finisher + attacks_per_second['rupture'] * cpg_per_rupture
@@ -929,13 +954,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         attacks_per_second['mh_autoattack_hits'] = attacks_per_second['mh_autoattacks'] * self.dual_wield_mh_hit_chance()
         attacks_per_second['oh_autoattack_hits'] = attacks_per_second['oh_autoattacks'] * self.dual_wield_oh_hit_chance()
-
-        total_mh_hits_per_second = attacks_per_second['mh_autoattack_hits'] + attacks_per_second[cpg] + envenoms_per_second + attacks_per_second['rupture'] + attacks_per_second['garrote']
-        total_oh_hits_per_second = attacks_per_second['oh_autoattack_hits']
-
-        if cpg == 'mutilate':
-            total_oh_hits_per_second += attacks_per_second[cpg]
-        total_hits_per_second = total_mh_hits_per_second + total_oh_hits_per_second
 
         self.get_poison_counts(attacks_per_second)
 

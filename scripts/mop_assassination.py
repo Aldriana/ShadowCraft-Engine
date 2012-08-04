@@ -44,14 +44,14 @@ test_mh = stats.Weapon(6733, 1.8, 'dagger', 'landslide')
 test_oh = stats.Weapon(6733, 1.8, 'dagger', 'landslide')
 
 # Set up procs.
-test_procs = procs.ProcsList('heroic_the_hungerer', 'heroic_matrix_restabilizer')
+test_procs = procs.ProcsList('heroic_vial_of_shadows', 'heroic_wrath_of_unchaining')
 
 # Set up gear buffs.
 test_gear_buffs = stats.GearBuffs('rogue_t14_2pc', 'rogue_t14_4pc', 'leather_specialization', 'potion_of_the_tolvir', 'chaotic_metagem')
 
 # Set up a calcs object..
-#                       str,  agi, ap, crit,  hit, exp, haste, mast,      mh,      oh,      procs,      gear_buffs,      level
-test_stats = stats.Stats(80, 12000, 0, 2500, 2200, 2200, 2300, 3000, test_mh, test_oh, test_procs, test_gear_buffs, test_level)
+#                       str,   agi, ap,  crit,  hit, exp, haste, mast,      mh,      oh,      procs,      gear_buffs,      level
+test_stats = stats.Stats(80, 13000, 250, 2500, 2200, 2200, 2300, 3000, test_mh, test_oh, test_procs, test_gear_buffs, test_level)
 
 # Initialize talents..
 test_talents = talents.Talents('322213', test_class, test_level)
@@ -62,7 +62,7 @@ test_glyphs = glyphs.Glyphs(test_class, *glyph_list)
 
 # Set up settings.
 test_cycle = settings.AssassinationCycle()
-test_settings = settings.Settings(test_cycle, response_time=1, duration=360)
+test_settings = settings.Settings(test_cycle, response_time=.5, duration=360, dmg_poison='dp', utl_poison='lp')
 
 # Build a DPS object.
 calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings, test_level)
@@ -72,7 +72,9 @@ ep_values = calculator.get_ep()
 
 # Compute DPS Breakdown.
 dps_breakdown = calculator.get_dps_breakdown()
+non_execute_breakdown = calculator.assassination_dps_breakdown_non_execute()
 total_dps = sum(entry[1] for entry in dps_breakdown.items())
+non_execute_total = sum(entry[1] for entry in non_execute_breakdown.items())
 
 def max_length(dict_list):
     max_len = 0
@@ -90,7 +92,10 @@ def pretty_print(dict_list):
         dict_values = i.items()
         dict_values.sort(key=lambda entry: entry[1], reverse=True)
         for value in dict_values:
-            print value[0] + ':' + ' ' * (max_len - len(value[0])), value[1]
+            if ("{0:.2f}".format(float(value[1])/total_dps)) != '0.00':
+                print value[0] + ':' + ' ' * (max_len - len(value[0])), str(value[1]) + ' ('+str( "{0:.2f}".format(float(value[1])/total_dps) )+'%)'
+            else:
+                print value[0] + ':' + ' ' * (max_len - len(value[0])), str(value[1])
         print '-' * (max_len + 15)
 
 dicts_for_pretty_print = [
@@ -99,3 +104,7 @@ dicts_for_pretty_print = [
 ]
 pretty_print(dicts_for_pretty_print)
 print ' ' * (max_length(dicts_for_pretty_print) + 1), total_dps, _("total damage per second.")
+print ''
+print 'non-execute breakdown: '
+pretty_print([non_execute_breakdown])
+print ' ' * (max_length([non_execute_breakdown]) + 1), non_execute_total, _("total damage per second.")
