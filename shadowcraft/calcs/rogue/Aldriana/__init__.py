@@ -326,11 +326,17 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         for strike in ('hemorrhage', 'backstab', 'sinister_strike', 'revealing_strike', 'main_gauche', 'ambush', 'dispatch'):
             if strike in attacks_per_second.keys():
-                damage_breakdown[strike] = self.get_dps_contribution(self.get_formula(strike)(average_ap), crit_rates[strike], attacks_per_second[strike])
+                damage = self.get_dps_contribution(self.get_formula(strike)(average_ap), crit_rates[strike], attacks_per_second[strike])
+                if strike in ('sinister_strike', 'backstab'):
+                    damage = [i * self.stats.gear_buffs.rogue_t14_2pc_damage_bonus(strike) for i in damage]
+                damage_breakdown[strike] = damage
 
         for poison in ('venomous_wounds', 'deadly_poison', 'wound_poison', 'deadly_instant_poison'):
             if poison in attacks_per_second.keys():
-                damage_breakdown[poison] = self.get_dps_contribution(self.get_formula(poison)(average_ap, mastery=current_stats['mastery']), crit_rates[poison], attacks_per_second[poison])
+                damage = self.get_dps_contribution(self.get_formula(poison)(average_ap, mastery=current_stats['mastery']), crit_rates[poison], attacks_per_second[poison])
+                if poison == 'venomous_wounds':
+                    damage = [i * self.stats.gear_buffs.rogue_t14_2pc_damage_bonus('venomous_wounds') for i in damage]
+                damage_breakdown[poison] = damage
 
         if 'mh_killing_spree' in attacks_per_second:
             mh_dmg = self.mh_killing_spree_damage(average_ap)
@@ -890,12 +896,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'garrote': base_melee_crit_rate
         }
 
+        blindside_proc_rate = .3
         cpg_energy_cost = self.get_net_energy_cost(cpg)
+        if cpg == 'mutilate':
+            cpg_energy_cost *= 1 - blindside_proc_rate
         cpg_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
 
         shadow_blades_uptime = self.get_shadow_blades_uptime()
-
-        blindside_proc_rate = .3
 
         if cpg == 'mutilate':
             seal_fate_proc_rate = (1 - (1 - cpg_crit_rate) ** 2) * (1 - blindside_proc_rate) + cpg_crit_rate * blindside_proc_rate
