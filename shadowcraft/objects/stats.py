@@ -16,7 +16,7 @@ class Stats(object):
     haste_rating_conversion_values = {60:10.0, 70:15.7692, 80:32.79, 85:128.057, 90:425.0}
     mastery_rating_conversion_values = {60:14, 70:22.0769, 80:45.906, 85:179.28, 90:600.0}
 
-    def __init__(self, str, agi, ap, crit, hit, exp, haste, mastery, mh, oh, procs, gear_buffs, level=85):
+    def __init__(self, str, agi, ap, crit, hit, exp, haste, mastery, mh, oh, procs, gear_buffs, level=None):
         # This will need to be adjusted if at any point we want to support
         # other classes, but this is probably the easiest way to do it for
         # the moment.
@@ -35,6 +35,7 @@ class Stats(object):
         self.level = level
 
     def _set_constants_for_level(self):
+        self.procs.level = self.level
         try:
             self.melee_hit_rating_conversion = self.melee_hit_rating_conversion_values[self.level]
             self.spell_hit_rating_conversion = self.spell_hit_rating_conversion_values[self.level]
@@ -47,7 +48,7 @@ class Stats(object):
 
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
-        if name == 'level':
+        if name == 'level' and value is not None:
             self._set_constants_for_level()
 
     def get_mastery_from_rating(self, rating=None):

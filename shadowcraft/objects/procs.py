@@ -138,6 +138,27 @@ class ProcsList(object):
             return False
         object.__getattribute__(self, proc)
 
+    def __setattr__(self, name, value):
+        object.__setattr__(self, name, value)
+        if name == 'level':
+            self._set_constants_for_level()
+
+    def _set_constants_for_level(self):
+        self.set_swordguard_embroidery_value()
+
+    def set_swordguard_embroidery_value(self):
+        print 'hi'
+        values = [
+            (90, 4000),
+            (85, 1000),
+            (80, 400),
+            (1, 0)
+        ]
+        for level, value in values:
+            if self.level >= level:
+                self.allowed_procs['swordguard_embroidery']['value'] = value
+                break
+
     def get_all_procs_for_stat(self, stat=None):
         procs = []
         for proc_name in self.allowed_procs:

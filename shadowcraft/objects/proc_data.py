@@ -251,7 +251,7 @@ allowed_procs = {
     },
     'swordguard_embroidery': {
         'stat': 'ap',
-        'value': 1000,
+        'value': 'varies',
         'duration': 15,
         'proc_name': 'Swordguard Embroidery',
         'behaviours': {'default': 'swordguard_embroidery'}

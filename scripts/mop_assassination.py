@@ -50,8 +50,8 @@ test_procs = procs.ProcsList('heroic_vial_of_shadows', 'heroic_wrath_of_unchaini
 test_gear_buffs = stats.GearBuffs('rogue_t14_2pc', 'rogue_t14_4pc', 'leather_specialization', 'potion_of_the_tolvir', 'chaotic_metagem')
 
 # Set up a calcs object..
-#                       str,   agi, ap,  crit,  hit, exp, haste, mast,      mh,      oh,      procs,      gear_buffs,      level
-test_stats = stats.Stats(80, 13000, 250, 2500, 2200, 2200, 2300, 3000, test_mh, test_oh, test_procs, test_gear_buffs, test_level)
+#                       str,   agi, ap,  crit,  hit, exp, haste, mast,      mh,      oh,      procs,      gear_buffs
+test_stats = stats.Stats(80, 13000, 250, 2500, 2200, 2200, 2300, 3000, test_mh, test_oh, test_procs, test_gear_buffs)
 
 # Initialize talents..
 test_talents = talents.Talents('322213', test_class, test_level)
