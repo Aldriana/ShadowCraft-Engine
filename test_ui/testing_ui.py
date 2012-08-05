@@ -14,8 +14,8 @@ from shadowcraft.objects import buffs
 from shadowcraft.objects import race
 from shadowcraft.objects import stats
 from shadowcraft.objects import procs
-from shadowcraft.objects.rogue import rogue_talents
-from shadowcraft.objects.rogue import rogue_glyphs
+from shadowcraft.objects import talents
+from shadowcraft.objects import glyphs
 
 import ui_data
 import os
@@ -40,8 +40,7 @@ class GearPage(wx.Panel):
         "trinket2",
         "mainhand",
         "offhand",
-        "ranged"
-                    ]
+    ]
     current_gear = {
         "head": 0,
         "neck": 0,
@@ -59,7 +58,6 @@ class GearPage(wx.Panel):
         "trinket2": 0,
         "mainhand": 0,
         "offhand": 0,
-        "ranged": 0
     }
     stats = [
         'str',
@@ -90,7 +88,7 @@ class GearPage(wx.Panel):
         sizer.Add(label, flag = wx.ALIGN_RIGHT)
         item_cb = self.create_item_ui_for_slot(slot)
         sizer.Add(item_cb)
-        if not slot in ('trinket1', 'trinket2', 'neck', 'waist', 'ranged'):
+        if not slot in ('trinket1', 'trinket2', 'neck', 'waist'):
             ench_label = wx.StaticText(self, -1, label = "Enchant")
             sizer.Add(ench_label, flag = wx.ALIGN_RIGHT)
             enchant_cb = self.create_enchant_ui_for_slot(self, slot)
@@ -211,7 +209,7 @@ class GearPage(wx.Panel):
     def update_item_for_slot(self, item_name, slot):
         items_dict = getattr(ui_data, slot)
         item = None
-        if slot in ('mainhand', 'offhand', 'ranged'):
+        if slot in ('mainhand', 'offhand'):
             item = ui_data.Weapon(item_name, **items_dict[item_name])
         else:
             item = ui_data.Item(item_name, **items_dict[item_name])
@@ -269,6 +267,7 @@ class GearPage(wx.Panel):
 
         tier11_count = 0
         tier12_count = 0
+        tier14_count = 0
         for slot in self.gear_slots:
             for stat in self.stats:
                 current_stats[stat] += getattr(self.current_gear[slot], stat)
@@ -277,6 +276,8 @@ class GearPage(wx.Panel):
                 tier11_count += 1
             elif 'tier_12' == gear_buff:
                 tier12_count += 1
+            elif 'tier_14' == gear_buff:
+                tier14_count += 1
             elif len(gear_buff) > 0:
                 current_stats['gear_buffs'].append(gear_buff)
             if len(self.current_gear[slot].proc) > 0:
@@ -298,6 +299,7 @@ class GearPage(wx.Panel):
             if get_bonus and len(self.current_gear[slot].bonus_stat) > 0:
                 current_stats[self.current_gear[slot].bonus_stat] += self.current_gear[slot].bonus_value
             if slot in enchant_slots and slot not in ('mainhand', 'offhand'):
+                #bugged
                 enchant_name = self.enchants[slot].GetValue()
                 if len(enchant_name) > 0:
                     enchant_data = ui_data.enchants[slot][enchant_name]
@@ -311,9 +313,14 @@ class GearPage(wx.Panel):
             current_stats['gear_buffs'].append('rogue_t12_2pc')
             if tier12_count >= 4:
                 current_stats['gear_buffs'].append('rogue_t12_4pc')
+        if tier14_count >= 2:
+            current_stats['gear_buffs'].append('rogue_t14_2pc')
+            if tier14_count >= 4:
+                current_stats['gear_buffs'].append('rogue_t14_4pc')
                 
         mh = self.current_gear['mainhand']
         enchant = None
+        #bugged
         if len(self.enchants['mainhand'].GetValue()) > 0:
             enchant = ui_data.enchants['melee_weapons'][self.enchants['mainhand'].GetValue()]
         mainhand = stats.Weapon(mh.damage, mh.speed, mh.type, enchant)
@@ -326,10 +333,6 @@ class GearPage(wx.Panel):
         offhand = stats.Weapon(oh.damage, oh.speed, oh.type,  enchant)
         current_stats['oh'] = offhand
 
-        rngd = self.current_gear['ranged']
-        ranged = stats.Weapon(rngd.damage, rngd.speed, rngd.type)
-        current_stats['ranged'] = ranged
-
         current_stats['procs'] = procs.ProcsList(*set(current_stats['procs']))
 
         current_stats['gear_buffs'] = stats.GearBuffs(*set(current_stats['gear_buffs']))
@@ -337,85 +340,14 @@ class GearPage(wx.Panel):
         return current_stats
 
 class TalentsPage(wx.Panel):
-    assassination_talents = [
-        'deadly_momentum',
-        'coup_de_grace',
-        'lethality',
-        'ruthlessness',
-        'quickening',
-        'puncturing_wounds',
-        'blackjack',
-        'deadly_brew',
-        'cold_blood',
-        'vile_poisons',
-        'deadened_nerves',
-        'seal_fate',
-        'murderous_intent',
-        'overkill',
-        'master_poisoner',
-        'improved_expose_armor',
-        'cut_to_the_chase',
-        'venomous_wounds',
-        'vendetta'
-        ]
-
-    combat_talents = [
-        'improved_recuperate',
-        'improved_sinister_strike',
-        'precision',
-        'improved_slice_and_dice',
-        'improved_sprint',
-        'aggression',
-        'improved_kick',
-        'lightning_reflexes',
-        'revealing_strike',
-        'reinforced_leather',
-        'improved_gouge',
-        'combat_potency',
-        'blade_twisting',
-        'throwing_specialization',
-        'adrenaline_rush',
-        'savage_combat',
-        'bandits_guile',
-        'restless_blades',
-        'killing_spree'
-        ]
-    subtlety_talents = [
-        'nightstalker',
-        'improved_ambush',
-        'relentless_strikes',
-        'elusiveness',
-        'waylay',
-        'opportunity',
-        'initiative',
-        'energetic_recovery',
-        'find_weakness',
-        'hemorrhage',
-        'honor_among_thieves',
-        'premeditation',
-        'enveloping_shadows',
-        'cheat_death',
-        'preparation',
-        'sanguinary_vein',
-        'slaughter_from_the_shadows',
-        'serrated_blades',
-        'shadow_dance'
-        ]
-
-    prime_glyphs = [
-        'adrenaline_rush',
-        'backstab',
-        'eviscerate',
-        'hemorrhage',
-        'killing_spree',
-        'mutilate',
-        'revealing_strike',
-        'rupture',
-        'shadow_dance',
-        'sinister_strike',
-        'slice_and_dice',
-        'vendetta',
-        ]
+    rogue_talents = [
+        ['nightstalker', 'subterfuge', 'shadow_focus'],
+        ['deadly_throw', 'nerve_strike', 'combat_readiness'],
+        ['cheat_death', 'leeching_poison', 'elusiveness'],
+        ['preparation', 'shadowstep', 'burst_of_speed'],
+        ['prey_on_the_weak', 'paralytic_poison', 'dirty_tricks'],
+        ['shuriken_toss', 'versatility', 'anticipation']
+    ]
     major_glyphs = [
         'ambush',
         'blade_flurry',
@@ -478,16 +410,6 @@ class TalentsPage(wx.Panel):
         spec_box = wx.FlexGridSizer(cols = 2 * self.MAX_TALENTS_PER_TIER)
         talents = []
         talent_data = {}
-        if spec == 'assass':
-            talents = self.assassination_talents
-            talent_data = rogue_talents.Assassination.allowed_talents
-        elif spec == 'combat':
-            talents = self.combat_talents
-            talent_data = rogue_talents.Combat.allowed_talents
-        elif spec == 'subtlety':
-            talents = self.subtlety_talents
-            talent_data = rogue_talents.Subtlety.allowed_talents
-
         current_tier = 1
         talents_this_tier = 0
 
@@ -525,11 +447,6 @@ class TalentsPage(wx.Panel):
         sizer = wx.FlexGridSizer(cols = 4)
         vbox.Add(sizer)
 
-        sizer.Add(wx.StaticText(self, -1, label = "Prime: "))
-        sizer.Add(self.add_glyph(self.prime_glyphs))
-        sizer.Add(self.add_glyph(self.prime_glyphs))
-        sizer.Add(self.add_glyph(self.prime_glyphs))
-
         sizer.Add(wx.StaticText(self, -1, label = "Major: "))
         sizer.Add(self.add_glyph(self.major_glyphs))
         sizer.Add(self.add_glyph(self.major_glyphs))
@@ -550,18 +467,11 @@ class TalentsPage(wx.Panel):
         return cb
 
     def get_talents(self):
-        assassination_string = ''
-        combat_string = ''
-        subtlety_string = ''
+        # TODO
+        talents = '000000'
+        #for each row
 
-        for talent in self.assassination_talents:
-            assassination_string += self.talents[talent].GetValue()
-        for talent in self.combat_talents:
-            combat_string += self.talents[talent].GetValue()
-        for talent in self.subtlety_talents:
-            subtlety_string += self.talents[talent].GetValue()
-
-        return (assassination_string, combat_string, subtlety_string)
+        return (talents)
 
     def get_glyphs(self):
         glyphs_list = []
@@ -674,7 +584,6 @@ class SettingsPage(wx.Panel):
 class TestGUI(wx.Frame):
     ep_stats = [
         'white_hit',
-        'spell_hit',
         'yellow_hit',
         'str',
         'agi',
@@ -755,11 +664,13 @@ class TestGUI(wx.Frame):
         return hbox
 
     def calculate(self):
+        # bugged
         if not self.initializing:
             gear_stats = self.gear_page.get_stats()
             my_stats = stats.Stats(**gear_stats)
-            my_talents = rogue_talents.RogueTalents(*self.talents_page.get_talents())
-            my_glyphs = rogue_glyphs.RogueGlyphs(*self.talents_page.get_glyphs())
+            my_talents = talents.get_allowed_talents_for_level() #(*self.talents_page.get_talents() )
+            #my_talents = '311113'
+            my_glyphs = glyphs() #.RogueGlyphs(*self.talents_page.get_glyphs())
             my_buffs = buffs.Buffs(*self.buffs_page.current_buffs)
             my_race = race.Race(self.settings_page.get_race())
             test_settings = settings.Settings(self.settings_page.get_cycle(), response_time = self.settings_page.get_response_time())

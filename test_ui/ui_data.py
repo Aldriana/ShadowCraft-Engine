@@ -68,6 +68,16 @@ class Weapon(Item):
         self.type = type
 
 head = {
+    # ----- 5.0 -----
+    '(H)Helmet of the Thousandfold Blades': {'id': 87126, 'agi': 1140, 'exp': 755, 'mastery': 828, 'sockets': ['blue', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 180, 'gear_buff': 'tier_14'},
+    '(H)Crown of Opportunistic Strikes': {'id': 87070, 'agi': 1054, 'crit': 702, 'haste': 782, 'sockets': ['red', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 180},
+    'Helmet of the Thousandfold Blades': {'id': 85301, 'agi': 983, 'exp': 655, 'mastery': 720, 'sockets': ['blue', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 180, 'gear_buff': 'tier_14'},
+    'Crown of Opportunistic Strikes': {'id': 86146, 'agi': 906, 'crit': 604, 'haste': 684, 'sockets': ['red', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 180},
+    'Red Smoke Bandana': {'id': 89300, 'agi': 906, 'hit': 665, 'mastery': 616, 'sockets': ['blue', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 180},
+    '(L)Helmet of the Thousandfold Blades': {'id': 86641, 'agi': 844, 'exp': 567, 'mastery': 624, 'sockets': ['blue', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 180, 'gear_buff': 'tier_14'},
+    '(L)Crown of Opportunistic Strikes': {'id': 86804, 'agi': 775, 'crit': 517, 'haste': 597, 'sockets': ['red', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 180},
+    'Windblast Helm': {'id': 81283, 'agi': 659, 'haste': 520, 'mastery': 440, 'sockets': ['red', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 180},
+    'Soulburner Crown': {'id': 82853, 'agi': 659, 'hit': 537, 'crit': 410, 'sockets': ['red', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 180},
     # ----- 4.2 -----
     'Hood of Rampant Disdain': {'id': 71003, 'agi': 348, 'exp': 172, 'haste': 295, 'sockets': ['red', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 30},
     '(H)Hood of Rampant Disdain': {'id': 71416, 'agi': 400, 'exp': 202, 'haste': 333, 'sockets': ['red', 'meta'], 'bonus_stat': 'agi', 'bonus_value': 30},
@@ -154,6 +164,21 @@ back = {
     '(H)Twitching Shadows': {'id': 56315, 'agi': 168, 'crit': 112, 'haste': 112},
 }
 chest = {
+    # ----- 5.0 -----
+    '(H)Tunic of the Thousandfold Blades': {'id': 87124, 'agi': 1220, 'crit': 880, 'mastery': 800, 'sockets': ['yellow', 'yellow'], 'bonus_stat': 'mastery', 'bonus_value': 120, 'gear_buff': 'tier_14'},
+    '(H)Chestguard of Total Annihilation': {'id': 87058, 'agi': 1134, 'crit': 698, 'haste': 833, 'sockets': ['red', 'yellow'], 'bonus_stat': 'agi', 'bonus_value': 120},
+    'Tunic of the Thousandfold Blades': {'id': 85303, 'agi': 1063, 'crit': 775, 'mastery': 695, 'sockets': ['yellow', 'yellow'], 'bonus_stat': 'mastery', 'bonus_value': 120, 'gear_buff': 'tier_14'},
+    'Chestguard of Total Annihilation': {'id': 86136, 'agi': 986, 'crit': 609, 'haste': 729, 'sockets': ['red', 'yellow'], 'bonus_stat': 'agi', 'bonus_value': 120},
+    'Softfoot Silentwrap': {'id': 89431, 'agi': 986, 'hit': 554, 'exp': 761, 'sockets': ['blue', 'yellow'], 'bonus_stat': 'agi', 'bonus_value': 120},
+    'Chestguard of Nemeses': {'id': 85788, 'agi': 1223, 'crit': 755, 'mastery': 852},
+    '(L)Tunic of the Thousandfold Blades': {'id': 86643, 'agi': 924, 'crit': 683, 'mastery': 603, 'sockets': ['yellow', 'yellow'], 'bonus_stat': 'mastery', 'bonus_value': 120, 'gear_buff': 'tier_14'},
+    'Greyshadow Chestguard': {'id': 85823, 'agi': 1015, 'crit': 660, 'mastery': 687},
+    'Vulajin\'s Vicious Breastplate': {'id': 90585, 'agi': 855, 'crit': 557, 'mastery': 637, 'sockets': ['red', 'yellow'], 'bonus_stat': 'mastery', 'bonus_value': 20}, #bug? seems like bonus should be 120
+    '(L)Chestguard of Total Annihilation': {'id': 86795, 'agi': 855, 'crit': 530, 'haste': 636, 'sockets': ['red', 'yellow'], 'bonus_stat': 'agi', 'bonus_value': 120},
+    'Korloff\'s Raiment': {'id': 81573, 'agi': 899, 'hit': 456, 'crit': 683},
+    'Nimbletoe Chestguard': {'id': 81080, 'agi': 899, 'crit': 609, 'haste': 584},
+    'Delicate Chestguard of the Golden Lotus': {'id': 90597, 'agi': 899, 'crit': 660, 'mastery': 497},
+    'Refurbished Zandalari Vestment': {'id': 89667, 'agi': 797, 'haste': 555, 'exp': 492},
     # ----- 4.2 -----
     'Dark Phoenix Tunic': {'id': 71045, 'agi': 368, 'crit': 230, 'exp': 263, 'sockets': ['red', 'blue'], 'bonus_stat': 'agi', 'bonus_value': 20, 'gear_buff': 'tier_12'}, # Tier 12
     '(H)Dark Phoenix Tunic': {'id': 71537, 'agi': 420, 'crit': 261, 'exp': 299, 'sockets': ['red', 'blue'], 'bonus_stat': 'agi', 'bonus_value': 20, 'gear_buff': 'tier_12'}, # Tier 12
@@ -190,6 +215,18 @@ wrists = {
     'Poison Fang Bracers': {'id': 55886, 'agi': 149, 'hit': 100, 'haste': 100},
 }
 hands = {
+    # ----- 5.0 -----
+    '(H)Gloves of the Thousandfold Blades': {'id': 87125, 'agi': 1026, 'hit': 724, 'crit': 616, 'gear_buff': 'tier_14'},
+    '(H)Bonebreaker Gauntlets': {'id': 86964, 'agi': 946, 'hit': 495, 'haste': 730, 'sockets': ['blue'], 'bonus_stat': 'haste', 'bonus_value': 60},
+    'Murderer\'s Gloves': {'id': 85828, 'agi': 909, 'crit': 615, 'mastery': 591},
+    'Gloves of the Thousandfold Blades': {'id': 85302, 'agi': 909, 'hit': 641, 'crit': 546, 'gear_buff': 'tier_14'},
+    'Bonebreaker Gauntlets': {'id': 86176, 'agi': 829, 'hit': 434, 'haste': 643, 'sockets': ['blue'], 'bonus_stat': 'haste', 'bonus_value': 60},
+    'Fingers of the Loneliest Monk': {'id': 88744, 'agi': 851, 'exp': 593, 'mastery': 526},
+    '(L)Bonebreaker Gauntlets': {'id': 86834, 'agi': 725, 'hit': 380, 'haste': 565, 'sockets': ['blue'], 'bonus_stat': 'haste', 'bonus_value': 60},
+    '(L)Gloves of the Thousandfold Blades': {'id': 86642, 'agi': 805, 'hit': 568, 'crit': 484, 'gear_buff': 'tier_14'},
+    'Greyshadow Gloves': {'id': 85824, 'agi': 754, 'crit': 490, 'mastery': 510},
+    'Tombstone Gauntlets': {'id': 82858, 'agi': 668, 'hit': 349, 'haste': 502},
+    'Hound Trainer\'s Gloves': {'id': 81695, 'agi': 668, 'exp': 391, 'mastery': 478},
     # ----- 4.2 -----
     'Gloves of Dissolving Smoke': {'id': 71020, 'agi': 282, 'crit': 172, 'mastery': 208, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10},
     '(H)Gloves of Dissolving Smoke': {'id': 71440, 'agi': 322, 'crit': 197, 'mastery': 235, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10},
@@ -228,6 +265,8 @@ waist = {
     'Sash of Musing': {'id': 57918, 'agi': 205, 'exp': 130, 'mastery': 150, 'sockets': ['red', 'prismatic'], 'bonus_stat': 'mastery', 'bonus_value': 10},
 }
 legs = {
+    # ----- 5.0 -----
+    '(H)Legguards of the Thousandfold Blades': {'id': 87127, 'agi': 1300, 'hit': 659, 'haste': 1009, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 60, 'gear_buff': 'tier_14'},
     # ----- 4.2 -----
     'Cinderweb Leggings': {'id': 71031, 'agi': 368, 'haste': 212, 'mastery': 284, 'sockets': ['red', 'yellow'], 'bonus_stat': 'agi', 'bonus_value': 20},
     '(H)Cinderweb Leggings': {'id': 71402, 'agi': 420, 'haste': 244, 'mastery': 320, 'sockets': ['red', 'yellow'], 'bonus_stat': 'agi', 'bonus_value': 20},
@@ -248,6 +287,16 @@ legs = {
     'Swiftflight Leggings': {'id': 62425, 'agi': 228, 'crit': 168, 'haste': 148, 'sockets': ['red', 'yellow'], 'bonus_stat': 'crit', 'bonus_value': 20},
 }
 feet = {
+    # ----- 5.0 -----
+    '(H)Boots of the Still Breath': {'id': 86943, 'agi': 946, 'crit': 551, 'haste': 695, 'sockets': ['yellow'], 'bonus_stat': 'crit', 'bonus_value': 60},
+    '(H)Treads of Deadly Secretions': {'id': 86984, 'agi': 946, 'exp': 568, 'mastery': 685, 'sockets': ['yellow'], 'bonus_stat': 'exp', 'bonus_value': 60},
+    'Boots of the Still Breath': {'id': 86153, 'agi': 829, 'crit': 485, 'haste': 610, 'sockets': ['yellow'], 'bonus_stat': 'crit', 'bonus_value': 60},
+    'Treads of Deadly Secretions': {'id': 86984, 'agi': 829, 'exp': 500, 'mastery': 602, 'sockets': ['yellow'], 'bonus_stat': 'exp', 'bonus_value': 60},
+    'Tukka-Tuk\'s Hairy Boots': {'id': 88868, 'agi': 851, 'hit': 601, 'haste': 512},
+    '(L)Boots of the Still Breath': {'id': 86811, 'agi': 725, 'crit': 426, 'haste': 535, 'sockets': ['yellow'], 'bonus_stat': 'crit', 'bonus_value': 60},
+    '(L)Treads of Deadly Secretions': {'id': 86859, 'agi': 725, 'exp': 439, 'mastery': 528, 'sockets': ['yellow'], 'bonus_stat': 'exp', 'bonus_value': 60},
+    'Dashing Strike Treads': {'id': 81688, 'agi': 668, 'crit': 391, 'mastery': 478},
+    'Boots of Plummeting Death': {'id': 81249, 'agi': 668, 'haste': 434, 'exp': 452},
     # ----- 4.2 -----
     'Sandals of Leaping Coals': {'id': 71313, 'agi': 282, 'crit': 133, 'mastery': 230, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10},
     '(H)Sandals of Leaping Coals': {'id': 71467, 'agi': 322, 'crit': 153, 'mastery': 260, 'sockets': ['red'], 'bonus_stat': 'agi', 'bonus_value': 10},
@@ -415,32 +464,16 @@ ranged = {
 }
 
 default_talents = {
-    'coup_de_grace': 3,
-    'lethality': 3,
-    'ruthlessness': 3,
-    'quickening': 2,
-    'puncturing_wounds': 3,
-    'cold_blood': 1,
-    'vile_poisons': 3,
-    'deadened_nerves': 1,
-    'seal_fate': 2,
-    'murderous_intent': 2,
-    'overkill': 1,
-    'master_poisoner': 1,
-    'cut_to_the_chase': 3,
-    'venomous_wounds': 2,
-    'vendetta': 1,
-    'precision': 2,
-    'nightstalker': 2,
-    'relentless_strikes': 3,
-    'opportunity': 3
+    #
 }
 
 enchants = {
-    'head': {'Arcanum of the Ramkahen':{'agi': 60, 'haste': 35}},
+    'head': {
+        #'Arcanum of the Ramkahen':{'agi': 60, 'haste': 35}
+    },
     'shoulders': {
-        'Greater Inscription of Shattered Crystal': {'agi': 50, 'mastery': 25},
-        'Lesser Inscription of Shattered Crystal': {'agi': 30, 'mastery': 20}
+        #'Greater Inscription of Shattered Crystal': {'agi': 50, 'mastery': 25},
+        #'Lesser Inscription of Shattered Crystal': {'agi': 30, 'mastery': 20}
     },
     'back': {
         'Greater Critical Strike': {'crit': 65},
