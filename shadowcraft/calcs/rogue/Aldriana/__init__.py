@@ -326,16 +326,21 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         for strike in ('hemorrhage', 'backstab', 'sinister_strike', 'revealing_strike', 'main_gauche', 'ambush', 'dispatch'):
             if strike in attacks_per_second.keys():
-                damage = self.get_dps_contribution(self.get_formula(strike)(average_ap), crit_rates[strike], attacks_per_second[strike])
+                dps = self.get_dps_contribution(self.get_formula(strike)(average_ap), crit_rates[strike], attacks_per_second[strike])
                 if strike in ('sinister_strike', 'backstab'):
-                    damage = [i * self.stats.gear_buffs.rogue_t14_2pc_damage_bonus(strike) for i in damage]
-                damage_breakdown[strike] = damage
+                    dps = tuple([i * self.stats.gear_buffs.rogue_t14_2pc_damage_bonus(strike) for i in damage])
+                damage_breakdown[strike] = dps
+
+        if 'mh_shadow_blade' in attacks_per_second:
+            mh_dps = self.get_dps_contribution(self.get_formula('mh_shadow_blade')(average_ap), crit_rates['mh_shadow_blade'], attacks_per_second['mh_shadow_blade'])
+            oh_dps = self.get_dps_contribution(self.get_formula('oh_shadow_blade')(average_ap), crit_rates['oh_shadow_blade'], attacks_per_second['oh_shadow_blade'])
+            damage_breakdown['shadow_blades'] = mh_dps[0] + oh_dps[0], mh_dps[1] + oh_dps[1]
 
         for poison in ('venomous_wounds', 'deadly_poison', 'wound_poison', 'deadly_instant_poison'):
             if poison in attacks_per_second.keys():
                 damage = self.get_dps_contribution(self.get_formula(poison)(average_ap, mastery=current_stats['mastery']), crit_rates[poison], attacks_per_second[poison])
                 if poison == 'venomous_wounds':
-                    damage = [i * self.stats.gear_buffs.rogue_t14_2pc_damage_bonus('venomous_wounds') for i in damage]
+                    damage = tuple([i * self.stats.gear_buffs.rogue_t14_2pc_damage_bonus('venomous_wounds') for i in damage])
                 damage_breakdown[poison] = damage
 
         if 'mh_killing_spree' in attacks_per_second:
@@ -408,6 +413,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         duration = 12 + self.stats.gear_buffs.rogue_t14_4pc_extra_time()
         return self.get_activated_uptime(12, (cooldown, 180)[cooldown is None])
 
+    def update_with_shadow_blades(self, attacks_per_second, shadow_blades_uptime):
+        mh_sb_swings_per_second = attacks_per_second['mh_autoattacks'] * shadow_blades_uptime
+        oh_sb_swings_per_second = attacks_per_second['oh_autoattacks'] * shadow_blades_uptime
+        attacks_per_second['mh_autoattacks'] -= mh_sb_swings_per_second
+        attacks_per_second['oh_autoattacks'] -= oh_sb_swings_per_second
+        # TODO figure if this goes off the strike or poison (no dodges) combat table.
+        attacks_per_second['mh_shadow_blade'] = mh_sb_swings_per_second * self.strike_hit_chance
+        attacks_per_second['oh_shadow_blade'] = oh_sb_swings_per_second * self.strike_hit_chance
+
     def get_mh_procs_per_second(self, proc, attacks_per_second, crit_rates):
         triggers_per_second = 0
         if proc.procs_off_auto_attacks():
@@ -416,7 +430,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             else:
                 triggers_per_second += attacks_per_second['mh_autoattack_hits']
         if proc.procs_off_strikes():
-            for ability in ('mutilate', 'dispatch', 'backstab', 'revealing_strike', 'sinister_strike', 'ambush', 'hemorrhage', 'mh_killing_spree', 'main_gauche'):
+            for ability in ('mutilate', 'dispatch', 'backstab', 'revealing_strike', 'sinister_strike', 'ambush', 'hemorrhage', 'mh_killing_spree', 'main_gauche', 'mh_shadow_blade'):
                 if ability == 'main_gauche' and not proc.procs_off_procced_strikes():
                     pass
                 elif ability in attacks_per_second:
@@ -448,7 +462,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             else:
                 triggers_per_second += attacks_per_second['oh_autoattack_hits']
         if proc.procs_off_strikes():
-            for ability in ('mutilate', 'oh_killing_spree'):
+            for ability in ('mutilate', 'oh_killing_spree', 'oh_shadow_blade'):
                 if ability in attacks_per_second:
                     if proc.procs_off_crit_only():
                         triggers_per_second += attacks_per_second[ability] * crit_rates[ability]
@@ -886,6 +900,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         crit_rates = {
             'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
             'oh_autoattacks': min(base_melee_crit_rate, self.dual_wield_oh_hit_chance() - self.GLANCE_RATE),
+            'mh_shadow_blade': base_melee_crit_rate,
+            'oh_shadow_blade': base_melee_crit_rate,
             'dispatch': cpg_crit_rate,
             'mutilate': cpg_crit_rate,
             'envenom': base_melee_crit_rate,
@@ -908,7 +924,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         else:
             seal_fate_proc_rate = cpg_crit_rate
             base_cp_per_cpg = 1
-        cp_per_cpg = self.get_cp_dist_per_move(base_cp_per_cpg, seal_fate_proc_rate)
+        cp_per_cpg = self.get_cp_dist_per_move(base_cp_per_cpg, seal_fate_proc_rate, shadow_blades_uptime)
         avg_cp_per_cpg = sum([key * cp_per_cpg[key] for key in cp_per_cpg])
 
         # probably a better solution later
@@ -978,6 +994,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         attacks_per_second['mh_autoattacks'] = attack_speed_multiplier / self.stats.mh.speed * (1 - max((1 - .5 * self.stats.mh.speed / attack_speed_multiplier), 0) / garrote_spacing)
         attacks_per_second['oh_autoattacks'] = attack_speed_multiplier / self.stats.oh.speed * (1 - max((1 - .5 * self.stats.oh.speed / attack_speed_multiplier), 0) / garrote_spacing)
+
+        self.update_with_shadow_blades(attacks_per_second, shadow_blades_uptime)
 
         attacks_per_second['mh_autoattack_hits'] = attacks_per_second['mh_autoattacks'] * self.dual_wield_mh_hit_chance()
         attacks_per_second['oh_autoattack_hits'] = attacks_per_second['oh_autoattacks'] * self.dual_wield_oh_hit_chance()

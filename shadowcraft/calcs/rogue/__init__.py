@@ -267,8 +267,8 @@ class RogueDamageCalculator(DamageCalculator):
         oh_weapon_damage = self.get_weapon_damage('oh', ap)
         mult, crit_mult = self.get_modifiers('spell', is_bleeding=is_bleeding)
 
-        oh_damage = oh_weapon_damage * mult
-        crit_mh_damage = oh_damage * crit_mult
+        oh_damage = self.oh_penalty() * oh_weapon_damage * mult
+        crit_oh_damage = oh_damage * crit_mult
 
         return oh_damage, crit_oh_damage
 
@@ -391,6 +391,8 @@ class RogueDamageCalculator(DamageCalculator):
             'dispatch':              self.dispatch_damage,
             'mh_mutilate':           self.mh_mutilate_damage,
             'oh_mutilate':           self.oh_mutilate_damage,
+            'mh_shadow_blade':       self.mh_shadow_blades_damage,
+            'oh_shadow_blade':       self.oh_shadow_blades_damage,
             'venomous_wounds':       self.venomous_wounds_damage,
             'deadly_poison':         self.deadly_poison_tick_damage,
             'wound_poison':          self.wound_poison_damage,
