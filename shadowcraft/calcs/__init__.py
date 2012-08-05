@@ -245,45 +245,22 @@ class DamageCalculator(object):
         baseline_dps = self.get_dps()
         talent_list = []
 
-        self.talents.reset_cache()
-
         if list is None:
-        # Build a list of talents that can be taken in the active spec
-            for talent in self.talents.treeForTalent:
-                if self.talents.get_talent_tier(talent) <= 2:
-                    talent_list.append(talent)
-                elif talent in self.talents.spec.allowed_talents:
-                    talent_list.append(talent)
+            talent_list = self.talents.get_allowed_talents_for_level()
         else:
             talent_list = list
 
         for talent in talent_list:
-            old_talent_value = getattr(self.talents, talent)
-            if old_talent_value == 0:
-                new_talent_value = 1
-            else:
-                new_talent_value = old_talent_value - 1
-
-            self.talents.treeForTalent[talent].set_talent(talent, new_talent_value)
+            setattr(self.talents, talent, not getattr(self.talents, talent))
             try:
                 new_dps = self.get_dps()
-                # Disregard talents that don't affect dps
                 if new_dps != baseline_dps:
                     talents_ranking[talent] = abs(new_dps - baseline_dps)
             except:
                 talents_ranking[talent] = _('not implemented')
-            self.talents.treeForTalent[talent].set_talent(talent, old_talent_value)
+            setattr(self.talents, talent, not getattr(self.talents, talent))
 
-        main_tree_talents_ranking = {}
-        off_trees_talents_ranking = {}
-        for talent in talents_ranking:
-            if talent in self.talents.spec.allowed_talents.keys():
-                main_tree_talents_ranking[talent] = talents_ranking[talent]
-            else:
-                off_trees_talents_ranking[talent] = talents_ranking[talent]
-
-        self.talents.reset_cache()
-        return main_tree_talents_ranking, off_trees_talents_ranking
+        return talents_ranking
 
     def get_dps(self):
         # Overwrite this function with your calculations/simulations/whatever;

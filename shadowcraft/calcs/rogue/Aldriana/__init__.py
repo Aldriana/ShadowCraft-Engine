@@ -70,6 +70,28 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         return average_hit * frequency, crit_contribution * frequency
 
     ###########################################################################
+    # Overrides: these make the ep methods default to glyphs/talents that we
+    # are really modeling.
+    ###########################################################################
+
+    def get_glyphs_ranking(self, list=None):
+        if list is None:
+            list = [
+                'vendetta',
+                'tricks_of_the_trade',
+                'adrenaline_rush'
+            ]
+        return super(AldrianasRogueDamageCalculator, self).get_glyphs_ranking(list)
+
+    def get_talents_ranking(self, list=None):
+        if list is None:
+            list = [
+                'shadow_focus',
+                'anticipation'
+            ]
+        return super(AldrianasRogueDamageCalculator, self).get_talents_ranking(list)
+
+    ###########################################################################
     # General modeling functions for pulling information useful across all
     # models.
     ###########################################################################
