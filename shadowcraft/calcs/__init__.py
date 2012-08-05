@@ -41,9 +41,9 @@ class DamageCalculator(object):
         self.level_difference = max(self.target_level - level, 0)
         self.level = level
         if self.stats.gear_buffs.mixology and self.buffs.agi_flask:
-            self.stats.agi += self.stats.gear_buffs.tradeskill_bonus(self.level)
+            self.stats.agi += self.stats.gear_buffs.tradeskill_bonus()
         if self.stats.gear_buffs.master_of_anatomy:
-            self.stats.crit += self.stats.gear_buffs.tradeskill_bonus(self.level)
+            self.stats.crit += self.stats.gear_buffs.tradeskill_bonus()
         self._set_constants_for_class()
         
         self.base_one_hand_miss_rate = .03 + .015 * self.level_difference
@@ -68,6 +68,7 @@ class DamageCalculator(object):
         self.buffs.level = self.level
         self.stats.level = self.level
         self.race.level = self.level
+        self.stats.gear_buffs.level = self.level
         # calculate and cache the level-dependent armor mitigation parameter
         self.armor_mitigation_parameter = armor_mitigation.parameter(self.level)
         # target level dependent constants

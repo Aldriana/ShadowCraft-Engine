@@ -148,10 +148,8 @@ class GearBuffs(object):
         'virmens_bite_prepot':            {'stat': 'agi', 'value': 4000, 'duration': 23, 'cooldown': None}, #guesstimate
         'potion_of_the_tolvir':           {'stat': 'agi', 'value': 1200, 'duration': 25, 'cooldown': None}, #Cooldown = fight length
         'potion_of_the_tolvir_prepot':    {'stat': 'agi', 'value': 1200, 'duration': 23, 'cooldown': None}, #Very rough guesstimate; actual modeling should be done with the opener sequence, alas, there's no such thing.
-        'engineer_glove_enchant':         {'stat': 'haste', 'value': 340, 'duration': 12, 'cooldown': 60},  #WotLK tinker
-        'synapse_springs':                {'stat': 'varies', 'value': 480, 'duration': 10, 'cooldown': 60}, #Overwrite stat in the model for the highest of agi, str, int
-        #rename?
-        'synapse_springs_II':             {'stat': 'varies', 'value': 2940, 'duration': 10, 'cooldown': 60}, #Overwrite stat in the model for the highest of agi, str, int
+        'hyperspeed_accelerators':        {'stat': 'haste', 'value': 340, 'duration': 12, 'cooldown': 60},  #WotLK tinker
+        'synapse_springs':                {'stat': 'varies', 'value': 'varies', 'duration': 10, 'cooldown': 60}, #Overwrite stat in the model for the highest of agi, str, int
         'tazik_shocker':                  {'stat': 'spell_damage', 'value': 4800, 'duration': 0, 'cooldown': 60, 'name': 'Tazik Shocker'},
         'lifeblood':                      {'stat': 'haste', 'value': 480, 'duration': 20, 'cooldown': 120},
         'ancient_petrified_seed':         {'stat': 'agi', 'value': 1277, 'duration': 15, 'cooldown': 60},
@@ -189,6 +187,14 @@ class GearBuffs(object):
         if name in self.allowed_buffs:
             return False
         object.__getattribute__(self, name)
+
+    def __setattr__(self, name, value):
+        object.__setattr__(self, name, value)
+        if name == 'level':
+            self._set_constants_for_level()
+
+    def _set_constants_for_level(self):
+        self.activated_boosts['synapse_springs']['value'] = self.tradeskill_bonus('synapse_springs')
 
     def metagem_crit_multiplier(self):
         if self.chaotic_metagem:
@@ -240,22 +246,24 @@ class GearBuffs(object):
             return 1.05
         else:
             return 1
-    
-    def tradeskill_bonus(self, level, tradeskill=None):
+
+    def tradeskill_bonus(self, tradeskill='base'):
         # Hardcoded to use maxed tradeskills for the character level.
-        if level == 90:
-            return 320
+        tradeskills = ('skill', 'base', 'synapse_springs')
+        if self.level == 90:
+            return (600, 320, 2940)[tradeskills.index(tradeskill)]
         tradeskill_base_bonus = {
-            (01, 60): (0, None),
-            (60, 70): (300, 9),
-            (70, 80): (375, 12),
-            (80, 85): (450, 20),
-            (85, 90): (525, 80),
-            (90, 95): (600, 320)
+            (01, 60): (0, None,  0),
+            (60, 70): (300, 9,   0),
+            (70, 80): (375, 12,  0),
+            (80, 85): (450, 20,  480),
+            (85, 90): (525, 80,  480),
+            (90, 95): (600, 320, 2940)
         }
+
         for i, j in tradeskill_base_bonus.keys():
-            if level in range(i, j):
-                return tradeskill_base_bonus[(i, j)][1]
+            if self.level in range(i, j):
+                return tradeskill_base_bonus[(i, j)][tradeskills.index(tradeskill)]
 
     def get_all_activated_agi_boosts(self):
         return self.get_all_activated_boosts_for_stat('agi')
