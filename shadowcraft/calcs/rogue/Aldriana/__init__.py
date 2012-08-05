@@ -852,6 +852,26 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         vw_proc_chance = .75
         vw_energy_per_bleed_tick = vw_energy_return * vw_proc_chance
 
+        if self.talents.shadow_focus:
+            garrote_net_cost = 0
+        else:
+            garrote_net_cost = self.get_net_energy_cost('garrote')
+            garrote_net_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
+
+        garrote_spacing = self.settings.duration
+        if self.settings.cycle.use_garrote == 'always':
+            garrote_spacing = (180. + self.settings.response_time)
+            if self.race.shadowmeld:
+                shadowmeld_spacing = 120. + self.settings.response_time
+                garrote_spacing = 1 / (1 / garrote_spacing + 1 / shadowmeld_spacing)
+            total_garrotes_per_second = (1 - 20. / self.settings.duration) / self.settings.duration + 1 / garrote_spacing
+        elif self.settings.cycle.use_garrote == 'opener':
+            total_garrotes_per_second = (1 - 20. / self.settings.duration) / self.settings.duration
+        else:
+            total_garrotes_per_second = 0
+
+        energy_regen -= garrote_net_cost * total_garrotes_per_second
+
         energy_regen_with_rupture = energy_regen + 0.5 * vw_energy_per_bleed_tick
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
@@ -957,8 +977,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             total_rupture_ticks = sum(attacks_per_second['rupture_ticks'])
         attacks_per_second['venomous_wounds'] = (total_rupture_ticks) * vw_proc_chance * self.poison_hit_chance / avg_cycle_length
 
-        attacks_per_second['mh_autoattacks'] = attack_speed_multiplier / self.stats.mh.speed * (1 - max((1 - .5 * self.stats.mh.speed / attack_speed_multiplier), 0))
-        attacks_per_second['oh_autoattacks'] = attack_speed_multiplier / self.stats.oh.speed * (1 - max((1 - .5 * self.stats.oh.speed / attack_speed_multiplier), 0))
+        attacks_per_second['mh_autoattacks'] = attack_speed_multiplier / self.stats.mh.speed * (1 - max((1 - .5 * self.stats.mh.speed / attack_speed_multiplier), 0) / garrote_spacing)
+        attacks_per_second['oh_autoattacks'] = attack_speed_multiplier / self.stats.oh.speed * (1 - max((1 - .5 * self.stats.oh.speed / attack_speed_multiplier), 0) / garrote_spacing)
 
         attacks_per_second['mh_autoattack_hits'] = attacks_per_second['mh_autoattacks'] * self.dual_wield_mh_hit_chance()
         attacks_per_second['oh_autoattack_hits'] = attacks_per_second['oh_autoattacks'] * self.dual_wield_oh_hit_chance()
