@@ -147,7 +147,6 @@ class ProcsList(object):
         self.set_swordguard_embroidery_value()
 
     def set_swordguard_embroidery_value(self):
-        print 'hi'
         values = [
             (90, 4000),
             (85, 1000),

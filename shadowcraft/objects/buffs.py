@@ -30,7 +30,7 @@ class Buffs(object):
         'food_300_agi'                      # Sea Mist Rice Noodles
     ])
 
-    mast_buff_values = {80:268, 85:1042, 90:3500}
+    buff_scaling = {80: 131, 85: 509, 90: 1710}
 
     def __init__(self, *args, **kwargs):
         for buff in args:
@@ -52,7 +52,7 @@ class Buffs(object):
 
     def _set_constants_for_level(self):
         try:
-            self.mast_buff_bonus = self.mast_buff_values[self.level]
+            self.mast_buff_bonus = round(1.7545000315 * self.buff_scaling[self.level])
         except KeyError as e:
             raise exceptions.InvalidLevelException(_('No conversion factor available for level {level}').format(level=self.level))
 

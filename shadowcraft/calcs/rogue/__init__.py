@@ -88,7 +88,7 @@ class RogueDamageCalculator(DamageCalculator):
         base_modifier = 1
         kwargs.setdefault('mastery', None)
         if 'executioner' in args and self.settings.cycle._cycle_type == 'subtlety':
-            base_modifier += .025 * self.stats.get_mastery_from_rating(kwargs['mastery'])
+            base_modifier += .03 * self.stats.get_mastery_from_rating(kwargs['mastery'])
         if 'potent_poisons' in args and self.settings.cycle._cycle_type == 'assassination':
             base_modifier += .035 * self.stats.get_mastery_from_rating(kwargs['mastery'])
         # Assassasins's Resolve

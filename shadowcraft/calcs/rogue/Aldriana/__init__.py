@@ -183,7 +183,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'ap': self.stats.ap + 2 * self.level - 30,
             'crit': self.stats.crit,
             'haste': self.stats.haste,
-            'mastery': self.stats.mastery
+            'mastery': self.stats.mastery + self.buffs.buff_mast()
         }
 
         for boost in self.race.get_racial_stat_boosts():
