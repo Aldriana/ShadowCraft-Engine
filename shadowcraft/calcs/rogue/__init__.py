@@ -39,7 +39,7 @@ class RogueDamageCalculator(DamageCalculator):
         self.ambush_bonus_dmg = self.get_factor(0.3269999921) # 3612
         self.vw_base_dmg =      self.get_factor(0.6000000238) # 68389
         self.dp_base_dmg =      self.get_factor(0.6000000238) # 853
-        self.ip_base_dmg =      self.get_factor(0.3129999936) # 126788
+        self.ip_base_dmg =      self.get_factor(0.3129999936, 0.2800000012) # 126788
         self.wp_base_dmg =      self.get_factor(0.3129999936, 0.2800000012) # 3617
         self.garrote_base_dmg = self.get_factor(0.1180000007) # 280
         self.rup_base_dmg =     self.get_factor(0.1850000024) # 586
