@@ -8,8 +8,10 @@ class InvalidProcException(exceptions.InvalidInputException):
 class Proc(object):
     allowed_behaviours = proc_data.behaviours
 
-    def __init__(self, stat, value, duration, proc_name, behaviours, max_stacks=1, can_crit=True):
+    def __init__(self, stat, value, duration, proc_name, behaviours, max_stacks=1, can_crit=True, stats=None):
         self.stat = stat
+        if stats is not None:
+            self.stats = set(stats)
         self.value = value
         self.can_crit = can_crit
         self.duration = duration
@@ -43,13 +45,13 @@ class Proc(object):
         self.on_procced_strikes = on_procced_strikes  # Main Gauche and its kin
 
     def procs_off_auto_attacks(self):
-        if self.trigger in ('all_attacks', 'auto_attacks', 'all_spells_and_attacks'):
+        if self.trigger in ('all_attacks', 'auto_attacks', 'all_spells_and_attacks', 'all_melee_attacks'):
             return True
         else:
             return False
 
     def procs_off_strikes(self):
-        if self.trigger in ('all_attacks', 'strikes', 'all_spells_and_attacks'):
+        if self.trigger in ('all_attacks', 'strikes', 'all_spells_and_attacks', 'all_melee_attacks'):
             return True
         else:
             return False
@@ -91,7 +93,7 @@ class Proc(object):
             return False
 
     def procs_off_apply_debuff(self):
-        if self.trigger in ('all_spells_and_attacks', 'all_attacks'):
+        if self.trigger in ('all_spells_and_attacks', 'all_attacks', 'all_melee_attacks'):
             return True
         else:
             return False

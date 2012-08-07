@@ -350,7 +350,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             if strike in attacks_per_second.keys():
                 dps = self.get_dps_contribution(self.get_formula(strike)(average_ap), crit_rates[strike], attacks_per_second[strike])
                 if strike in ('sinister_strike', 'backstab'):
-                    dps = tuple([i * self.stats.gear_buffs.rogue_t14_2pc_damage_bonus(strike) for i in damage])
+                    dps = tuple([i * self.stats.gear_buffs.rogue_t14_2pc_damage_bonus(strike) for i in dps])
                 damage_breakdown[strike] = dps
 
         if 'mh_shadow_blade' in attacks_per_second:
@@ -717,8 +717,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             elif proc_info.stat == 'extra_weapon_damage':
                 weapon_damage_procs.append(proc_info)
 
+        windsong_enchants = []
         weapon_enchants = set([])
-        for hand, enchant in [(x, y) for x in ('mh', 'oh') for y in ('landslide', 'hurricane', 'avalanche')]:
+        for hand, enchant in [(x, y) for x in ('mh', 'oh') for y in ('landslide', 'hurricane', 'avalanche', 'windsong', 'dancing_steel')]:
             proc = getattr(getattr(self.stats, hand), enchant)
             if proc:
                 setattr(proc, '_'.join((hand, 'only')), True)
@@ -726,6 +727,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                     active_procs.append(proc)
                 elif enchant == 'avalanche':
                     damage_procs.append(proc)
+                elif enchant == 'windsong':
+                    windsong_enchants.append(proc)
+                elif proc.stat == 'highest' and 'agi' in proc.stats:
+                    proc.stat = 'agi'
+                    active_procs.append(proc)
 
                 if enchant not in weapon_enchants and enchant in ('hurricane', 'avalanche'):
                     weapon_enchants.add(enchant)
@@ -760,6 +766,19 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 if not proc.icd:
                     self.set_uptime(proc, attacks_per_second, crit_rates)
                     current_stats[proc.stat] += proc.uptime * proc.value
+
+            if windsong_enchants:
+                windsong_uptime = 0
+                stats = windsong_enchants[0].stats
+                for proc in windsong_enchants:
+                    proc.ppm /= 1. * len(stats)
+                    self.set_uptime(proc, attacks_per_second, crit_rates)
+                    proc.ppm *= 1. * len(stats)
+                    windsong_uptime += proc.uptime
+                if len(windsong_enchants) == 2:
+                    windsong_uptime -= windsong_enchants[0].uptime * windsong_enchants[1].uptime
+                for stat in stats:
+                    current_stats[stat] += windsong_uptime * windsong_enchants[0].value
 
             current_stats['agi'] *= self.agi_multiplier
             for stat in ('crit', 'haste', 'mastery'):

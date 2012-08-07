@@ -350,17 +350,19 @@ allowed_melee_enchants = {
         'proc_name': 'Landslide',
         'behaviours': {'default': 'landslide'}
     },
-    'windsong': { # Needs to be improved!
-        'stat': 'weird_proc',
+    'windsong': {
+        'stat': 'random',
+        'stats': ('haste', 'mastery', 'crit'),
         'value': 1500,
         'duration': 12,
         'proc_name': 'Windsong',
         'behaviours': {'default': 'windsong'}
     },
-    'dancing_steel': { # Needs to be improved!
-        'stat': 'agi',
+    'dancing_steel': {
+        'stat': 'highest',
+        'stats': ('agi', 'str'),
         'value': 1650,
-        'value': 12,
+        'duration': 12,
         'proc_name': 'Dancing Steel',
         'behaviours': {'default': 'dancing_steel'}
     },
@@ -371,8 +373,8 @@ allowed_melee_enchants = {
 # You can't set a value for both 'ppm' and 'proc_chance': one must be False
 # Allowed triggers are: 'all_spells_and_attacks', 'all_damaging_attacks',
 # 'all_attacks', 'strikes', 'auto_attacks', 'damaging_spells', 'all_spells',
-# 'healing_spells', 'all_periodic_damage', 'bleeds',
-# 'spell_periodic_damage' and 'hots'.
+# 'healing_spells', 'all_periodic_damage', 'bleeds', 'spell_periodic_damage'
+# and 'hots'. The trigger 'all_melee_attacks' is sugar for 'all_attacks'.
 behaviours = {
     'rogue_poison': {
         'icd': 0,
@@ -404,12 +406,12 @@ behaviours = {
         'ppm': 1,
         'trigger': 'all_attacks'
     },
-    'dancing_steel': { # Needs to be improved!
+    'dancing_steel': {
         'icd': 0,
         'ppm': 1,
-        'trigger': 'all_attacks'
+        'trigger': 'all_melee_attacks'
     },
-    'windsong': { # Needs to be improved!
+    'windsong': {
         'icd': 0,
         'ppm': 3,
         'trigger': 'all_attacks'
