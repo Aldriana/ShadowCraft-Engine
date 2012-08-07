@@ -39,6 +39,7 @@ class RogueDamageCalculator(DamageCalculator):
         self.ambush_bonus_dmg = self.get_factor(0.3269999921) # 3612
         self.vw_base_dmg =      self.get_factor(0.6000000238) # 68389
         self.dp_base_dmg =      self.get_factor(0.6000000238) # 853
+        self.ip_base_dmg =      self.get_factor(0.3129999936) # 126788
         self.wp_base_dmg =      self.get_factor(0.3129999936, 0.2800000012) # 3617
         self.garrote_base_dmg = self.get_factor(0.1180000007) # 280
         self.rup_base_dmg =     self.get_factor(0.1850000024) # 586
@@ -52,6 +53,7 @@ class RogueDamageCalculator(DamageCalculator):
         self.vw_percentage_dmg = .168
         self.dp_percentage_dmg = .213
         self.wp_percentage_dmg = .090
+        self.ip_percentage_dmg = .109
 
     def get_factor(self, avg, delta=0):
         avg_for_level = avg * self.spell_scaling_for_level
@@ -281,8 +283,12 @@ class RogueDamageCalculator(DamageCalculator):
         return tick_damage, crit_tick_damage
 
     def deadly_instant_poison_damage(self, ap, mastery=None, is_bleeding=True):
-        return self.wound_poison_damage(ap, mastery=mastery, is_bleeding=is_bleeding)
+        mult, crit_mult = self.get_modifiers('spell', 'potent_poisons', mastery=mastery, is_bleeding=is_bleeding)
 
+        damage = (self.ip_base_dmg + self.ip_percentage_dmg * ap) * mult
+        crit_damage = damage * crit_mult
+
+        return damage, crit_damage
     def wound_poison_damage(self, ap, mastery=None, is_bleeding=True):
         mult, crit_mult = self.get_modifiers('spell', 'potent_poisons', mastery=mastery, is_bleeding=is_bleeding)
 
