@@ -289,6 +289,7 @@ class RogueDamageCalculator(DamageCalculator):
         crit_damage = damage * crit_mult
 
         return damage, crit_damage
+
     def wound_poison_damage(self, ap, mastery=None, is_bleeding=True):
         mult, crit_mult = self.get_modifiers('spell', 'potent_poisons', mastery=mastery, is_bleeding=is_bleeding)
 

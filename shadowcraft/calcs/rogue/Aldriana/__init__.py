@@ -440,9 +440,34 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         oh_sb_swings_per_second = attacks_per_second['oh_autoattacks'] * shadow_blades_uptime
         attacks_per_second['mh_autoattacks'] -= mh_sb_swings_per_second
         attacks_per_second['oh_autoattacks'] -= oh_sb_swings_per_second
-        # TODO figure if this goes off the strike or poison (no dodges) combat table.
         attacks_per_second['mh_shadow_blade'] = mh_sb_swings_per_second * self.strike_hit_chance
         attacks_per_second['oh_shadow_blade'] = oh_sb_swings_per_second * self.strike_hit_chance
+
+    def update_with_autoattack_passives(self, attacks_per_second, *args, **kwargs):
+        # Appends the keys passed in args to attacks_per_second. This includes
+        # autoattack, autoattack_hits, shadow_blades, main_gauche and poisons.
+        # If no args passed, it'll attempt to append all of them.
+        if not args or 'swings' in args or 'mh_autoattack' not in attacks_per_second or 'oh_autoattack' not in attacks_per_second:
+            attacks_per_second['mh_autoattacks'] = kwargs['attack_speed_multiplier'] / self.stats.mh.speed
+            attacks_per_second['oh_autoattacks'] = kwargs['attack_speed_multiplier'] / self.stats.oh.speed
+        if 'swing_reset_spacing' in kwargs and kwargs['swing_reset_spacing'] is not None:
+            attacks_per_second['mh_autoattacks'] *= (1 - max((1 - .5 * self.stats.mh.speed / kwargs['attack_speed_multiplier']), 0) / kwargs['swing_reset_spacing'])
+            attacks_per_second['oh_autoattacks'] *= (1 - max((1 - .5 * self.stats.oh.speed / kwargs['attack_speed_multiplier']), 0) / kwargs['swing_reset_spacing'])
+        if not args or 'shadow_blades' in args:
+            if 'shadow_blades_uptime' not in kwargs:
+                kwargs['shadow_blades_uptime'] = self.get_shadow_blades_uptime()
+            self.update_with_shadow_blades(attacks_per_second, kwargs['shadow_blades_uptime'])
+        if not args or 'autoattack_hits' in args:
+            attacks_per_second['mh_autoattack_hits'] = attacks_per_second['mh_autoattacks'] * self.dual_wield_mh_hit_chance()
+            attacks_per_second['oh_autoattack_hits'] = attacks_per_second['oh_autoattacks'] * self.dual_wield_oh_hit_chance()
+        if not args or 'poisons' in args:
+            self.get_poison_counts(attacks_per_second)
+        if self.settings.cycle._cycle_type == 'combat' and (not args or 'main_gauche' in args):
+            if 'main_gauche_proc_rate' in kwargs:
+                main_gauche_proc_rate = kwargs['main_gauche_proc_rate']
+            elif 'current_stats' in kwargs:
+                main_gauche_proc_rate = .02 * self.stats.get_mastery_from_rating(kwargs['current_stats']['mastery']) * self.one_hand_melee_hit_chance()
+            attacks_per_second['main_gauche'] = main_gauche_proc_rate * attacks_per_second['mh_autoattack_hits']
 
     def get_mh_procs_per_second(self, proc, attacks_per_second, crit_rates):
         triggers_per_second = 0
@@ -913,7 +938,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             garrote_net_cost = self.get_net_energy_cost('garrote')
             garrote_net_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
 
-        garrote_spacing = self.settings.duration
         if self.settings.cycle.use_garrote == 'always':
             garrote_spacing = (180. + self.settings.response_time)
             if self.race.shadowmeld:
@@ -922,8 +946,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             total_garrotes_per_second = (1 - 20. / self.settings.duration) / self.settings.duration + 1 / garrote_spacing
         elif self.settings.cycle.use_garrote == 'opener':
             total_garrotes_per_second = (1 - 20. / self.settings.duration) / self.settings.duration
+            garrote_spacing = self.settings.duration
         else:
             total_garrotes_per_second = 0
+            garrote_spacing = None
 
         energy_regen -= garrote_net_cost * total_garrotes_per_second
 
@@ -1033,15 +1059,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             total_rupture_ticks = sum(attacks_per_second['rupture_ticks'])
         attacks_per_second['venomous_wounds'] = (total_rupture_ticks) * vw_proc_chance * self.poison_hit_chance / avg_cycle_length
 
-        attacks_per_second['mh_autoattacks'] = attack_speed_multiplier / self.stats.mh.speed * (1 - max((1 - .5 * self.stats.mh.speed / attack_speed_multiplier), 0) / garrote_spacing)
-        attacks_per_second['oh_autoattacks'] = attack_speed_multiplier / self.stats.oh.speed * (1 - max((1 - .5 * self.stats.oh.speed / attack_speed_multiplier), 0) / garrote_spacing)
-
-        self.update_with_shadow_blades(attacks_per_second, shadow_blades_uptime)
-
-        attacks_per_second['mh_autoattack_hits'] = attacks_per_second['mh_autoattacks'] * self.dual_wield_mh_hit_chance()
-        attacks_per_second['oh_autoattack_hits'] = attacks_per_second['oh_autoattacks'] * self.dual_wield_oh_hit_chance()
-
-        self.get_poison_counts(attacks_per_second)
+        self.update_with_autoattack_passives(attacks_per_second,
+                shadow_blades_uptime=shadow_blades_uptime,
+                attack_speed_multiplier=attack_speed_multiplier,
+                swing_reset_spacing=garrote_spacing)
 
         return attacks_per_second, crit_rates
 
@@ -1105,14 +1126,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
 
-        attacks_per_second['mh_autoattacks'] = attack_speed_multiplier / self.stats.mh.speed
-        attacks_per_second['oh_autoattacks'] = attack_speed_multiplier / self.stats.oh.speed
-
-        attacks_per_second['mh_autoattack_hits'] = attacks_per_second['mh_autoattacks'] * self.dual_wield_mh_hit_chance()
-        attacks_per_second['oh_autoattack_hits'] = attacks_per_second['oh_autoattacks'] * self.dual_wield_oh_hit_chance()
-
         main_gauche_proc_rate = .02 * self.stats.get_mastery_from_rating(current_stats['mastery']) * self.one_hand_melee_hit_chance()
-        attacks_per_second['main_gauche'] = main_gauche_proc_rate * attacks_per_second['mh_autoattack_hits']
+        self.update_with_autoattack_passives(attacks_per_second,
+                'autoattack', 'autoattack_hits', 'main_gauche',
+                attack_speed_multiplier=attack_speed_multiplier,
+                main_gauche_proc_rate=main_gauche_proc_rate)
 
         combat_potency_regen_per_oh = 15. * (0.20*(self.stats.oh.speed/1.4)) #the new "normalized" formula 
         combat_potency_from_mg = 15. *.2 #20% chance from all MG procs
@@ -1128,6 +1146,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         crit_rates = {
             'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
             'oh_autoattacks': min(base_melee_crit_rate, self.dual_wield_oh_hit_chance() - self.GLANCE_RATE),
+            'mh_shadow_blade': base_melee_crit_rate,
+            'oh_shadow_blade': base_melee_crit_rate,
             'main_gauche': base_melee_crit_rate,
             'sinister_strike': base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus(),
             'revealing_strike': base_melee_crit_rate,
@@ -1311,12 +1331,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier * mastery_snd_speed / 1.4
 
-        attacks_per_second['mh_autoattacks'] = attack_speed_multiplier / self.stats.mh.speed
-        attacks_per_second['oh_autoattacks'] = attack_speed_multiplier / self.stats.oh.speed
-
-        attacks_per_second['mh_autoattack_hits'] = attacks_per_second['mh_autoattacks'] * self.dual_wield_mh_hit_chance()
-        attacks_per_second['oh_autoattack_hits'] = attacks_per_second['oh_autoattacks'] * self.dual_wield_oh_hit_chance()
-
         backstab_crit_rate = base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus()
         if backstab_crit_rate > 1:
             backstab_crit_rate = 1.
@@ -1328,6 +1342,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         crit_rates = {
             'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
             'oh_autoattacks': min(base_melee_crit_rate, self.dual_wield_oh_hit_chance() - self.GLANCE_RATE),
+            'mh_shadow_blade': base_melee_crit_rate,
+            'oh_shadow_blade': base_melee_crit_rate,
             'eviscerate': base_melee_crit_rate,
             'backstab': backstab_crit_rate,
             'ambush': ambush_crit_rate,
@@ -1475,6 +1491,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             ticks_per_second = min(1. / 3, 8 / hemorrhage_interval)
             attacks_per_second['hemorrhage_ticks'] = ticks_per_second
 
-        self.get_poison_counts(attacks_per_second)
+        self.update_with_autoattack_passives(attacks_per_second,
+                attack_speed_multiplier=attack_speed_multiplier)
 
         return attacks_per_second, crit_rates
