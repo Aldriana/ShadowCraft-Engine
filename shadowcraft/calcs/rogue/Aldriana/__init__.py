@@ -1062,9 +1062,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.settings.cycle._cycle_type != 'combat':
             raise InputNotModeledException(_('You must specify a combat cycle to match your combat spec.'))
 
-        if self.settings.cycle.use_revealing_strike not in ('sometimes', 'always', 'never'):
-            raise InputNotModeledException(_('Revealing strike usage must be set to always, sometimes, or never'))
-
         self.set_constants()
 
         self.max_bandits_guile_buff = 1.3
@@ -1098,6 +1095,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         return damage_breakdown
 
     def combat_attack_counts(self, current_stats):
+        #TODO: Model Sinister Strike and Finishers
         attacks_per_second = {}
 
         base_melee_crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
@@ -1116,14 +1114,16 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         main_gauche_proc_rate = .02 * self.stats.get_mastery_from_rating(current_stats['mastery']) * self.one_hand_melee_hit_chance()
         attacks_per_second['main_gauche'] = main_gauche_proc_rate * attacks_per_second['mh_autoattack_hits']
 
-        combat_potency_regen_per_cpg = 15 * .2 # TODO proc chance is modified by weapon speed
-        autoattack_cp_regen = combat_potency_regen_per_cpg * (attacks_per_second['oh_autoattack_hits'] + attacks_per_second['main_gauche'])
+        combat_potency_regen_per_oh = 15. * (0.20*(self.stats.oh.speed/1.4)) #the new "normalized" formula 
+        combat_potency_from_mg = 15. *.2 #20% chance from all MG procs
+        autoattack_cp_regen = combat_potency_regen_per_oh * attacks_per_second['oh_autoattack_hits']
+        autoattack_cp_regen += combat_potency_from_mg * attacks_per_second['main_gauche']
         energy_regen = self.base_energy_regen * haste_multiplier + self.bonus_energy_regen + autoattack_cp_regen
 
-        rupture_energy_cost = self.base_rupture_energy_cost - main_gauche_proc_rate * combat_potency_regen_per_cpg
-        eviscerate_energy_cost = self.base_eviscerate_energy_cost - main_gauche_proc_rate * combat_potency_regen_per_cpg
-        revealing_strike_energy_cost = self.base_revealing_strike_energy_cost - main_gauche_proc_rate * combat_potency_regen_per_cpg
-        sinister_strike_energy_cost = self.base_sinister_strike_energy_cost - main_gauche_proc_rate * combat_potency_regen_per_cpg
+        rupture_energy_cost = self.base_rupture_energy_cost - main_gauche_proc_rate * combat_potency_from_mg
+        eviscerate_energy_cost = self.base_eviscerate_energy_cost - main_gauche_proc_rate * combat_potency_from_mg
+        revealing_strike_energy_cost = self.base_revealing_strike_energy_cost - main_gauche_proc_rate * combat_potency_from_mg
+        sinister_strike_energy_cost = self.base_sinister_strike_energy_cost - main_gauche_proc_rate * combat_potency_from_mg
 
         crit_rates = {
             'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
@@ -1141,54 +1141,28 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'wound_poison': base_melee_crit_rate
         }
 
-        extra_cp_chance = 0 #TODO: the glyph of SS is now baked into RvS
+        extra_cp_chance = .2 # Assume all casts during RvS
 
         cp_per_ss = {1: 1 - extra_cp_chance, 2: extra_cp_chance}
         FINISHER_SIZE = 5
+        
+        rvs_duration = 18
+        rvs_interval = rvs_duration + 30/energy_regen #lets factor in some minor pooling.
+        
+        cp_distribution = self.get_cp_distribution_for_cycle(cp_per_ss, FINISHER_SIZE)[0]
+        
+        rvs_per_finisher = 0
+        ss_per_finisher = 0
+        cp_per_finisher = 0
+        finisher_size_breakdown = [0, 0, 0, 0, 0, 0]
+        for (cps, ss), probability in cp_distribution.items():
+            ss_per_finisher += ss * probability
+            cp_per_finisher += cps * probability
+            finisher_size_breakdown[cps] += probability
 
-        if self.settings.cycle.use_revealing_strike == 'never':
-            cp_distribution = self.get_cp_distribution_for_cycle(cp_per_ss, FINISHER_SIZE)[0]
+        self.revealing_strike_multiplier = 1.35
 
-            rvs_per_finisher = 0
-            ss_per_finisher = 0
-            cp_per_finisher = 0
-            finisher_size_breakdown = [0, 0, 0, 0, 0, 0]
-            for (cps, ss), probability in cp_distribution.items():
-                ss_per_finisher += ss * probability
-                cp_per_finisher += cps * probability
-                finisher_size_breakdown[cps] += probability
-        elif self.settings.cycle.use_revealing_strike == 'sometimes':
-            cp_distribution = self.get_cp_distribution_for_cycle(cp_per_ss, FINISHER_SIZE - 1)[0]
-
-            rvs_per_finisher = 0
-            ss_per_finisher = 0
-            cp_per_finisher = 0
-            finisher_size_breakdown = [0, 0, 0, 0, 0, 0]
-            for (cps, ss), probability in cp_distribution.items():
-                ss_per_finisher += ss * probability
-                if cps < FINISHER_SIZE:
-                    actual_cps = cps + 1
-                    rvs_per_finisher += probability
-                else:
-                    actual_cps = cps
-                cp_per_finisher += actual_cps * probability
-                finisher_size_breakdown[actual_cps] += probability
-        else:
-            cp_distribution = self.get_cp_distribution_for_cycle(cp_per_ss, FINISHER_SIZE - 1)[0]
-
-            rvs_per_finisher = 1
-            ss_per_finisher = 0
-            cp_per_finisher = 0
-            finisher_size_breakdown = [0, 0, 0, 0, 0, 0]
-            for (cps, ss), probability in cp_distribution.items():
-                ss_per_finisher += ss * probability
-                actual_cps = min(cps + 1, 5)
-                cp_per_finisher += actual_cps * probability
-                finisher_size_breakdown[actual_cps] += probability
-
-        self.revealing_strike_multiplier = 1 + .35 * rvs_per_finisher
-
-        energy_cost_to_generate_cps = rvs_per_finisher * revealing_strike_energy_cost + ss_per_finisher * sinister_strike_energy_cost
+        energy_cost_to_generate_cps = revealing_strike_energy_cost + ss_per_finisher * sinister_strike_energy_cost
         total_eviscerate_cost = energy_cost_to_generate_cps + eviscerate_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
         total_rupture_cost = energy_cost_to_generate_cps + rupture_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
 
@@ -1203,6 +1177,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         avg_rupture_gap = (total_rupture_cost - .5 * total_eviscerate_cost) / energy_regen
         avg_rupture_duration = 4 * (1 + cp_per_finisher)
+        if self.talents.anticipation:
+            avg_rupture_duration = 24
         if self.settings.cycle.use_rupture:
             attacks_per_second['rupture'] = 1 / (avg_rupture_duration + avg_rupture_gap)
         else:
@@ -1238,7 +1214,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         ksp_cooldown = 120 / (1 + total_restless_blades_benefit) + self.settings.response_time
 
         attacks_per_second['sinister_strike'] = (total_evis_per_second + attacks_per_second['rupture']) * ss_per_finisher + ss_per_snd / (snd_duration - self.settings.response_time)
-        attacks_per_second['revealing_strike'] = (total_evis_per_second + attacks_per_second['rupture']) * rvs_per_finisher
+        attacks_per_second['revealing_strike'] = 1/rvs_interval
         attacks_per_second['main_gauche'] += (attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'] + total_evis_per_second + attacks_per_second['rupture']) * main_gauche_proc_rate
 
         time_at_level = 4 / (attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'])
