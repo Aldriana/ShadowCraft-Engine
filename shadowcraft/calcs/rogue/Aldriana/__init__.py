@@ -23,23 +23,23 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
     def get_dps(self):
         super(AldrianasRogueDamageCalculator, self).get_dps()
-        if self.settings.cycle._cycle_type == 'assassination':
+        if self.settings.is_assassination_rogue():
             self.init_assassination()
             return self.assassination_dps_estimate()
-        elif self.settings.cycle._cycle_type == 'combat':
+        elif self.settings.is_combat_rogue():
             return self.combat_dps_estimate()
-        elif self.settings.cycle._cycle_type == 'subtlety':
+        elif self.settings.is_subtlety_rogue():
             return self.subtlety_dps_estimate()
         else:
             raise InputNotModeledException(_('You must specify a spec.'))
 
     def get_dps_breakdown(self):
-        if self.settings.cycle._cycle_type == 'assassination':
+        if self.settings.is_assassination_rogue():
             self.init_assassination()
             return self.assassination_dps_breakdown()
-        elif self.settings.cycle._cycle_type == 'combat':
+        elif self.settings.is_combat_rogue():
             return self.combat_dps_breakdown()
-        elif self.settings.cycle._cycle_type == 'subtlety':
+        elif self.settings.is_subtlety_rogue():
             return self.subtlety_dps_breakdown()
         else:
             raise InputNotModeledException(_('You must specify a spec.'))
@@ -312,7 +312,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
     def get_damage_breakdown(self, current_stats, attacks_per_second, crit_rates, damage_procs):
         average_ap = current_stats['ap'] + 2 * current_stats['agi'] + self.base_strength
         average_ap *= self.buffs.attack_power_multiplier()
-        if self.settings.cycle._cycle_type == 'combat':
+        if self.settings.is_combat_rogue():
             average_ap *= 1.25
 
         damage_breakdown = {}
@@ -462,7 +462,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second['oh_autoattack_hits'] = attacks_per_second['oh_autoattacks'] * self.dual_wield_oh_hit_chance()
         if not args or 'poisons' in args:
             self.get_poison_counts(attacks_per_second)
-        if self.settings.cycle._cycle_type == 'combat' and (not args or 'main_gauche' in args):
+        if self.settings.is_combat_rogue() and (not args or 'main_gauche' in args):
             if 'main_gauche_proc_rate' in kwargs:
                 main_gauche_proc_rate = kwargs['main_gauche_proc_rate']
             elif 'current_stats' in kwargs:
@@ -681,7 +681,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         total_hits_per_second = mh_hits_per_second + oh_hits_per_second
         if self.settings.dmg_poison == 'dp':
             dp_base_proc_rate = .3
-            if self.settings.cycle._cycle_type == 'assassination':
+            if self.settings.is_assassination_rogue():
                 dp_base_proc_rate += .2
                 dp_envenom_proc_rate = dp_base_proc_rate + .15
                 envenom_uptime = min(sum([(1 / self.strike_hit_chance + cps) * attacks_per_second['envenom'][cps] for cps in xrange(1, 6)]), 1)
@@ -693,7 +693,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second['deadly_poison'] = 1. / 3 * (1 - total_hits_per_second / self.settings.duration)
         elif self.settings.dmg_poison == 'wp':
             wp_proc_rate = .3
-            if self.settings.cycle._cycle_type == 'assassination':
+            if self.settings.is_assassination_rogue():
                 wp_proc_rate += .2
             attacks_per_second['wound_poison'] = total_hits_per_second * wp_proc_rate * self.poison_hit_chance
 
@@ -854,7 +854,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         # breakdown or other sub-result, make sure to call this, as it
         # initializes many values that are needed to perform the calculations.
 
-        if self.settings.cycle._cycle_type != 'assassination':
+        if not self.settings.is_assassination_rogue():
             raise InputNotModeledException(_('You must specify an assassination cycle to match your assassination spec.'))
         if self.stats.mh.type != 'dagger' or self.stats.oh.type != 'dagger':
             raise InputNotModeledException(_('Assassination modeling requires daggers in both hands'))
@@ -979,7 +979,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'garrote': base_melee_crit_rate
         }
 
-        blindside_proc_rate = .3
+        blindside_proc_rate = .3 * self.strike_hit_chance
         cpg_energy_cost = self.get_net_energy_cost(cpg)
         cpg_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
 
@@ -999,30 +999,27 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.talents.anticipation:
             avg_rupture_length = 24
             avg_gap = 0
+            rupture_sizes = [0, 0, 0, 0, 0, 1]
             #blindside costs nothing, kept for future proofing
-            avg_builder_cost = cpg_energy_cost
+            cpg_energy_cost += 0
             if cpg == 'mutilate':
-                avg_builder_cps = avg_cp_per_cpg + blindside_proc_rate * (1 + base_melee_crit_rate) * (self.strike_hit_chance)
-            else:
-                avg_builder_cps = avg_cp_per_cpg
+                avg_cp_per_cpg += blindside_proc_rate * (1 + base_melee_crit_rate)
+
             avg_cycle_length = avg_rupture_length + .5 * (1 / self.strike_hit_chance - 1 + .5 * self.settings.response_time)
 
             attacks_per_second['rupture'] = 1 / avg_cycle_length
-            attacks_per_second['rupture_ticks'] = [0, 0, 0, 0, 0, .5 * (avg_rupture_length / avg_cycle_length)]
-            total_rupture_ticks = 12
             energy_per_cycle = avg_rupture_length * energy_regen_with_rupture + avg_gap * energy_regen
 
-            cpg_per_finisher = 5 / avg_builder_cps
-            energy_for_rupture = cpg_per_finisher * avg_builder_cost + self.base_rupture_energy_cost - 25 #because assuming 5CP
+            cpg_per_finisher = 5 / avg_cp_per_cpg
+            energy_for_rupture = cpg_per_finisher * cpg_energy_cost + self.base_rupture_energy_cost - 25 #because assuming 5CP
             remaining_energy = energy_per_cycle - energy_for_rupture
-            energy_per_env_period = cpg_per_finisher * avg_builder_cost + self.envenom_energy_cost - 25 #because assuming 5CP
+            energy_per_env_period = cpg_per_finisher * cpg_energy_cost + self.envenom_energy_cost - 25 #because assuming 5CP
             env_periods = remaining_energy / energy_per_env_period
 
             attacks_per_second[cpg] = (env_periods * cpg_per_finisher + cpg_per_finisher) / avg_cycle_length
             if cpg == 'mutilate':
-                attacks_per_second['dispatch'] = attacks_per_second['mutilate'] * blindside_proc_rate * self.strike_hit_chance
+                attacks_per_second['dispatch'] = attacks_per_second['mutilate'] * blindside_proc_rate
             attacks_per_second['envenom'] = [0, 0, 0, 0, 0, env_periods / avg_cycle_length]
-            envenoms_per_second = attacks_per_second['envenom'][5]
         else:
             cp_distribution, rupture_sizes = self.get_cp_distribution_for_cycle(cp_per_cpg, finisher_size)
             avg_rupture_size = sum([i * rupture_sizes[i] for i in xrange(6)])
@@ -1052,12 +1049,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
             attacks_per_second['envenom'] = [finisher_chance * envenoms_per_second for finisher_chance in envenom_size_breakdown]
 
-            attacks_per_second['rupture_ticks'] = [0, 0, 0, 0, 0, 0]
-            for i in xrange(1, 6):
-                ticks_per_rupture = 2 * (1 + i)
-                attacks_per_second['rupture_ticks'][i] = ticks_per_rupture * attacks_per_second['rupture'] * rupture_sizes[i]
-            total_rupture_ticks = sum(attacks_per_second['rupture_ticks'])
-        attacks_per_second['venomous_wounds'] = (total_rupture_ticks) * vw_proc_chance * self.poison_hit_chance / avg_cycle_length
+        attacks_per_second['rupture_ticks'] = [0, 0, 0, 0, 0, 0]
+        for i in xrange(1, 6):
+            ticks_per_rupture = 2 * (1 + i)
+            attacks_per_second['rupture_ticks'][i] = ticks_per_rupture * attacks_per_second['rupture'] * rupture_sizes[i]
+
+        total_rupture_ticks_per_second = sum(attacks_per_second['rupture_ticks'])
+        attacks_per_second['venomous_wounds'] = total_rupture_ticks_per_second * vw_proc_chance * self.poison_hit_chance
 
         self.update_with_autoattack_passives(attacks_per_second,
                 shadow_blades_uptime=shadow_blades_uptime,
@@ -1080,7 +1078,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         return sum(self.combat_dps_breakdown().values())
 
     def combat_dps_breakdown(self):
-        if self.settings.cycle._cycle_type != 'combat':
+        if not self.settings.is_combat_rogue():
             raise InputNotModeledException(_('You must specify a combat cycle to match your combat spec.'))
 
         self.set_constants()
@@ -1276,7 +1274,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         return sum(self.subtlety_dps_breakdown().values())
 
     def subtlety_dps_breakdown(self):
-        if self.settings.cycle._cycle_type != 'subtlety':
+        if not self.settings.is_subtlety_rogue():
             raise InputNotModeledException(_('You must specify a subtlety cycle to match your subtlety spec.'))
 
         if self.stats.mh.type != 'dagger' and self.settings.cycle.use_hemorrhage != 'always':

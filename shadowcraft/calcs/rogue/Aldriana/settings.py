@@ -16,6 +16,17 @@ class Settings(object):
         if utl_poison not in (None, 'cp', 'mnp', 'lp', 'pp'):
             raise exceptions.InvalidInputException(_('You can only choose Crippling(cp), Mind-Numbing(mnp), Leeching(lp) or Paralytic(pp) as a non-lethal poison'))
 
+    def get_spec(self):
+        return self.cycle._cycle_type
+
+    def is_assassination_rogue(self):
+        return self.get_spec() == 'assassination'
+
+    def is_combat_rogue(self):
+        return self.get_spec() == 'combat'
+
+    def is_subtlety_rogue(self):
+        return self.get_spec() == 'subtlety'
 
 class Cycle(object):
     # Base class for cycle objects.  Can't think of anything that particularly

@@ -78,7 +78,7 @@ class RogueDamageCalculator(DamageCalculator):
         return damage
 
     def oh_penalty(self):
-        if self.settings.cycle._cycle_type == 'combat':
+        if self.settings.is_combat_rogue():
             return .875
         else:
             return .5
@@ -89,16 +89,16 @@ class RogueDamageCalculator(DamageCalculator):
         # have anything to stack additively with.
         base_modifier = 1
         kwargs.setdefault('mastery', None)
-        if 'executioner' in args and self.settings.cycle._cycle_type == 'subtlety':
+        if 'executioner' in args and self.settings.is_subtlety_rogue():
             base_modifier += .03 * self.stats.get_mastery_from_rating(kwargs['mastery'])
-        if 'potent_poisons' in args and self.settings.cycle._cycle_type == 'assassination':
+        if 'potent_poisons' in args and self.settings.is_assassination_rogue():
             base_modifier += .035 * self.stats.get_mastery_from_rating(kwargs['mastery'])
         # Assassasins's Resolve
-        if self.settings.cycle._cycle_type == 'assassination' and (self.stats.mh.type == 'dagger'):
+        if self.settings.is_assassination_rogue() and (self.stats.mh.type == 'dagger'):
             base_modifier *= 1.2
         # Sanguinary Vein
         kwargs.setdefault('is_bleeding', True)
-        if kwargs['is_bleeding'] == True and self.settings.cycle._cycle_type == 'subtlety':
+        if kwargs['is_bleeding'] and self.settings.is_subtlety_rogue():
             base_modifier *= 1.25
         # Raid modifiers
         kwargs.setdefault('armor', None)
