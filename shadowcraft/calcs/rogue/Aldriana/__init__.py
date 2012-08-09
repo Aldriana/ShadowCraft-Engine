@@ -1002,19 +1002,19 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             avg_cp_per_cpg += blindside_proc_rate * (1 + base_melee_crit_rate)
 
         cp_distribution, rupture_sizes = self.get_cp_distribution_for_cycle(cp_per_cpg, finisher_size)
+
         avg_rupture_size = sum([i * rupture_sizes[i] for i in xrange(6)])
-        avg_rupture_length = 4 * (1 + avg_rupture_size)
+        avg_rupture_length = 4. * (1 + avg_rupture_size)
+        avg_wait_to_strike_connect = 1 / self.strike_hit_chance - 1
+        avg_gap = .5 * (avg_wait_to_strike_connect + .5 * self.settings.response_time)
+        avg_cycle_length = avg_gap + avg_rupture_length
+        energy_per_cycle = avg_rupture_length * energy_regen_with_rupture + avg_gap * energy_regen
+
+        attacks_per_second['rupture'] = 1 / avg_cycle_length
 
         # probably a better solution later
         if self.talents.anticipation:
-            avg_gap = 0
-
-            avg_cycle_length = avg_rupture_length + .5 * (1 / self.strike_hit_chance - 1 + .5 * self.settings.response_time)
-
-            attacks_per_second['rupture'] = 1 / avg_cycle_length
-            energy_per_cycle = avg_rupture_length * energy_regen_with_rupture + avg_gap * energy_regen
-
-            cpg_per_finisher = 5 / avg_cp_per_cpg
+            cpg_per_finisher = 5. / avg_cp_per_cpg
             energy_for_rupture = cpg_per_finisher * cpg_energy_cost + self.base_rupture_energy_cost - 25 #because assuming 5CP
             remaining_energy = energy_per_cycle - energy_for_rupture
             energy_per_env_period = cpg_per_finisher * cpg_energy_cost + self.envenom_energy_cost - 25 #because assuming 5CP
@@ -1023,9 +1023,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second[cpg] = (env_periods * cpg_per_finisher + cpg_per_finisher) / avg_cycle_length
             attacks_per_second['envenom'] = [0, 0, 0, 0, 0, env_periods / avg_cycle_length]
         else:
-            avg_gap = .5 * (1 / self.strike_hit_chance - 1 + .5 * self.settings.response_time)
-            avg_cycle_length = avg_gap + avg_rupture_length
-
             cpg_per_rupture = avg_rupture_size / avg_cp_per_cpg
             energy_for_rupture = cpg_per_rupture * cpg_energy_cost + self.base_rupture_energy_cost - avg_rupture_size * self.relentless_strikes_energy_return_per_cp
 
@@ -1037,13 +1034,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 cp_per_finisher += cps * probability
                 envenom_size_breakdown[cps] += probability
 
-            energy_per_cycle = avg_rupture_length * energy_regen_with_rupture + avg_gap * energy_regen
             energy_for_envenoms = energy_per_cycle - energy_for_rupture
             envenom_energy_cost = cpg_per_finisher * cpg_energy_cost + self.envenom_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
             envenoms_per_cycle = energy_for_envenoms / envenom_energy_cost
 
             envenoms_per_second = envenoms_per_cycle / avg_cycle_length
-            attacks_per_second['rupture'] = 1 / avg_cycle_length
             attacks_per_second[cpg] = envenoms_per_second * cpg_per_finisher + attacks_per_second['rupture'] * cpg_per_rupture
 
             attacks_per_second['envenom'] = [finisher_chance * envenoms_per_second for finisher_chance in envenom_size_breakdown]
@@ -1132,8 +1127,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 attack_speed_multiplier=attack_speed_multiplier,
                 main_gauche_proc_rate=main_gauche_proc_rate)
 
-        combat_potency_regen_per_oh = 15. * (0.20*(self.stats.oh.speed/1.4)) #the new "normalized" formula 
-        combat_potency_from_mg = 15. *.2 #20% chance from all MG procs
+        combat_potency_regen_per_oh = 15. * (0.20 * (self.stats.oh.speed / 1.4)) #the new "normalized" formula
+        combat_potency_from_mg = 15. * .2 #20% chance from all MG procs
         autoattack_cp_regen = combat_potency_regen_per_oh * attacks_per_second['oh_autoattack_hits']
         autoattack_cp_regen += combat_potency_from_mg * attacks_per_second['main_gauche']
         energy_regen = self.base_energy_regen * haste_multiplier + self.bonus_energy_regen + autoattack_cp_regen
@@ -1167,7 +1162,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         FINISHER_SIZE = 5
         
         rvs_duration = 18
-        rvs_interval = rvs_duration + 30/energy_regen #lets factor in some minor pooling.
+        rvs_interval = rvs_duration + 30 / energy_regen #lets factor in some minor pooling.
         
         cp_distribution = self.get_cp_distribution_for_cycle(cp_per_ss, FINISHER_SIZE)[0]
         
