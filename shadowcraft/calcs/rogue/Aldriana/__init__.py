@@ -113,11 +113,12 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         return 1 + .3 * self.heroism_uptime_per_fight()
 
     def get_cp_distribution_for_cycle(self, cp_distribution_per_move, target_cp_quantity):
-        if self.talents.anticipation and self.settings.is_assassination_rogue():
+        avg_cp_per_cpg = sum([key * cp_distribution_per_move[key] for key in cp_distribution_per_move])
+        if self.talents.anticipation:
             # TODO: The combat model is not yet updated to figure the distribution
-            dist = None
+            dist = {(5, avg_cp_per_cpg): 1}
             time_spent_at_cp = [0, 0, 0, 0, 0, 1]
-            return dist, time_spent_at_cp
+            return dist, time_spent_at_cp, avg_cp_per_cpg
 
         time_spent_at_cp = [0, 0, 0, 0, 0, 0]
         cur_min_cp = 0
@@ -152,7 +153,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         for i in xrange(6):
             time_spent_at_cp[i] /= total_weight
 
-        return cur_dist, time_spent_at_cp
+        return cur_dist, time_spent_at_cp, avg_cp_per_cpg
 
     def get_cp_per_cpg(self, base_cp_per_cpg=1, *probs):
         # Computes the combined probabilites of getting an additional cp from
@@ -169,6 +170,32 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 new_cp_per_cpg[cp + 1] += cp_per_cpg[cp] * prob
             cp_per_cpg = new_cp_per_cpg
         return cp_per_cpg
+
+    def get_crit_rates(self, stats):
+        base_melee_crit_rate = self.melee_crit_rate(agi=stats['agi'], crit=stats['crit'])
+        crit_rates = {
+            'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
+            'oh_autoattacks': min(base_melee_crit_rate, self.dual_wield_oh_hit_chance() - self.GLANCE_RATE),
+        }
+        for attack in ('mh_shadow_blade', 'oh_shadow_blade', 'deadly_instant_poison', 'deadly_poison', 'rupture_ticks'):
+            crit_rates[attack] = base_melee_crit_rate
+
+        if self.settings.is_assassination_rogue():
+            spec_attacks = ('mutilate', 'dispatch', 'envenom', 'venomous_wounds', 'garrote')
+        elif self.settings.is_combat_rogue():
+            spec_attacks = ('main_gauche', 'sinister_strike', 'revealing_strike', 'eviscerate', 'killing_spree', 'oh_killing_spree', 'mh_killing_spree', 'wound_poison')
+        elif self.settings.is_subtlety_rogue():
+            spec_attacks = ('eviscerate', 'backstab', 'ambush', 'hemorrhage', 'wound_poison')
+        for attack in spec_attacks:
+            crit_rates[attack] = base_melee_crit_rate
+
+        for attack, crit_rate in crit_rates.items():
+            if attack in ('mutilate', 'sinister_strike', 'backstab'):
+                crit_rates[attack] += self.stats.gear_buffs.rogue_t11_2pc_crit_bonus()
+            if crit_rate > 1:
+                crit_rates[attack] = 1
+
+        return crit_rates
 
     def get_snd_length(self, size):
         duration = 6 + 6 * size
@@ -924,8 +951,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
     def assassination_attack_counts(self, current_stats, cpg, finisher_size):
         attacks_per_second = {}
-
-        base_melee_crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
+        crit_rates = self.get_crit_rates(current_stats)
 
         haste_multiplier = self.stats.get_haste_multiplier_from_rating(current_stats['haste'])
 
@@ -963,25 +989,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         blindside_proc_rate = [0, .3 * self.strike_hit_chance][cpg == 'mutilate']
 
-        mut_crit_rate = min(1, base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus())
-        dsp_crit_rate = min(1, base_melee_crit_rate)
-
-        crit_rates = {
-            'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
-            'oh_autoattacks': min(base_melee_crit_rate, self.dual_wield_oh_hit_chance() - self.GLANCE_RATE),
-            'mh_shadow_blade': base_melee_crit_rate,
-            'oh_shadow_blade': base_melee_crit_rate,
-            'dispatch': dsp_crit_rate,
-            'mutilate': mut_crit_rate,
-            'envenom': base_melee_crit_rate,
-            'rupture_ticks': base_melee_crit_rate,
-            'venomous_wounds': base_melee_crit_rate,
-            'deadly_instant_poison': base_melee_crit_rate,
-            'deadly_poison': base_melee_crit_rate,
-            'garrote': base_melee_crit_rate
-        }
-
-
         cpg_energy_cost = self.get_net_energy_cost(cpg)
         cpg_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
         cpg_energy_cost += 0 #blindside costs nothing, kept for future proofing
@@ -989,17 +996,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         shadow_blades_uptime = self.get_shadow_blades_uptime()
 
         if cpg == 'mutilate':
-            seal_fate_proc_rate = 1 - (1 - mut_crit_rate) ** 2
+            seal_fate_proc_rate = 1 - (1 - crit_rates['mutilate']) ** 2
             base_cp_per_cpg = 2
         else:
-            seal_fate_proc_rate = dsp_crit_rate
+            seal_fate_proc_rate = crit_rates['dispatch']
             base_cp_per_cpg = 1
         cp_per_cpg = self.get_cp_per_cpg(base_cp_per_cpg, seal_fate_proc_rate, shadow_blades_uptime)
-        avg_cp_per_cpg = sum([key * cp_per_cpg[key] for key in cp_per_cpg])
+        cp_distribution, rupture_sizes, avg_cp_per_cpg = self.get_cp_distribution_for_cycle(cp_per_cpg, finisher_size)
         if cpg == 'mutilate':
-            avg_cp_per_cpg += blindside_proc_rate * (1 + base_melee_crit_rate)
-
-        cp_distribution, rupture_sizes = self.get_cp_distribution_for_cycle(cp_per_cpg, finisher_size)
+            avg_cp_per_cpg += blindside_proc_rate * (1 + crit_rates['dispatch'])
 
         avg_rupture_size = sum([i * rupture_sizes[i] for i in xrange(6)])
         avg_rupture_length = 4. * (1 + avg_rupture_size)
@@ -1010,19 +1015,16 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         cpg_per_rupture = avg_rupture_size / avg_cp_per_cpg
 
-        # probably a better solution later
+        cpg_per_finisher = 0
+        cp_per_finisher = 0
+        envenom_size_breakdown = [0, 0, 0, 0, 0, 0]
+        for (cps, cpgs), probability in cp_distribution.items():
+            cpg_per_finisher += cpgs * probability
+            cp_per_finisher += cps * probability
+            envenom_size_breakdown[cps] += probability
+
         if self.talents.anticipation:
-            cpg_per_finisher = cpg_per_rupture
-            cp_per_finisher = 5
-            envenom_size_breakdown = rupture_sizes
-        else:
-            cpg_per_finisher = 0
-            cp_per_finisher = 0
-            envenom_size_breakdown = [0, 0, 0, 0, 0, 0]
-            for (cps, cpgs), probability in cp_distribution.items():
-                cpg_per_finisher += cpgs * probability
-                cp_per_finisher += cps * probability
-                envenom_size_breakdown[cps] += probability
+            cpg_per_finisher = cpg_per_rupture # Blindside's seal fate is not computed in the cp dist.
 
         attacks_per_second['rupture'] = 1 / avg_cycle_length
 
@@ -1106,9 +1108,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
     def combat_attack_counts(self, current_stats):
         #TODO: Model Sinister Strike and Finishers
         attacks_per_second = {}
-
-        base_melee_crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
-        base_spell_crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
+        crit_rates = self.get_crit_rates(current_stats)
 
         haste_multiplier = self.stats.get_haste_multiplier_from_rating(current_stats['haste'])
 
@@ -1131,24 +1131,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         revealing_strike_energy_cost = self.base_revealing_strike_energy_cost - main_gauche_proc_rate * combat_potency_from_mg
         sinister_strike_energy_cost = self.base_sinister_strike_energy_cost - main_gauche_proc_rate * combat_potency_from_mg
 
-        crit_rates = {
-            'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
-            'oh_autoattacks': min(base_melee_crit_rate, self.dual_wield_oh_hit_chance() - self.GLANCE_RATE),
-            'mh_shadow_blade': base_melee_crit_rate,
-            'oh_shadow_blade': base_melee_crit_rate,
-            'main_gauche': base_melee_crit_rate,
-            'sinister_strike': base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus(),
-            'revealing_strike': base_melee_crit_rate,
-            'eviscerate': base_melee_crit_rate,
-            'killing_spree': base_melee_crit_rate,
-            'oh_killing_spree': base_melee_crit_rate,
-            'mh_killing_spree': base_melee_crit_rate,
-            'rupture_ticks': base_melee_crit_rate,
-            'deadly_instant_poison': base_melee_crit_rate,
-            'deadly_poison': base_melee_crit_rate,
-            'wound_poison': base_melee_crit_rate
-        }
-
         extra_cp_chance = .2 # Assume all casts during RvS
 
         cp_per_ss = {1: 1 - extra_cp_chance, 2: extra_cp_chance}
@@ -1157,7 +1139,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         rvs_duration = 18
         rvs_interval = rvs_duration + 30 / energy_regen #lets factor in some minor pooling.
         
-        cp_distribution = self.get_cp_distribution_for_cycle(cp_per_ss, FINISHER_SIZE)[0]
+        cp_distribution, rupture_sizes, avg_cp_per_cpg = self.get_cp_distribution_for_cycle(cp_per_ss, FINISHER_SIZE)
         
         rvs_per_finisher = 0
         ss_per_finisher = 0
@@ -1309,38 +1291,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
     def subtlety_attack_counts_backstab(self, current_stats):
         attacks_per_second = {}
-
-        base_melee_crit_rate = self.melee_crit_rate(agi=current_stats['agi'], crit=current_stats['crit'])
-        base_spell_crit_rate = self.spell_crit_rate(crit=current_stats['crit'])
+        crit_rates = self.get_crit_rates(current_stats)
 
         haste_multiplier = self.stats.get_haste_multiplier_from_rating(current_stats['haste'])
 
         mastery_snd_speed = 1 + .4 * (1 + .02 * self.stats.get_mastery_from_rating(current_stats['mastery']))
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier * mastery_snd_speed / 1.4
-
-        backstab_crit_rate = base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus()
-        if backstab_crit_rate > 1:
-            backstab_crit_rate = 1.
-
-        ambush_crit_rate = base_melee_crit_rate
-        if ambush_crit_rate > 1:
-            ambush_crit_rate = 1
-
-        crit_rates = {
-            'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
-            'oh_autoattacks': min(base_melee_crit_rate, self.dual_wield_oh_hit_chance() - self.GLANCE_RATE),
-            'mh_shadow_blade': base_melee_crit_rate,
-            'oh_shadow_blade': base_melee_crit_rate,
-            'eviscerate': base_melee_crit_rate,
-            'backstab': backstab_crit_rate,
-            'ambush': ambush_crit_rate,
-            'hemorrhage': base_melee_crit_rate,
-            'rupture_ticks': base_melee_crit_rate,
-            'deadly_instant_poison': base_melee_crit_rate,
-            'deadly_poison': base_melee_crit_rate,
-            'wound_poison': base_melee_crit_rate
-        }
 
         backstab_energy_cost = self.base_backstab_energy_cost
 
