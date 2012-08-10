@@ -961,20 +961,18 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
 
-        cpg_crit_rate = base_melee_crit_rate
-        if cpg == 'mutilate':
-            cpg_crit_rate += self.stats.gear_buffs.rogue_t11_2pc_crit_bonus()
+        blindside_proc_rate = [0, .3 * self.strike_hit_chance][cpg == 'mutilate']
 
-        if cpg_crit_rate > 1:
-            cpg_crit_rate = 1
+        mut_crit_rate = min(1, base_melee_crit_rate + self.stats.gear_buffs.rogue_t11_2pc_crit_bonus())
+        dsp_crit_rate = min(1, base_melee_crit_rate)
 
         crit_rates = {
             'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
             'oh_autoattacks': min(base_melee_crit_rate, self.dual_wield_oh_hit_chance() - self.GLANCE_RATE),
             'mh_shadow_blade': base_melee_crit_rate,
             'oh_shadow_blade': base_melee_crit_rate,
-            'dispatch': cpg_crit_rate,
-            'mutilate': cpg_crit_rate,
+            'dispatch': dsp_crit_rate,
+            'mutilate': mut_crit_rate,
             'envenom': base_melee_crit_rate,
             'rupture_ticks': base_melee_crit_rate,
             'venomous_wounds': base_melee_crit_rate,
@@ -983,7 +981,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'garrote': base_melee_crit_rate
         }
 
-        blindside_proc_rate = .3 * self.strike_hit_chance
+
         cpg_energy_cost = self.get_net_energy_cost(cpg)
         cpg_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
         cpg_energy_cost += 0 #blindside costs nothing, kept for future proofing
@@ -991,10 +989,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         shadow_blades_uptime = self.get_shadow_blades_uptime()
 
         if cpg == 'mutilate':
-            seal_fate_proc_rate = 1 - (1 - cpg_crit_rate) ** 2
+            seal_fate_proc_rate = 1 - (1 - mut_crit_rate) ** 2
             base_cp_per_cpg = 2
         else:
-            seal_fate_proc_rate = cpg_crit_rate
+            seal_fate_proc_rate = dsp_crit_rate
             base_cp_per_cpg = 1
         cp_per_cpg = self.get_cp_per_cpg(base_cp_per_cpg, seal_fate_proc_rate, shadow_blades_uptime)
         avg_cp_per_cpg = sum([key * cp_per_cpg[key] for key in cp_per_cpg])
@@ -1010,22 +1008,14 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         avg_cycle_length = avg_gap + avg_rupture_length
         energy_per_cycle = avg_rupture_length * energy_regen_with_rupture + avg_gap * energy_regen
 
-        attacks_per_second['rupture'] = 1 / avg_cycle_length
+        cpg_per_rupture = avg_rupture_size / avg_cp_per_cpg
 
         # probably a better solution later
         if self.talents.anticipation:
-            cpg_per_finisher = 5. / avg_cp_per_cpg
-            energy_for_rupture = cpg_per_finisher * cpg_energy_cost + self.base_rupture_energy_cost - 25 #because assuming 5CP
-            remaining_energy = energy_per_cycle - energy_for_rupture
-            energy_per_env_period = cpg_per_finisher * cpg_energy_cost + self.envenom_energy_cost - 25 #because assuming 5CP
-            env_periods = remaining_energy / energy_per_env_period
-
-            attacks_per_second[cpg] = (env_periods * cpg_per_finisher + cpg_per_finisher) / avg_cycle_length
-            attacks_per_second['envenom'] = [0, 0, 0, 0, 0, env_periods / avg_cycle_length]
+            cpg_per_finisher = cpg_per_rupture
+            cp_per_finisher = 5
+            envenom_size_breakdown = rupture_sizes
         else:
-            cpg_per_rupture = avg_rupture_size / avg_cp_per_cpg
-            energy_for_rupture = cpg_per_rupture * cpg_energy_cost + self.base_rupture_energy_cost - avg_rupture_size * self.relentless_strikes_energy_return_per_cp
-
             cpg_per_finisher = 0
             cp_per_finisher = 0
             envenom_size_breakdown = [0, 0, 0, 0, 0, 0]
@@ -1034,17 +1024,20 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 cp_per_finisher += cps * probability
                 envenom_size_breakdown[cps] += probability
 
-            energy_for_envenoms = energy_per_cycle - energy_for_rupture
-            envenom_energy_cost = cpg_per_finisher * cpg_energy_cost + self.envenom_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
-            envenoms_per_cycle = energy_for_envenoms / envenom_energy_cost
+        attacks_per_second['rupture'] = 1 / avg_cycle_length
 
-            envenoms_per_second = envenoms_per_cycle / avg_cycle_length
-            attacks_per_second[cpg] = envenoms_per_second * cpg_per_finisher + attacks_per_second['rupture'] * cpg_per_rupture
+        energy_for_rupture = cpg_per_rupture * cpg_energy_cost + self.base_rupture_energy_cost - avg_rupture_size * self.relentless_strikes_energy_return_per_cp
+        energy_for_envenoms = energy_per_cycle - energy_for_rupture
 
-            attacks_per_second['envenom'] = [finisher_chance * envenoms_per_second for finisher_chance in envenom_size_breakdown]
+        envenom_energy_cost = cpg_per_finisher * cpg_energy_cost + self.envenom_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
+        envenoms_per_cycle = energy_for_envenoms / envenom_energy_cost
 
+        envenoms_per_second = envenoms_per_cycle / avg_cycle_length
+        attacks_per_second[cpg] = envenoms_per_second * cpg_per_finisher + attacks_per_second['rupture'] * cpg_per_rupture
         if cpg == 'mutilate':
             attacks_per_second['dispatch'] = attacks_per_second['mutilate'] * blindside_proc_rate
+
+        attacks_per_second['envenom'] = [finisher_chance * envenoms_per_second for finisher_chance in envenom_size_breakdown]
 
         attacks_per_second['rupture_ticks'] = [0, 0, 0, 0, 0, 0]
         for i in xrange(1, 6):
