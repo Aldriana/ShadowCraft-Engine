@@ -153,6 +153,11 @@ class GearBuffs(object):
         'synapse_springs':                {'stat': 'varies', 'value': 'varies', 'duration': 10, 'cooldown': 60}, #Overwrite stat in the model for the highest of agi, str, int
         'tazik_shocker':                  {'stat': 'spell_damage', 'value': 4800, 'duration': 0, 'cooldown': 60, 'name': 'Tazik Shocker'},
         'lifeblood':                      {'stat': 'haste', 'value': 480, 'duration': 20, 'cooldown': 120},
+        'heroic_jade_bandit_figurine':    {'stat': 'haste', 'value': 2822, 'duration': 15, 'cooldown': 60}, # needs to be verified at launch
+        'jade_bandit_figurine':           {'stat': 'haste', 'value': 2822, 'duration': 15, 'cooldown': 60}, # needs to be verified at launch
+        'lfr_jade_bandit_figurine':       {'stat': 'haste', 'value': 2822, 'duration': 15, 'cooldown': 60}, # needs to be verified at launch
+        'hawkmasters_talon':              {'stat': 'haste', 'value': 2822, 'duration': 15, 'cooldown': 60}, # needs to be verified at launch
+        'flashing_steel_talisman':        {'stat': 'agi', 'value': 4232, 'duration': 15, 'cooldown': 90}, # needs to be verified at launch
         'ancient_petrified_seed':         {'stat': 'agi', 'value': 1277, 'duration': 15, 'cooldown': 60},
         'heroic_ancient_petrified_seed':  {'stat': 'agi', 'value': 1441, 'duration': 15, 'cooldown': 60},
         'rickets_magnetic_fireball':      {'stat': 'crit', 'value': 1700, 'duration': 20, 'cooldown': 120},

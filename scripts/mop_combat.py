@@ -90,7 +90,10 @@ def pretty_print(dict_list):
         dict_values = i.items()
         dict_values.sort(key=lambda entry: entry[1], reverse=True)
         for value in dict_values:
-            print value[0] + ':' + ' ' * (max_len - len(value[0])), value[1]
+            if ("{0:.2f}".format(float(value[1])/total_dps)) != '0.00':
+                print value[0] + ':' + ' ' * (max_len - len(value[0])), str(value[1]) + ' ('+str( "{0:.2f}".format(100*float(value[1])/total_dps) )+'%)'
+            else:
+                print value[0] + ':' + ' ' * (max_len - len(value[0])), str(value[1])
         print '-' * (max_len + 15)
 
 dicts_for_pretty_print = [

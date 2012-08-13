@@ -35,23 +35,23 @@ test_buffs = buffs.Buffs(
         'armor_debuff',
         'physical_vulnerability_debuff',
         'spell_damage_debuff',
-        'agi_flask',
-        'guild_feast'
+        'agi_flask_mop',
+        'food_300_agi'
     )
 
 # Set up weapons.
-test_mh = stats.Weapon(6733, 1.8, 'dagger', 'landslide')
-test_oh = stats.Weapon(6733, 1.8, 'dagger', 'landslide')
+test_mh = stats.Weapon(6733, 1.8, 'dagger', 'dancing_steel')
+test_oh = stats.Weapon(6733, 1.8, 'dagger', 'dancing_steel')
 
 # Set up procs.
-test_procs = procs.ProcsList('heroic_vial_of_shadows', 'heroic_wrath_of_unchaining')
+test_procs = procs.ProcsList('heroic_terror_in_the_mists', 'heroic_wrath_of_unchaining')
 
 # Set up gear buffs.
-test_gear_buffs = stats.GearBuffs('rogue_t14_2pc', 'rogue_t14_4pc', 'leather_specialization', 'potion_of_the_tolvir', 'chaotic_metagem')
+test_gear_buffs = stats.GearBuffs('rogue_t14_2pc', 'rogue_t14_4pc', 'leather_specialization', 'virmens_bite', 'virmens_bite_prepot', 'chaotic_metagem')
 
 # Set up a calcs object..
 #                       str,   agi, ap,  crit,  hit, exp, haste, mast,      mh,      oh,      procs,      gear_buffs
-test_stats = stats.Stats(80, 13000, 250, 2500, 2200, 2200, 2300, 3000, test_mh, test_oh, test_procs, test_gear_buffs)
+test_stats = stats.Stats(80, 19000, 250, 4800, 2550, 2550, 3000, 5000, test_mh, test_oh, test_procs, test_gear_buffs)
 
 # Initialize talents..
 test_talents = talents.Talents('322213', test_class, test_level)
@@ -93,7 +93,7 @@ def pretty_print(dict_list):
         dict_values.sort(key=lambda entry: entry[1], reverse=True)
         for value in dict_values:
             if ("{0:.2f}".format(float(value[1])/total_dps)) != '0.00':
-                print value[0] + ':' + ' ' * (max_len - len(value[0])), str(value[1]) + ' ('+str( "{0:.2f}".format(float(value[1])/total_dps) )+'%)'
+                print value[0] + ':' + ' ' * (max_len - len(value[0])), str(value[1]) + ' ('+str( "{0:.2f}".format(100*float(value[1])/total_dps) )+'%)'
             else:
                 print value[0] + ':' + ' ' * (max_len - len(value[0])), str(value[1])
         print '-' * (max_len + 15)
