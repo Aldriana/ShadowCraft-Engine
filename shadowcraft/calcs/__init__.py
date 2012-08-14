@@ -293,7 +293,6 @@ class DamageCalculator(object):
         miss_chance = max(base_miss_chance - hit_chance, 0)
 
         # Expertise represented as the reduced chance to be dodged, not true "Expertise".
-        # Racial expertise reduces dodge but not parry.
         expertise = self.stats.get_expertise_from_rating() + self.race.get_racial_expertise(weapon_type)
 
         if dodgeable:
@@ -304,7 +303,9 @@ class DamageCalculator(object):
             dodge_chance = 0
 
         if parryable:
-            parry_chance = max(self.base_parry_chance - self.stats.get_expertise_from_rating(), 0)
+            # Expertise will negate dodge and spell miss, *then* parry
+            parry_expertise = max(expertise - self.base_dodge_chance, 0)
+            parry_chance = max(self.base_parry_chance - parry_expertise, 0)
             if self.calculating_ep in ('parry_exp', 'dodge_exp'):
                 parry_chance += self.stats.get_expertise_from_rating(1)
         else:
