@@ -89,12 +89,12 @@ class DamageCalculator(object):
         self.agi_crit_intercept = self.tools.get_agi_intercept(self.game_class)
 
     def ep_helper(self, stat):
-        if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp', 'mh_dodge_exp', 'oh_dodge_exp', 'mh_parry_exp', 'oh_parry_exp'):
+        if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp', 'mh_dodge_exp', 'oh_dodge_exp', 'mh_parry_exp', 'oh_parry_exp', 'spell_exp'):
             setattr(self.stats, stat, getattr(self.stats, stat) + 1.)
         else:
             setattr(self, 'calculating_ep', stat)
         dps = self.get_dps()
-        if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp', 'mh_dodge_exp', 'oh_dodge_exp', 'mh_parry_exp', 'oh_parry_exp'):
+        if stat not in ('dodge_exp', 'white_hit', 'spell_hit', 'yellow_hit', 'parry_exp', 'mh_dodge_exp', 'oh_dodge_exp', 'mh_parry_exp', 'oh_parry_exp', 'spell_exp'):
             setattr(self.stats, stat, getattr(self.stats, stat) - 1.)
         else:
             setattr(self, 'calculating_ep', False)
@@ -292,7 +292,8 @@ class DamageCalculator(object):
         hit_chance = self.stats.get_melee_hit_from_rating() + self.race.get_racial_hit() + self.get_melee_hit_from_talents()
         miss_chance = max(base_miss_chance - hit_chance, 0)
 
-        #Expertise represented as the reduced chance to be dodged or parried, not true "Expertise"
+        # Expertise represented as the reduced chance to be dodged, not true "Expertise".
+        # Racial expertise reduces dodge but not parry.
         expertise = self.stats.get_expertise_from_rating() + self.race.get_racial_expertise(weapon_type)
 
         if dodgeable:
@@ -303,7 +304,7 @@ class DamageCalculator(object):
             dodge_chance = 0
 
         if parryable:
-            parry_chance = max(self.base_parry_chance + self.base_dodge_chance - expertise, 0)
+            parry_chance = max(self.base_parry_chance - self.stats.get_expertise_from_rating(), 0)
             if self.calculating_ep in ('parry_exp', 'dodge_exp'):
                 parry_chance += self.stats.get_expertise_from_rating(1)
         else:
@@ -314,7 +315,10 @@ class DamageCalculator(object):
         return (1 - (miss_chance + dodge_chance + parry_chance)) * (1 - block_chance)
 
     def melee_spells_hit_chance(self):
-        return self.melee_hit_chance(self.base_one_hand_miss_rate, dodgeable=False, parryable=False, weapon_type=None)
+        hit_chance = self.melee_hit_chance(self.base_one_hand_miss_rate, dodgeable=False, parryable=False, weapon_type=None)
+        if self.calculating_ep == 'yellow_hit':
+            hit_chance -= self.stats.get_melee_hit_from_rating(1)
+        return hit_chance
 
     def one_hand_melee_hit_chance(self, dodgeable=True, parryable=False, weapon=None):
         # Most attacks by DPS aren't parryable due to positional negation. But
@@ -347,7 +351,7 @@ class DamageCalculator(object):
         # if you ever want to attacking from the front, you can just set that
         # to True.
         hit_chance = self.dual_wield_hit_chance(dodgeable, parryable, self.stats.mh.type)
-        if (self.calculating_ep == 'mh_dodge_exp' and dodgeable) or (self.calculating_ep == 'mh_parry_exp' and parryable):
+        if self.calculating_ep == 'mh_dodge_exp' and (dodgeable or parryable):
             hit_chance -= self.stats.get_expertise_from_rating(1)
         return hit_chance
 
@@ -356,7 +360,7 @@ class DamageCalculator(object):
         # if you ever want to attacking from the front, you can just set that
         # to True.
         hit_chance = self.dual_wield_hit_chance(dodgeable, parryable, self.stats.oh.type)
-        if (self.calculating_ep == 'oh_dodge_exp' and dodgeable) or (self.calculating_ep == 'oh_parry_exp' and parryable):
+        if self.calculating_ep == 'oh_dodge_exp' and (dodgeable or parryable):
             hit_chance -= self.stats.get_expertise_from_rating(1)
         return hit_chance
 
@@ -368,7 +372,7 @@ class DamageCalculator(object):
 
     def spell_hit_chance(self):
         hit_chance = 1 - max(self.base_spell_miss_rate - self.stats.get_spell_hit_from_rating() - self.get_spell_hit_from_talents() - self.race.get_racial_hit(), 0)
-        if self.calculating_ep in ('yellow_hit', 'spell_hit'):
+        if self.calculating_ep in ('yellow_hit', 'spell_hit', 'spell_exp'):
             hit_chance -= self.stats.get_spell_hit_from_rating(1)
         return hit_chance
 

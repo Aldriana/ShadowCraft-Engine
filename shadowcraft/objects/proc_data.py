@@ -81,9 +81,9 @@ allowed_procs = {
         'proc_name': 'Windswept Pages',
         'behaviours': {'default': 'windswept_pages'}
     },
-    
-    
-    
+
+
+
     # Cata Items
     'heroic_nokaled_the_elements_of_death': {
         'stat': 'spell_damage',
@@ -271,6 +271,13 @@ allowed_melee_enchants = {
         'proc_name': 'Dancing Steel',
         'behaviours': {'default': 'dancing_steel'}
     },
+    'elemental_force': {
+        'stat': 'spell_damage',
+        'value': 3000,
+        'duration': 0,
+        'proc_name': 'Elemental Force',
+        'behaviours': {'default': 'elemental_force'}
+    },
 }
 
 # The _set_behaviour method takes these parameters:
@@ -295,6 +302,11 @@ behaviours = {
     'windsong': {
         'icd': 0,
         'ppm': 3,
+        'trigger': 'all_attacks'
+    },
+    'elemental_force': {
+        'icd': 0,
+        'ppm': 1,
         'trigger': 'all_attacks'
     },
     # 5.0 Trinkets
@@ -332,9 +344,9 @@ behaviours = {
         'trigger': 'all_attacks',
         'on_crit': True
     },
-    
-    
-    
+
+
+
     # Cata Procs
     'avalanche_melee': {
         'icd': 0,
@@ -406,7 +418,7 @@ behaviours = {
         'icd': None,
         'proc_chance': .235,
         'trigger': 'all_attacks'
-    }, 
+    },
     'rogue_t13_legendary_combat': {
         'icd': None,
         'proc_chance': .095,

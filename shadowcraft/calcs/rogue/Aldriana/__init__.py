@@ -775,13 +775,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         windsong_enchants = []
         weapon_enchants = set([])
-        for hand, enchant in [(x, y) for x in ('mh', 'oh') for y in ('landslide', 'hurricane', 'avalanche', 'windsong', 'dancing_steel')]:
+        for hand, enchant in [(x, y) for x in ('mh', 'oh') for y in ('landslide', 'hurricane', 'avalanche', 'windsong', 'dancing_steel', 'elemental_force')]:
             proc = getattr(getattr(self.stats, hand), enchant)
             if proc:
                 setattr(proc, '_'.join((hand, 'only')), True)
                 if proc.stat in current_stats:
                     active_procs.append(proc)
-                elif enchant == 'avalanche':
+                elif enchant in ('avalanche', 'elemental_force'):
                     damage_procs.append(proc)
                 elif enchant == 'windsong':
                     windsong_enchants.append(proc)
