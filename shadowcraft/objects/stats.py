@@ -152,7 +152,7 @@ class GearBuffs(object):
         'hyperspeed_accelerators':        {'stat': 'haste', 'value': 340, 'duration': 12, 'cooldown': 60},  #WotLK tinker
         'synapse_springs':                {'stat': 'varies', 'value': 'varies', 'duration': 10, 'cooldown': 60}, #Overwrite stat in the model for the highest of agi, str, int
         'tazik_shocker':                  {'stat': 'spell_damage', 'value': 4800, 'duration': 0, 'cooldown': 60, 'name': 'Tazik Shocker'},
-        'lifeblood':                      {'stat': 'haste', 'value': 480, 'duration': 20, 'cooldown': 120},
+        'lifeblood':                      {'stat': 'haste', 'value': 'varies', 'duration': 20, 'cooldown': 120},
         'heroic_jade_bandit_figurine':    {'stat': 'haste', 'value': 2822, 'duration': 15, 'cooldown': 60}, # needs to be verified at launch
         'jade_bandit_figurine':           {'stat': 'haste', 'value': 2822, 'duration': 15, 'cooldown': 60}, # needs to be verified at launch
         'lfr_jade_bandit_figurine':       {'stat': 'haste', 'value': 2822, 'duration': 15, 'cooldown': 60}, # needs to be verified at launch
@@ -201,6 +201,7 @@ class GearBuffs(object):
 
     def _set_constants_for_level(self):
         self.activated_boosts['synapse_springs']['value'] = self.tradeskill_bonus('synapse_springs')
+        self.activated_boosts['lifeblood']['value'] = self.tradeskill_bonus('master_of_anatomy')
 
     def metagem_crit_multiplier(self):
         if self.chaotic_metagem:
@@ -255,16 +256,16 @@ class GearBuffs(object):
 
     def tradeskill_bonus(self, tradeskill='base'):
         # Hardcoded to use maxed tradeskills for the character level.
-        tradeskills = ('skill', 'base', 'synapse_springs')
+        tradeskills = ('skill', 'base', 'master_of_anatomy', 'lifeblood', 'synapse_springs')
         if self.level == 90:
-            return (600, 320, 2940)[tradeskills.index(tradeskill)]
+            return (600, 320, 480, 2880, 2940)[tradeskills.index(tradeskill)]
         tradeskill_base_bonus = {
-            (01, 60): (0, None,  0),
-            (60, 70): (300, 9,   0),
-            (70, 80): (375, 12,  0),
-            (80, 85): (450, 20,  480),
-            (85, 90): (525, 80,  480),
-            (90, 95): (600, 320, 2940)
+            (01, 60): (0, None, None, None, 0),
+            (60, 70): (300, 9,   9,   70,   0),
+            (70, 80): (375, 12,  12,  120,  0),
+            (80, 85): (450, 20,  20,  240,  480),
+            (85, 90): (525, 80,  80,  480,  480),
+            (90, 95): (600, 320, 480, 2880, 2940)
         }
 
         for i, j in tradeskill_base_bonus.keys():

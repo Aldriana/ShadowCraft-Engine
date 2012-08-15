@@ -43,7 +43,7 @@ class DamageCalculator(object):
         if self.stats.gear_buffs.mixology and self.buffs.agi_flask:
             self.stats.agi += self.stats.gear_buffs.tradeskill_bonus()
         if self.stats.gear_buffs.master_of_anatomy:
-            self.stats.crit += self.stats.gear_buffs.tradeskill_bonus()
+            self.stats.crit += self.stats.gear_buffs.tradeskill_bonus('master_of_anatomy')
         self._set_constants_for_class()
         
         self.base_one_hand_miss_rate = .03 + .015 * self.level_difference
