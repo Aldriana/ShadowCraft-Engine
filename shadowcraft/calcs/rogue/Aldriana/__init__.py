@@ -223,6 +223,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         if getattr(self.stats.gear_buffs, 'synapse_springs'):
             self.stats.gear_buffs.activated_boosts['synapse_springs']['stat'] = 'agi'
+        if getattr(self.stats.procs, 'zen_alchemist_stone'):
+            self.stats.procs.allowed_procs['zen_alchemist_stone']['stat'] = 'agi'
 
         for stat in self.base_stats:
             for boost in self.stats.gear_buffs.get_all_activated_boosts_for_stat(stat):

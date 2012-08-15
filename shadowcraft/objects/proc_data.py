@@ -11,75 +11,91 @@ allowed_procs = {
         'proc_name': 'rogue_poison',
         'behaviours': {'default': 'rogue_poison'}
     },
-    'heroic_terror_in_the_mists': { # needs to be checked
+    'heroic_terror_in_the_mists': {
         'stat': 'crit',
-        'value': 5079,
+        'value': 7796,
         'duration': 20,
         'proc_name': 'Terror in the Mists',
         'behaviours': {'default': 'terror_in_the_mists'}
     },
-    'terror_in_the_mists': { # needs to be checked
+    'terror_in_the_mists': {
         'stat': 'crit',
-        'value': 5079,
+        'value': 6908,
         'duration': 20,
         'proc_name': 'Terror in the Mists',
         'behaviours': {'default': 'terror_in_the_mists'}
     },
-    'lfr_terror_in_the_mists': { # needs to be checked
+    'lfr_terror_in_the_mists': {
         'stat': 'crit',
-        'value': 5079,
+        'value': 6121,
         'duration': 20,
         'proc_name': 'Terror in the Mists',
         'behaviours': {'default': 'terror_in_the_mists'}
     },
-    'heroic_bottle_of_infinite_stars':{ # needs to be checked
+    'heroic_bottle_of_infinite_stars': {
         'stat': 'agi',
-        'value': 2539,
+        'value': 3653,
         'duration': 20,
-        'proc_name': 'Bottle of Infinite Stars',
+        'proc_name': 'Full of Stars',
         'behaviours': {'default': 'bottle_of_infinite_stars'}
     },
-    'bottle_of_infinite_stars':{ # needs to be checked
+    'bottle_of_infinite_stars': {
         'stat': 'agi',
-        'value': 2539,
+        'value': 3236,
         'duration': 20,
-        'proc_name': 'Bottle of Infinite Stars',
+        'proc_name': 'Full of Stars',
         'behaviours': {'default': 'bottle_of_infinite_stars'}
     },
-    'lfr_bottle_of_infinite_stars':{ # needs to be checked
+    'lfr_bottle_of_infinite_stars': {
         'stat': 'agi',
-        'value': 2539,
+        'value': 2866,
         'duration': 20,
-        'proc_name': 'Bottle of Infinite Stars',
+        'proc_name': 'Full of Stars',
         'behaviours': {'default': 'bottle_of_infinite_stars'}
     },
-    'relic_of_xuen': { # needs to be checked
+    'relic_of_xuen': {
         'stat': 'agi',
         'value': 3027,
         'duration': 15,
         'proc_name': 'Relic of Xuen',
         'behaviours': {'default': 'relic_of_xuen'}
     },
-    'corens_cold_chromium_coaster': { # needs to be checked
+    'corens_cold_chromium_coaster': {
         'stat': 'ap',
-        'value': 10164,
+        'value': 10848,
         'duration': 10,
-        'proc_name': "Coren's Cold Chromium Coaster",
+        'proc_name': 'Reflection of Torment',
         'behaviours': {'default': 'corens_cold_chromium_coaster'}
     },
-    'searing_words': { # needs to be checked
+    'searing_words': {
         'stat': 'agi',
         'value': 3386,
         'duration': 25,
         'proc_name': "Searing Words",
         'behaviours': {'default': 'searing_words'}
     },
-    'windswept_pages': { # needs to be checked
+    'windswept_pages': {
         'stat': 'haste',
         'value': 3386,
         'duration': 20,
         'proc_name': 'Windswept Pages',
         'behaviours': {'default': 'windswept_pages'}
+    },
+    'zen_alchemist_stone': {
+        'stat': 'highest',
+        'stats': ('agi', 'str', 'int'),
+        'value': 4041,
+        'duration': 15,
+        'proc_name': 'Zen Alchemist Stone',
+        'behaviours': {'default': 'zen_alchemist_stone'}
+    },
+    'the_gloaming_blade': {
+        'stat': 'crit',
+        'value': 375,
+        'duration': 10,
+        'max_stacks': 3,
+        'proc_name': 'The Deepest Night',
+        'behaviours': {'default': 'the_gloaming_blade'}
     },
 
 
@@ -160,7 +176,6 @@ allowed_procs = {
         'duration': 30,
         'proc_name': 'Matrix Restabilized',
         'behaviours': {'default': 'matrix_restabilizer'}
-
     },
     'nokaled_the_elements_of_death': {
         'stat': 'spell_damage',
@@ -309,40 +324,49 @@ behaviours = {
         'ppm': 1,
         'trigger': 'all_attacks'
     },
-    # 5.0 Trinkets
-    'bottle_of_infinite_stars': { #guesstimate
+    # 5.0 Procs
+    'bottle_of_infinite_stars': {           # ICD is a guesstimate
         'icd': 115,
         'proc_chance': .15,
         'trigger': 'all_attacks'
     },
-    'corens_cold_chromium_coaster': { #guesstimate
+    'corens_cold_chromium_coaster': {       # ICD is a guesstimate
         'icd': 50,
         'proc_chance': .10,
         'trigger': 'all_attacks',
         'on_crit': True
     },
-    'relic_of_xuen': { #guesstimate
-        'icd': 50,
-        'proc_chance': .15,
+    'relic_of_xuen': {
+        'icd': 55,
+        'proc_chance': .2,
         'trigger': 'all_melee_attacks',
         'on_crit': True
     },
-    'searing_words': { #guesstimate
+    'searing_words': {                      # ICD is a guesstimate
         'icd': 115,
         'proc_chance': .45,
         'trigger': 'all_attacks',
         'on_crit': True
     },
-    'terror_in_the_mists':{ #guesstimate
+    'terror_in_the_mists':{                 # ICD is a guesstimate
         'icd': 115,
         'proc_chance': .35,
         'trigger': 'all_attacks'
     },
-    'windswept_pages': { #guesstimate
+    'windswept_pages': {                    # ICD is a guesstimate
         'icd': 75,
         'proc_chance': .15,
         'trigger': 'all_attacks',
-        'on_crit': True
+    },
+    'zen_alchemist_stone': {                # ICD is a guesstimate
+        'icd': 75,
+        'proc_chance': .25,
+        'trigger': 'all_attacks',
+    },
+    'the_gloaming_blade': {                 # PPM/ICD is a guess and should be verified.
+        'icd': 0,
+        'ppm': 1,
+        'trigger': 'all_attacks',
     },
 
 
