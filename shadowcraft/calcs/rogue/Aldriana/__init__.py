@@ -223,8 +223,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         if getattr(self.stats.gear_buffs, 'synapse_springs'):
             self.stats.gear_buffs.activated_boosts['synapse_springs']['stat'] = 'agi'
-        if getattr(self.stats.procs, 'zen_alchemist_stone'):
-            self.stats.procs.allowed_procs['zen_alchemist_stone']['stat'] = 'agi'
+        for proc in self.stats.procs.get_all_procs_for_stat('highest'):
+            if 'agi' in proc.stats:
+                proc.stat = 'agi'
 
         for stat in self.base_stats:
             for boost in self.stats.gear_buffs.get_all_activated_boosts_for_stat(stat):
@@ -1137,12 +1138,12 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         cp_per_ss = {1: 1 - extra_cp_chance, 2: extra_cp_chance}
         FINISHER_SIZE = 5
-        
+
         rvs_duration = 18
         rvs_interval = rvs_duration + 30 / energy_regen #lets factor in some minor pooling.
-        
+
         cp_distribution, rupture_sizes, avg_cp_per_cpg = self.get_cp_distribution_for_cycle(cp_per_ss, FINISHER_SIZE)
-        
+
         rvs_per_finisher = 0
         ss_per_finisher = 0
         cp_per_finisher = 0

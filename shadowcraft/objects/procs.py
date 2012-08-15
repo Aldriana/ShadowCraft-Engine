@@ -106,7 +106,7 @@ class Proc(object):
 
     def proc_rate(self, speed=None):
         if self.is_ppm():
-            if speed == None:
+            if speed is None:
                 raise InvalidProcException(_('Weapon speed needed to calculate the proc rate of {proc}').format(proc=self.proc_name))
             else:
                 return self.ppm * speed / 60.
@@ -149,6 +149,9 @@ class ProcsList(object):
         self.set_swordguard_embroidery_value()
 
     def set_swordguard_embroidery_value(self):
+        proc = getattr(self, 'swordguard_embroidery')
+        if not proc:
+            pass
         values = [
             (90, 4000),
             (85, 1000),
@@ -158,6 +161,7 @@ class ProcsList(object):
         for level, value in values:
             if self.level >= level:
                 self.allowed_procs['swordguard_embroidery']['value'] = value
+                proc.value = value
                 break
 
     def get_all_procs_for_stat(self, stat=None):
@@ -165,7 +169,7 @@ class ProcsList(object):
         for proc_name in self.allowed_procs:
             proc = getattr(self, proc_name)
             if proc:
-                if stat == None or proc.stat == stat:
+                if stat is None or proc.stat == stat:
                     procs.append(proc)
 
         return procs
