@@ -150,8 +150,6 @@ class ProcsList(object):
 
     def set_swordguard_embroidery_value(self):
         proc = getattr(self, 'swordguard_embroidery')
-        if not proc:
-            pass
         values = [
             (90, 4000),
             (85, 1000),
@@ -161,7 +159,8 @@ class ProcsList(object):
         for level, value in values:
             if self.level >= level:
                 self.allowed_procs['swordguard_embroidery']['value'] = value
-                proc.value = value
+                if proc:
+                    proc.value = value
                 break
 
     def get_all_procs_for_stat(self, stat=None):
