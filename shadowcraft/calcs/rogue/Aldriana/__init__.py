@@ -1091,9 +1091,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         for key in damage_breakdown:
             if key == 'killing_spree':
                 if self.settings.cycle.ksp_immediately:
-                    damage_breakdown[key] *= self.bandits_guile_multiplier * (1.2 + .1 * self.glyphs.killing_spree)
+                    damage_breakdown[key] *= self.bandits_guile_multiplier * (2.0)
                 else:
-                    damage_breakdown[key] *= self.max_bandits_guile_buff * (1.2 + .1 * self.glyphs.killing_spree)
+                    damage_breakdown[key] *= self.max_bandits_guile_buff * (2.0)
             elif key in ('sinister_strike', 'revealing_strike'):
                 damage_breakdown[key] *= self.bandits_guile_multiplier
                 damage_breakdown[key] *= self.get_rogue_t13_legendary_combat_multiplier()
@@ -1224,7 +1224,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attacks_per_second['oh_killing_spree'] = 7 * self.off_hand_melee_hit_chance() / ksp_cooldown
         ksp_uptime = 3. / ksp_cooldown
 
-        ksp_buff = .2
+        ksp_buff = 1.
         if self.settings.cycle.ksp_immediately:
             self.ksp_multiplier = 1 + ksp_uptime * ksp_buff
         else:

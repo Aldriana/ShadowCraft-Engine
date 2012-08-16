@@ -33,10 +33,10 @@ class RogueDamageCalculator(DamageCalculator):
         # in comments show the id for the spell effect, not the spell itself.
         self.spell_scaling_for_level = self.tools.get_spell_scaling('rogue', self.level)
         self.bs_bonus_dmg =     self.get_factor(0.3070000112) # 30
-        self.dsp_bonus_dmg =    self.get_factor(0.3070000112) # 123503
+        self.dsp_bonus_dmg =    self.get_factor(0.4560000002) # 123503
         self.mut_bonus_dmg =    self.get_factor(0.1790000051) # 1920, 17065
         self.ss_bonus_dmg =     self.get_factor(0.1780000031) # 535
-        self.ambush_bonus_dmg = self.get_factor(0.3269999921) # 3612
+        self.ambush_bonus_dmg = self.get_factor(0.5000000000) # 3612
         self.vw_base_dmg =      self.get_factor(0.6000000238) # 68389
         self.dp_base_dmg =      self.get_factor(0.6000000238) # 853
         self.ip_base_dmg =      self.get_factor(0.3129999936, 0.2800000012) # 126788
@@ -44,8 +44,8 @@ class RogueDamageCalculator(DamageCalculator):
         self.garrote_base_dmg = self.get_factor(0.1180000007) # 280
         self.rup_base_dmg =     self.get_factor(0.1850000024) # 586
         self.rup_bonus_dmg =    self.get_factor(0.0260000005) # 586 - 'unknown' field
-        self.evis_base_dmg =    self.get_factor(0.4740000069,  1.0000000000) # 622
-        self.evis_bonus_dmg =   self.get_factor(0.6919999719) # 622 - 'unknown' field
+        self.evis_base_dmg =    self.get_factor(0.5929999948,  1.0000000000) # 622
+        self.evis_bonus_dmg =   self.get_factor(0.7860000134) # 622 - 'unknown' field
         self.env_base_dmg =     self.get_factor(0.3210000098) # 22420
         self.ct_base_dmg =      self.get_factor(0.4760000110) # 50471
         self.fok_base_dmg =     self.get_factor(1.0000000000, 0.4000000060) # 44107
@@ -144,7 +144,7 @@ class RogueDamageCalculator(DamageCalculator):
         weapon_damage = self.get_weapon_damage('mh', ap)
         mult, crit_mult = self.get_modifiers('physical', armor=armor)
 
-        damage = 3.5 * (weapon_damage + self.dsp_bonus_dmg) * mult
+        damage = 5.2 * (weapon_damage + self.dsp_bonus_dmg) * mult
         crit_damage = damage * crit_mult
 
         return damage, crit_damage
@@ -203,7 +203,7 @@ class RogueDamageCalculator(DamageCalculator):
         mult, crit_mult = self.get_modifiers('physical', armor=armor, is_bleeding=is_bleeding)
 
         dagger_bonus = [1, 1.447][self.stats.mh.type == 'dagger']
-        percentage_damage_bonus = 2.45 * dagger_bonus
+        percentage_damage_bonus = 3.45 * dagger_bonus
 
         damage = percentage_damage_bonus * (weapon_damage + self.ambush_bonus_dmg) * mult
         crit_damage = damage * crit_mult
