@@ -1028,42 +1028,39 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             cp_distribution = {}
             rupture_sizes = [0, 0, 0, 0, 0, 0]
             avg_cp_per_cpg = 0
+            uptime_and_dists_tuples = []
             if cpg == 'mutilate':
-                # during non dispatch, non shb:
-                uptime_ndsp_nshb = 1 - shadow_blades_uptime - blindside_proc_rate + shadow_blades_uptime * blindside_proc_rate
-                cp_per_cpg_ndsp_nshb = self.get_cp_per_cpg(base_cp_per_cpg, mut_seal_fate_proc_rate)
-                dists_ndsp_nshb = self.get_cp_distribution_for_cycle(cp_per_cpg_ndsp_nshb, finisher_size)
-                # during dispatch, non shb
-                uptime_dsp_nshb = blindside_proc_rate - shadow_blades_uptime * blindside_proc_rate
-                cp_per_cpg_dsp_nshb = self.get_cp_per_cpg(1, dsp_seal_fate_proc_rate)
-                dists_dsp_nshb = self.get_cp_distribution_for_cycle(cp_per_cpg_dsp_nshb, finisher_size + 1)
-                # during non dispatch, shadow blades:
-                uptime_ndsp_shb = shadow_blades_uptime - shadow_blades_uptime * blindside_proc_rate
-                cp_per_cpg_ndsp_shb = self.get_cp_per_cpg(base_cp_per_cpg, mut_seal_fate_proc_rate, 1)
-                dists_ndsp_shb = self.get_cp_distribution_for_cycle(cp_per_cpg_ndsp_shb, finisher_size - 1)
-                # during dispatch and shadow blades:
-                uptime_dsp_shb = shadow_blades_uptime * blindside_proc_rate
-                cp_per_cpg_dsp_shb = self.get_cp_per_cpg(1, dsp_seal_fate_proc_rate, 1)
-                dists_dsp_shb = self.get_cp_distribution_for_cycle(cp_per_cpg_dsp_shb, finisher_size)
-
-                uptime_and_dists_tuples = (
-                    (uptime_ndsp_nshb, dists_ndsp_nshb),
-                    (uptime_dsp_nshb, dists_dsp_nshb),
-                    (uptime_ndsp_shb, dists_ndsp_shb),
-                    (uptime_dsp_shb, dists_dsp_shb)
-                )
-
+                for blindside, shadow_blades in [(x, y) for x in (True, False) for y in (True, False)]:
+                    if blindside and shadow_blades:
+                        uptime = shadow_blades_uptime * blindside_proc_rate
+                        cp_per_cpg = self.get_cp_per_cpg(1, dsp_seal_fate_proc_rate, 1)
+                        current_finisher_size = finisher_size
+                    elif blindside and not shadow_blades:
+                        uptime = blindside_proc_rate - shadow_blades_uptime * blindside_proc_rate
+                        cp_per_cpg = self.get_cp_per_cpg(1, dsp_seal_fate_proc_rate)
+                        current_finisher_size = finisher_size + 1
+                    elif not blindside and shadow_blades:
+                        uptime = shadow_blades_uptime - shadow_blades_uptime * blindside_proc_rate
+                        cp_per_cpg = self.get_cp_per_cpg(base_cp_per_cpg, mut_seal_fate_proc_rate, 1)
+                        current_finisher_size = finisher_size - 1
+                    elif not blindside and not shadow_blades:
+                        uptime = 1 - shadow_blades_uptime - blindside_proc_rate + shadow_blades_uptime * blindside_proc_rate
+                        cp_per_cpg = self.get_cp_per_cpg(base_cp_per_cpg, mut_seal_fate_proc_rate)
+                        current_finisher_size = finisher_size
+                    dists = self.get_cp_distribution_for_cycle(cp_per_cpg, current_finisher_size)
+                    uptime_and_dists_tuples.append((uptime, dists))
             else:
-                #during shadow blades:
-                uptime_shb = shadow_blades_uptime
-                cp_per_cpg_shb = self.get_cp_per_cpg(base_cp_per_cpg, seal_fate_proc_rate, 1)
-                dists_shb = self.get_cp_distribution_for_cycle(cp_per_cpg_shb, finisher_size - 1)
-                #during non shadow blades:
-                uptime_nshb = 1 - shadow_blades_uptime
-                cp_per_cpg_nshb = self.get_cp_per_cpg(base_cp_per_cpg, seal_fate_proc_rate)
-                dists_nshb = self.get_cp_distribution_for_cycle(cp_per_cpg_nshb, finisher_size)
-
-                uptime_and_dists_tuples = ((uptime_shb, dists_shb), (uptime_nshb, dists_nshb))
+                for shadow_blades in (True, False):
+                    if shadow_blades:
+                        uptime = shadow_blades_uptime
+                        cp_per_cpg = self.get_cp_per_cpg(base_cp_per_cpg, seal_fate_proc_rate, 1)
+                        current_finisher_size = finisher_size - 1
+                    elif not shadow_blades:
+                        uptime = 1 - shadow_blades_uptime
+                        cp_per_cpg = self.get_cp_per_cpg(base_cp_per_cpg, seal_fate_proc_rate)
+                        current_finisher_size = finisher_size
+                    dists = self.get_cp_distribution_for_cycle(cp_per_cpg, current_finisher_size)
+                    uptime_and_dists_tuples.append((uptime, dists))
 
             for uptime, dists in uptime_and_dists_tuples:
                 for i in dists[0]:
