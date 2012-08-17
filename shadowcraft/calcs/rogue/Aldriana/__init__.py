@@ -1007,15 +1007,70 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         shadow_blades_uptime = self.get_shadow_blades_uptime()
 
         if cpg == 'mutilate':
-            seal_fate_proc_rate = 1 - (1 - crit_rates['mutilate']) ** 2
+            cpg_energy_cost *= 1 - blindside_proc_rate
+            mut_seal_fate_proc_rate = 1 - (1 - crit_rates['mutilate']) ** 2
+            dsp_seal_fate_proc_rate = crit_rates['dispatch']
+            seal_fate_proc_rate = mut_seal_fate_proc_rate * (1 - blindside_proc_rate) + dsp_seal_fate_proc_rate * blindside_proc_rate
             base_cp_per_cpg = 2
         else:
             seal_fate_proc_rate = crit_rates['dispatch']
             base_cp_per_cpg = 1
-        cp_per_cpg = self.get_cp_per_cpg(base_cp_per_cpg, seal_fate_proc_rate, shadow_blades_uptime)
-        cp_distribution, rupture_sizes, avg_cp_per_cpg = self.get_cp_distribution_for_cycle(cp_per_cpg, finisher_size)
-        if cpg == 'mutilate':
-            avg_cp_per_cpg += blindside_proc_rate * (1 + crit_rates['dispatch'])
+
+        if self.talents.anticipation:
+            cp_per_cpg = self.get_cp_per_cpg(1, seal_fate_proc_rate, shadow_blades_uptime, 1 - blindside_proc_rate)
+            cp_distribution, rupture_sizes, avg_cp_per_cpg = self.get_cp_distribution_for_cycle(cp_per_cpg, finisher_size)
+        else:
+            # This should be handled by the cp_distribution method or something
+            # alike. For now, let's have each sub-distribution computed here.
+            # If we find out a different set of finisher sizes can output a
+            # higher dps, perhaps we'll need to let that be configurable by the
+            # user.
+            cp_distribution = {}
+            rupture_sizes = [0, 0, 0, 0, 0, 0]
+            avg_cp_per_cpg = 0
+            if cpg == 'mutilate':
+                # during non dispatch, non shb:
+                uptime_ndsp_nshb = 1 - shadow_blades_uptime - blindside_proc_rate + shadow_blades_uptime * blindside_proc_rate
+                cp_per_cpg_ndsp_nshb = self.get_cp_per_cpg(base_cp_per_cpg, mut_seal_fate_proc_rate)
+                dists_ndsp_nshb = self.get_cp_distribution_for_cycle(cp_per_cpg_ndsp_nshb, finisher_size)
+                # during dispatch, non shb
+                uptime_dsp_nshb = blindside_proc_rate - shadow_blades_uptime * blindside_proc_rate
+                cp_per_cpg_dsp_nshb = self.get_cp_per_cpg(1, dsp_seal_fate_proc_rate)
+                dists_dsp_nshb = self.get_cp_distribution_for_cycle(cp_per_cpg_dsp_nshb, finisher_size + 1)
+                # during non dispatch, shadow blades:
+                uptime_ndsp_shb = shadow_blades_uptime - shadow_blades_uptime * blindside_proc_rate
+                cp_per_cpg_ndsp_shb = self.get_cp_per_cpg(base_cp_per_cpg, mut_seal_fate_proc_rate, 1)
+                dists_ndsp_shb = self.get_cp_distribution_for_cycle(cp_per_cpg_ndsp_shb, finisher_size - 1)
+                # during dispatch and shadow blades:
+                uptime_dsp_shb = shadow_blades_uptime * blindside_proc_rate
+                cp_per_cpg_dsp_shb = self.get_cp_per_cpg(1, dsp_seal_fate_proc_rate, 1)
+                dists_dsp_shb = self.get_cp_distribution_for_cycle(cp_per_cpg_dsp_shb, finisher_size)
+
+                uptime_and_dists_tuples = (
+                    (uptime_ndsp_nshb, dists_ndsp_nshb),
+                    (uptime_dsp_nshb, dists_dsp_nshb),
+                    (uptime_ndsp_shb, dists_ndsp_shb),
+                    (uptime_dsp_shb, dists_dsp_shb)
+                )
+
+            else:
+                #during shadow blades:
+                uptime_shb = shadow_blades_uptime
+                cp_per_cpg_shb = self.get_cp_per_cpg(base_cp_per_cpg, seal_fate_proc_rate, 1)
+                dists_shb = self.get_cp_distribution_for_cycle(cp_per_cpg_shb, finisher_size - 1)
+                #during non shadow blades:
+                uptime_nshb = 1 - shadow_blades_uptime
+                cp_per_cpg_nshb = self.get_cp_per_cpg(base_cp_per_cpg, seal_fate_proc_rate)
+                dists_nshb = self.get_cp_distribution_for_cycle(cp_per_cpg_nshb, finisher_size)
+
+                uptime_and_dists_tuples = ((uptime_shb, dists_shb), (uptime_nshb, dists_nshb))
+
+            for uptime, dists in uptime_and_dists_tuples:
+                for i in dists[0]:
+                    cp_distribution.setdefault(i, 0)
+                    cp_distribution[i] += dists[0][i] * uptime
+                rupture_sizes = [i + j * uptime for i, j in zip(rupture_sizes, dists[1])]
+                avg_cp_per_cpg += dists[2] * uptime
 
         avg_rupture_size = sum([i * rupture_sizes[i] for i in xrange(6)])
         avg_rupture_length = 4. * (1 + avg_rupture_size)
@@ -1048,7 +1103,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         envenoms_per_second = envenoms_per_cycle / avg_cycle_length
         attacks_per_second[cpg] = envenoms_per_second * cpg_per_finisher + attacks_per_second['rupture'] * cpg_per_rupture
         if cpg == 'mutilate':
-            attacks_per_second['dispatch'] = attacks_per_second['mutilate'] * blindside_proc_rate
+            attacks_per_second['dispatch'] = attacks_per_second[cpg] * blindside_proc_rate
+            attacks_per_second[cpg] *= 1 - blindside_proc_rate
 
         attacks_per_second['envenom'] = [finisher_chance * envenoms_per_second for finisher_chance in envenom_size_breakdown]
 
