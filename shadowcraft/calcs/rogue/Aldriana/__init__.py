@@ -1,6 +1,7 @@
 import copy
 import gettext
 import __builtin__
+import math
 
 __builtin__._ = gettext.gettext
 
@@ -177,7 +178,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
             'oh_autoattacks': min(base_melee_crit_rate, self.dual_wield_oh_hit_chance() - self.GLANCE_RATE),
         }
-        for attack in ('mh_shadow_blade', 'oh_shadow_blade', 'deadly_instant_poison', 'deadly_poison', 'rupture_ticks'):
+        for attack in ('mh_shadow_blade', 'oh_shadow_blade', 'deadly_instant_poison', 'deadly_poison', 'rupture_ticks', 'ambush'):
             crit_rates[attack] = base_melee_crit_rate
 
         if self.settings.is_assassination_rogue():
@@ -966,25 +967,32 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         vw_energy_per_bleed_tick = vw_energy_return * vw_proc_chance
 
         if self.talents.shadow_focus:
-            garrote_net_cost = 0
+            opener_net_cost = 0
         else:
-            garrote_net_cost = self.get_net_energy_cost('garrote')
-            garrote_net_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
-
-        if self.settings.cycle.use_garrote == 'always':
-            garrote_spacing = (180. + self.settings.response_time)
+            opener_net_cost = self.get_net_energy_cost(self.settings.cycle.opener_name)
+            opener_net_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
+            
+        
+        opener_cd = 1
+        if self.settings.cycle.opener_name == 'garrote':
+            opener_cd = 20
+        if self.settings.cycle.use_opener == 'always':
+            opener_spacing = (180. + self.settings.response_time)
             if self.race.shadowmeld:
                 shadowmeld_spacing = 120. + self.settings.response_time
-                garrote_spacing = 1 / (1 / garrote_spacing + 1 / shadowmeld_spacing)
-            total_garrotes_per_second = (1 - 20. / self.settings.duration) / self.settings.duration + 1 / garrote_spacing
-        elif self.settings.cycle.use_garrote == 'opener':
-            total_garrotes_per_second = (1 - 20. / self.settings.duration) / self.settings.duration
-            garrote_spacing = self.settings.duration
+                opener_spacing = 1 / (1 / opener_spacing + 1 / shadowmeld_spacing)
+            total_openers_per_second = (1 + math.floor((self.settings.duration - opener_cd) / opener_spacing)) / self.settings.duration
+        elif self.settings.cycle.use_opener == 'opener':
+            total_openers_per_second = (1 - 20. / self.settings.duration) / self.settings.duration
+            opener_spacing = self.settings.duration
         else:
-            total_garrotes_per_second = 0
-            garrote_spacing = None
+            total_openers_per_second = 0
+            opener_spacing = None
 
-        energy_regen -= garrote_net_cost * total_garrotes_per_second
+        energy_regen -= opener_net_cost * total_openers_per_second
+        
+        if total_openers_per_second != 0:
+            attacks_per_second[self.settings.cycle.opener_name] = total_openers_per_second
 
         energy_regen_with_rupture = energy_regen + 0.5 * vw_energy_per_bleed_tick
 
@@ -1055,7 +1063,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.update_with_autoattack_passives(attacks_per_second,
                 shadow_blades_uptime=shadow_blades_uptime,
                 attack_speed_multiplier=attack_speed_multiplier,
-                swing_reset_spacing=garrote_spacing)
+                swing_reset_spacing=opener_spacing)
 
         return attacks_per_second, crit_rates
 

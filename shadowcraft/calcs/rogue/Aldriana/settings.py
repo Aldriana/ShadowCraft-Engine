@@ -44,7 +44,7 @@ class AssassinationCycle(Cycle):
 
     allowed_values = (1, 2, 3, 4, 5)
 
-    def __init__(self, min_envenom_size_non_execute=4, min_envenom_size_execute=5, prioritize_rupture_uptime_non_execute=True, prioritize_rupture_uptime_execute=True, use_garrote='never'):
+    def __init__(self, min_envenom_size_non_execute=4, min_envenom_size_execute=5, prioritize_rupture_uptime_non_execute=True, prioritize_rupture_uptime_execute=True, use_opener='always', opener_name='ambush'):
         assert min_envenom_size_non_execute in self.allowed_values
         self.min_envenom_size_non_execute = min_envenom_size_non_execute
 
@@ -63,8 +63,9 @@ class AssassinationCycle(Cycle):
         # actually better.
         self.prioritize_rupture_uptime_non_execute = prioritize_rupture_uptime_non_execute
         self.prioritize_rupture_uptime_execute = prioritize_rupture_uptime_execute
-
-        self.use_garrote = use_garrote # Allowed values are 'always' (vanish/shadowmeld on cooldown), 'opener' (once per fight) and 'never'
+        
+        self.opener_name = opener_name
+        self.use_opener = use_opener # Allowed values are 'always' (vanish/shadowmeld on cooldown), 'opener' (once per fight) and 'never'
 
 
 class CombatCycle(Cycle):
