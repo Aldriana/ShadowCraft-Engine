@@ -1007,7 +1007,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         shadow_blades_uptime = self.get_shadow_blades_uptime()
 
         if cpg == 'mutilate':
-            cpg_energy_cost *= 1 - blindside_proc_rate
+            cpg_energy_cost *= 1 / (1 + blindside_proc_rate)
             mut_seal_fate_proc_rate = 1 - (1 - crit_rates['mutilate']) ** 2
             dsp_seal_fate_proc_rate = crit_rates['dispatch']
             seal_fate_proc_rate = mut_seal_fate_proc_rate * (1 - blindside_proc_rate) + dsp_seal_fate_proc_rate * blindside_proc_rate
@@ -1100,8 +1100,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         envenoms_per_second = envenoms_per_cycle / avg_cycle_length
         attacks_per_second[cpg] = envenoms_per_second * cpg_per_finisher + attacks_per_second['rupture'] * cpg_per_rupture
         if cpg == 'mutilate':
+            attacks_per_second[cpg] *= 1 / (1 + blindside_proc_rate)
             attacks_per_second['dispatch'] = attacks_per_second[cpg] * blindside_proc_rate
-            attacks_per_second[cpg] *= 1 - blindside_proc_rate
 
         attacks_per_second['envenom'] = [finisher_chance * envenoms_per_second for finisher_chance in envenom_size_breakdown]
 
@@ -1152,9 +1152,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         for key in damage_breakdown:
             if key == 'killing_spree':
                 if self.settings.cycle.ksp_immediately:
-                    damage_breakdown[key] *= self.bandits_guile_multiplier * (2.0)
+                    damage_breakdown[key] *= self.bandits_guile_multiplier * (1.5)
                 else:
-                    damage_breakdown[key] *= self.max_bandits_guile_buff * (2.0)
+                    damage_breakdown[key] *= self.max_bandits_guile_buff * (1.5)
             elif key in ('sinister_strike', 'revealing_strike'):
                 damage_breakdown[key] *= self.bandits_guile_multiplier
                 damage_breakdown[key] *= self.get_rogue_t13_legendary_combat_multiplier()
@@ -1285,7 +1285,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attacks_per_second['oh_killing_spree'] = 7 * self.off_hand_melee_hit_chance() / ksp_cooldown
         ksp_uptime = 3. / ksp_cooldown
 
-        ksp_buff = 1.
+        ksp_buff = 0.5
         if self.settings.cycle.ksp_immediately:
             self.ksp_multiplier = 1 + ksp_uptime * ksp_buff
         else:
