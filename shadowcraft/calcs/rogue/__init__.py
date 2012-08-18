@@ -33,11 +33,11 @@ class RogueDamageCalculator(DamageCalculator):
         # in comments show the id for the spell effect, not the spell itself.
         self.spell_scaling_for_level = self.tools.get_spell_scaling('rogue', self.level)
         self.bs_bonus_dmg =     self.get_factor(0.3070000112) # 30
-        self.dsp_bonus_dmg =    self.get_factor(0.4560000002) # 123503
+        self.dsp_bonus_dmg =    self.get_factor(0.3899999857) # 123503
         self.mut_bonus_dmg =    self.get_factor(0.1790000051) # 1920, 17065
         self.ss_bonus_dmg =     self.get_factor(0.1780000031) # 535
         self.ambush_bonus_dmg = self.get_factor(0.5000000000) # 3612
-        self.vw_base_dmg =      self.get_factor(0.6000000238) # 68389
+        self.vw_base_dmg =      self.get_factor(0.5500000119) # 68389
         self.dp_base_dmg =      self.get_factor(0.6000000238) # 853
         self.ip_base_dmg =      self.get_factor(0.3129999936, 0.2800000012) # 126788
         self.wp_base_dmg =      self.get_factor(0.3129999936, 0.2800000012) # 3617
