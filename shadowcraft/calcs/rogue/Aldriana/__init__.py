@@ -998,26 +998,26 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
 
-        blindside_proc_rate = [0, .3 * self.strike_hit_chance][cpg == 'mutilate']
+        blindside_proc_rate = [0, .3][cpg == 'mutilate']
+        dispatch_as_cpg_chance = blindside_proc_rate * self.strike_hit_chance / (1 + blindside_proc_rate * self.strike_hit_chance)
 
         cpg_energy_cost = self.get_net_energy_cost(cpg)
         cpg_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
-        cpg_energy_cost += 0 #blindside costs nothing, kept for future proofing
 
         shadow_blades_uptime = self.get_shadow_blades_uptime()
 
         if cpg == 'mutilate':
-            cpg_energy_cost *= 1 / (1 + blindside_proc_rate)
+            cpg_energy_cost = cpg_energy_cost * (1 - dispatch_as_cpg_chance) + 0 * dispatch_as_cpg_chance  # blindside costs nothing
             mut_seal_fate_proc_rate = 1 - (1 - crit_rates['mutilate']) ** 2
             dsp_seal_fate_proc_rate = crit_rates['dispatch']
-            seal_fate_proc_rate = mut_seal_fate_proc_rate * (1 - blindside_proc_rate) + dsp_seal_fate_proc_rate * blindside_proc_rate
+            seal_fate_proc_rate = mut_seal_fate_proc_rate * (1 - dispatch_as_cpg_chance) + dsp_seal_fate_proc_rate * dispatch_as_cpg_chance
             base_cp_per_cpg = 2
         else:
             seal_fate_proc_rate = crit_rates['dispatch']
             base_cp_per_cpg = 1
 
         if self.talents.anticipation:
-            cp_per_cpg = self.get_cp_per_cpg(1, seal_fate_proc_rate, shadow_blades_uptime, 1 - blindside_proc_rate)
+            cp_per_cpg = self.get_cp_per_cpg(1, seal_fate_proc_rate, shadow_blades_uptime, 1 - dispatch_as_cpg_chance)
             cp_distribution, rupture_sizes, avg_cp_per_cpg = self.get_cp_distribution_for_cycle(cp_per_cpg, finisher_size)
         else:
             # This should be handled by the cp_distribution method or something
@@ -1031,20 +1031,21 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             uptime_and_dists_tuples = []
             if cpg == 'mutilate':
                 for blindside, shadow_blades in [(x, y) for x in (True, False) for y in (True, False)]:
+                    # blindside uptime as the amount of connecting cpgs that get 'turned' into dipatches
                     if blindside and shadow_blades:
-                        uptime = shadow_blades_uptime * blindside_proc_rate
+                        uptime = shadow_blades_uptime * dispatch_as_cpg_chance
                         cp_per_cpg = self.get_cp_per_cpg(1, dsp_seal_fate_proc_rate, 1)
                         current_finisher_size = finisher_size
                     elif blindside and not shadow_blades:
-                        uptime = blindside_proc_rate - shadow_blades_uptime * blindside_proc_rate
+                        uptime = dispatch_as_cpg_chance - shadow_blades_uptime * dispatch_as_cpg_chance
                         cp_per_cpg = self.get_cp_per_cpg(1, dsp_seal_fate_proc_rate)
                         current_finisher_size = finisher_size + 1
                     elif not blindside and shadow_blades:
-                        uptime = shadow_blades_uptime - shadow_blades_uptime * blindside_proc_rate
+                        uptime = shadow_blades_uptime - shadow_blades_uptime * dispatch_as_cpg_chance
                         cp_per_cpg = self.get_cp_per_cpg(base_cp_per_cpg, mut_seal_fate_proc_rate, 1)
                         current_finisher_size = finisher_size - 1
                     elif not blindside and not shadow_blades:
-                        uptime = 1 - shadow_blades_uptime - blindside_proc_rate + shadow_blades_uptime * blindside_proc_rate
+                        uptime = 1 - shadow_blades_uptime - dispatch_as_cpg_chance + shadow_blades_uptime * dispatch_as_cpg_chance
                         cp_per_cpg = self.get_cp_per_cpg(base_cp_per_cpg, mut_seal_fate_proc_rate)
                         current_finisher_size = finisher_size
                     dists = self.get_cp_distribution_for_cycle(cp_per_cpg, current_finisher_size)
@@ -1098,10 +1099,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         envenoms_per_cycle = energy_for_envenoms / envenom_energy_cost
 
         envenoms_per_second = envenoms_per_cycle / avg_cycle_length
-        attacks_per_second[cpg] = envenoms_per_second * cpg_per_finisher + attacks_per_second['rupture'] * cpg_per_rupture
+        cpgs_per_second = envenoms_per_second * cpg_per_finisher + attacks_per_second['rupture'] * cpg_per_rupture
+        attacks_per_second[cpg] = cpgs_per_second
         if cpg == 'mutilate':
-            attacks_per_second[cpg] *= 1 / (1 + blindside_proc_rate)
-            attacks_per_second['dispatch'] = attacks_per_second[cpg] * blindside_proc_rate
+            attacks_per_second['mutilate'] *= 1 - dispatch_as_cpg_chance
+            attacks_per_second['dispatch'] = cpgs_per_second * dispatch_as_cpg_chance
 
         attacks_per_second['envenom'] = [finisher_chance * envenoms_per_second for finisher_chance in envenom_size_breakdown]
 
