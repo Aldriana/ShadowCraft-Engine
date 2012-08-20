@@ -71,9 +71,8 @@ class AssassinationCycle(Cycle):
 class CombatCycle(Cycle):
     _cycle_type = 'combat'
 
-    def __init__(self, use_rupture=True, use_revealing_strike='sometimes', ksp_immediately=False):
+    def __init__(self, use_rupture=True, ksp_immediately=False):
         self.use_rupture = bool(use_rupture)
-        self.use_revealing_strike = use_revealing_strike # Allowed values are 'always' (on all damaging finishers), 'sometimes' (only at 4 cp), and 'never' (guess).
         self.ksp_immediately = bool(ksp_immediately) # Determines whether to KSp the instant it comes off cool or wait until Bandit's Guile stacks up.'
 
 
