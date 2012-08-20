@@ -1115,6 +1115,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         total_rupture_ticks_per_second = sum(attacks_per_second['rupture_ticks'])
         attacks_per_second['venomous_wounds'] = total_rupture_ticks_per_second * vw_proc_chance * self.poison_hit_chance
 
+        for opener, cps in [('ambush', 2), ('garrote', 1)]:
+            if opener in attacks_per_second:
+                extra_finishers_per_second = attacks_per_second[opener] * cps / 5
+                attacks_per_second['envenom'][5] += extra_finishers_per_second
+
         self.update_with_autoattack_passives(attacks_per_second,
                 shadow_blades_uptime=shadow_blades_uptime,
                 attack_speed_multiplier=attack_speed_multiplier,
