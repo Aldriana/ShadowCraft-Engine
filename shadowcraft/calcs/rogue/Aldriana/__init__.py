@@ -468,7 +468,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
     def get_shadow_blades_uptime(self, cooldown=None):
         # 'cooldown' used as an overide for combat cycles
         duration = 12 + self.stats.gear_buffs.rogue_t14_4pc_extra_time()
-        return self.get_activated_uptime(12, (cooldown, 180)[cooldown is None])
+        return self.get_activated_uptime(duration, (cooldown, 180)[cooldown is None])
 
     def update_with_shadow_blades(self, attacks_per_second, shadow_blades_uptime):
         mh_sb_swings_per_second = attacks_per_second['mh_autoattacks'] * shadow_blades_uptime
