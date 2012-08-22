@@ -1147,6 +1147,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         self.max_bandits_guile_buff = 1.3
 
+        self.base_cooldowns = {'ar':180, 'shb':180, 'ksp':120}
+
         self.base_revealing_strike_energy_cost = 32 + 8 / self.strike_hit_chance
         self.base_revealing_strike_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
         self.base_sinister_strike_energy_cost = 32 + 8 / self.strike_hit_chance
@@ -1176,7 +1178,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         return damage_breakdown
 
     def combat_attack_counts(self, current_stats):
-        #TODO: Model Sinister Strike and Finishers
+        #TODO: Include KsP (and its MG) in the loop.
 
         crit_rates = self.get_crit_rates(current_stats)
 
@@ -1218,14 +1220,18 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             dists = self.get_cp_distribution_for_cycle(cp_per_ss, current_finisher_size)
             uptime_and_dists[shadow_blades] = [uptime, dists]
 
-        base_restless_blades_cooldowns = {'ar':180, 'shb':180, 'ksp':120}
-        actual_restless_blades_cooldowns = base_restless_blades_cooldowns
+        current_cp_spent_on_damage_finishers_per_second = 0
         for _loop in range(20):
-            ar_uptime = self.get_activated_uptime(ar_duration, actual_restless_blades_cooldowns['ar'])
+            current_cooldowns = {}
+            for i in self.base_cooldowns.keys():
+                new_cd = self.base_cooldowns[i] / (1 + current_cp_spent_on_damage_finishers_per_second * 2)
+                current_cooldowns[i] = new_cd
+
+            ar_uptime = self.get_activated_uptime(ar_duration, current_cooldowns['ar'])
             ar_autoattack_multiplier = 1 + .2 * ar_uptime
             ar_energy_multiplier = 1 + 1. * ar_uptime
 
-            shb_uptime = self.get_shadow_blades_uptime(actual_restless_blades_cooldowns['shb'])
+            shb_uptime = self.get_shadow_blades_uptime(current_cooldowns['shb'])
 
             for shadow_blades in (True, False):
                 uptime = (not shadow_blades) * (1 - shb_uptime) + shadow_blades * shb_uptime
@@ -1291,18 +1297,16 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             energy_available_for_evis = energy_regen - energy_spent_on_snd - energy_spent_on_rupture
             total_evis_per_second = energy_available_for_evis / total_eviscerate_cost
 
-            cp_spent_on_damage_finishers_per_second = (attacks_per_second['rupture'] + total_evis_per_second) * cp_per_finisher
-            new_restless_blades_cooldowns = {}
-            for i in base_restless_blades_cooldowns.keys():
-                new_cd = base_restless_blades_cooldowns[i] / (1 + cp_spent_on_damage_finishers_per_second * 2)
-                new_restless_blades_cooldowns[i] = new_cd
+            new_cp_spent_on_damage_finishers_per_second = (attacks_per_second['rupture'] + total_evis_per_second) * cp_per_finisher
 
-            if self.are_close_enough(new_restless_blades_cooldowns, actual_restless_blades_cooldowns, 10**-7):
+            if not abs(current_cp_spent_on_damage_finishers_per_second - new_cp_spent_on_damage_finishers_per_second) < self.PRECISION_REQUIRED:
+                current_cp_spent_on_damage_finishers_per_second = new_cp_spent_on_damage_finishers_per_second
+                continue
+            else:
                 break
-            actual_restless_blades_cooldowns = new_restless_blades_cooldowns
 
 
-        ksp_cooldown = actual_restless_blades_cooldowns['ksp'] + self.settings.response_time
+        ksp_cooldown = current_cooldowns['ksp'] + self.settings.response_time
 
         attacks_per_second['sinister_strike'] = (total_evis_per_second + attacks_per_second['rupture']) * ss_per_finisher + ss_per_snd / (snd_duration - self.settings.response_time)
         attacks_per_second['revealing_strike'] = 1 / rvs_interval
