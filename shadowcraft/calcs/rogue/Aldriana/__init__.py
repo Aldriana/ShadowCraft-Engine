@@ -762,6 +762,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'haste': self.base_stats['haste'],
             'mastery': self.base_stats['mastery']
         }
+        self.current_variables = {}
 
         active_procs = []
         damage_procs = []
@@ -1179,6 +1180,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
     def combat_attack_counts(self, current_stats):
         #TODO: Include KsP (and its MG) in the loop.
+        attacks_per_second = {}
 
         crit_rates = self.get_crit_rates(current_stats)
 
@@ -1220,91 +1222,80 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             dists = self.get_cp_distribution_for_cycle(cp_per_ss, current_finisher_size)
             uptime_and_dists[shadow_blades] = [uptime, dists]
 
-        current_cp_spent_on_damage_finishers_per_second = 0
-        for _loop in range(20):
-            current_cooldowns = {}
-            for i in self.base_cooldowns.keys():
-                new_cd = self.base_cooldowns[i] / (1 + current_cp_spent_on_damage_finishers_per_second * 2)
-                current_cooldowns[i] = new_cd
+        self.current_variables.setdefault('cp_spent_on_damage_finishers_per_second', 0)
+        current_cooldowns = {}
+        for i in self.base_cooldowns.keys():
+            new_cd = self.base_cooldowns[i] / (1 + self.current_variables['cp_spent_on_damage_finishers_per_second'] * 2)
+            current_cooldowns[i] = new_cd
 
-            ar_uptime = self.get_activated_uptime(ar_duration, current_cooldowns['ar'])
-            ar_autoattack_multiplier = 1 + .2 * ar_uptime
-            ar_energy_multiplier = 1 + 1. * ar_uptime
+        ar_uptime = self.get_activated_uptime(ar_duration, current_cooldowns['ar'])
+        ar_autoattack_multiplier = 1 + .2 * ar_uptime
+        ar_energy_multiplier = 1 + 1. * ar_uptime
 
-            shb_uptime = self.get_shadow_blades_uptime(current_cooldowns['shb'])
+        shb_uptime = self.get_shadow_blades_uptime(current_cooldowns['shb'])
 
-            for shadow_blades in (True, False):
-                uptime = (not shadow_blades) * (1 - shb_uptime) + shadow_blades * shb_uptime
-                uptime_and_dists[shadow_blades][0] = uptime
+        for shadow_blades in (True, False):
+            uptime = (not shadow_blades) * (1 - shb_uptime) + shadow_blades * shb_uptime
+            uptime_and_dists[shadow_blades][0] = uptime
 
-            cp_distribution = {}
-            rupture_sizes = [0, 0, 0, 0, 0, 0]
-            avg_cp_per_cpg = 0
-            for i in uptime_and_dists:
-                uptime = uptime_and_dists[i][0]
-                dists = uptime_and_dists[i][1]
-                for i in dists[0]:
-                    cp_distribution.setdefault(i, 0)
-                    cp_distribution[i] += dists[0][i] * uptime
-                rupture_sizes = [i + j * uptime for i, j in zip(rupture_sizes, dists[1])]
-                avg_cp_per_cpg += dists[2] * uptime
+        cp_distribution = {}
+        rupture_sizes = [0, 0, 0, 0, 0, 0]
+        avg_cp_per_cpg = 0
+        for i in uptime_and_dists:
+            uptime = uptime_and_dists[i][0]
+            dists = uptime_and_dists[i][1]
+            for i in dists[0]:
+                cp_distribution.setdefault(i, 0)
+                cp_distribution[i] += dists[0][i] * uptime
+            rupture_sizes = [i + j * uptime for i, j in zip(rupture_sizes, dists[1])]
+            avg_cp_per_cpg += dists[2] * uptime
 
-            ss_per_finisher = 0
-            cp_per_finisher = 0
-            finisher_size_breakdown = [0, 0, 0, 0, 0, 0]
-            for (cps, ss), probability in cp_distribution.items():
-                ss_per_finisher += ss * probability
-                cp_per_finisher += cps * probability
-                finisher_size_breakdown[cps] += probability
+        ss_per_finisher = 0
+        cp_per_finisher = 0
+        finisher_size_breakdown = [0, 0, 0, 0, 0, 0]
+        for (cps, ss), probability in cp_distribution.items():
+            ss_per_finisher += ss * probability
+            cp_per_finisher += cps * probability
+            finisher_size_breakdown[cps] += probability
 
-            energy_cost_per_cp = ss_per_finisher * sinister_strike_energy_cost
-            total_eviscerate_cost = energy_cost_per_cp + eviscerate_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
-            total_rupture_cost = energy_cost_per_cp + rupture_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
+        energy_cost_per_cp = ss_per_finisher * sinister_strike_energy_cost
+        total_eviscerate_cost = energy_cost_per_cp + eviscerate_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
+        total_rupture_cost = energy_cost_per_cp + rupture_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
 
-            attacks_per_second = {}
-            self.update_with_autoattack_passives(attacks_per_second,
-                'autoattack', 'autoattack_hits', 'main_gauche', 'shadow_blades',
-                attack_speed_multiplier = attack_speed_multiplier,
-                main_gauche_proc_rate = main_gauche_proc_rate,
-                shadow_blades_uptime = shb_uptime)
-            for attack in ('mh_autoattacks', 'mh_autoattack_hits', 'oh_autoattacks', 'oh_autoattack_hits', 'main_gauche', 'mh_shadow_blade', 'oh_shadow_blade'):
-                attacks_per_second[attack] *= ar_autoattack_multiplier
+        self.update_with_autoattack_passives(attacks_per_second,
+            'autoattack', 'autoattack_hits', 'main_gauche', 'shadow_blades',
+            attack_speed_multiplier = attack_speed_multiplier * ar_autoattack_multiplier,
+            main_gauche_proc_rate = main_gauche_proc_rate,
+            shadow_blades_uptime = shb_uptime)
 
-            rvs_interval = rvs_duration + (5 / avg_cp_per_cpg) / 2
+        rvs_interval = rvs_duration + (5 / avg_cp_per_cpg) / 2
 
-            autoattack_cp_regen = combat_potency_regen_per_oh * (attacks_per_second['oh_autoattack_hits'] + attacks_per_second['oh_shadow_blade'])
-            autoattack_cp_regen += combat_potency_from_mg * attacks_per_second['main_gauche']
-            energy_regen = self.base_energy_regen * haste_multiplier + self.bonus_energy_regen + autoattack_cp_regen - revealing_strike_energy_cost / rvs_interval
-            energy_regen *= ar_energy_multiplier
+        autoattack_cp_regen = combat_potency_regen_per_oh * (attacks_per_second['oh_autoattack_hits'] + attacks_per_second['oh_shadow_blade'])
+        autoattack_cp_regen += combat_potency_from_mg * attacks_per_second['main_gauche']
+        energy_regen = self.base_energy_regen * haste_multiplier + self.bonus_energy_regen + autoattack_cp_regen - revealing_strike_energy_cost / rvs_interval
+        energy_regen *= ar_energy_multiplier
 
-            ss_per_snd = (total_eviscerate_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp + 25) / sinister_strike_energy_cost
-            snd_size = ss_per_snd * (1 + extra_cp_chance + shb_uptime)
-            snd_base_cost = 25 * self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
-            snd_cost = ss_per_snd / (1 + extra_cp_chance + shb_uptime) * sinister_strike_energy_cost + snd_base_cost - snd_size * self.relentless_strikes_energy_return_per_cp
-            snd_duration = self.get_snd_length(snd_size)
-            energy_spent_on_snd = snd_cost / (snd_duration - self.settings.response_time)
+        ss_per_snd = (total_eviscerate_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp + 25) / sinister_strike_energy_cost
+        snd_size = ss_per_snd * (1 + extra_cp_chance + shb_uptime)
+        snd_base_cost = 25 * self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
+        snd_cost = ss_per_snd / (1 + extra_cp_chance + shb_uptime) * sinister_strike_energy_cost + snd_base_cost - snd_size * self.relentless_strikes_energy_return_per_cp
+        snd_duration = self.get_snd_length(snd_size)
+        energy_spent_on_snd = snd_cost / (snd_duration - self.settings.response_time)
 
-            avg_rupture_gap = (total_rupture_cost - .5 * total_eviscerate_cost) / energy_regen
-            avg_rupture_duration = 4 * (1 + cp_per_finisher)
-            if self.talents.anticipation:
-                avg_rupture_duration = 24
-            if self.settings.cycle.use_rupture:
-                attacks_per_second['rupture'] = 1 / (avg_rupture_duration + avg_rupture_gap)
-            else:
-                attacks_per_second['rupture'] = 0
-            energy_spent_on_rupture = total_rupture_cost * attacks_per_second['rupture']
+        avg_rupture_gap = (total_rupture_cost - .5 * total_eviscerate_cost) / energy_regen
+        avg_rupture_duration = 4 * (1 + cp_per_finisher)
+        if self.talents.anticipation:
+            avg_rupture_duration = 24
+        if self.settings.cycle.use_rupture:
+            attacks_per_second['rupture'] = 1 / (avg_rupture_duration + avg_rupture_gap)
+        else:
+            attacks_per_second['rupture'] = 0
+        energy_spent_on_rupture = total_rupture_cost * attacks_per_second['rupture']
 
-            energy_available_for_evis = energy_regen - energy_spent_on_snd - energy_spent_on_rupture
-            total_evis_per_second = energy_available_for_evis / total_eviscerate_cost
+        energy_available_for_evis = energy_regen - energy_spent_on_snd - energy_spent_on_rupture
+        total_evis_per_second = energy_available_for_evis / total_eviscerate_cost
 
-            new_cp_spent_on_damage_finishers_per_second = (attacks_per_second['rupture'] + total_evis_per_second) * cp_per_finisher
-
-            if not abs(current_cp_spent_on_damage_finishers_per_second - new_cp_spent_on_damage_finishers_per_second) < self.PRECISION_REQUIRED:
-                current_cp_spent_on_damage_finishers_per_second = new_cp_spent_on_damage_finishers_per_second
-                continue
-            else:
-                break
-
+        self.current_variables['cp_spent_on_damage_finishers_per_second'] = (attacks_per_second['rupture'] + total_evis_per_second) * cp_per_finisher
 
         ksp_cooldown = current_cooldowns['ksp'] + self.settings.response_time
 
