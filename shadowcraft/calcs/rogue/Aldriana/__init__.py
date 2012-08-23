@@ -178,16 +178,22 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
             'oh_autoattacks': min(base_melee_crit_rate, self.dual_wield_oh_hit_chance() - self.GLANCE_RATE),
         }
-        for attack in ('mh_shadow_blade', 'oh_shadow_blade', 'deadly_instant_poison', 'deadly_poison', 'rupture_ticks', 'ambush'):
+        for attack in ('mh_shadow_blade', 'oh_shadow_blade', 'rupture_ticks', 'ambush'):
             crit_rates[attack] = base_melee_crit_rate
 
         if self.settings.is_assassination_rogue():
             spec_attacks = ('mutilate', 'dispatch', 'envenom', 'venomous_wounds', 'garrote')
         elif self.settings.is_combat_rogue():
-            spec_attacks = ('main_gauche', 'sinister_strike', 'revealing_strike', 'eviscerate', 'killing_spree', 'oh_killing_spree', 'mh_killing_spree', 'wound_poison')
+            spec_attacks = ('main_gauche', 'sinister_strike', 'revealing_strike', 'eviscerate', 'killing_spree', 'oh_killing_spree', 'mh_killing_spree')
         elif self.settings.is_subtlety_rogue():
-            spec_attacks = ('eviscerate', 'backstab', 'ambush', 'hemorrhage', 'wound_poison')
-        for attack in spec_attacks:
+            spec_attacks = ('eviscerate', 'backstab', 'ambush', 'hemorrhage')
+
+        if self.settings.dmg_poison == 'dp':
+            poisons = ('deadly_instant_poison', 'deadly_poison')
+        elif self.settings.dmg_poison == 'wp':
+            poisons = ('wound_poison')
+
+        for attack in spec_attacks + poisons:
             crit_rates[attack] = base_melee_crit_rate
 
         for attack, crit_rate in crit_rates.items():
@@ -715,22 +721,24 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         oh_hits_per_second = self.get_oh_procs_per_second(poison, attacks_per_second, None)
         total_hits_per_second = mh_hits_per_second + oh_hits_per_second
         if self.settings.dmg_poison == 'dp':
-            dp_base_proc_rate = .3
-            if self.settings.is_assassination_rogue():
-                dp_base_proc_rate += .2
-                dp_envenom_proc_rate = dp_base_proc_rate + .15
-                envenom_uptime = min(sum([(1 / self.strike_hit_chance + cps) * attacks_per_second['envenom'][cps] for cps in xrange(1, 6)]), 1)
-                avg_dp_proc_rate = dp_base_proc_rate * (1 - envenom_uptime) + dp_envenom_proc_rate * envenom_uptime
-            else:
-                avg_dp_proc_rate = dp_base_proc_rate
-            poison_procs = avg_dp_proc_rate * total_hits_per_second - 1 / self.settings.duration
+            poison_base_proc_rate = .3
+        elif self.settings.dmg_poison == 'wp':
+            poison_base_proc_rate = .3
+
+        if self.settings.is_assassination_rogue():
+            poison_base_proc_rate += .2
+            poison_envenom_proc_rate = poison_base_proc_rate + .15
+            envenom_uptime = min(sum([(1 / self.strike_hit_chance + cps) * attacks_per_second['envenom'][cps] for cps in xrange(1, 6)]), 1)
+            avg_poison_proc_rate = poison_base_proc_rate * (1 - envenom_uptime) + poison_envenom_proc_rate * envenom_uptime
+        else:
+            avg_poison_proc_rate = poison_base_proc_rate
+
+        if self.settings.dmg_poison == 'dp':
+            poison_procs = avg_poison_proc_rate * total_hits_per_second - 1 / self.settings.duration
             attacks_per_second['deadly_instant_poison'] = poison_procs * self.poison_hit_chance
             attacks_per_second['deadly_poison'] = 1. / 3 * (1 - total_hits_per_second / self.settings.duration)
         elif self.settings.dmg_poison == 'wp':
-            wp_proc_rate = .3
-            if self.settings.is_assassination_rogue():
-                wp_proc_rate += .2
-            attacks_per_second['wound_poison'] = total_hits_per_second * wp_proc_rate * self.poison_hit_chance
+            attacks_per_second['wound_poison'] = total_hits_per_second * avg_poison_proc_rate * self.poison_hit_chance
 
     def get_self_healing(self, dps_breakdown=None):
         # TODO: Needs better implementation, should be usable for now
@@ -894,8 +902,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             raise InputNotModeledException(_('You must specify an assassination cycle to match your assassination spec.'))
         if self.stats.mh.type != 'dagger' or self.stats.oh.type != 'dagger':
             raise InputNotModeledException(_('Assassination modeling requires daggers in both hands'))
-        if self.settings.dmg_poison != 'dp':
-            raise InputNotModeledException(_('Assassination modeling requires deadly poison'))
 
         self.set_constants()
 
@@ -1179,7 +1185,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         return damage_breakdown
 
     def combat_attack_counts(self, current_stats):
-        #TODO: Include KsP (and its MG) in the loop.
         attacks_per_second = {}
 
         crit_rates = self.get_crit_rates(current_stats)
@@ -1207,6 +1212,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         restless_blades_reduction = 2
 
+        # These values get re-evaluated in every call; we're iterating to
+        # convergence. This is a -very- rough initialization that cuts one or
+        # two iterations per call.
+        if not self.current_variables:
+            init_cp_per_second = 5 * self.base_energy_regen / ((5 * sinister_strike_energy_cost / (1 + extra_cp_chance)) + eviscerate_energy_cost)
+            init_cpgs_per_second = self.base_energy_regen / sinister_strike_energy_cost
+            self.current_variables['cp_spent_on_damage_finishers_per_second'] = init_cp_per_second
+            self.current_variables['cpgs_per_second'] = init_cpgs_per_second
+
         FINISHER_SIZE = 5
 
         uptime_and_dists = {}
@@ -1222,7 +1236,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             dists = self.get_cp_distribution_for_cycle(cp_per_ss, current_finisher_size)
             uptime_and_dists[shadow_blades] = [uptime, dists]
 
-        self.current_variables.setdefault('cp_spent_on_damage_finishers_per_second', 0)
         current_cooldowns = {}
         for i in self.base_cooldowns.keys():
             new_cd = self.base_cooldowns[i] / (1 + self.current_variables['cp_spent_on_damage_finishers_per_second'] * 2)
@@ -1233,6 +1246,26 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         ar_energy_multiplier = 1 + 1. * ar_uptime
 
         shb_uptime = self.get_shadow_blades_uptime(current_cooldowns['shb'])
+
+        time_at_level = 4 / self.current_variables['cpgs_per_second']
+        cycle_duration = 3 * time_at_level + 15
+        if not self.settings.cycle.ksp_immediately:
+            wait_prob = 3. * time_at_level / cycle_duration
+            avg_wait_if_waiting = 1.5 * time_at_level
+            avg_wait_till_full_stack = wait_prob * avg_wait_if_waiting
+            current_cooldowns['ksp'] += avg_wait_till_full_stack
+        avg_stacks = (3 * time_at_level + 45) / cycle_duration
+        self.bandits_guile_multiplier = 1 + .1 * avg_stacks
+        ksp_uptime = self.get_activated_uptime(3., current_cooldowns['ksp'])
+
+        ksp_buff = 0.5
+        if self.settings.cycle.ksp_immediately:
+            self.ksp_multiplier = 1 + ksp_uptime * ksp_buff
+        else:
+            self.ksp_multiplier = 1 + ksp_uptime * ksp_buff * self.max_bandits_guile_buff / self.bandits_guile_multiplier
+
+        attacks_per_second['mh_killing_spree'] = 7 * self.strike_hit_chance / (current_cooldowns['ksp'] + self.settings.response_time)
+        attacks_per_second['oh_killing_spree'] = 7 * self.off_hand_melee_hit_chance() / (current_cooldowns['ksp'] + self.settings.response_time)
 
         for shadow_blades in (True, False):
             uptime = (not shadow_blades) * (1 - shb_uptime) + shadow_blades * shb_uptime
@@ -1263,16 +1296,17 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         total_rupture_cost = energy_cost_per_cp + rupture_energy_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp
 
         self.update_with_autoattack_passives(attacks_per_second,
-            'autoattack', 'autoattack_hits', 'main_gauche', 'shadow_blades',
-            attack_speed_multiplier = attack_speed_multiplier * ar_autoattack_multiplier,
-            main_gauche_proc_rate = main_gauche_proc_rate,
-            shadow_blades_uptime = shb_uptime)
+                'autoattack', 'autoattack_hits', 'main_gauche', 'shadow_blades',
+                attack_speed_multiplier = attack_speed_multiplier * ar_autoattack_multiplier,
+                main_gauche_proc_rate = main_gauche_proc_rate,
+                shadow_blades_uptime = shb_uptime)
+        attacks_per_second['main_gauche'] += attacks_per_second['mh_killing_spree'] * main_gauche_proc_rate
 
         rvs_interval = rvs_duration + (5 / avg_cp_per_cpg) / 2
 
-        autoattack_cp_regen = combat_potency_regen_per_oh * (attacks_per_second['oh_autoattack_hits'] + attacks_per_second['oh_shadow_blade'])
-        autoattack_cp_regen += combat_potency_from_mg * attacks_per_second['main_gauche']
-        energy_regen = self.base_energy_regen * haste_multiplier + self.bonus_energy_regen + autoattack_cp_regen - revealing_strike_energy_cost / rvs_interval
+        combat_potency_regen = combat_potency_regen_per_oh * (attacks_per_second['oh_autoattack_hits'] + attacks_per_second['oh_shadow_blade'])
+        combat_potency_regen += combat_potency_from_mg * attacks_per_second['main_gauche']
+        energy_regen = self.base_energy_regen * haste_multiplier + self.bonus_energy_regen + combat_potency_regen - revealing_strike_energy_cost / rvs_interval
         energy_regen *= ar_energy_multiplier
 
         ss_per_snd = (total_eviscerate_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp + 25) / sinister_strike_energy_cost
@@ -1282,11 +1316,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         snd_duration = self.get_snd_length(snd_size)
         energy_spent_on_snd = snd_cost / (snd_duration - self.settings.response_time)
 
-        avg_rupture_gap = (total_rupture_cost - .5 * total_eviscerate_cost) / energy_regen
-        avg_rupture_duration = 4 * (1 + cp_per_finisher)
-        if self.talents.anticipation:
-            avg_rupture_duration = 24
         if self.settings.cycle.use_rupture:
+            avg_rupture_gap = (total_rupture_cost - .5 * total_eviscerate_cost) / energy_regen
+            avg_rupture_duration = 4 * (1 + cp_per_finisher)
             attacks_per_second['rupture'] = 1 / (avg_rupture_duration + avg_rupture_gap)
         else:
             attacks_per_second['rupture'] = 0
@@ -1295,35 +1327,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         energy_available_for_evis = energy_regen - energy_spent_on_snd - energy_spent_on_rupture
         total_evis_per_second = energy_available_for_evis / total_eviscerate_cost
 
-        self.current_variables['cp_spent_on_damage_finishers_per_second'] = (attacks_per_second['rupture'] + total_evis_per_second) * cp_per_finisher
-
-        ksp_cooldown = current_cooldowns['ksp'] + self.settings.response_time
-
         attacks_per_second['sinister_strike'] = (total_evis_per_second + attacks_per_second['rupture']) * ss_per_finisher + ss_per_snd / (snd_duration - self.settings.response_time)
         attacks_per_second['revealing_strike'] = 1 / rvs_interval
         attacks_per_second['main_gauche'] += (attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'] + total_evis_per_second + attacks_per_second['rupture']) * main_gauche_proc_rate
 
-        time_at_level = 4 / (attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'])
-        cycle_duration = 3 * time_at_level + 15
-        if not self.settings.cycle.ksp_immediately:
-            wait_prob = 3. * time_at_level / cycle_duration
-            avg_wait_if_waiting = 1.5 * time_at_level
-            avg_wait_till_full_stack = wait_prob * avg_wait_if_waiting
-            ksp_cooldown += avg_wait_till_full_stack
-        avg_stacks = (3 * time_at_level + 45) / cycle_duration
-        self.bandits_guile_multiplier = 1 + .1 * avg_stacks
-
-        attacks_per_second['mh_killing_spree'] = 7 * self.strike_hit_chance / ksp_cooldown
-        attacks_per_second['oh_killing_spree'] = 7 * self.off_hand_melee_hit_chance() / ksp_cooldown
-        ksp_uptime = 3. / ksp_cooldown
-
-        ksp_buff = 0.5
-        if self.settings.cycle.ksp_immediately:
-            self.ksp_multiplier = 1 + ksp_uptime * ksp_buff
-        else:
-            self.ksp_multiplier = 1 + ksp_uptime * ksp_buff * self.max_bandits_guile_buff / self.bandits_guile_multiplier
+        self.current_variables['cp_spent_on_damage_finishers_per_second'] = (attacks_per_second['rupture'] + total_evis_per_second) * cp_per_finisher
+        self.current_variables['cpgs_per_second'] = attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike']
 
         attacks_per_second['eviscerate'] = [finisher_chance * total_evis_per_second for finisher_chance in finisher_size_breakdown]
+        attacks_per_second['eviscerate'][5] += attacks_per_second['revealing_strike'] / 5
 
         attacks_per_second['rupture_ticks'] = [0, 0, 0, 0, 0, 0]
         for i in xrange(1, 6):
