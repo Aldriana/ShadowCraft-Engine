@@ -912,7 +912,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         vendetta_duration = 20 + 10 * self.glyphs.vendetta
         vendetta_duration += self.stats.gear_buffs.rogue_t13_4pc * 9
-        self.vendetta_mult = 1 + (.3 - .05 * self.glyphs.vendetta) * vendetta_duration / 120
+        self.vendetta_mult = 1 + (.3 - .05 * self.glyphs.vendetta) * vendetta_duration / (120 + self.settings.response_time)
 
     def assassination_dps_estimate(self):
         non_execute_dps = self.assassination_dps_estimate_non_execute() * (1 - self.settings.time_in_execute_range)
@@ -994,11 +994,18 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         else:
             total_openers_per_second = 0
             opener_spacing = None
-
-        energy_regen -= opener_net_cost * total_openers_per_second
+            
+        if self.settings.cycle.opener_name == 'mutilate' and self.talents.shadow_focus:
+            energy_regen += self.get_net_energy_cost(self.settings.cycle.opener_name) * total_openers_per_second
+            total_openers_per_second = 0
+        else:
+            energy_regen -= opener_net_cost * total_openers_per_second
 
         if total_openers_per_second != 0:
-            attacks_per_second[self.settings.cycle.opener_name] = total_openers_per_second
+            if self.settings.cycle.opener_name in attacks_per_second:
+                attacks_per_second[self.settings.cycle.opener_name] += total_openers_per_second
+            else: 
+                attacks_per_second[self.settings.cycle.opener_name] = total_openers_per_second
 
         energy_regen_with_rupture = energy_regen + 0.5 * vw_energy_per_bleed_tick
 
@@ -1106,7 +1113,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         envenoms_per_second = envenoms_per_cycle / avg_cycle_length
         cpgs_per_second = envenoms_per_second * cpg_per_finisher + attacks_per_second['rupture'] * cpg_per_rupture
-        attacks_per_second[cpg] = cpgs_per_second
+        if cpg in attacks_per_second:
+            attacks_per_second[cpg] += cpgs_per_second
+        else: 
+            attacks_per_second[cpg] = cpgs_per_second
         if cpg == 'mutilate':
             attacks_per_second['mutilate'] *= 1 - dispatch_as_cpg_chance
             attacks_per_second['dispatch'] = cpgs_per_second * dispatch_as_cpg_chance
