@@ -477,6 +477,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         return self.get_activated_uptime(duration, (cooldown, 180)[cooldown is None])
 
     def update_with_shadow_blades(self, attacks_per_second, shadow_blades_uptime):
+        if self.level < 87:
+            return
         mh_sb_swings_per_second = attacks_per_second['mh_autoattacks'] * shadow_blades_uptime
         oh_sb_swings_per_second = attacks_per_second['oh_autoattacks'] * shadow_blades_uptime
         attacks_per_second['mh_autoattacks'] -= mh_sb_swings_per_second
@@ -494,7 +496,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if 'swing_reset_spacing' in kwargs and kwargs['swing_reset_spacing'] is not None:
             attacks_per_second['mh_autoattacks'] *= (1 - max((1 - .5 * self.stats.mh.speed / kwargs['attack_speed_multiplier']), 0) / kwargs['swing_reset_spacing'])
             attacks_per_second['oh_autoattacks'] *= (1 - max((1 - .5 * self.stats.oh.speed / kwargs['attack_speed_multiplier']), 0) / kwargs['swing_reset_spacing'])
-        if not args or 'shadow_blades' in args:
+        if (not args or 'shadow_blades' in args) and self.level >= 87:
             if 'shadow_blades_uptime' not in kwargs:
                 kwargs['shadow_blades_uptime'] = self.get_shadow_blades_uptime()
             self.update_with_shadow_blades(attacks_per_second, kwargs['shadow_blades_uptime'])
@@ -503,7 +505,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second['oh_autoattack_hits'] = attacks_per_second['oh_autoattacks'] * self.dual_wield_oh_hit_chance()
         if not args or 'poisons' in args:
             self.get_poison_counts(attacks_per_second)
-        if self.settings.is_combat_rogue() and (not args or 'main_gauche' in args):
+        if self.settings.is_combat_rogue() and (not args or 'main_gauche' in args) and self.level >= 80:
             if 'main_gauche_proc_rate' in kwargs:
                 main_gauche_proc_rate = kwargs['main_gauche_proc_rate']
             elif 'current_stats' in kwargs:
