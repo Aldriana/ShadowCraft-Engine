@@ -473,6 +473,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
     def get_shadow_blades_uptime(self, cooldown=None):
         # 'cooldown' used as an overide for combat cycles
+        if self.level < 87:
+            return 0
         duration = 12 + self.stats.gear_buffs.rogue_t14_4pc_extra_time()
         return self.get_activated_uptime(duration, (cooldown, 180)[cooldown is None])
 
@@ -505,7 +507,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second['oh_autoattack_hits'] = attacks_per_second['oh_autoattacks'] * self.dual_wield_oh_hit_chance()
         if not args or 'poisons' in args:
             self.get_poison_counts(attacks_per_second)
-        if self.settings.is_combat_rogue() and (not args or 'main_gauche' in args) and self.level >= 80:
+        if self.settings.is_combat_rogue() and (not args or 'main_gauche' in args):
             if 'main_gauche_proc_rate' in kwargs:
                 main_gauche_proc_rate = kwargs['main_gauche_proc_rate']
             elif 'current_stats' in kwargs:
@@ -974,6 +976,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         vw_energy_return = 10
         vw_proc_chance = .75
         vw_energy_per_bleed_tick = vw_energy_return * vw_proc_chance
+        
+        blindside_proc_rate = [0, .3][cpg == 'mutilate']
+        blindside_proc_rate *= self.strike_hit_chance
+        dispatch_as_cpg_chance = blindside_proc_rate / (1 + blindside_proc_rate)
 
         if self.talents.shadow_focus:
             opener_net_cost = 0
@@ -991,34 +997,25 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 opener_spacing = 1 / (1 / opener_spacing + 1 / shadowmeld_spacing)
             total_openers_per_second = (1 + math.floor((self.settings.duration - opener_cd) / opener_spacing)) / self.settings.duration
         elif self.settings.cycle.use_opener == 'opener':
-            total_openers_per_second = (1 - 20. / self.settings.duration) / self.settings.duration
+            total_openers_per_second = (1 - opener_cd / self.settings.duration) / self.settings.duration
             opener_spacing = self.settings.duration
         else:
             total_openers_per_second = 0
             opener_spacing = None
-            
-        if self.settings.cycle.opener_name == 'mutilate' and self.talents.shadow_focus:
-            energy_regen += self.get_net_energy_cost(self.settings.cycle.opener_name) * total_openers_per_second
-            total_openers_per_second = 0
-        else:
-            energy_regen -= opener_net_cost * total_openers_per_second
 
-        if total_openers_per_second != 0:
-            if self.settings.cycle.opener_name in attacks_per_second:
-                attacks_per_second[self.settings.cycle.opener_name] += total_openers_per_second
-            else: 
-                attacks_per_second[self.settings.cycle.opener_name] = total_openers_per_second
+        energy_regen -= opener_net_cost * total_openers_per_second
+
+        if self.settings.cycle.opener_name == 'mutilate':
+            attacks_per_second['dispatch'] = total_openers_per_second * blindside_proc_rate
+        attacks_per_second[self.settings.cycle.opener_name] = total_openers_per_second
 
         energy_regen_with_rupture = energy_regen + 0.5 * vw_energy_per_bleed_tick
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
 
-        blindside_proc_rate = [0, .3][cpg == 'mutilate']
-        dispatch_as_cpg_chance = blindside_proc_rate * self.strike_hit_chance / (1 + blindside_proc_rate * self.strike_hit_chance)
-
         cpg_energy_cost = self.get_net_energy_cost(cpg)
         cpg_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
-
+        
         shadow_blades_uptime = self.get_shadow_blades_uptime()
 
         if cpg == 'mutilate':
