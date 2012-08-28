@@ -476,12 +476,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 damage_breakdown[proc.proc_name] = self.get_proc_damage_contribution(proc, attacks_per_second[proc.proc_name], current_stats)
 
         self.append_damage_on_use(average_ap, current_stats, damage_breakdown)
-        
+
         if self.talents.nightstalker:
             nightstalker_mod = .25
-            nightstalker_percent = self.total_openers_per_second / (attacks_per_second[self.settings.opener_name] * self.settings.duration)
-            damage_breakdown[self.settings.opener_name] *= 1 + nightstalker_mod * nightstalker_percent
-        
+            nightstalker_percent = self.total_openers_per_second / (attacks_per_second[self.settings.opener_name])
+            modifier = 1 + nightstalker_mod * nightstalker_percent
+            damage_breakdown[self.settings.opener_name] = tuple([i * modifier for i in damage_breakdown[self.settings.opener_name]])
+
         if self.stats.gear_buffs.rogue_t12_2pc:
             damage_breakdown['burning_wounds'] = self.get_t12_2p_damage(damage_breakdown)
         
@@ -1330,7 +1331,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attacks_per_second['main_gauche'] += attacks_per_second['mh_killing_spree'] * main_gauche_proc_rate
 
         rvs_interval = rvs_duration + (5 / avg_cp_per_cpg) / 2
-        if self.settings.cycle.use_revealing_strike == 'always':
+        if not self.settings.cycle.revealing_strike_pooling:
             rvs_interval = rvs_duration
 
         combat_potency_regen = combat_potency_regen_per_oh * (attacks_per_second['oh_autoattack_hits'] + attacks_per_second['oh_shadow_blade'])
