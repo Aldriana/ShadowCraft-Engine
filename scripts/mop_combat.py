@@ -51,7 +51,7 @@ test_gear_buffs = stats.GearBuffs('rogue_t14_2pc', 'rogue_t14_4pc', 'leather_spe
 
 # Set up a calcs object..
 #                       str,   agi, ap,  crit,  hit, exp, haste, mast,      mh,      oh,      procs,      gear_buffs
-test_stats = stats.Stats(80, 13000, 250, 2000, 2200, 2200, 3000, 2800, test_mh, test_oh, test_procs, test_gear_buffs)
+test_stats = stats.Stats(80, 18000, 250, 2000, 2550, 2550, 4000, 4800, test_mh, test_oh, test_procs, test_gear_buffs)
 
 # Initialize talents..
 test_talents = talents.Talents('322213', test_class, test_level)

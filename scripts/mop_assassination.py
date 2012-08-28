@@ -61,7 +61,9 @@ glyph_list = ['recuperate', 'sprint'] #just to have something
 test_glyphs = glyphs.Glyphs(test_class, *glyph_list)
 
 # Set up settings.
-test_cycle = settings.AssassinationCycle()
+test_cycle = settings.AssassinationCycle(min_envenom_size_non_execute=4, min_envenom_size_execute=5,
+                                         prioritize_rupture_uptime_non_execute=True, prioritize_rupture_uptime_execute=True,
+                                         use_opener='always', opener_name='ambush')
 test_settings = settings.Settings(test_cycle, response_time=.5, duration=360, dmg_poison='dp', utl_poison='lp')
 
 # Build a DPS object.

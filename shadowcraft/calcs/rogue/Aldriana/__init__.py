@@ -456,10 +456,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 damage_breakdown[proc.proc_name] = self.get_proc_damage_contribution(proc, attacks_per_second[proc.proc_name], current_stats)
 
         self.append_damage_on_use(average_ap, current_stats, damage_breakdown)
-
+        
+        if self.talents.nightstalker:
+            nightstalker_mod = .25
+            nightstalker_percent = attacks_per_second['total_openers_per_second'] / (attacks_per_second[self.settings.cycle.opener_name] * self.settings.duration)
+            damage_breakdown[self.settings.cycle.opener_name] *= 1 + nightstalker_mod * nightstalker_percent
+        
         if self.stats.gear_buffs.rogue_t12_2pc:
             damage_breakdown['burning_wounds'] = self.get_t12_2p_damage(damage_breakdown)
-
+        
         return damage_breakdown
 
     def get_net_energy_cost(self, ability):
@@ -987,28 +992,29 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             opener_net_cost = self.get_net_energy_cost(self.settings.cycle.opener_name)
             opener_net_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
 
-        opener_cd = 1
+        opener_cd = 10
         if self.settings.cycle.opener_name == 'garrote':
             opener_cd = 20
+            energy_regen += vw_energy_return * vw_proc_chance / self.settings.duration # Only the first tick at the start of the fight
+            attacks_per_second['venomous_wounds'] = vw_proc_chance / self.settings.duration
         if self.settings.cycle.use_opener == 'always':
             opener_spacing = (180. + self.settings.response_time)
             if self.race.shadowmeld:
                 shadowmeld_spacing = 120. + self.settings.response_time
-                opener_spacing = 1 / (1 / opener_spacing + 1 / shadowmeld_spacing)
-            total_openers_per_second = (1 + math.floor((self.settings.duration - opener_cd) / opener_spacing)) / self.settings.duration
+                opener_spacing = 1. / (1 / opener_spacing + 1 / shadowmeld_spacing)
+            total_openers_per_second = (1. + math.floor((self.settings.duration - opener_cd) / opener_spacing)) / self.settings.duration
         elif self.settings.cycle.use_opener == 'opener':
-            total_openers_per_second = (1 - opener_cd / self.settings.duration) / self.settings.duration
-            opener_spacing = self.settings.duration
+            total_openers_per_second = 1. / self.settings.duration
+            opener_spacing = None
         else:
             total_openers_per_second = 0
             opener_spacing = None
 
         energy_regen -= opener_net_cost * total_openers_per_second
 
-        if self.settings.cycle.opener_name == 'mutilate':
-            attacks_per_second['dispatch'] = total_openers_per_second * blindside_proc_rate
         attacks_per_second[self.settings.cycle.opener_name] = total_openers_per_second
-
+        attacks_per_second['total_openers_per_second'] = total_openers_per_second
+        
         energy_regen_with_rupture = energy_regen + 0.5 * vw_energy_per_bleed_tick
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
@@ -1119,6 +1125,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if cpg == 'mutilate':
             attacks_per_second['mutilate'] *= 1 - dispatch_as_cpg_chance
             attacks_per_second['dispatch'] = cpgs_per_second * dispatch_as_cpg_chance
+        if self.settings.cycle.opener_name == 'mutilate':
+            attacks_per_second['mutilate'] += total_openers_per_second
+            attacks_per_second['dispatch'] += total_openers_per_second * blindside_proc_rate
 
         attacks_per_second['envenom'] = [finisher_chance * envenoms_per_second for finisher_chance in envenom_size_breakdown]
 
@@ -1128,8 +1137,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second['rupture_ticks'][i] = ticks_per_rupture * attacks_per_second['rupture'] * rupture_sizes[i]
 
         total_rupture_ticks_per_second = sum(attacks_per_second['rupture_ticks'])
-        attacks_per_second['venomous_wounds'] = total_rupture_ticks_per_second * vw_proc_chance * self.poison_hit_chance
-
+        if 'venomous_wounds' in attacks_per_second:
+            attacks_per_second['venomous_wounds'] += total_rupture_ticks_per_second * vw_proc_chance * self.poison_hit_chance
+        else:
+            attacks_per_second['venomous_wounds'] = total_rupture_ticks_per_second * vw_proc_chance * self.poison_hit_chance
+            
+        if 'garrote' in attacks_per_second:
+            attacks_per_second['garrote_ticks'] = 6 * attacks_per_second['garrote']
         for opener, cps in [('ambush', 2), ('garrote', 1)]:
             if opener in attacks_per_second:
                 extra_finishers_per_second = attacks_per_second[opener] * cps / 5
