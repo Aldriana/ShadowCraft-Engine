@@ -1326,6 +1326,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attacks_per_second['main_gauche'] += attacks_per_second['mh_killing_spree'] * main_gauche_proc_rate
 
         rvs_interval = rvs_duration + (5 / avg_cp_per_cpg) / 2
+        if self.settings.cycle.use_revealing_strike == 'always':
+            rvs_interval = rvs_duration
 
         combat_potency_regen = combat_potency_regen_per_oh * (attacks_per_second['oh_autoattack_hits'] + attacks_per_second['oh_shadow_blade'])
         combat_potency_regen += combat_potency_from_mg * attacks_per_second['main_gauche']

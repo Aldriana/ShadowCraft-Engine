@@ -71,10 +71,10 @@ class AssassinationCycle(Cycle):
 class CombatCycle(Cycle):
     _cycle_type = 'combat'
 
-    def __init__(self, use_rupture=True, ksp_immediately=False):
+    def __init__(self, use_rupture=True, ksp_immediately=False, use_revealing_strike='pool'):
         self.use_rupture = bool(use_rupture)
         self.ksp_immediately = bool(ksp_immediately) # Determines whether to KSp the instant it comes off cool or wait until Bandit's Guile stacks up.'
-
+        self.use_revealing_strike = use_revealing_strike # always or pool
 
 class SubtletyCycle(Cycle):
     _cycle_type = 'subtlety'
