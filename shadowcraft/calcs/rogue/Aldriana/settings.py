@@ -3,7 +3,7 @@ from shadowcraft.core import exceptions
 class Settings(object):
     # Settings object for AldrianasRogueDamageCalculator.
 
-    def __init__(self, cycle, time_in_execute_range=.35, tricks_on_cooldown=True, response_time=.5, dmg_poison='dp', utl_poison=None, duration=300):
+    def __init__(self, cycle, time_in_execute_range=.35, tricks_on_cooldown=True, response_time=.5, dmg_poison='dp', utl_poison=None, duration=300, use_opener='always', opener_name='default'):
         self.cycle = cycle
         self.time_in_execute_range = time_in_execute_range
         self.tricks_on_cooldown = tricks_on_cooldown
@@ -11,6 +11,14 @@ class Settings(object):
         self.dmg_poison = dmg_poison
         self.utl_poison = utl_poison
         self.duration = duration
+        self.use_opener = use_opener # Allowed values are 'always' (vanish/shadowmeld on cooldown), 'opener' (once per fight) and 'never'
+        self.opener_name = opener_name
+        if opener_name == 'default':
+            default_openers = {
+                'assassination': 'ambush',
+                'combat': 'sinister_strike',
+                'subtlety': 'ambush'}
+            self.opener_name = default_openers[self.get_spec()]
         if dmg_poison not in (None, 'dp', 'wp'):
             raise exceptions.InvalidInputException(_('You can only choose Deadly(dp) or Wound(wp) as a damage poison'))
         if utl_poison not in (None, 'cp', 'mnp', 'lp', 'pp'):
@@ -63,9 +71,6 @@ class AssassinationCycle(Cycle):
         # actually better.
         self.prioritize_rupture_uptime_non_execute = prioritize_rupture_uptime_non_execute
         self.prioritize_rupture_uptime_execute = prioritize_rupture_uptime_execute
-        
-        self.opener_name = opener_name
-        self.use_opener = use_opener # Allowed values are 'always' (vanish/shadowmeld on cooldown), 'opener' (once per fight) and 'never'
 
 
 class CombatCycle(Cycle):

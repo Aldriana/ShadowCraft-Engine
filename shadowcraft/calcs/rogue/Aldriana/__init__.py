@@ -216,6 +216,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.race.arcane_torrent:
             self.bonus_energy_regen += 15. / (120 + self.settings.response_time)
 
+        self.set_openers()
+
         self.base_stats = {
             'agi': self.stats.agi + self.buffs.buff_agi() + self.race.racial_agi,
             'ap': self.stats.ap + 2 * self.level - 30,
@@ -335,6 +337,24 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             self.stats.procs.heroic_matrix_restabilizer.stat = sorted_list[0]
         if self.stats.procs.matrix_restabilizer:
             self.stats.procs.matrix_restabilizer.stat = sorted_list[0]
+
+    def set_openers(self):
+        # Sets the swing_reset_spacing and total_openers_per_second variables.
+        opener_cd = [10, 20][self.settings.opener_name == 'garrote']
+        if self.settings.use_opener == 'always':
+            opener_spacing = (180. + self.settings.response_time)
+            if self.race.shadowmeld:
+                shadowmeld_spacing = 120. + self.settings.response_time
+                opener_spacing = 1. / (1 / opener_spacing + 1 / shadowmeld_spacing)
+            total_openers_per_second = (1. + math.floor((self.settings.duration - opener_cd) / opener_spacing)) / self.settings.duration
+        elif self.settings.use_opener == 'opener':
+            total_openers_per_second = 1. / self.settings.duration
+            opener_spacing = None
+        else:
+            total_openers_per_second = 0
+            opener_spacing = None
+        self.total_openers_per_second = total_openers_per_second
+        self.swing_reset_spacing = opener_spacing
 
     def get_t12_2p_damage(self, damage_breakdown):
         crit_damage = 0
@@ -459,8 +479,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         
         if self.talents.nightstalker:
             nightstalker_mod = .25
-            nightstalker_percent = attacks_per_second['total_openers_per_second'] / (attacks_per_second[self.settings.cycle.opener_name] * self.settings.duration)
-            damage_breakdown[self.settings.cycle.opener_name] *= 1 + nightstalker_mod * nightstalker_percent
+            nightstalker_percent = self.total_openers_per_second / (attacks_per_second[self.settings.opener_name] * self.settings.duration)
+            damage_breakdown[self.settings.opener_name] *= 1 + nightstalker_mod * nightstalker_percent
         
         if self.stats.gear_buffs.rogue_t12_2pc:
             damage_breakdown['burning_wounds'] = self.get_t12_2p_damage(damage_breakdown)
@@ -500,9 +520,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if not args or 'swings' in args or 'mh_autoattack' not in attacks_per_second or 'oh_autoattack' not in attacks_per_second:
             attacks_per_second['mh_autoattacks'] = kwargs['attack_speed_multiplier'] / self.stats.mh.speed
             attacks_per_second['oh_autoattacks'] = kwargs['attack_speed_multiplier'] / self.stats.oh.speed
-        if 'swing_reset_spacing' in kwargs and kwargs['swing_reset_spacing'] is not None:
-            attacks_per_second['mh_autoattacks'] *= (1 - max((1 - .5 * self.stats.mh.speed / kwargs['attack_speed_multiplier']), 0) / kwargs['swing_reset_spacing'])
-            attacks_per_second['oh_autoattacks'] *= (1 - max((1 - .5 * self.stats.oh.speed / kwargs['attack_speed_multiplier']), 0) / kwargs['swing_reset_spacing'])
+        if self.swing_reset_spacing is not None:
+            attacks_per_second['mh_autoattacks'] *= (1 - max((1 - .5 * self.stats.mh.speed / kwargs['attack_speed_multiplier']), 0) / self.swing_reset_spacing)
+            attacks_per_second['oh_autoattacks'] *= (1 - max((1 - .5 * self.stats.oh.speed / kwargs['attack_speed_multiplier']), 0) / self.swing_reset_spacing)
         if (not args or 'shadow_blades' in args) and self.level >= 87:
             if 'shadow_blades_uptime' not in kwargs:
                 kwargs['shadow_blades_uptime'] = self.get_shadow_blades_uptime()
@@ -989,31 +1009,16 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.talents.shadow_focus:
             opener_net_cost = 0
         else:
-            opener_net_cost = self.get_net_energy_cost(self.settings.cycle.opener_name)
+            opener_net_cost = self.get_net_energy_cost(self.settings.opener_name)
             opener_net_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
 
-        opener_cd = 10
-        if self.settings.cycle.opener_name == 'garrote':
-            opener_cd = 20
+        if self.settings.opener_name == 'garrote':
             energy_regen += vw_energy_return * vw_proc_chance / self.settings.duration # Only the first tick at the start of the fight
             attacks_per_second['venomous_wounds'] = vw_proc_chance / self.settings.duration
-        if self.settings.cycle.use_opener == 'always':
-            opener_spacing = (180. + self.settings.response_time)
-            if self.race.shadowmeld:
-                shadowmeld_spacing = 120. + self.settings.response_time
-                opener_spacing = 1. / (1 / opener_spacing + 1 / shadowmeld_spacing)
-            total_openers_per_second = (1. + math.floor((self.settings.duration - opener_cd) / opener_spacing)) / self.settings.duration
-        elif self.settings.cycle.use_opener == 'opener':
-            total_openers_per_second = 1. / self.settings.duration
-            opener_spacing = None
-        else:
-            total_openers_per_second = 0
-            opener_spacing = None
 
-        energy_regen -= opener_net_cost * total_openers_per_second
+        energy_regen -= opener_net_cost * self.total_openers_per_second
 
-        attacks_per_second[self.settings.cycle.opener_name] = total_openers_per_second
-        attacks_per_second['total_openers_per_second'] = total_openers_per_second
+        attacks_per_second[self.settings.opener_name] = self.total_openers_per_second
         
         energy_regen_with_rupture = energy_regen + 0.5 * vw_energy_per_bleed_tick
 
@@ -1125,9 +1130,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if cpg == 'mutilate':
             attacks_per_second['mutilate'] *= 1 - dispatch_as_cpg_chance
             attacks_per_second['dispatch'] = cpgs_per_second * dispatch_as_cpg_chance
-        if self.settings.cycle.opener_name == 'mutilate':
-            attacks_per_second['mutilate'] += total_openers_per_second
-            attacks_per_second['dispatch'] += total_openers_per_second * blindside_proc_rate
+        if self.settings.opener_name == 'mutilate':
+            attacks_per_second['mutilate'] += self.total_openers_per_second
+            attacks_per_second['dispatch'] += self.total_openers_per_second * blindside_proc_rate
 
         attacks_per_second['envenom'] = [finisher_chance * envenoms_per_second for finisher_chance in envenom_size_breakdown]
 
@@ -1151,8 +1156,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         self.update_with_autoattack_passives(attacks_per_second,
                 shadow_blades_uptime=shadow_blades_uptime,
-                attack_speed_multiplier=attack_speed_multiplier,
-                swing_reset_spacing=opener_spacing)
+                attack_speed_multiplier=attack_speed_multiplier)
 
         return attacks_per_second, crit_rates
 
