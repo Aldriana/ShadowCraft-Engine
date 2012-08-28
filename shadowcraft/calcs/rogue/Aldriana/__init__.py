@@ -87,6 +87,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
     def get_talents_ranking(self, list=None):
         if list is None:
             list = [
+                'nightstalker',
                 'shadow_focus',
                 'anticipation'
             ]
@@ -178,11 +179,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
             'oh_autoattacks': min(base_melee_crit_rate, self.dual_wield_oh_hit_chance() - self.GLANCE_RATE),
         }
-        for attack in ('mh_shadow_blade', 'oh_shadow_blade', 'rupture_ticks', 'ambush'):
+        for attack in ('mh_shadow_blade', 'oh_shadow_blade', 'rupture_ticks'):
             crit_rates[attack] = base_melee_crit_rate
 
         if self.settings.is_assassination_rogue():
-            spec_attacks = ('mutilate', 'dispatch', 'envenom', 'venomous_wounds', 'garrote')
+            spec_attacks = ('mutilate', 'dispatch', 'envenom', 'venomous_wounds')
         elif self.settings.is_combat_rogue():
             spec_attacks = ('main_gauche', 'sinister_strike', 'revealing_strike', 'eviscerate', 'killing_spree', 'oh_killing_spree', 'mh_killing_spree')
         elif self.settings.is_subtlety_rogue():
@@ -191,9 +192,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.settings.dmg_poison == 'dp':
             poisons = ('deadly_instant_poison', 'deadly_poison')
         elif self.settings.dmg_poison == 'wp':
-            poisons = ('wound_poison')
+            poisons = tuple(['wound_poison'])
 
-        for attack in spec_attacks + poisons:
+        openers = tuple([self.settings.opener_name])
+
+        for attack in spec_attacks + poisons + openers:
+            if attack is None:
+                pass
             crit_rates[attack] = base_melee_crit_rate
 
         for attack, crit_rate in crit_rates.items():
@@ -356,6 +361,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.total_openers_per_second = total_openers_per_second
         self.swing_reset_spacing = opener_spacing
 
+    def get_bonus_energy_from_openers(self, *cycle_abilities):
+        if self.settings.opener_name in cycle_abilities and not self.talents.shadow_focus or self.settings.opener_name not in cycle_abilities and self.talents.shadow_focus:
+            return 0
+        else:
+            energy_per_opener = self.get_net_energy_cost(self.settings.opener_name)
+            return [-1, 1][self.talents.shadow_focus] * energy_per_opener * self.total_openers_per_second
+
     def get_t12_2p_damage(self, damage_breakdown):
         crit_damage = 0
         for key in damage_breakdown:
@@ -485,7 +497,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         if self.stats.gear_buffs.rogue_t12_2pc:
             damage_breakdown['burning_wounds'] = self.get_t12_2p_damage(damage_breakdown)
-        
+
         return damage_breakdown
 
     def get_net_energy_cost(self, ability):
@@ -1002,7 +1014,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         vw_energy_return = 10
         vw_proc_chance = .75
         vw_energy_per_bleed_tick = vw_energy_return * vw_proc_chance
-        
+
         blindside_proc_rate = [0, .3][cpg == 'mutilate']
         blindside_proc_rate *= self.strike_hit_chance
         dispatch_as_cpg_chance = blindside_proc_rate / (1 + blindside_proc_rate)
@@ -1020,14 +1032,14 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         energy_regen -= opener_net_cost * self.total_openers_per_second
 
         attacks_per_second[self.settings.opener_name] = self.total_openers_per_second
-        
+
         energy_regen_with_rupture = energy_regen + 0.5 * vw_energy_per_bleed_tick
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
 
         cpg_energy_cost = self.get_net_energy_cost(cpg)
         cpg_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
-        
+
         shadow_blades_uptime = self.get_shadow_blades_uptime()
 
         if cpg == 'mutilate':
@@ -1126,7 +1138,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         cpgs_per_second = envenoms_per_second * cpg_per_finisher + attacks_per_second['rupture'] * cpg_per_rupture
         if cpg in attacks_per_second:
             attacks_per_second[cpg] += cpgs_per_second
-        else: 
+        else:
             attacks_per_second[cpg] = cpgs_per_second
         if cpg == 'mutilate':
             attacks_per_second['mutilate'] *= 1 - dispatch_as_cpg_chance
@@ -1147,11 +1159,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second['venomous_wounds'] += total_rupture_ticks_per_second * vw_proc_chance * self.poison_hit_chance
         else:
             attacks_per_second['venomous_wounds'] = total_rupture_ticks_per_second * vw_proc_chance * self.poison_hit_chance
-            
+
         if 'garrote' in attacks_per_second:
             attacks_per_second['garrote_ticks'] = 6 * attacks_per_second['garrote']
         for opener, cps in [('ambush', 2), ('garrote', 1)]:
             if opener in attacks_per_second:
+                if opener == 'ambush':
+                    cps += crit_rates[opener]
                 extra_finishers_per_second = attacks_per_second[opener] * cps / 5
                 attacks_per_second['envenom'][5] += extra_finishers_per_second
 
@@ -1329,14 +1343,21 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 main_gauche_proc_rate = main_gauche_proc_rate,
                 shadow_blades_uptime = shb_uptime)
         attacks_per_second['main_gauche'] += attacks_per_second['mh_killing_spree'] * main_gauche_proc_rate
-
-        rvs_interval = rvs_duration + (5 / avg_cp_per_cpg) / 2
-        if not self.settings.cycle.revealing_strike_pooling:
-            rvs_interval = rvs_duration
+        if self.settings.opener_name in ('ambush', 'garrote'):
+            attacks_per_second[self.settings.opener_name] = self.total_openers_per_second
+            attacks_per_second['main_gauche'] += self.total_openers_per_second * main_gauche_proc_rate
 
         combat_potency_regen = combat_potency_regen_per_oh * (attacks_per_second['oh_autoattack_hits'] + attacks_per_second['oh_shadow_blade'])
         combat_potency_regen += combat_potency_from_mg * attacks_per_second['main_gauche']
-        energy_regen = self.base_energy_regen * haste_multiplier + self.bonus_energy_regen + combat_potency_regen - revealing_strike_energy_cost / rvs_interval
+        bonus_energy_from_openers = self.get_bonus_energy_from_openers('sinister_strike', 'revealing_strike')
+        energy_regen = self.base_energy_regen * haste_multiplier + self.bonus_energy_regen + combat_potency_regen + bonus_energy_from_openers
+        rvs_interval = rvs_duration
+        if self.settings.cycle.revealing_strike_pooling:
+            min_energy_while_pooling = energy_regen
+            max_energy_while_pooling = 75.
+            average_pooling = max(0, (max_energy_while_pooling - min_energy_while_pooling)) / 2
+            rvs_interval += average_pooling / energy_regen
+        energy_regen -= revealing_strike_energy_cost / rvs_interval
         energy_regen *= ar_energy_multiplier
 
         ss_per_snd = (total_eviscerate_cost - cp_per_finisher * self.relentless_strikes_energy_return_per_cp + 25) / sinister_strike_energy_cost
@@ -1358,19 +1379,26 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         total_evis_per_second = energy_available_for_evis / total_eviscerate_cost
 
         attacks_per_second['sinister_strike'] = (total_evis_per_second + attacks_per_second['rupture']) * ss_per_finisher + ss_per_snd / (snd_duration - self.settings.response_time)
-        attacks_per_second['revealing_strike'] = 1 / rvs_interval
+        attacks_per_second['revealing_strike'] = 1. / rvs_interval
         attacks_per_second['main_gauche'] += (attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike'] + total_evis_per_second + attacks_per_second['rupture']) * main_gauche_proc_rate
 
         self.current_variables['cp_spent_on_damage_finishers_per_second'] = (attacks_per_second['rupture'] + total_evis_per_second) * cp_per_finisher
         self.current_variables['cpgs_per_second'] = attacks_per_second['sinister_strike'] + attacks_per_second['revealing_strike']
 
         attacks_per_second['eviscerate'] = [finisher_chance * total_evis_per_second for finisher_chance in finisher_size_breakdown]
-        attacks_per_second['eviscerate'][5] += attacks_per_second['revealing_strike'] / 5
+        extra_finishers_per_second = attacks_per_second['revealing_strike'] / 5
+        for opener, cps in [('ambush', 2), ('garrote', 1)]:
+            if opener in attacks_per_second:
+                extra_finishers_per_second += attacks_per_second[opener] * cps / 5
+        attacks_per_second['eviscerate'][5] += extra_finishers_per_second
 
         attacks_per_second['rupture_ticks'] = [0, 0, 0, 0, 0, 0]
         for i in xrange(1, 6):
             ticks_per_rupture = 2 * (1 + i)
             attacks_per_second['rupture_ticks'][i] = ticks_per_rupture * attacks_per_second['rupture'] * finisher_size_breakdown[i]
+
+        if 'garrote' in attacks_per_second:
+            attacks_per_second['garrote_ticks'] = 6 * attacks_per_second['garrote']
 
         self.get_poison_counts(attacks_per_second)
 

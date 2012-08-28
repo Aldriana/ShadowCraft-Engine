@@ -13,6 +13,14 @@ class Settings(object):
         self.duration = duration
         self.use_opener = use_opener # Allowed values are 'always' (vanish/shadowmeld on cooldown), 'opener' (once per fight) and 'never'
         self.opener_name = opener_name
+        allowed_openers_per_spec = {
+            'assassination': tuple(['mutilate']),
+            'combat': ('sinister_strike', 'revealing_strike'),
+            'subtlety': ()
+        }
+        allowed_openers = allowed_openers_per_spec[self.get_spec()] + ('ambush', 'garrote', 'default', 'cpg')
+        if opener_name not in allowed_openers:
+            raise exceptions.InvalidInputException(_('Opener {opener} is not allowed in {cycle} cycles.').format(opener=opener_name, cycle=self.get_spec()))
         if opener_name == 'default':
             default_openers = {
                 'assassination': 'ambush',
