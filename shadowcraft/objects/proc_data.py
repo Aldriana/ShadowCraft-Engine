@@ -343,18 +343,18 @@ behaviours = {
         'on_crit': True
     },
     'searing_words': {                      # ICD is a guesstimate
-        'icd': 115,
+        'icd': 85,
         'proc_chance': .45,
         'trigger': 'all_attacks',
         'on_crit': True
     },
     'terror_in_the_mists':{                 # ICD is a guesstimate
-        'icd': 115,
-        'proc_chance': .35,
+        'icd': 105,
+        'proc_chance': .15,
         'trigger': 'all_attacks'
     },
     'windswept_pages': {                    # ICD is a guesstimate
-        'icd': 75,
+        'icd': 65,
         'proc_chance': .15,
         'trigger': 'all_attacks',
     },
@@ -440,17 +440,17 @@ behaviours = {
     },
     'rogue_t13_legendary_assassination': {
         'icd': None,
-        'proc_chance': .235,
+        'proc_chance': .23159,
         'trigger': 'all_attacks'
     },
     'rogue_t13_legendary_combat': {
         'icd': None,
-        'proc_chance': .095,
+        'proc_chance': .09438,
         'trigger': 'all_attacks'
     },
     'rogue_t13_legendary_subtlety': {
         'icd': None,
-        'proc_chance': .275,
+        'proc_chance': .28223,
         'trigger': 'all_attacks'
     }
 }
