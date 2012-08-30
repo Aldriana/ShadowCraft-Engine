@@ -325,8 +325,8 @@ behaviours = {
         'trigger': 'all_attacks'
     },
     # 5.0 Procs
-    'bottle_of_infinite_stars': {           # ICD is a guesstimate
-        'icd': 115,
+    'bottle_of_infinite_stars': {
+        'icd': 45,
         'proc_chance': .15,
         'trigger': 'all_attacks'
     },
@@ -342,18 +342,18 @@ behaviours = {
         'trigger': 'all_melee_attacks',
         'on_crit': True
     },
-    'searing_words': {                      # ICD is a guesstimate
+    'searing_words': {
         'icd': 85,
         'proc_chance': .45,
         'trigger': 'all_attacks',
         'on_crit': True
     },
-    'terror_in_the_mists':{                 # ICD is a guesstimate
+    'terror_in_the_mists':{
         'icd': 105,
         'proc_chance': .15,
         'trigger': 'all_attacks'
     },
-    'windswept_pages': {                    # ICD is a guesstimate
+    'windswept_pages': {
         'icd': 65,
         'proc_chance': .15,
         'trigger': 'all_attacks',
