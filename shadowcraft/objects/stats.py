@@ -109,10 +109,16 @@ class Weapon(object):
         self.speed = speed
         self.weapon_dps = damage * 1.0 / speed
         self.type = weapon_type
+        if enchant is not None:
+            self.set_enchant(enchant)
 
-        if self.type == 'thrown':
-            self._normalization_speed = 2.1
-        elif self.type in ['gun', 'bow', 'crossbow']:
+    def __setattr__(self, name, value):
+        object.__setattr__(self, name, value)
+        if name == 'type':
+            self.set_normalization_speed()
+
+    def set_normalization_speed(self):
+        if self.type in ['gun', 'bow', 'crossbow']:
             self._normalization_speed = 2.8
         elif self.type in ['2h_sword', '2h_mace', '2h_axe', 'polearm']:
             self._normalization_speed = 3.3
@@ -120,9 +126,6 @@ class Weapon(object):
             self._normalization_speed = 1.7
         else:
             self._normalization_speed = 2.4
-
-        if enchant is not None:
-            self.set_enchant(enchant)
 
     def set_enchant(self, enchant):
         if enchant == None:

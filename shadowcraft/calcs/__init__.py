@@ -171,6 +171,72 @@ class DamageCalculator(object):
 
         return mh_ep_values, oh_ep_values
 
+    def get_weapon_type_modifier_helper(self, setups=None):
+        # Use this method if you want to test different weapon setups. It will
+        # return one value per setup including the current one. It takes setups
+        # like this one:
+        # (
+        #     {'hand':'mh', 'type':mh_type, 'speed':mh_speed},
+        #     {'hand':'oh', 'type':oh_type, 'speed':oh_speed}
+        # )
+        modifiers = {}
+        weapons = ('mh', 'oh')
+        baseline_setup = []
+        for hand in weapons:
+            weapon = getattr(self.stats, hand)
+            baseline_setup.append((hand, weapon.speed, weapon.type))
+        modifiers[tuple(baseline_setup)] = 1
+
+        if not setups:
+            return modifiers
+
+        baseline_dps = self.get_dps()
+        for setup in setups:
+            current_setup = []
+            assert len(setup) == 2
+            for hand in setup:
+                if hand is not None:
+                    weapon = getattr(self.stats, hand['hand'])
+                    weapon.speed = hand['speed']
+                    weapon.type = hand['type']
+                    current_setup.append((hand['hand'], hand['speed'], hand['type']))
+            try:
+                new_dps = self.get_dps()
+                if new_dps != baseline_dps:
+                    modifiers[tuple(current_setup)] = new_dps / baseline_dps
+            except InputNotModeledException:
+                modifiers[tuple(current_setup)] = _('not allowed')
+            for hand in baseline_setup:
+                hand_name, speed, type = hand
+                weapon = getattr(self.stats, hand_name)
+                weapon.speed = speed
+                weapon.type = type
+
+        return modifiers
+
+    def get_oh_weapon_modifier(self, setups, format=True):
+        # Override this in your modeler to pass default oh weapons to test.
+        modifiers = self.get_weapon_type_modifier_helper(setups)
+        if not format:
+            return modifiers
+        formatted_mods = {}
+        for setup in modifiers:
+            for hand in setup:
+                if hand[0] == 'mh':
+                    continue
+                formatted_mods['_'.join((hand[0], str(hand[1]), hand[2]))] = modifiers[setup]
+        return formatted_mods
+
+    def get_dw_weapon_modifier(self, setups, format=True):
+        # Override this in your modeler to pass default dw setups to test.
+        modifiers = self.get_weapon_type_modifier_helper(setups)
+        pass
+
+    def get_2h_weapon_modifier(self, setups, format=True):
+        # Override this in your modeler to pass default 2h setups to test.
+        modifiers = self.get_weapon_type_modifier_helper(setups)
+        pass
+
     def get_other_ep(self, list, normalize_ep_stat=None):
         if not normalize_ep_stat:
             normalize_ep_stat = self.normalize_ep_stat

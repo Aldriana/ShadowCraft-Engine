@@ -74,6 +74,9 @@ ep_values = calculator.get_ep()
 dps_breakdown = calculator.get_dps_breakdown()
 total_dps = sum(entry[1] for entry in dps_breakdown.items())
 
+# Compute weapon type modifier.
+weapon_type_mod = calculator.get_oh_weapon_modifier()
+
 def max_length(dict_list):
     max_len = 0
     for i in dict_list:
@@ -97,6 +100,7 @@ def pretty_print(dict_list):
         print '-' * (max_len + 15)
 
 dicts_for_pretty_print = [
+    weapon_type_mod,
     ep_values,
     dps_breakdown
 ]
