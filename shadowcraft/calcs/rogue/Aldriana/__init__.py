@@ -271,6 +271,19 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.stats.procs.heroic_matrix_restabilizer or self.stats.procs.matrix_restabilizer:
             self.set_matrix_restabilizer_stat(self.base_stats)
 
+    def get_pvp_modifier(self, dps_breakdown=None):
+        if not self.settings.is_pvp or dps_breakdown is None:
+            pass
+        
+        # TODO: Grab % modifiers from get_pvp_power_multiplier_from_rating() and get_pvp_resil_multiplier_from_rating()
+        power = 1.3 #get_pvp_power_multiplier_from_rating()
+        defense = 1.3+.4 #get_pvp_resil_multiplier_from_rating()
+        
+        for k in dps_breakdown:
+            dps_breakdown[k] *= power / defense
+        
+        return dps_breakdown
+
     def get_proc_damage_contribution(self, proc, proc_count, current_stats):
         if proc.stat == 'spell_damage':
             multiplier = self.raid_settings_modifiers('spell')
@@ -983,7 +996,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 dps_breakdown[source] += quantity * execute_weight
             else:
                 dps_breakdown[source] = quantity * execute_weight
-
+        
         return dps_breakdown
 
     def assassination_dps_breakdown_non_execute(self):
@@ -991,6 +1004,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         for key in damage_breakdown:
             damage_breakdown[key] *= self.vendetta_mult
+        
+        if self.settings.is_pvp:
+            dps_breakdown = self.get_pvp_modifier(dps_breakdown)
 
         return damage_breakdown
 
@@ -999,7 +1015,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         for key in damage_breakdown:
             damage_breakdown[key] *= self.vendetta_mult
-
+        
+        if self.settings.is_pvp:
+            dps_breakdown = self.get_pvp_modifier(dps_breakdown)
+        
         return damage_breakdown
 
     def assassination_attack_counts(self, current_stats, cpg, finisher_size):
@@ -1223,7 +1242,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 damage_breakdown[key] *= self.bandits_guile_multiplier * self.ksp_multiplier
             else:
                 damage_breakdown[key] *= self.ksp_multiplier
-
+                
+        if self.settings.is_pvp:
+            dps_breakdown = self.get_pvp_modifier(dps_breakdown)
+        
         return damage_breakdown
 
     def combat_attack_counts(self, current_stats):
@@ -1452,7 +1474,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 damage_breakdown[key] *= find_weakness_multiplier
             if key == 'ambush':
                 damage_breakdown[key] *= ((1.3 * self.ambush_shadowstep_rate) + (1 - self.ambush_shadowstep_rate) * find_weakness_damage_boost)
-
+                
+        if self.settings.is_pvp:
+            dps_breakdown = self.get_pvp_modifier(dps_breakdown)
+        
         return damage_breakdown
 
     def subtlety_attack_counts_backstab(self, current_stats):
