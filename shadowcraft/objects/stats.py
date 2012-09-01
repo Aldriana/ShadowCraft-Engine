@@ -18,7 +18,7 @@ class Stats(object):
     pvp_power_rating_conversion_values = {60:14, 70:22.0769, 80:45.906, 85:179.28, 90:600.0}
     pvp_resil_rating_conversion_values = {60:14, 70:22.0769, 80:45.906, 85:179.28, 90:600.0}
 
-    def __init__(self, str, agi, ap, crit, hit, exp, haste, mastery, mh, oh, procs, gear_buffs, level=None, pvp_power=None, pvp_resil=None, target_armor=None):
+    def __init__(self, str, agi, ap, crit, hit, exp, haste, mastery, mh, oh, procs, gear_buffs, level=None, pvp_power=0, pvp_resil=0, pvp_target_armor=None):
         # This will need to be adjusted if at any point we want to support
         # other classes, but this is probably the easiest way to do it for
         # the moment.
@@ -37,7 +37,7 @@ class Stats(object):
         self.level = level
         self.pvp_power = pvp_power
         self.pvp_resil = pvp_resil
-        self.target_armor = target_armor
+        self.pvp_target_armor = pvp_target_armor
 
     def _set_constants_for_level(self):
         self.procs.level = self.level
@@ -89,15 +89,11 @@ class Stats(object):
         return 1 + rating / (100 * self.haste_rating_conversion)
     
     def get_pvp_power_multiplier_from_rating(self, rating=None):
-        if self.pvp_power is None and rating is None:
-            return 1
         if rating is None:
             rating = self.pvp_power
         return 1 + rating / (100 * self.pvp_power_rating_conversion)
     
     def get_pvp_resil_multiplier_from_rating(self, rating=None):
-        if self.pvp_resil is None and rating is None:
-            return 1
         if rating is None:
             rating = self.pvp_resil
         return 1 + rating / (100 * self.pvp_power_rating_conversion)

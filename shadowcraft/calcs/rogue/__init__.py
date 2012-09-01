@@ -16,7 +16,7 @@ class RogueDamageCalculator(DamageCalculator):
     # calculator will need to know, so things like that go here.
 
     default_ep_stats = ['white_hit', 'yellow_hit', 'str', 'agi', 'haste',
-        'crit', 'mastery', 'dodge_exp', 'spell_hit', 'spell_exp']
+        'crit', 'mastery', 'dodge_exp', 'spell_hit', 'spell_exp', 'pvp_power']
     normalize_ep_stat = 'ap'
 
     def __setattr__(self, name, value):

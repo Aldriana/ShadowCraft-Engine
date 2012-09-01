@@ -463,16 +463,22 @@ class DamageCalculator(object):
             armor = self.target_base_armor
         return self.buffs.armor_reduction_multiplier() * armor
 
-    def raid_settings_modifiers(self, attack_kind, armor=None):
+    def raid_settings_modifiers(self, attack_kind, armor=None, affect_resil=True):
         # This function wraps spell, bleed and physical debuffs from raid
         # along with all-damage buff and armor reduction. It should be called
         # from every damage dealing formula. Armor can be overridden if needed.
+        pvp_mod = 1.
+        if self.settings.is_pvp and affect_resil:
+            power = self.stats.get_pvp_power_multiplier_from_rating()
+            resil = self.stats.get_pvp_resil_multiplier_from_rating()
+            pvp_mod = (1. + power)/(1.4 + resil)
+            armor=self.stats.pvp_target_armor
         if attack_kind not in ('physical', 'spell', 'bleed'):
             raise exceptions.InvalidInputException(_('Attacks must be categorized as physical, spell or bleed'))
         elif attack_kind == 'spell':
-            return self.buffs.spell_damage_multiplier()
+            return self.buffs.spell_damage_multiplier() * pvp_mod
         elif attack_kind == 'bleed':
-            return self.buffs.bleed_damage_multiplier()
+            return self.buffs.bleed_damage_multiplier() * pvp_mod
         elif attack_kind == 'physical':
             armor_override = self.target_armor(armor)
-            return self.buffs.physical_damage_multiplier() * self.armor_mitigation_multiplier(armor_override)
+            return self.buffs.physical_damage_multiplier() * self.armor_mitigation_multiplier(armor_override) * pvp_mod
