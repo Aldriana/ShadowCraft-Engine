@@ -50,8 +50,8 @@ test_procs = procs.ProcsList('heroic_terror_in_the_mists', 'heroic_wrath_of_unch
 test_gear_buffs = stats.GearBuffs('rogue_t14_2pc', 'rogue_t14_4pc', 'leather_specialization', 'virmens_bite', 'virmens_bite_prepot', 'chaotic_metagem')
 
 # Set up a calcs object..
-#                       str,   agi, ap,  crit,  hit, exp, haste, mast,      mh,      oh,      procs,      gear_buffs
-test_stats = stats.Stats(80, 19000, 250, 4800, 2550, 2550, 3000, 5000, test_mh, test_oh, test_procs, test_gear_buffs)
+#                       str,   agi,  ap, crit,  hit, exp, haste, mast,      mh,      oh,      procs,      gear_buffs
+test_stats = stats.Stats(80, 19000, 250, 4800, 2550, 2550, 3000, 5000, test_mh, test_oh, test_procs, test_gear_buffs, pvp_power=0, pvp_resil=0, pvp_target_armor=None)
 
 # Initialize talents..
 test_talents = talents.Talents('322213', test_class, test_level)
@@ -63,7 +63,7 @@ test_glyphs = glyphs.Glyphs(test_class, *glyph_list)
 # Set up settings.
 test_cycle = settings.AssassinationCycle(min_envenom_size_non_execute=4, min_envenom_size_execute=5,
                                          prioritize_rupture_uptime_non_execute=True, prioritize_rupture_uptime_execute=True)
-test_settings = settings.Settings(test_cycle, response_time=.5, duration=360, dmg_poison='dp', utl_poison='lp')
+test_settings = settings.Settings(test_cycle, response_time=.5, duration=360, dmg_poison='dp', utl_poison='lp', is_pvp=False)
 
 # Build a DPS object.
 calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings, test_level)

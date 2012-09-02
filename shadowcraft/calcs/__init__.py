@@ -471,8 +471,8 @@ class DamageCalculator(object):
         if self.settings.is_pvp and affect_resil:
             power = self.stats.get_pvp_power_multiplier_from_rating()
             resil = self.stats.get_pvp_resil_multiplier_from_rating()
-            pvp_mod = (1. + power)/(1.4 + resil)
-            armor=self.stats.pvp_target_armor
+            pvp_mod = power*(1.0 - resil)
+            armor = self.stats.pvp_target_armor
         if attack_kind not in ('physical', 'spell', 'bleed'):
             raise exceptions.InvalidInputException(_('Attacks must be categorized as physical, spell or bleed'))
         elif attack_kind == 'spell':
