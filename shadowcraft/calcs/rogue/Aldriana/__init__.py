@@ -357,7 +357,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         opener_cd = [10, 20][self.settings.opener_name == 'garrote']
         if self.settings.use_opener == 'always':
             opener_spacing = (180. + self.settings.response_time)
-            if self.race.shadowmeld and self.talents.is_subtlety_rogue():
+            if self.race.shadowmeld and self.settings.is_subtlety_rogue():
                 shadowmeld_spacing = 120. + self.settings.response_time
                 opener_spacing = 1. / (1 / opener_spacing + 1 / shadowmeld_spacing)
             total_openers_per_second = (1. + math.floor((self.settings.duration - opener_cd) / opener_spacing)) / self.settings.duration
@@ -375,7 +375,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             return 0
         else:
             energy_per_opener = self.get_net_energy_cost(self.settings.opener_name)
-            if self.race.shadowmeld and self.talents.is_subtlety_rogue():
+            if self.race.shadowmeld and self.settings.is_subtlety_rogue():
                 shadowmeld_spacing = 120. + self.settings.response_time
                 return [-1, 1][self.talents.shadow_focus] * energy_per_opener * (self.total_openers_per_second - 1 / shadowmeld_spacing)
             else:
