@@ -89,7 +89,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             list = [
                 'nightstalker',
                 'shadow_focus',
-                'anticipation'
+                'anticipation',
+                'subterfuge'
             ]
         return super(AldrianasRogueDamageCalculator, self).get_talents_ranking(list)
 
@@ -356,7 +357,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         opener_cd = [10, 20][self.settings.opener_name == 'garrote']
         if self.settings.use_opener == 'always':
             opener_spacing = (180. + self.settings.response_time)
-            if self.race.shadowmeld:
+            if self.race.shadowmeld and self.talents.is_subtlety_rogue():
                 shadowmeld_spacing = 120. + self.settings.response_time
                 opener_spacing = 1. / (1 / opener_spacing + 1 / shadowmeld_spacing)
             total_openers_per_second = (1. + math.floor((self.settings.duration - opener_cd) / opener_spacing)) / self.settings.duration
@@ -374,7 +375,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             return 0
         else:
             energy_per_opener = self.get_net_energy_cost(self.settings.opener_name)
-            return [-1, 1][self.talents.shadow_focus] * energy_per_opener * self.total_openers_per_second
+            if self.race.shadowmeld and self.talents.is_subtlety_rogue():
+                shadowmeld_spacing = 120. + self.settings.response_time
+                return [-1, 1][self.talents.shadow_focus] * energy_per_opener * (self.total_openers_per_second - 1 / shadowmeld_spacing)
+            else:
+                return [-1, 1][self.talents.shadow_focus] * energy_per_opener * self.total_openers_per_second
 
     def get_t12_2p_damage(self, damage_breakdown):
         crit_damage = 0
@@ -1477,20 +1482,24 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         hat_triggers_per_second = self.settings.cycle.raid_crits_per_second
         hat_cp_gen = 1 / (2 + 1. / hat_triggers_per_second)
-
+        
+        energetic_recovery_val = 8
+        energetic_recovery_interval = 2
+        er_energy = energetic_recovery_val / energetic_recovery_interval
+        
         energy_regen = self.base_energy_regen * haste_multiplier + self.bonus_energy_regen
-        energy_regen_with_recuperate = energy_regen #energetic recovery now on SnD
 
         if self.settings.cycle.use_hemorrhage == 'always':
             cp_builder_energy_cost = self.base_hemo_cost
-            modified_energy_regen = energy_regen_with_recuperate
+            modified_energy_regen = energy_regen + er_energy
             hemorrhage_interval = cp_builder_energy_cost / modified_energy_regen
         elif self.settings.cycle.use_hemorrhage == 'never':
             cp_builder_energy_cost = backstab_energy_cost
-            modified_energy_regen = energy_regen_with_recuperate
+            modified_energy_regen = energy_regen + er_energy
         else:
             hemorrhage_interval = float(self.settings.cycle.use_hemorrhage)
-            backstab_interval = backstab_energy_cost / energy_regen_with_recuperate
+            modified_energy_regen = energy_regen + er_energy
+            backstab_interval = backstab_energy_cost / modified_energy_regen
             if hemorrhage_interval <= backstab_interval:
                 raise InputNotModeledException(_('Interval between Hemorrhages cannot be lower than {interval} for this gearset').format(interval=backstab_interval))
             else:
@@ -1508,24 +1517,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         total_eviscerate_cost = eviscerate_net_energy_cost + cp_builders_per_eviscerate * cp_builder_energy_cost
         total_eviscerate_duration = total_eviscerate_cost / modified_energy_regen
 
-        recuperate_duration = 30
-        if self.settings.cycle.clip_recuperate:
-            cycle_length = recuperate_duration - .5 * total_eviscerate_duration
-            total_cycle_regen = cycle_length * modified_energy_regen
-            #TODO t13_2pc
-        else:
-            recuperate_base_energy_cost = 30 * self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
-            recuperate_net_energy_cost = recuperate_base_energy_cost - 5 * self.relentless_strikes_energy_return_per_cp
-            recuperate_net_cp_cost = recuperate_net_energy_cost * hat_cp_gen / energy_regen
-            cp_builders_under_previous_recuperate = .5 * total_eviscerate_duration / cp_builder_energy_cost
-            cp_gained_under_previous_recuperate = cp_builders_under_previous_recuperate * cp_per_cp_builder
-            cp_needed_outside_recuperate = recuperate_net_cp_cost - cp_gained_under_previous_recuperate
-            cp_builders_after_recuperate = cp_needed_outside_recuperate / cp_per_cp_builder
-            energy_spent_after_recuperate = cp_builders_after_recuperate * cp_builder_energy_cost + recuperate_net_energy_cost
-
-            cycle_length = 30 + energy_spent_after_recuperate / energy_regen
-            total_cycle_regen = 30 * modified_energy_regen + energy_spent_after_recuperate
-
         snd_build_time = total_eviscerate_duration / 2
         snd_base_cost = 25 * self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
         snd_build_energy_for_cp_builders = 5 * self.relentless_strikes_energy_return_per_cp + modified_energy_regen * snd_build_time - snd_base_cost
@@ -1536,13 +1527,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         snd_duration = self.get_snd_length(snd_size)
         # snd_per_second = 1. / (snd_duration - self.settings.response_time)
         # snd_net_energy_cost = 25 - snd_size * self.relentless_strikes_energy_return_per_cp
-        snd_per_cycle = cycle_length / snd_duration
+        cycle_length = snd_duration
+        snd_per_cycle = 1
+        total_cycle_regen = cycle_length * modified_energy_regen
 
         vanish_cooldown = 180
-        ambushes_from_vanish = 1. / (vanish_cooldown + self.settings.response_time) + self.talents.preparation / (300. + self.settings.response_time)
+        ambushes_from_vanish = 1. / (vanish_cooldown + self.settings.response_time) + self.talents.preparation / (360. + self.settings.response_time * 3)
         if self.race.shadowmeld:
             ambushes_from_vanish += 1. / (120 + self.settings.response_time)
-        self.find_weakness_uptime = 10 * ambushes_from_vanish
+        self.find_weakness_uptime = (10 + 2.5 * self.talents.subterfuge) * ambushes_from_vanish
 
         cp_per_ambush = 2
 
