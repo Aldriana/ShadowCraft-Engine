@@ -99,7 +99,7 @@ class RogueDamageCalculator(DamageCalculator):
         # Sanguinary Vein
         kwargs.setdefault('is_bleeding', True)
         if kwargs['is_bleeding'] and self.settings.is_subtlety_rogue():
-            base_modifier *= 1.25
+            base_modifier *= 1.2
         # Raid modifiers
         kwargs.setdefault('armor', None)
         ability_type_check = 0
@@ -351,9 +351,9 @@ class RogueDamageCalculator(DamageCalculator):
 
     def crimson_tempest_tick_damage(self, ap, cp, armor=None, mastery=None, from_crit_ct=False):
         ct_damage = self.crimson_tempest_damage(ap, cp, armor=armor, mastery=mastery)[from_crit_ct]
-        mult, crit_mult = self.get_modifiers('bleed', is_bleeding=True)
+        mult, crit_mult = self.get_modifiers('bleed', is_bleeding=False)
 
-        tick_conversion_factor = .3 / 6
+        tick_conversion_factor = 2.4 / 6
         tick_damage = ct_damage * mult * tick_conversion_factor
 
         return tick_damage, tick_damage

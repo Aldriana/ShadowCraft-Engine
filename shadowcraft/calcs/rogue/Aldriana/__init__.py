@@ -375,11 +375,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             return 0
         else:
             energy_per_opener = self.get_net_energy_cost(self.settings.opener_name)
-            if self.race.shadowmeld and self.settings.is_subtlety_rogue():
-                shadowmeld_spacing = 120. + self.settings.response_time
-                return [-1, 1][self.talents.shadow_focus] * energy_per_opener * (self.total_openers_per_second - 1 / shadowmeld_spacing)
-            else:
-                return [-1, 1][self.talents.shadow_focus] * energy_per_opener * self.total_openers_per_second
+            return [-1, 1][self.talents.shadow_focus] * energy_per_opener * self.total_openers_per_second
 
     def get_t12_2p_damage(self, damage_breakdown):
         crit_damage = 0
@@ -492,7 +488,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if 'hemorrhage_ticks' in attacks_per_second:
             dps_from_hit_hemo = self.get_dps_contribution(self.hemorrhage_tick_damage(average_ap, from_crit_hemo=False), crit_rates['hemorrhage'], attacks_per_second['hemorrhage_ticks'] * (1 - crit_rates['hemorrhage']))
             dps_from_crit_hemo = self.get_dps_contribution(self.hemorrhage_tick_damage(average_ap, from_crit_hemo=True), crit_rates['hemorrhage'], attacks_per_second['hemorrhage_ticks'] * crit_rates['hemorrhage'])
-            damage_breakdown['hemorrhage_glyph'] = dps_from_hit_hemo[0] + dps_from_crit_hemo[0], dps_from_hit_hemo[1] + dps_from_crit_hemo[1]
+            damage_breakdown['hemorrhage_dot'] = dps_from_hit_hemo[0] + dps_from_crit_hemo[0], dps_from_hit_hemo[1] + dps_from_crit_hemo[1]
 
         for proc in damage_procs:
             if proc.proc_name not in damage_breakdown:
@@ -1465,6 +1461,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 damage_breakdown[key] *= find_weakness_multiplier
             if key == 'ambush':
                 damage_breakdown[key] *= ((1.3 * self.ambush_shadowstep_rate) + (1 - self.ambush_shadowstep_rate) * find_weakness_damage_boost)
+            if key == 'rupture':
+                damage_breakdown[key] *= 1.5
         
         return damage_breakdown
 
@@ -1488,6 +1486,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         er_energy = energetic_recovery_val / energetic_recovery_interval
         
         energy_regen = self.base_energy_regen * haste_multiplier + self.bonus_energy_regen
+        if self.race.shadowmeld:
+            energy_regen -= self.get_net_energy_cost(self.settings.opener_name) / (120. + self.settings.response_time)
 
         if self.settings.cycle.use_hemorrhage == 'always':
             cp_builder_energy_cost = self.base_hemo_cost
@@ -1505,7 +1505,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             else:
                 cp_builder_energy_cost = backstab_energy_cost
                 energy_return_per_replaced_backstab = backstab_energy_cost - self.base_hemo_cost
-                modified_energy_regen = energy_regen_with_recuperate + energy_return_per_replaced_backstab / hemorrhage_interval
+                modified_energy_regen = modified_energy_regen + energy_return_per_replaced_backstab / hemorrhage_interval
 
         cp_builder_interval = cp_builder_energy_cost / modified_energy_regen
         cp_per_cp_builder = 1 + cp_builder_interval * hat_cp_gen
@@ -1597,7 +1597,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second['backstab'] = attacks_per_second['cp_builder'] - attacks_per_second['hemorrhage']
         del attacks_per_second['cp_builder']
 
-        if self.glyphs.hemorrhage and 'hemorrhage' in attacks_per_second:
+        if 'hemorrhage' in attacks_per_second:
             # Not particularly accurate but good enough a ballpark for
             # something that won't get much of an use.
             ticks_per_second = min(1. / 3, 8 / hemorrhage_interval)
