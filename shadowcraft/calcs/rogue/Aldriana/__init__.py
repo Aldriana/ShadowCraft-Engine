@@ -1455,7 +1455,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         find_weakness_multiplier = 1 + (find_weakness_damage_boost - 1) * self.find_weakness_uptime
 
         for key in damage_breakdown:
-            if key in ('autoattack', 'backstab', 'eviscerate', 'hemorrhage') or key in ('hemorrhage_glyph', 'burning_wounds'):
+            if key in ('autoattack', 'backstab', 'eviscerate', 'hemorrhage') or key in ('hemorrhage_dot', 'burning_wounds'):
                 # Hemo dot and 2pc_t12 derive from physical attacks too.
                 # Testing needed for physical damage procs.
                 damage_breakdown[key] *= find_weakness_multiplier
@@ -1517,7 +1517,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         total_eviscerate_cost = eviscerate_net_energy_cost + cp_builders_per_eviscerate * cp_builder_energy_cost
         total_eviscerate_duration = total_eviscerate_cost / modified_energy_regen
 
-        snd_build_time = total_eviscerate_duration / 2
+        snd_build_time = total_eviscerate_duration / 1.5
         snd_base_cost = 25 * self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
         snd_build_energy_for_cp_builders = 5 * self.relentless_strikes_energy_return_per_cp + modified_energy_regen * snd_build_time - snd_base_cost
         cp_builders_per_snd = snd_build_energy_for_cp_builders / cp_builder_energy_cost
@@ -1528,7 +1528,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         # snd_per_second = 1. / (snd_duration - self.settings.response_time)
         # snd_net_energy_cost = 25 - snd_size * self.relentless_strikes_energy_return_per_cp
         cycle_length = snd_duration
-        snd_per_cycle = 1
+        snd_per_cycle = 1.
         total_cycle_regen = cycle_length * modified_energy_regen
 
         vanish_cooldown = 180
@@ -1540,10 +1540,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         cp_per_ambush = 2
 
         cp_from_premeditation = 2.
+        
+        rupture_duration = 4 * (6)
+        rupture_per_cycle = cycle_length / (rupture_duration + self.settings.response_time)
 
         bonus_cp_per_cycle = (hat_cp_gen + ambushes_from_vanish * (cp_per_ambush + cp_from_premeditation)) * cycle_length
-        cp_used_on_buffs = 5 + snd_size * snd_per_cycle
-        bonus_eviscerates = (bonus_cp_per_cycle - cp_used_on_buffs) / 5
+        cp_used_on_buffs = snd_size * snd_per_cycle + rupture_per_cycle * 5.
+        bonus_eviscerates = (bonus_cp_per_cycle - cp_used_on_buffs) / 5.
         energy_spent_on_bonus_finishers = 30 + 25 * snd_per_cycle + 35 * bonus_eviscerates - (5 + snd_size * snd_per_cycle + 5 * bonus_eviscerates) * self.relentless_strikes_energy_return_per_cp + cycle_length * ambushes_from_vanish * self.base_ambush_energy_cost
         energy_for_evis_spam = total_cycle_regen - energy_spent_on_bonus_finishers
         total_cost_of_extra_eviscerate = 5 * cp_builder_energy_cost + self.base_eviscerate_energy_cost - 5 * self.relentless_strikes_energy_return_per_cp
@@ -1563,7 +1566,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         shadow_dance_bonus_eviscerate_cost = shadow_dance_bonus_eviscerates * (35 - 5 * self.relentless_strikes_energy_return_per_cp)
         shadow_dance_available_energy = shadow_dance_duration * modified_energy_regen - shadow_dance_bonus_eviscerate_cost
 
-        shadow_dance_eviscerate_cost = 5 / cp_per_ambush * self.base_ambush_energy_cost + (35 - 5 * self.relentless_strikes_energy_return_per_cp)
+        shadow_dance_eviscerate_cost = 5 / cp_per_ambush * (self.base_ambush_energy_cost - 20) + (35 - 5 * self.relentless_strikes_energy_return_per_cp)
         shadow_dance_eviscerates_for_period = shadow_dance_available_energy / shadow_dance_eviscerate_cost
 
         base_bonus_cp_regen = shadow_dance_duration * hat_cp_gen
