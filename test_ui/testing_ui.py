@@ -499,7 +499,7 @@ class BuffsPage(wx.Panel):
 
         for buff in buffs.Buffs.allowed_buffs:
             chk_box = wx.CheckBox(self, -1, buff, name = buff)
-            chk_box.SetValue(True)
+            chk_box.SetValue(False)
             vbox.Add(chk_box, 2, wx.BOTTOM)
             chk_box.Bind(wx.EVT_CHECKBOX, lambda event, name = buff: self.on_check_changed(event, name))
 
@@ -668,9 +668,9 @@ class TestGUI(wx.Frame):
         if not self.initializing:
             gear_stats = self.gear_page.get_stats()
             my_stats = stats.Stats(**gear_stats)
-            my_talents = talents.get_allowed_talents_for_level() #(*self.talents_page.get_talents() )
+            my_talents = talents.Talents(talent_string='311113') #(*self.talents_page.get_talents() )
             #my_talents = '311113'
-            my_glyphs = glyphs() #.RogueGlyphs(*self.talents_page.get_glyphs())
+            my_glyphs = glyphs.Glyphs('rogue', *self.talents_page.get_glyphs()) #.RogueGlyphs(*self.talents_page.get_glyphs())
             my_buffs = buffs.Buffs(*self.buffs_page.current_buffs)
             my_race = race.Race(self.settings_page.get_race())
             test_settings = settings.Settings(self.settings_page.get_cycle(), response_time = self.settings_page.get_response_time())

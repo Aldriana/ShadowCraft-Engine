@@ -1472,7 +1472,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         haste_multiplier = self.stats.get_haste_multiplier_from_rating(current_stats['haste'])
 
-        mastery_snd_speed = 1 + .4 * (1 + .02 * self.stats.get_mastery_from_rating(current_stats['mastery']))
+        mastery_snd_speed = 1 + .4 * (1 + .03 * self.stats.get_mastery_from_rating(current_stats['mastery']))
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier * mastery_snd_speed / 1.4
 
