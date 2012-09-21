@@ -110,10 +110,12 @@ class DamageCalculator(object):
         for stat in ep_stats:
             ep_values[stat] = 0
         baseline_dps = self.get_dps()
-        normalize_dps = self.ep_helper(normalize_ep_stat)
-        normalize_dps_difference = normalize_dps - baseline_dps
         if normalize_ep_stat == 'dps':
+            normalize_dps = self.ep_helper('ap')
             normalize_dps_difference = 1.
+        else:
+            normalize_dps = self.ep_helper(normalize_ep_stat)
+            normalize_dps_difference = normalize_dps - baseline_dps
         for stat in ep_values:
             dps = self.ep_helper(stat)
             ep_values[stat] = abs(dps - baseline_dps) / normalize_dps_difference
