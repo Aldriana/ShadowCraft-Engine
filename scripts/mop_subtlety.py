@@ -69,6 +69,7 @@ calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyph
 
 # Compute EP values.
 ep_values = calculator.get_ep()
+talent_ranks = calculator.get_talents_ranking()
 
 # Compute DPS Breakdown.
 dps_breakdown = calculator.get_dps_breakdown()
@@ -98,6 +99,7 @@ def pretty_print(dict_list):
 
 dicts_for_pretty_print = [
     ep_values,
+    talent_ranks,
     dps_breakdown
 ]
 pretty_print(dicts_for_pretty_print)

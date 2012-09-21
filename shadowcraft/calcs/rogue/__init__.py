@@ -30,7 +30,8 @@ class RogueDamageCalculator(DamageCalculator):
 
         # These factors are taken from sc_spell_data.inc in SimulationCraft.
         # At some point we should automate the process to fetch them. Numbers
-        # in comments show the id for the spell effect, not the spell itself.
+        # in comments show the id for the spell effect, not the spell itself,
+        # unless otherwise stated.
         self.spell_scaling_for_level = self.tools.get_spell_scaling('rogue', self.level)
         self.bs_bonus_dmg =     self.get_factor(0.3070000112) # 30
         self.dsp_bonus_dmg =    self.get_factor(0.3899999857) # 123503
@@ -47,13 +48,13 @@ class RogueDamageCalculator(DamageCalculator):
         self.evis_base_dmg =    self.get_factor(0.5929999948,  1.0000000000) # 622
         self.evis_bonus_dmg =   self.get_factor(0.7860000134) # 622 - 'unknown' field
         self.env_base_dmg =     self.get_factor(0.3210000098) # 22420
-        self.ct_base_dmg =      self.get_factor(0.4760000110) # 50471
+        self.ct_base_dmg =      self.get_factor(0.4760000110) # 150471
         self.fok_base_dmg =     self.get_factor(1.0000000000, 0.4000000060) # 44107
         self.st_base_dmg =      self.get_factor(1.0000000000) # 127100
-        self.vw_percentage_dmg = .168
-        self.dp_percentage_dmg = .213
-        self.wp_percentage_dmg = .090
-        self.ip_percentage_dmg = .109
+        self.vw_percentage_dmg = .160 # spellID 79136 (was .168)
+        self.dp_percentage_dmg = .213 # spellID 2818
+        self.wp_percentage_dmg = .090 # spellID 8680
+        self.ip_percentage_dmg = .109 # spellID 113780
 
     def get_factor(self, avg, delta=0):
         avg_for_level = avg * self.spell_scaling_for_level
@@ -99,7 +100,7 @@ class RogueDamageCalculator(DamageCalculator):
         # Sanguinary Vein
         kwargs.setdefault('is_bleeding', True)
         if kwargs['is_bleeding'] and self.settings.is_subtlety_rogue():
-            base_modifier *= 1.2
+            base_modifier *= 1.16
         # Raid modifiers
         kwargs.setdefault('armor', None)
         ability_type_check = 0
@@ -256,7 +257,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def mh_shadow_blades_damage(self, ap, is_bleeding=True):
         # TODO: normalized? percentage modifier? confirmed master poisoner stacks.
-        mh_weapon_damage = self.get_weapon_damage('mh', ap)
+        mh_weapon_damage = self.get_weapon_damage('mh', ap, is_normalized=False)
         mult, crit_mult = self.get_modifiers('spell', is_bleeding=is_bleeding)
 
         mh_damage = mh_weapon_damage * mult
@@ -266,7 +267,7 @@ class RogueDamageCalculator(DamageCalculator):
 
     def oh_shadow_blades_damage(self, ap, is_bleeding=True):
         # TODO
-        oh_weapon_damage = self.get_weapon_damage('oh', ap)
+        oh_weapon_damage = self.get_weapon_damage('oh', ap, is_normalized=False)
         mult, crit_mult = self.get_modifiers('spell', is_bleeding=is_bleeding)
 
         oh_damage = self.oh_penalty() * oh_weapon_damage * mult
