@@ -1464,7 +1464,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 # Testing needed for physical damage procs.
                 damage_breakdown[key] *= find_weakness_multiplier
             if key == 'ambush':
-                damage_breakdown[key] *= ((1.3 * self.ambush_shadowstep_rate) + (1 - self.ambush_shadowstep_rate) * find_weakness_damage_boost)
+                damage_breakdown[key] *= ((1 - self.ambush_no_fw_rate) * find_weakness_damage_boost)
             if key == 'rupture':
                 damage_breakdown[key] *= 1.5
             damage_breakdown[key] *= mos_multiplier
@@ -1482,6 +1482,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier * mastery_snd_speed / 1.4
 
         backstab_energy_cost = self.base_backstab_energy_cost
+        
+        sb_uptime = self.get_shadow_blades_uptime()
 
         hat_triggers_per_second = self.settings.cycle.raid_crits_per_second
         hat_cp_gen = 1 / (2 + 1. / hat_triggers_per_second)
@@ -1548,21 +1550,22 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             self.find_weakness_uptime += 10 * shadowmeld_ambushes
             ambush_rate += shadowmeld_ambushes
 
-        cp_per_ambush = 2
+        cp_per_ambush = 2.
         if self.talents.shadow_focus:
             ambush_cost = 0
         else:
-            ambush_cost = 60
+            ambush_cost = self.base_ambush_energy_cost
 
         cp_from_premeditation = 2.
         
-        rupture_duration = 4 * (6)
+        rupture_duration = 24 # 4 * 6
         rupture_per_cycle = cycle_length / (rupture_duration + self.settings.response_time)
 
         bonus_cp_per_cycle = (hat_cp_gen + ambush_rate * (cp_per_ambush + cp_from_premeditation)) * cycle_length
+        bonus_cp_per_cycle += (modified_energy_regen / self.base_backstab_energy_cost * sb_uptime) * cycle_length
         cp_used_on_buffs = snd_size * snd_per_cycle + rupture_per_cycle * 5.
         bonus_eviscerates = (bonus_cp_per_cycle - cp_used_on_buffs) / 5.
-        energy_spent_on_bonus_finishers = 30 + 25 * snd_per_cycle + 35 * bonus_eviscerates - (5 + snd_size * snd_per_cycle + 5 * bonus_eviscerates) * self.relentless_strikes_energy_return_per_cp
+        energy_spent_on_bonus_finishers = 25 * snd_per_cycle + 35 * bonus_eviscerates - (snd_size * snd_per_cycle + 5 * bonus_eviscerates) * self.relentless_strikes_energy_return_per_cp
         energy_spent_on_bonus_finishers += cycle_length * ambushes_from_vanish * ambush_cost + cycle_length * shadowmeld_ambushes * self.base_ambush_energy_cost
         energy_for_evis_spam = total_cycle_regen - energy_spent_on_bonus_finishers
         total_cost_of_extra_eviscerate = 5 * cp_builder_energy_cost + self.base_eviscerate_energy_cost - 5 * self.relentless_strikes_energy_return_per_cp
@@ -1580,9 +1583,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         shadow_dance_bonus_cp_regen = shadow_dance_duration * hat_cp_gen + cp_from_premeditation
         shadow_dance_bonus_eviscerates = shadow_dance_bonus_cp_regen / 5
         shadow_dance_bonus_eviscerate_cost = shadow_dance_bonus_eviscerates * (35 - 5 * self.relentless_strikes_energy_return_per_cp)
-        shadow_dance_available_energy = shadow_dance_duration * modified_energy_regen - shadow_dance_bonus_eviscerate_cost + 70
+        shadow_dance_available_energy = shadow_dance_duration * modified_energy_regen - shadow_dance_bonus_eviscerate_cost + 90
 
-        shadow_dance_eviscerate_cost = 5 / cp_per_ambush * (self.base_ambush_energy_cost - 20) + (35 - 5 * self.relentless_strikes_energy_return_per_cp)
+        shadow_dance_eviscerate_cost = 5. / cp_per_ambush * (self.base_ambush_energy_cost - 20) + (35 - 5 * self.relentless_strikes_energy_return_per_cp)
         shadow_dance_eviscerates_for_period = shadow_dance_available_energy / shadow_dance_eviscerate_cost
 
         base_bonus_cp_regen = shadow_dance_duration * hat_cp_gen
@@ -1596,7 +1599,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         shadow_dance_extra_ambushes = 5 / cp_per_ambush * shadow_dance_eviscerates_for_period
         shadow_dance_replaced_cp_builders = 5 * base_eviscerates_for_period
 
-        self.ambush_shadowstep_rate = (shadow_dance_frequency + ambush_rate) / (shadow_dance_extra_ambushes + ambush_rate)
+        self.ambush_no_fw_rate = (shadow_dance_frequency + ambush_rate) / (shadow_dance_extra_ambushes + ambush_rate)
 
         attacks_per_second['cp_builder'] -= shadow_dance_replaced_cp_builders * shadow_dance_frequency
         attacks_per_second['ambush'] += shadow_dance_extra_ambushes * shadow_dance_frequency
