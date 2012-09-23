@@ -468,13 +468,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         if 'garrote_ticks' in attacks_per_second:
             damage_breakdown['garrote'] = self.get_dps_contribution(self.garrote_tick_damage(average_ap), crit_rates['garrote'], attacks_per_second['garrote_ticks'])
-
+            
+        finisher_per_second = {'envenom': 0, 'eviscerate': 0}
         if 'envenom' in attacks_per_second:
             average_dps = crit_dps = 0
             for i in xrange(1, 6):
                 dps_tuple = self.get_dps_contribution(self.envenom_damage(average_ap, i, current_stats['mastery']), crit_rates['envenom'], attacks_per_second['envenom'][i])
                 average_dps += dps_tuple[0]
                 crit_dps += dps_tuple[1]
+                finisher_per_second['envenom'] += attacks_per_second['envenom'][i]
             damage_breakdown['envenom'] = average_dps, crit_dps
 
         if 'eviscerate' in attacks_per_second:
@@ -483,8 +485,32 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 dps_tuple = self.get_dps_contribution(self.eviscerate_damage(average_ap, i), crit_rates['eviscerate'], attacks_per_second['eviscerate'][i])
                 average_dps += dps_tuple[0]
                 crit_dps += dps_tuple[1]
+                finisher_per_second['eviscerate'] += attacks_per_second['eviscerate'][i]
             damage_breakdown['eviscerate'] = average_dps, crit_dps
-
+            
+        stormlash_mod_table = {'mh_autoattack_hits': .4 * (self.stats.mh.speed / 2.6),
+                     'oh_autoattack_hits': .4 * (self.stats.mh.speed / 2.6) * .5, 
+                     'mh_shadow_blades': .4 * (self.stats.mh.speed / 2.6), 
+                     'oh_shadow_blades': .4 * (self.stats.mh.speed / 2.6) * .5, 
+                     'sinister_strike': .5}
+        stormlash_triggers = ['mh_autoattack_hits', 'oh_autoattack_hits', 'mh_shadow_blade', 'oh_shadow_blade', 'sinister_strike', 'ambush',
+                              'backstab', 'hemorrhage', 'rupture', 'eviscerate', 'mh_mutilate', 'oh_mutilate', 'dispatch']
+        if 'stormlash' in attacks_per_second:
+            average_dps = crit_dps = 0
+            uptime = 10. / (5 * 60)
+            for value in attacks_per_second:
+                if value in stormlash_triggers:
+                    damage_mod = 1
+                    if value in stormlash_mod_table:
+                        damage_mod = stormlash_mod_table[value]
+                    if value in ('envenom', 'eviscerate'):
+                        damage_tuple = self.get_dps_contribution(self.stormlash_totem_damage(average_ap, mod=damage_mod), self.spell_crit_rate(), finisher_per_second[value])
+                    else:
+                        damage_tuple = self.get_dps_contribution(self.stormlash_totem_damage(average_ap, mod=damage_mod), self.spell_crit_rate(), attacks_per_second[value])
+                    average_dps += uptime * damage_tuple[0] * self.spell_hit_chance()
+                    crit_dps += uptime * damage_tuple[1] * self.spell_hit_chance()
+            damage_breakdown['stormlash'] = average_dps, crit_dps
+            
         if 'hemorrhage_ticks' in attacks_per_second:
             dps_from_hit_hemo = self.get_dps_contribution(self.hemorrhage_tick_damage(average_ap, from_crit_hemo=False), crit_rates['hemorrhage'], attacks_per_second['hemorrhage_ticks'] * (1 - crit_rates['hemorrhage']))
             dps_from_crit_hemo = self.get_dps_contribution(self.hemorrhage_tick_damage(average_ap, from_crit_hemo=True), crit_rates['hemorrhage'], attacks_per_second['hemorrhage_ticks'] * crit_rates['hemorrhage'])
@@ -560,6 +586,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             elif 'current_stats' in kwargs:
                 main_gauche_proc_rate = .02 * self.stats.get_mastery_from_rating(kwargs['current_stats']['mastery']) * self.one_hand_melee_hit_chance()
             attacks_per_second['main_gauche'] = main_gauche_proc_rate * attacks_per_second['mh_autoattack_hits']
+        attacks_per_second['stormlash'] = stormlash_uptime = 10. / (5 * 60)
+        
 
     def get_mh_procs_per_second(self, proc, attacks_per_second, crit_rates):
         triggers_per_second = 0
@@ -1570,7 +1598,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         energy_for_evis_spam = total_cycle_regen - energy_spent_on_bonus_finishers
         total_cost_of_extra_eviscerate = 5 * cp_builder_energy_cost + self.base_eviscerate_energy_cost - 5 * self.relentless_strikes_energy_return_per_cp
         extra_eviscerates_per_cycle = energy_for_evis_spam / total_cost_of_extra_eviscerate
-
+        
+        attacks_per_second['rupture'] = 1. / 24
         attacks_per_second['cp_builder'] = 5 * extra_eviscerates_per_cycle / cycle_length
         attacks_per_second['eviscerate'] = [0, 0, 0, 0, 0, (bonus_eviscerates + extra_eviscerates_per_cycle) / cycle_length]
         attacks_per_second['ambush'] = ambush_rate

@@ -385,7 +385,15 @@ class RogueDamageCalculator(DamageCalculator):
         crit_damage = damage * crit_mult
         
         return damage, crit_damage
+    
+    def stormlash_totem_damage(self, ap, is_bleeding=True, mod=1):
+        mult, crit_mult = self.get_modifiers('spell', is_bleeding=is_bleeding)
 
+        damage = mod * .2 * ap * mult
+        crit_damage = damage * crit_mult
+
+        return damage, crit_damage
+    
     def get_formula(self, name):
         # TODO: Not finished
         formulas = {
@@ -404,7 +412,8 @@ class RogueDamageCalculator(DamageCalculator):
             'venomous_wounds':       self.venomous_wounds_damage,
             'deadly_poison':         self.deadly_poison_tick_damage,
             'wound_poison':          self.wound_poison_damage,
-            'deadly_instant_poison': self.deadly_instant_poison_damage
+            'deadly_instant_poison': self.deadly_instant_poison_damage,
+            'stormlash':             self.stormlash_totem_damage
         }
         return formulas[name]
 
