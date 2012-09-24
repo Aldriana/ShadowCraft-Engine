@@ -16,6 +16,9 @@ class Race(object):
         85: {'ap': 1344, 'sp': 672},
         90: {'ap': 4514, 'sp': 2257}
     }
+    touch_of_the_grave_bonuses = {
+        90: {'spell_damage': 16000}
+    }
 
     #Arguments are ap, spellpower:fire, and int
     #This is the formula according to wowhead, with a probable typo corrected
@@ -74,7 +77,9 @@ class Race(object):
         'blood_fury_spell':         {'stat': "sp", 'value': 0, 'duration': 15, 'cooldown': 120},                                    #level-based sp increase
         'berserking':               {'stat': "haste_multiplier", 'value': 1.2, 'duration': 10, 'cooldown': 180},                    #20% haste increase for 10 seconds, 3 minute cd
         'arcane_torrent':           {'stat': "energy", 'value': 15, 'duration': 0, 'cooldown': 120},                                #gain 15 energy (or 15 runic power or 6% mana), 2 minute cd
-        'rocket_barrage':           {'stat': "damage", 'value': calculate_rocket_barrage, 'duration': 0, 'cooldown': 120}      #deal formula-based damage, 2 min cd
+        'rocket_barrage':           {'stat': "damage", 'value': calculate_rocket_barrage, 'duration': 0, 'cooldown': 120},      #deal formula-based damage, 2 min cd
+        'touch_of_the_grave':       {'stat': "damage", 'value': 16000, 'duration': 0, 'cooldown': 17} #should be proc based, real ICD probably either 10 or 15s
+                                                                                                      #damage value definitely wrong
     }
 
     racials_by_race = {

@@ -77,12 +77,13 @@ class Buffs(object):
     def buff_str(self):
         return 0
 
-    def buff_agi(self):
-        if self.agi_flask_mop + self.agi_flask > 1:
-            raise InvalidBuffException(_('You can only have one type of Flask active'))
+    def buff_agi(self, just_food=False):
         flask_agi = 0
-        flask_agi += [0, 300][self.agi_flask]
-        flask_agi += [0, 1000][self.agi_flask_mop]
+        if not just_food:
+            if self.agi_flask_mop + self.agi_flask > 1:
+                raise InvalidBuffException(_('You can only have one type of Flask active'))
+            flask_agi += [0, 300][self.agi_flask]
+            flask_agi += [0, 1000][self.agi_flask_mop]
 
         if self.guild_feast + self.food_250 + self.food_275 + self.food_300_agi > 1:
             raise InvalidBuffException(_('You can only have one type of Well Fed buff active'))

@@ -493,8 +493,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                      'mh_shadow_blades': .4 * (self.stats.mh.speed / 2.6), 
                      'oh_shadow_blades': .4 * (self.stats.mh.speed / 2.6) * .5, 
                      'sinister_strike': .5}
-        stormlash_triggers = ['mh_autoattack_hits', 'oh_autoattack_hits', 'mh_shadow_blade', 'oh_shadow_blade', 'sinister_strike', 'ambush',
-                              'backstab', 'hemorrhage', 'rupture', 'eviscerate', 'mh_mutilate', 'oh_mutilate', 'dispatch']
+        stormlash_triggers = ['mh_autoattack_hits', 'oh_autoattack_hits', 'mh_shadow_blade', 'oh_shadow_blade', 'sinister_strike', 'revealing_strike',
+                              'ambush', 'backstab', 'hemorrhage', 'rupture', 'eviscerate', 'mh_mutilate', 'oh_mutilate', 'dispatch']
         if 'stormlash' in attacks_per_second:
             average_dps = crit_dps = 0
             uptime = 10. / (5 * 60)
@@ -586,7 +586,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             elif 'current_stats' in kwargs:
                 main_gauche_proc_rate = .02 * self.stats.get_mastery_from_rating(kwargs['current_stats']['mastery']) * self.one_hand_melee_hit_chance()
             attacks_per_second['main_gauche'] = main_gauche_proc_rate * attacks_per_second['mh_autoattack_hits']
-        attacks_per_second['stormlash'] = stormlash_uptime = 10. / (5 * 60)
+        if self.settings.use_stormlash:
+            attacks_per_second['stormlash'] = stormlash_uptime = 10. / (5 * 60)
         
 
     def get_mh_procs_per_second(self, proc, attacks_per_second, crit_rates):
@@ -1241,6 +1242,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.base_sinister_strike_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
 
         self.base_energy_regen = 12.
+        if self.settings.cycle.blade_flurry:
+            self.base_energy_regen *= .8
 
         damage_breakdown = self.compute_damage(self.combat_attack_counts)
         for key in damage_breakdown:
@@ -1260,6 +1263,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 damage_breakdown[key] *= self.bandits_guile_multiplier * self.ksp_multiplier
             else:
                 damage_breakdown[key] *= self.ksp_multiplier
+        
+        if self.settings.cycle.blade_flurry:
+            damage_breakdown['blade_flurry'] = 0
+            triggers = ['sinister_strike', 'autoattack', 'revealing_strike', 'eviscerate', 'shadow_blades', 'main_gauche', 'killing_spree']
+            for key in damage_breakdown:
+                if key in triggers:
+                    damage_breakdown['blade_flurry'] += damage_breakdown[key] * self.armor_mitigation_multiplier(self.target_armor())
         
         return damage_breakdown
 

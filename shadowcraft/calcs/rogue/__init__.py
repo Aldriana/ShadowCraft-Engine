@@ -27,6 +27,8 @@ class RogueDamageCalculator(DamageCalculator):
     def _set_constants_for_level(self):
         super(RogueDamageCalculator, self)._set_constants_for_level()
         self.agi_per_crit = self.tools.get_agi_per_crit('rogue', self.level) * 100
+        if self.race.epicurean:
+            self.stats.agi += self.buffs.buff_agi(just_food=True)
 
         # These factors are taken from sc_spell_data.inc in SimulationCraft.
         # At some point we should automate the process to fetch them. Numbers

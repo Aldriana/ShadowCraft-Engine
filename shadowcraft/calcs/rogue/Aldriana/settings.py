@@ -3,7 +3,7 @@ from shadowcraft.core import exceptions
 class Settings(object):
     # Settings object for AldrianasRogueDamageCalculator.
 
-    def __init__(self, cycle, time_in_execute_range=.35, tricks_on_cooldown=True, response_time=.5, dmg_poison='dp', utl_poison=None, duration=300, use_opener='always', opener_name='default', is_pvp=False):
+    def __init__(self, cycle, time_in_execute_range=.35, tricks_on_cooldown=True, response_time=.5, dmg_poison='dp', utl_poison=None, duration=300, use_opener='always', opener_name='default', is_pvp=False, stormlash=False):
         self.cycle = cycle
         self.time_in_execute_range = time_in_execute_range
         self.tricks_on_cooldown = tricks_on_cooldown
@@ -14,6 +14,7 @@ class Settings(object):
         self.use_opener = use_opener # Allowed values are 'always' (vanish/shadowmeld on cooldown), 'opener' (once per fight) and 'never'
         self.opener_name = opener_name
         self.is_pvp = is_pvp
+        self.use_stormlash = stormlash
         allowed_openers_per_spec = {
             'assassination': tuple(['mutilate']),
             'combat': ('sinister_strike', 'revealing_strike'),
@@ -85,7 +86,8 @@ class AssassinationCycle(Cycle):
 class CombatCycle(Cycle):
     _cycle_type = 'combat'
 
-    def __init__(self, use_rupture=True, ksp_immediately=True, revealing_strike_pooling=True):
+    def __init__(self, use_rupture=True, ksp_immediately=True, revealing_strike_pooling=True, blade_flurry=False):
+        self.blade_flurry = bool(blade_flurry)
         self.use_rupture = bool(use_rupture)
         self.ksp_immediately = bool(ksp_immediately) # Determines whether to KSp the instant it comes off cool or wait until Bandit's Guile stacks up.'
         self.revealing_strike_pooling = revealing_strike_pooling

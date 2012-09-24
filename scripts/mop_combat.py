@@ -21,7 +21,7 @@ i18n.set_language(test_language)
 
 # Set up level/class/race
 test_level = 90
-test_race = race.Race('night_elf')
+test_race = race.Race('pandaren')
 test_class = 'rogue'
 
 # Set up buffs.
@@ -40,8 +40,8 @@ test_buffs = buffs.Buffs(
     )
 
 # Set up weapons.
-test_mh = stats.Weapon(9725.5, 2.6, 'axe', 'landslide')
-test_oh = stats.Weapon(6733, 1.8, 'dagger', 'landslide')
+test_mh = stats.Weapon(9725.5, 2.6, 'axe', 'dancing_steel')
+test_oh = stats.Weapon(9725.5, 2.6, 'axe', 'dancing_steel')
 
 # Set up procs.
 test_procs = procs.ProcsList('heroic_vial_of_shadows', 'heroic_wrath_of_unchaining')
