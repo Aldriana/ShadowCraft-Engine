@@ -1598,15 +1598,16 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         
         rupture_duration = 24 # 4 * 6
         rupture_per_cycle = cycle_length / (rupture_duration + self.settings.response_time)
+        
+        total_cost_of_extra_eviscerate = 5 * cp_builder_energy_cost + self.base_eviscerate_energy_cost - 5 * self.relentless_strikes_energy_return_per_cp
 
         bonus_cp_per_cycle = (hat_cp_gen + ambush_rate * (cp_per_ambush + cp_from_premeditation)) * cycle_length
-        bonus_cp_per_cycle += (modified_energy_regen / self.base_backstab_energy_cost * sb_uptime) * cycle_length
+        bonus_cp_per_cycle += (modified_energy_regen * cycle_length) / total_cost_of_extra_eviscerate * 5 * sb_uptime
         cp_used_on_buffs = snd_size * snd_per_cycle + rupture_per_cycle * 5.
         bonus_eviscerates = (bonus_cp_per_cycle - cp_used_on_buffs) / 5.
         energy_spent_on_bonus_finishers = 25 * snd_per_cycle + 35 * bonus_eviscerates - (snd_size * snd_per_cycle + 5 * bonus_eviscerates) * self.relentless_strikes_energy_return_per_cp
         energy_spent_on_bonus_finishers += cycle_length * ambushes_from_vanish * ambush_cost + cycle_length * shadowmeld_ambushes * self.base_ambush_energy_cost
         energy_for_evis_spam = total_cycle_regen - energy_spent_on_bonus_finishers
-        total_cost_of_extra_eviscerate = 5 * cp_builder_energy_cost + self.base_eviscerate_energy_cost - 5 * self.relentless_strikes_energy_return_per_cp
         extra_eviscerates_per_cycle = energy_for_evis_spam / total_cost_of_extra_eviscerate
         
         attacks_per_second['rupture'] = 1. / 24
