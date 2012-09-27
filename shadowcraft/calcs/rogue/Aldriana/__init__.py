@@ -548,7 +548,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         # 'cooldown' used as an overide for combat cycles
         if self.level < 87:
             return 0
-        duration = 12 + self.stats.gear_buffs.rogue_t14_4pc_extra_time()
+        duration = 12 + self.stats.gear_buffs.rogue_t14_4pc_extra_time(is_combat=self.settings.is_combat_rogue())
         return self.get_activated_uptime(duration, (cooldown, 180)[cooldown is None])
 
     def update_with_shadow_blades(self, attacks_per_second, shadow_blades_uptime):

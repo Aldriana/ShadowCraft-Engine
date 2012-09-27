@@ -266,7 +266,9 @@ class GearBuffs(object):
                     return 1 + bonus[spells]
         return 1
 
-    def rogue_t14_4pc_extra_time(self):
+    def rogue_t14_4pc_extra_time(self, is_combat=False):
+        if is_combat:
+            return self.rogue_t14_4pc * 6
         return self.rogue_t14_4pc * 12
 
     def leather_specialization_multiplier(self):
