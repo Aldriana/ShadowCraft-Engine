@@ -359,7 +359,7 @@ behaviours = {
         'trigger': 'all_attacks',
     },
     'zen_alchemist_stone': {                # ICD is a guesstimate
-        'icd': 75,
+        'icd': 55,
         'proc_chance': .25,
         'trigger': 'all_attacks',
     },
