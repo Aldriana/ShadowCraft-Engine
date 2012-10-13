@@ -52,8 +52,8 @@ class Talents(object):
         j = 0
         for i in talent_string:
             if int(i) not in range(4):
-                raise InvalidTalentException(_('Values in the talent string must be 1, 2, 3 or 0'))
-            if int(i) == 0:
+                raise InvalidTalentException(_('Values in the talent string must be 0, 1, 2, 3, or sometimes 4'))
+            if int(i) == 0 or i == '.':
                 pass
             else:
                 setattr(self, self.class_talents[j][int(i) - 1], True)

@@ -51,7 +51,7 @@ test_gear_buffs = stats.GearBuffs('rogue_t14_2pc', 'rogue_t14_4pc', 'leather_spe
 
 # Set up a calcs object..
 #                       str,   agi, ap,  crit,  hit, exp, haste, mast,      mh,      oh,      procs,      gear_buffs
-test_stats = stats.Stats(80, 18000, 250, 2000, 2550, 2550, 4000, 4800, test_mh, test_oh, test_procs, test_gear_buffs)
+test_stats = stats.Stats(80, 18000, 250, 2000, 2550, 2550, 4000, 4800, test_mh, test_oh, test_procs, test_gear_buffs, pvp_power=3000, pvp_resil=0, pvp_target_armor=None)
 
 # Initialize talents..
 test_talents = talents.Talents('322213', test_class, test_level)
@@ -62,7 +62,7 @@ test_glyphs = glyphs.Glyphs(test_class, *glyph_list)
 
 # Set up settings.
 test_cycle = settings.CombatCycle()
-test_settings = settings.Settings(test_cycle, response_time=1)
+test_settings = settings.Settings(test_cycle, response_time=.5, duration=360, dmg_poison='dp', utl_poison='lp', is_pvp=False)
 
 # Build a DPS object.
 calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings, test_level)

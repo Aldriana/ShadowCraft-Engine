@@ -62,7 +62,7 @@ class AssassinationCycle(Cycle):
 
     allowed_values = (1, 2, 3, 4, 5)
 
-    def __init__(self, min_envenom_size_non_execute=4, min_envenom_size_execute=5, prioritize_rupture_uptime_non_execute=True, prioritize_rupture_uptime_execute=True, use_opener='always', opener_name='garrote'):
+    def __init__(self, min_envenom_size_non_execute=4, min_envenom_size_execute=5, prioritize_rupture_uptime_non_execute=True, prioritize_rupture_uptime_execute=True):
         assert min_envenom_size_non_execute in self.allowed_values
         self.min_envenom_size_non_execute = min_envenom_size_non_execute
 

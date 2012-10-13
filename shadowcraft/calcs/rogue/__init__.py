@@ -18,6 +18,9 @@ class RogueDamageCalculator(DamageCalculator):
     default_ep_stats = ['white_hit', 'yellow_hit', 'str', 'agi', 'haste',
         'crit', 'mastery', 'dodge_exp', 'spell_hit', 'spell_exp', 'pvp_power']
     normalize_ep_stat = 'ap'
+    melee_attacks = ['sinister_strike', 'revealing_strike', 'eviscerate', 'rupture', 'mh_killing_spree', 'oh_killing_spree',
+                     'mh_mutilate', 'oh_mutilate', 'mutilate', 'dispatch', 'envenom']
+    melee_hit_chance_attacks = melee_attacks + ['deadly_poison', 'deadly_instant_poison']
 
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
@@ -415,7 +418,8 @@ class RogueDamageCalculator(DamageCalculator):
             'deadly_poison':         self.deadly_poison_tick_damage,
             'wound_poison':          self.wound_poison_damage,
             'deadly_instant_poison': self.deadly_instant_poison_damage,
-            'stormlash':             self.stormlash_totem_damage
+            'stormlash':             self.stormlash_totem_damage,
+            'shuriken_toss':         self.shuriken_toss_damage
         }
         return formulas[name]
 
@@ -435,12 +439,12 @@ class RogueDamageCalculator(DamageCalculator):
             'sinister_strike':     (40, 'strike'),
             'slice_and_dice':      (25, 'buff'),
             'tricks_of_the_trade': (15, 'buff'),
+            'shuriken_toss':       (20, 'strike'),
             # 'crimson_tempest':     (35, 'strike'),
             # 'deadly_throw':        (35, 'strike'),
             # 'expose_armor':        (25, 'strike'),
             # 'feint':               (20, 'buff'),
             # 'fan_of_knives':       (35, 'point_blank'),
-            # 'shuriken_toss':       (20, 'strike'),
             # 'blind':               (15, 'debuff'),
             # 'burst_of_speed':      (60, 'buff'),
             # 'cheap_shot':          (40, 'debuff'),

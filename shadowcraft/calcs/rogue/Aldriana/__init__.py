@@ -90,7 +90,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 'nightstalker',
                 'shadow_focus',
                 'anticipation',
-                'subterfuge'
+                'subterfuge',
+                'shuriken_toss'
             ]
         return super(AldrianasRogueDamageCalculator, self).get_talents_ranking(list)
 
@@ -188,7 +189,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             'mh_autoattacks': min(base_melee_crit_rate, self.dual_wield_mh_hit_chance() - self.GLANCE_RATE),
             'oh_autoattacks': min(base_melee_crit_rate, self.dual_wield_oh_hit_chance() - self.GLANCE_RATE),
         }
-        for attack in ('mh_shadow_blade', 'oh_shadow_blade', 'rupture_ticks'):
+        for attack in ('mh_shadow_blade', 'oh_shadow_blade', 'rupture_ticks', 'shuriken_toss'):
             crit_rates[attack] = base_melee_crit_rate
 
         if self.settings.is_assassination_rogue():
@@ -428,7 +429,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 munch_per_sec = attacks_per_second['mutilate'] * p_double_crit
                 damage_breakdown['mut_munch'] = 0, munch_per_sec * mh_dmg[1]
 
-        for strike in ('hemorrhage', 'backstab', 'sinister_strike', 'revealing_strike', 'main_gauche', 'ambush', 'dispatch'):
+        for strike in ('hemorrhage', 'backstab', 'sinister_strike', 'revealing_strike', 'main_gauche', 'ambush', 'dispatch', 'shuriken_toss'):
             if strike in attacks_per_second.keys():
                 dps = self.get_dps_contribution(self.get_formula(strike)(average_ap), crit_rates[strike], attacks_per_second[strike])
                 if strike in ('sinister_strike', 'backstab'):
@@ -598,7 +599,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             else:
                 triggers_per_second += attacks_per_second['mh_autoattack_hits']
         if proc.procs_off_strikes():
-            for ability in ('mutilate', 'dispatch', 'backstab', 'revealing_strike', 'sinister_strike', 'ambush', 'hemorrhage', 'mh_killing_spree', 'main_gauche', 'mh_shadow_blade'):
+            for ability in ('mutilate', 'dispatch', 'backstab', 'revealing_strike', 'sinister_strike', 'ambush', 'hemorrhage', 'mh_killing_spree', 'main_gauche', 'mh_shadow_blade', 'shuriken_toss'):
                 if ability == 'main_gauche' and not proc.procs_off_procced_strikes():
                     pass
                 elif ability in attacks_per_second:
@@ -1028,15 +1029,21 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         damage_breakdown = self.compute_damage(self.assassination_attack_counts_non_execute)
 
         for key in damage_breakdown:
-            damage_breakdown[key] *= self.vendetta_mult
-
+            if key == 'shadow_blades':
+                damage_breakdown[key] *= 1 + (.3 - .05 * self.glyphs.vendetta) / 2
+            else:
+                damage_breakdown[key] *= self.vendetta_mult
+        
         return damage_breakdown
 
     def assassination_dps_breakdown_execute(self):
         damage_breakdown = self.compute_damage(self.assassination_attack_counts_execute)
 
         for key in damage_breakdown:
-            damage_breakdown[key] *= self.vendetta_mult
+            if key == 'shadow_blades':
+                damage_breakdown[key] *= 1 + (.3 - .05 * self.glyphs.vendetta) / 2
+            else:
+                damage_breakdown[key] *= self.vendetta_mult
         
         return damage_breakdown
 
@@ -1056,6 +1063,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         blindside_proc_rate = [0, .3][cpg == 'mutilate']
         blindside_proc_rate *= self.strike_hit_chance
         dispatch_as_cpg_chance = blindside_proc_rate / (1 + blindside_proc_rate)
+        if cpg == 'mutilate' and self.talents.shuriken_toss:
+            cpg = 'shuriken_toss'
 
         if self.talents.shadow_focus:
             opener_net_cost = 0
@@ -1497,7 +1506,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         mos_multiplier = 1. + mos_value * (6 + 3 * self.talents.subterfuge) / mos_intervals
 
         for key in damage_breakdown:
-            if key in ('autoattack', 'backstab', 'eviscerate', 'hemorrhage') or key in ('hemorrhage_dot', 'burning_wounds'):
+            if key in ('autoattack', 'backstab', 'eviscerate', 'hemorrhage', 'shuriken_toss') or key in ('hemorrhage_dot', 'burning_wounds'):
                 # Hemo dot and 2pc_t12 derive from physical attacks too.
                 # Testing needed for physical damage procs.
                 damage_breakdown[key] *= find_weakness_multiplier

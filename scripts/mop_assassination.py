@@ -44,7 +44,7 @@ test_mh = stats.Weapon(6733, 1.8, 'dagger', 'dancing_steel')
 test_oh = stats.Weapon(6733, 1.8, 'dagger', 'dancing_steel')
 
 # Set up procs.
-test_procs = procs.ProcsList('heroic_terror_in_the_mists', 'heroic_wrath_of_unchaining')
+test_procs = procs.ProcsList('heroic_bottle_of_infinite_stars', 'heroic_terror_in_the_mists')
 
 # Set up gear buffs.
 test_gear_buffs = stats.GearBuffs('rogue_t14_2pc', 'rogue_t14_4pc', 'leather_specialization', 'virmens_bite', 'virmens_bite_prepot', 'chaotic_metagem')
@@ -54,7 +54,7 @@ test_gear_buffs = stats.GearBuffs('rogue_t14_2pc', 'rogue_t14_4pc', 'leather_spe
 test_stats = stats.Stats(80, 19000, 250, 4800, 2550, 2550, 3000, 5000, test_mh, test_oh, test_procs, test_gear_buffs, pvp_power=0, pvp_resil=0, pvp_target_armor=None)
 
 # Initialize talents..
-test_talents = talents.Talents('322213', test_class, test_level)
+test_talents = talents.Talents('322210', test_class, test_level)
 
 # Set up glyphs.
 glyph_list = ['recuperate', 'sprint'] #just to have something
@@ -76,6 +76,8 @@ dps_breakdown = calculator.get_dps_breakdown()
 non_execute_breakdown = calculator.assassination_dps_breakdown_non_execute()
 total_dps = sum(entry[1] for entry in dps_breakdown.items())
 non_execute_total = sum(entry[1] for entry in non_execute_breakdown.items())
+talent_ranks = calculator.get_talents_ranking()
+
 
 def max_length(dict_list):
     max_len = 0
@@ -86,26 +88,28 @@ def max_length(dict_list):
 
     return max_len
 
-def pretty_print(dict_list):
+def pretty_print(dict_list, total_sum = 1.):
     max_len = max_length(dict_list)
 
     for i in dict_list:
         dict_values = i.items()
         dict_values.sort(key=lambda entry: entry[1], reverse=True)
         for value in dict_values:
+            #print value[0] + ':' + ' ' * (max_len - len(value[0])), str(value[1])
             if ("{0:.2f}".format(float(value[1])/total_dps)) != '0.00':
-                print value[0] + ':' + ' ' * (max_len - len(value[0])), str(value[1]) + ' ('+str( "{0:.2f}".format(100*float(value[1])/total_dps) )+'%)'
+                print value[0] + ':' + ' ' * (max_len - len(value[0])), str(value[1]) + ' ('+str( "{0:.2f}".format(100*float(value[1])/total_sum) )+'%)'
             else:
                 print value[0] + ':' + ' ' * (max_len - len(value[0])), str(value[1])
         print '-' * (max_len + 15)
 
 dicts_for_pretty_print = [
     ep_values,
+    talent_ranks,
     dps_breakdown
 ]
-pretty_print(dicts_for_pretty_print)
+pretty_print(dicts_for_pretty_print, total_sum=total_dps)
 print ' ' * (max_length(dicts_for_pretty_print) + 1), total_dps, _("total damage per second.")
 print ''
 print 'non-execute breakdown: '
-pretty_print([non_execute_breakdown])
+pretty_print([non_execute_breakdown], total_sum=non_execute_total)
 print ' ' * (max_length([non_execute_breakdown]) + 1), non_execute_total, _("total damage per second.")
