@@ -76,11 +76,27 @@ class CharacterData:
              10 : 'blood_elf',
              11 : 'draenie',
              22 : 'worgen',
-             24 : 'pandaren'}
+             24 : 'pandaren', #Neutral
+             25 : 'pandaren', #Alliance
+             26 : 'pandaren', #Horde
+    }
+    statMap = {3:'agi', 7:'stam', 31:'hit', 32:'crit', 36:'haste', 37:'exp', 49:'mastery', 35:'pvp_resil', 57:'pvp_power'}
 
     enchants = {4441 : 'windsong',
                 4443 : 'elemental_force',
-                4444 : 'dancing_steel'}
+                4444 : 'dancing_steel',
+                4359 : [{'stat':'agi', 'value':180}], #Enchanting Perk
+                4421 : [{'stat':'hit', 'value':180}],
+                4428 : [{'stat':'agi', 'value':140}], #Speed Boost
+                4431 : [{'stat':'exp', 'value':170}],
+                4804 : [{'stat':'agi', 'value':200}, {'stat':'crit', 'value':100}],
+                4875 : [{'stat':'agi', 'value':500}], #Leatherworking Perk
+                4880 : [{'stat':'agi', 'value':285}, {'stat':'crit', 'value':165}],
+    }
+    
+    gems = {76666: [{'stat':'agi', 'value':80}, {'stat':'haste', 'value':160}],
+            76884: [{'stat':'agi', 'value':216}, 'chaotic_metagem'],
+    }
 
     trinkets = {87057 : 'heroic_bottle_of_infinite_stars', 
                 86132 : 'bottle_of_infinite_stars',
@@ -144,6 +160,64 @@ class CharacterData:
               u'Glyph of Poisons'                  :     'poisons',            
               u'Glyph of Safe Fall'                :     'safe_fall',          
               u'Glyph of Tricks of the Trade'      :     'tricks_of_the_trade'}
+    
+    reforgeMap = {113: ('spirit', 'dodge_rating'),
+                  114: ('spirit','parry_rating'),
+                  115: ('spirit','hit'),
+                  116: ('spirit','crit'),
+                  117: ('spirit','haste'),
+                  118: ('spirit','exp'),
+                  119: ('spirit','mastery'),
+                  120: ('dodge_rating','spirit'),
+                  121: ('dodge_rating','parry_rating'),
+                  122: ('dodge_rating','hit'),
+                  123: ('dodge_rating','crit'),
+                  124: ('dodge_rating','haste'),
+                  125: ('dodge_rating','exp'),
+                  126: ('dodge_rating','mastery'),
+                  127: ('parry_rating','spirit'),
+                  128: ('parry_rating','dodge_rating'),
+                  129: ('parry_rating','hit'),
+                  130: ('parry_rating','crit'),
+                  131: ('parry_rating','haste'),
+                  132: ('parry_rating','exp'),
+                  133: ('parry_rating','mastery'),
+                  134: ('hit','spirit'),
+                  135: ('hit','dodge_rating'),
+                  136: ('hit','parry_rating'),
+                  137: ('hit','crit'),
+                  138: ('hit','haste'),
+                  139: ('hit','exp'),
+                  140: ('hit','mastery'),
+                  141: ('crit','spirit'),
+                  142: ('crit','dodge_rating'),
+                  143: ('crit','parry_rating'),
+                  144: ('crit','hit'),
+                  145: ('crit','haste'),
+                  146: ('crit','exp'),
+                  147: ('crit','mastery'),
+                  148: ('haste','spirit'),
+                  149: ('haste','dodge_rating'),
+                  150: ('haste','parry_rating'),
+                  151: ('haste','hit'),
+                  152: ('haste','crit'),
+                  153: ('haste','exp'),
+                  154: ('haste','mastery'),
+                  155: ('exp','spirit'),
+                  156: ('exp','dodge_rating'),
+                  157: ('exp','parry_rating'),
+                  158: ('exp','hit'),
+                  159: ('exp','crit'),
+                  160: ('exp','haste'),
+                  161: ('exp','mastery'),
+                  162: ('mastery','spirit'),
+                  163: ('mastery','dodge_rating'),
+                  164: ('mastery','parry_rating'),
+                  165: ('mastery','hit'),
+                  166: ('mastery','crit'),
+                  167: ('mastery','haste'),
+                  168: ('mastery','exp'),
+        }
 
 
     def __init__(self, region, realm, name):
@@ -238,46 +312,34 @@ class CharacterData:
     def get_gear_stats(self):
         #           
         lst = {'agi': 0, 'str':0, 'stam':0, 'crit':0, 'hit':0, 'exp':0, 'haste':0, 'mastery':0, 'ap':0, 'pvp_power':0, 'pvp_resil':0}
-        statMap = {3:'agi', 7:'stam', 31:'hit', 32:'crit', 36:'haste', 37:'exp', 49:'mastery', 35:'pvp_resil', 57:'pvp_power'}
-        #print "getting gear stats"
+        reforge = ('none', 'none')
+        #Loops over every item
         for p in self.raw_data['data'][u'items']:
             try:
-                #print p
-                #print self.raw_data['data'][u'items'][p]
-                tmpItem = get_item_cached(self.region, self.raw_data['data'][u'items'][p][u'id'])
-                #print tmpItem[u'data'][u'bonusStats']
-                for key in tmpItem[u'data'][u'bonusStats']:
-                    if key[u'stat'] == 3:
-                        #print "agi"
-                        lst['agi'] += key[u'amount']
-                    if key[u'stat'] == 7:
-                        #print "stam"
-                        lst['stam'] += key[u'amount']
-                    if key[u'stat'] == 31:
-                        #print "hit"
-                        lst['hit'] += key[u'amount']
-                    if key[u'stat'] == 32:
-                        #print "crit"
-                        lst['crit'] += key[u'amount']
-                    if key[u'stat'] == 36:
-                        #print "haste"
-                        lst['haste'] += key[u'amount']
-                    if key[u'stat'] == 37:
-                        #print "exp"
-                        lst['exp'] += key[u'amount']
-                    if key[u'stat'] == 49:
-                        #print "mastery"
-                        lst['mastery'] += key[u'amount']
-                    if key[u'stat'] == 35:
-                        #print "pvp_power"
-                        lst['pvp_power'] += key[u'amount']
-                    if key[u'stat'] == 57:
-                        #print "pvp_resil"
-                        lst['pvp_resil'] += key[u'amount']
-                    #print key
-            except:
-                #it's okay, we can keep going
-                p
+                #ilvl is included in the gear array for some unknown reason, lets ignore it
+                if p != 'averageItemLevelEquipped' and p != 'averageItemLevel':
+                    tmpItem = get_item_cached(self.region, self.raw_data['data'][u'items'][p][u'id'])
+                    if u'reforge' in self.raw_data['data'][u'items'][p][u'tooltipParams']:
+                        reforgeID = self.raw_data['data'][u'items'][p][u'tooltipParams'][u'reforge']
+                    #if the reforge exists
+                    if reforgeID in CharacterData.reforgeMap.keys():
+                        reforge = CharacterData.reforgeMap[reforgeID]
+                    #for each stat
+                    for key in tmpItem[u'data'][u'bonusStats']:
+                        if key[u'stat'] in CharacterData.statMap and key[u'stat'] == reforge[0]:
+                            #if a reforge was found
+                            tmpVal = math.floor(key[u'amount'] * .6)
+                            lst[ CharacterData.statMap[key[u'stat']] ] += tmpVal
+                            lst[ reforge[1] ] += key[u'amount'] - tmpVal
+                        else:
+                            #otherwise, no reforge
+                            lst[ CharacterData.statMap[key[u'stat']] ] += key[u'amount']
+                    #prevents cached reforges from affecting subsequent items
+                    reforge = ('none', 'none')
+            except Exception as inst:
+                #it's okay, we can keep going, just so long as we pretend to handle the exception
+                print "Error at slot: ", p
+                print "Error type:    ", type(inst)
         return [lst['str'], lst['agi'], lst['ap'], lst['crit'], lst['hit'], lst['exp'], lst['haste'], lst['mastery']]
         #return self.raw_data['data'][u'items']
 
