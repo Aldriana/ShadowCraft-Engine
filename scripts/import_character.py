@@ -97,8 +97,13 @@ class CharacterData:
                 4880 : [{'stat':'agi', 'value':285}, {'stat':'crit', 'value':165}],
     }
     
-    gems = {76666: [{'stat':'agi', 'value':80}, {'stat':'haste', 'value':160}],
-            76884: [{'stat':'agi', 'value':216}, 'chaotic_metagem'],
+    gemsMap = {76666: [{'stat':'agi', 'value':80}, {'stat':'haste', 'value':160}],
+               76884: [{'stat':'agi', 'value':216}, 'chaotic_metagem'],
+               76643: [{'stat':'hit', 'value':160}, {'stat':'mastery', 'value':160}],
+               76576: [{'stat':'hit', 'value':160}, {'stat':'haste', 'value':160}],
+               76636: [{'stat':'hit', 'value':320}],
+               76680: [{'stat':'agi', 'value':80}, {'stat':'hit', 'value':160}],
+               76667: [{'stat':'exp', 'value':160}, {'stat':'haste', 'value':160}],
     }
 
     trinkets = {87057 : 'heroic_bottle_of_infinite_stars', 
@@ -252,14 +257,12 @@ class CharacterData:
         item_data = self.raw_data['data'][u'items'][u'mainHand']
         weapon_data = get_item_cached(self.region, item_data[u'id'])
 #        weapon_data = get_item_cached(self.region, 85924)
-        ret = self.get_weapon(weapon_data, item_data)
-        return ret
+        return self.get_weapon(weapon_data, item_data)
 
     def get_oh(self):
         item_data = self.raw_data['data'][u'items'][u'offHand']
         weapon_data = get_item_cached(self.region, item_data[u'id'])
-        ret = self.get_weapon(weapon_data, item_data)
-        return ret
+        return self.get_weapon(weapon_data, item_data)
 
     def get_trinket_proc(self, item_data):
         id = item_data[u'id']
@@ -307,17 +310,16 @@ class CharacterData:
         exp = stats_data[u'expertiseRating']
         haste = stats_data[u'hasteRating']
         mast = stats_data[u'masteryRating']
-        ret = [str, agi, ap - 2 * agi, crit, hit, exp, haste, mast]
 #        ret = [str, agi + 956, 250, crit, hit, exp, haste, mast]
 #        pp.pprint(ret)
-        return ret
-    
+        return [str, agi, ap - 2 * agi, crit, hit, exp, haste, mast]
+
+
     def get_gear_stats(self):
         #           
         lst = {'agi': 0, 'str':0, 'stam':0, 'crit':0, 'hit':0, 'exp':0, 'haste':0, 'mastery':0, 'ap':0, 'pvp_power':0, 'pvp_resil':0}
         reforge = ('none', 'none')
         gemList = {u'gem0':None, u'gem1':None, u'gem2':None}
-        gems = {}
         #Loops over every item
         for p in self.raw_data['data'][u'items']:
             try:
@@ -346,9 +348,12 @@ class CharacterData:
                     #find number of gems used
                     for key in gemList.keys():
                         if key in params.keys():
-                            if not params[key] in gems:
-                                gems[ params[key] ] = 0
-                            gems[ params[key] ] += 1
+                            if params[key] in CharacterData.gemsMap:
+                                for entry in CharacterData.gemsMap[ params[key] ]:
+                                    if not type( entry ) == type( '' ):
+                                        lst[ entry['stat'] ] += entry['value']
+                            else:
+                                print "unknown gem: ", params[key]
                     #add stats from enchants
                     if u'enchant' in params.keys():
                         if not type( CharacterData.enchants[ params[u'enchant'] ] ) == type(''):
@@ -360,9 +365,6 @@ class CharacterData:
                 print "Error at slot: ", p
                 print "Error type:    ", type(inst)
                 raise
-        #add stats from gems used
-        for key in gems.keys():
-            print key, gems[key]
         return [lst['str'], lst['agi'], lst['ap'], lst['crit'], lst['hit'], lst['exp'], lst['haste'], lst['mastery']]
         #return self.raw_data['data'][u'items']
 
