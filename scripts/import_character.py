@@ -1,5 +1,7 @@
+# Original Code by by Ayliex @ EJ ( https://github.com/postrov/sc-character-import )
 # -*- coding: utf-8 -*-
 from os import path
+from types import *
 import sys
 import pprint
 import shelve
@@ -86,6 +88,7 @@ class CharacterData:
                 4443 : 'elemental_force',
                 4444 : 'dancing_steel',
                 4359 : [{'stat':'agi', 'value':180}], #Enchanting Perk
+                4419 : [{'stat':'agi', 'value':80}, {'stat':'str', 'value':80}],
                 4421 : [{'stat':'hit', 'value':180}],
                 4428 : [{'stat':'agi', 'value':140}], #Speed Boost
                 4431 : [{'stat':'exp', 'value':170}],
@@ -234,14 +237,14 @@ class CharacterData:
 
     def get_weapon(self, weapon_data, item_data):
         weapon_info = weapon_data['data'][u'weaponInfo']
+        weaponMap = {1:'axe', 2:'2axe', 3:'bow', 4:'rifle',5:'mace', 6:'2mace', 7:'polearm', 8:'sword', 9:'2sword', 10:'staff',
+                     11:'exotic', 12:'2exotic', 13:'fist', 14:'misc', 15:'dagger', 16:'thrown', 17:'spear', 18:'xbow', 19:'wand',
+                     20:'fishing_pole'}
+        tmpItem = get_item_cached(self.region, item_data[u'id'])
         damage_info = weapon_info[u'damage']
         damage = (damage_info[u'max'] + damage_info[u'min']) / 2
         speed = weapon_info[u'weaponSpeed']
-        # FIXME: need better weapon type recognition here
-        if speed <= 1.8:
-            type = 'dagger'
-        else:
-            type = 'axe'
+        type = weaponMap[ tmpItem['data'][u'itemSubClass'] ]
         enchant = CharacterData.enchants[item_data[u'tooltipParams'][u'enchant']]
         return [damage, speed, type, enchant]
 
@@ -313,18 +316,22 @@ class CharacterData:
         #           
         lst = {'agi': 0, 'str':0, 'stam':0, 'crit':0, 'hit':0, 'exp':0, 'haste':0, 'mastery':0, 'ap':0, 'pvp_power':0, 'pvp_resil':0}
         reforge = ('none', 'none')
+        gemList = {u'gem0':None, u'gem1':None, u'gem2':None}
+        gems = {}
         #Loops over every item
         for p in self.raw_data['data'][u'items']:
             try:
                 #ilvl is included in the gear array for some unknown reason, lets ignore it
                 if p != 'averageItemLevelEquipped' and p != 'averageItemLevel':
                     tmpItem = get_item_cached(self.region, self.raw_data['data'][u'items'][p][u'id'])
+                    params = self.raw_data['data'][u'items'][p][u'tooltipParams']
+                    #grab the reforge if it exists
                     if u'reforge' in self.raw_data['data'][u'items'][p][u'tooltipParams']:
                         reforgeID = self.raw_data['data'][u'items'][p][u'tooltipParams'][u'reforge']
-                    #if the reforge exists
+                    #if we have data on the reforge
                     if reforgeID in CharacterData.reforgeMap.keys():
                         reforge = CharacterData.reforgeMap[reforgeID]
-                    #for each stat
+                    #for each stat on the gear
                     for key in tmpItem[u'data'][u'bonusStats']:
                         if key[u'stat'] in CharacterData.statMap and key[u'stat'] == reforge[0]:
                             #if a reforge was found
@@ -336,10 +343,26 @@ class CharacterData:
                             lst[ CharacterData.statMap[key[u'stat']] ] += key[u'amount']
                     #prevents cached reforges from affecting subsequent items
                     reforge = ('none', 'none')
+                    #find number of gems used
+                    for key in gemList.keys():
+                        if key in params.keys():
+                            if not params[key] in gems:
+                                gems[ params[key] ] = 0
+                            gems[ params[key] ] += 1
+                    #add stats from enchants
+                    if u'enchant' in params.keys():
+                        if not type( CharacterData.enchants[ params[u'enchant'] ] ) == type(''):
+                            for key in CharacterData.enchants[ params[u'enchant'] ]:
+                                lst[ key['stat'] ] += key['value']
             except Exception as inst:
                 #it's okay, we can keep going, just so long as we pretend to handle the exception
+                print "\n"
                 print "Error at slot: ", p
                 print "Error type:    ", type(inst)
+                raise
+        #add stats from gems used
+        for key in gems.keys():
+            print key, gems[key]
         return [lst['str'], lst['agi'], lst['ap'], lst['crit'], lst['hit'], lst['exp'], lst['haste'], lst['mastery']]
         #return self.raw_data['data'][u'items']
 
