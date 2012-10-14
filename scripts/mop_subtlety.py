@@ -44,7 +44,7 @@ test_mh = stats.Weapon(6733, 1.8, 'dagger', 'dancing_steel')
 test_oh = stats.Weapon(6733, 1.8, 'dagger', 'dancing_steel')
 
 # Set up procs.
-test_procs = procs.ProcsList('heroic_bottle_of_infinite_stars', 'heroic_vial_of_shadows')
+test_procs = procs.ProcsList('heroic_bottle_of_infinite_stars', 'relic_of_xuen')
 
 # Set up gear buffs.
 test_gear_buffs = stats.GearBuffs('rogue_t14_2pc', 'rogue_t14_4pc', 'leather_specialization', 'virmens_bite', 'virmens_bite_prepot', 'chaotic_metagem')
@@ -54,7 +54,7 @@ test_gear_buffs = stats.GearBuffs('rogue_t14_2pc', 'rogue_t14_4pc', 'leather_spe
 test_stats = stats.Stats(80, 19000, 250, 4800, 2550, 2550, 3000, 5000, test_mh, test_oh, test_procs, test_gear_buffs, pvp_power=3000, pvp_resil=0, pvp_target_armor=None)
 
 # Initialize talents..
-test_talents = talents.Talents('222213', test_class, test_level)
+test_talents = talents.Talents('022210', test_class, test_level)
 
 # Set up glyphs.
 glyph_list = []
@@ -62,7 +62,7 @@ test_glyphs = glyphs.Glyphs(test_class, *glyph_list)
 
 # Set up settings.
 test_cycle = settings.SubtletyCycle(5)
-test_settings = settings.Settings(test_cycle, response_time=.5, duration=360, dmg_poison='dp', utl_poison='lp', is_pvp=True)
+test_settings = settings.Settings(test_cycle, response_time=.5, duration=360, dmg_poison='dp', utl_poison='lp', is_pvp=False)
 
 # Build a DPS object.
 calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings, test_level)

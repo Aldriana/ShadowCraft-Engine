@@ -1484,7 +1484,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         self.base_hemo_cost = 24 + 6 / self.strike_hit_chance
         self.base_hemo_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
-
+        
+        self.base_st_cost = 16 + 4 / self.strike_hit_chance
+        self.base_st_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
+        
         self.base_backstab_energy_cost = 28 + 7 / self.strike_hit_chance
         self.base_backstab_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
         self.base_ambush_energy_cost = 48 + 12 / self.strike_hit_chance
@@ -1529,6 +1532,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier * mastery_snd_speed / 1.4
 
         backstab_energy_cost = self.base_backstab_energy_cost
+        st_energy_cost = self.base_st_cost
         
         sb_uptime = self.get_shadow_blades_uptime()
 
@@ -1548,7 +1552,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             modified_energy_regen = energy_regen + er_energy
             hemorrhage_interval = cp_builder_energy_cost / modified_energy_regen
         elif self.settings.cycle.use_hemorrhage == 'never':
-            cp_builder_energy_cost = backstab_energy_cost
+            if self.talents.shuriken_toss:
+                cp_builder_energy_cost = st_energy_cost
+            else:
+                cp_builder_energy_cost = backstab_energy_cost
             modified_energy_regen = energy_regen + er_energy
         else:
             hemorrhage_interval = float(self.settings.cycle.use_hemorrhage)
@@ -1557,7 +1564,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             if hemorrhage_interval <= backstab_interval:
                 raise InputNotModeledException(_('Interval between Hemorrhages cannot be lower than {interval} for this gearset').format(interval=backstab_interval))
             else:
-                cp_builder_energy_cost = backstab_energy_cost
+                if self.talents.shuriken_toss:
+                    cp_builder_energy_cost = st_energy_cost
+                else:
+                    cp_builder_energy_cost = backstab_energy_cost
                 energy_return_per_replaced_backstab = backstab_energy_cost - self.base_hemo_cost
                 modified_energy_regen = modified_energy_regen + energy_return_per_replaced_backstab / hemorrhage_interval
 
@@ -1662,10 +1672,16 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.settings.cycle.use_hemorrhage == 'always':
             attacks_per_second['hemorrhage'] = attacks_per_second['cp_builder']
         elif self.settings.cycle.use_hemorrhage == 'never':
-            attacks_per_second['backstab'] = attacks_per_second['cp_builder']
+            if self.talents.shuriken_toss:
+                attacks_per_second['shuriken_toss'] = attacks_per_second['cp_builder']
+            else:
+                attacks_per_second['backstab'] = attacks_per_second['cp_builder']
         else:
             attacks_per_second['hemorrhage'] = 1. / hemorrhage_interval
-            attacks_per_second['backstab'] = attacks_per_second['cp_builder'] - attacks_per_second['hemorrhage']
+            if self.talents.shuriken_toss:
+                attacks_per_second['shuriken_toss'] = attacks_per_second['cp_builder'] - attacks_per_second['hemorrhage']
+            else:
+                attacks_per_second['backstab'] = attacks_per_second['cp_builder'] - attacks_per_second['hemorrhage']
         del attacks_per_second['cp_builder']
 
         if 'hemorrhage' in attacks_per_second:
