@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from distutils.core import setup
 
 setup(name='wowapi',
      version='0.3.0',
@@ -7,6 +7,5 @@ setup(name='wowapi',
      author_email='darkz@gmx.de',
      url='https://github.com/Dorwido/wowapi',
 	 license='MIT',
-     test_suite='tests',
-     packages=find_packages()
+     packages=['wowapi']
 )
