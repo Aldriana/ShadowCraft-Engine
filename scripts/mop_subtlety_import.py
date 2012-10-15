@@ -1,9 +1,9 @@
-# Simple test program to debug + play with combat models.
+# Simple test program to debug + play with subtlety models.
 from os import path
 import sys
 from import_character import CharacterData
 
-sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
+#sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
 from shadowcraft.calcs.rogue.Aldriana import AldrianasRogueDamageCalculator
 from shadowcraft.calcs.rogue.Aldriana import settings
@@ -22,7 +22,15 @@ from shadowcraft.core import i18n
 test_language = 'local'
 i18n.set_language(test_language)
 
-character_data = CharacterData('us', 'Doomhammer', 'Pins')
+charInfo = {'region':'us', 'realm':'Doomhammer', 'name':'Pins', 'talents':None}
+key = 1
+while key < len(sys.argv):
+    terms = sys.argv[key].split(':')
+    charInfo[ terms[0] ] = terms[1]
+    key += 1
+
+print "Loading " + charInfo['name'] + " of " + charInfo['region'] + "-" + charInfo['realm'] + "\n"
+character_data = CharacterData(charInfo['region'], charInfo['realm'], charInfo['name'])
 character_data.do_import()
 
 
@@ -47,6 +55,7 @@ test_buffs = buffs.Buffs(
     )
 
 # Set up weapons.
+
 test_mh = stats.Weapon(*character_data.get_mh())
 test_oh = stats.Weapon(*character_data.get_oh())
 
@@ -63,22 +72,31 @@ test_procs = procs.ProcsList(*character_procs_allowed)
 character_gear_buffs = character_data.get_gear_buffs() + ['leather_specialization', 'virmens_bite', 'virmens_bite_prepot', 'chaotic_metagem']
 test_gear_buffs = stats.GearBuffs(*character_gear_buffs)
 
-
 # Set up a calcs object..
-#                       str,   agi, ap,  crit,  hit, exp, haste, mast,      mh,      oh,      procs,      gear_buffs
+#                       str,   agi,  ap, crit,  hit, exp, haste, mast,      mh,      oh,      procs,      gear_buffs
+#test_stats = stats.Stats(80, 19000, 250, 4800, 2550, 2550, 3000, 5000, test_mh, test_oh, test_procs, test_gear_buffs, pvp_power=0, pvp_resil=0, pvp_target_armor=None)
+#[215, 12136, 365, 2486, 2584, 1582, 2423, 4039]
+#character_stats = character_data.get_stats()
 character_stats = character_data.get_gear_stats()
 test_stats = stats.Stats(*(character_stats + [test_mh, test_oh, test_procs, test_gear_buffs]), pvp_power=0, pvp_resil=0, pvp_target_armor=None)
 
-
 # Initialize talents..
-test_talents = talents.Talents(character_data.get_talents(), test_class, test_level)
+if charInfo['talents'] == None:
+    charInfo['talents'] = character_data.get_talents()
+test_talents = talents.Talents(charInfo['talents'], test_class, test_level)
 
 # Set up glyphs.
 glyph_list = character_data.get_glyphs()
 test_glyphs = glyphs.Glyphs(test_class, *glyph_list)
 
 # Set up settings.
-test_cycle = settings.CombatCycle(use_rupture=True, ksp_immediately=True, revealing_strike_pooling=True, blade_flurry=False)
+raid_crits_per_second = 5
+hemo_interval = 24 #'always', 'never', 24, 25, 26...
+if not character_data.get_mh_type() == 'dagger':
+    if not hemo_interval == 'always':
+        print "\nALERT: Dagger not found, forced rotation to strictly Hemo \n"
+    hemo_interval = 'always'
+test_cycle = settings.SubtletyCycle(raid_crits_per_second, use_hemorrhage=hemo_interval)
 test_settings = settings.Settings(test_cycle, response_time=.5, duration=360, dmg_poison='dp', utl_poison='lp', is_pvp=False)
 
 # Build a DPS object.
@@ -91,9 +109,6 @@ ep_values = calculator.get_ep()
 dps_breakdown = calculator.get_dps_breakdown()
 total_dps = sum(entry[1] for entry in dps_breakdown.items())
 talent_ranks = calculator.get_talents_ranking()
-
-# Compute weapon type modifier.
-weapon_type_mod = calculator.get_oh_weapon_modifier()
 
 def max_length(dict_list):
     max_len = 0
@@ -118,9 +133,8 @@ def pretty_print(dict_list):
         print '-' * (max_len + 15)
 
 dicts_for_pretty_print = [
-    weapon_type_mod,
-    talent_ranks,
     ep_values,
+    talent_ranks,
     dps_breakdown
 ]
 pretty_print(dicts_for_pretty_print)

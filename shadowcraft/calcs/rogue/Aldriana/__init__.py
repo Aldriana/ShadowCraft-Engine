@@ -494,13 +494,14 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                      'mh_shadow_blades': .4 * (self.stats.mh.speed / 2.6), 
                      'oh_shadow_blades': .4 * (self.stats.mh.speed / 2.6) * .5, 
                      'sinister_strike': .5}
-        stormlash_triggers = ['mh_autoattack_hits', 'oh_autoattack_hits', 'mh_shadow_blade', 'oh_shadow_blade', 'sinister_strike', 'revealing_strike',
-                              'ambush', 'backstab', 'hemorrhage', 'rupture', 'eviscerate', 'mh_mutilate', 'oh_mutilate', 'dispatch']
-        if 'stormlash' in attacks_per_second:
+
+        if self.settings.use_stormlash:
+            if self.settings.use_stormlash == 'True':
+                self.settings.use_stormlash = 1
             average_dps = crit_dps = 0
-            uptime = 10. / (5 * 60)
+            uptime = int(self.settings.use_stormlash) * 10. / (5 * 60)
             for value in attacks_per_second:
-                if value in stormlash_triggers:
+                if value in self.melee_attacks:
                     damage_mod = 1
                     if value in stormlash_mod_table:
                         damage_mod = stormlash_mod_table[value]
@@ -587,8 +588,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             elif 'current_stats' in kwargs:
                 main_gauche_proc_rate = .02 * self.stats.get_mastery_from_rating(kwargs['current_stats']['mastery']) * self.one_hand_melee_hit_chance()
             attacks_per_second['main_gauche'] = main_gauche_proc_rate * attacks_per_second['mh_autoattack_hits']
-        if self.settings.use_stormlash:
-            attacks_per_second['stormlash'] = stormlash_uptime = 10. / (5 * 60)
         
 
     def get_mh_procs_per_second(self, proc, attacks_per_second, crit_rates):
@@ -1602,6 +1601,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         ambushes_from_vanish = (1. + 1. * self.talents.subterfuge) / (vanish_cooldown + self.settings.response_time) + self.talents.preparation / (360. + self.settings.response_time * 3)
         ambush_rate = ambushes_from_vanish
         self.find_weakness_uptime = (10 + 2.5 * self.talents.subterfuge) * ambushes_from_vanish
+        shadowmeld_ambushes = 0
         if self.race.shadowmeld:
             shadowmeld_ambushes = 1. / (120 + self.settings.response_time)
             self.find_weakness_uptime += 10 * shadowmeld_ambushes

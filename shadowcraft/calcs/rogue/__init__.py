@@ -18,8 +18,11 @@ class RogueDamageCalculator(DamageCalculator):
     default_ep_stats = ['white_hit', 'yellow_hit', 'str', 'agi', 'haste',
         'crit', 'mastery', 'dodge_exp', 'spell_hit', 'spell_exp', 'pvp_power']
     normalize_ep_stat = 'ap'
-    melee_attacks = ['sinister_strike', 'revealing_strike', 'eviscerate', 'rupture', 'mh_killing_spree', 'oh_killing_spree',
-                     'mh_mutilate', 'oh_mutilate', 'mutilate', 'dispatch', 'envenom']
+    melee_attacks = ['mh_autoattack_hits', 'oh_autoattack_hits', 'mh_shadow_blade', 'oh_shadow_blade',
+                     'rupture', 'eviscerate', 'envenom', 'ambush',
+                     'sinister_strike', 'revealing_strike', 'main_gauche', 'mh_killing_spree', 'oh_killing_spree',
+                     'backstab', 'hemorrhage', 
+                     'mh_mutilate', 'oh_mutilate', 'dispatch']
     melee_hit_chance_attacks = melee_attacks + ['deadly_poison', 'deadly_instant_poison']
 
     def __setattr__(self, name, value):

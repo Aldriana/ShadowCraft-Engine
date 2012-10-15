@@ -6,6 +6,7 @@ __builtin__._ = gettext.gettext
 from shadowcraft.core import exceptions
 from shadowcraft.calcs import armor_mitigation
 from shadowcraft.objects import class_data
+from shadowcraft.objects import talents
 from shadowcraft.objects.procs import InvalidProcException
 
 class DamageCalculator(object):
@@ -29,13 +30,14 @@ class DamageCalculator(object):
     # normalize_ep_stat is the stat with value 1 EP, override in your subclass
     normalize_ep_stat = None
 
-    def __init__(self, stats, talents, glyphs, buffs, race, settings=None, level=85, target_level=None):
+    def __init__(self, stats, talents, glyphs, buffs, race, settings=None, level=85, target_level=None, char_class='rogue'):
         self.tools = class_data.Util()
         self.stats = stats
         self.talents = talents
         self.glyphs = glyphs
         self.buffs = buffs
         self.race = race
+        self.char_class = char_class
         self.settings = settings
         self.target_level = [target_level, level + 3][target_level is None]
         self.level_difference = max(self.target_level - level, 0)
@@ -313,6 +315,7 @@ class DamageCalculator(object):
 
     def get_talents_ranking(self, list=None):
         talents_ranking = {}
+        self.talents = talents.Talents('000000', self.char_class, self.level)
         baseline_dps = self.get_dps()
         talent_list = []
 
@@ -326,7 +329,7 @@ class DamageCalculator(object):
             try:
                 new_dps = self.get_dps()
                 if new_dps != baseline_dps:
-                    talents_ranking[talent] = abs(new_dps - baseline_dps)
+                    talents_ranking[talent] = new_dps - baseline_dps
             except:
                 talents_ranking[talent] = _('not implemented')
             setattr(self.talents, talent, not getattr(self.talents, talent))

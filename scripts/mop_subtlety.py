@@ -54,7 +54,7 @@ test_gear_buffs = stats.GearBuffs('rogue_t14_2pc', 'rogue_t14_4pc', 'leather_spe
 test_stats = stats.Stats(80, 19000, 250, 4800, 2550, 2550, 3000, 5000, test_mh, test_oh, test_procs, test_gear_buffs, pvp_power=3000, pvp_resil=0, pvp_target_armor=None)
 
 # Initialize talents..
-test_talents = talents.Talents('022210', test_class, test_level)
+test_talents = talents.Talents('022211', test_class, test_level)
 
 # Set up glyphs.
 glyph_list = []
@@ -69,11 +69,11 @@ calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyph
 
 # Compute EP values.
 ep_values = calculator.get_ep()
-talent_ranks = calculator.get_talents_ranking()
 
 # Compute DPS Breakdown.
 dps_breakdown = calculator.get_dps_breakdown()
 total_dps = sum(entry[1] for entry in dps_breakdown.items())
+talent_ranks = calculator.get_talents_ranking()
 
 def max_length(dict_list):
     max_len = 0

@@ -22,7 +22,15 @@ from shadowcraft.core import i18n
 test_language = 'local'
 i18n.set_language(test_language)
 
-character_data = CharacterData('us', 'Doomhammer', 'Pins')
+charInfo = {'region':'us', 'realm':'Doomhammer', 'name':'Pins', 'talents':None, 'stormlash':False}
+key = 1
+while key < len(sys.argv):
+    terms = sys.argv[key].split(':')
+    charInfo[ terms[0] ] = terms[1]
+    key += 1
+
+print "Loading " + charInfo['name'] + " of " + charInfo['region'] + "-" + charInfo['realm'] + "\n"
+character_data = CharacterData(charInfo['region'], charInfo['realm'], charInfo['name'])
 character_data.do_import()
 
 
@@ -73,6 +81,8 @@ character_stats = character_data.get_gear_stats()
 test_stats = stats.Stats(*(character_stats + [test_mh, test_oh, test_procs, test_gear_buffs]), pvp_power=0, pvp_resil=0, pvp_target_armor=None)
 
 # Initialize talents..
+if charInfo['talents'] == None:
+    charInfo['talents'] = character_data.get_talents()
 test_talents = talents.Talents(character_data.get_talents(), test_class, test_level)
 
 # Set up glyphs.
@@ -82,10 +92,11 @@ test_glyphs = glyphs.Glyphs(test_class, *glyph_list)
 # Set up settings.
 test_cycle = settings.AssassinationCycle(min_envenom_size_non_execute=4, min_envenom_size_execute=5,
                                          prioritize_rupture_uptime_non_execute=True, prioritize_rupture_uptime_execute=True)
-test_settings = settings.Settings(test_cycle, response_time=.5, duration=360, dmg_poison='dp', utl_poison='lp', is_pvp=False)
+test_settings = settings.Settings(test_cycle, response_time=.5, duration=360, dmg_poison='dp', utl_poison='lp', is_pvp=False,
+                                  stormlash=charInfo['stormlash'])
 
 # Build a DPS object.
-calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings, test_level)
+calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings, test_level, char_class=test_class)
 
 # Compute EP values.
 ep_values = calculator.get_ep()
@@ -95,6 +106,7 @@ dps_breakdown = calculator.get_dps_breakdown()
 non_execute_breakdown = calculator.assassination_dps_breakdown_non_execute()
 total_dps = sum(entry[1] for entry in dps_breakdown.items())
 non_execute_total = sum(entry[1] for entry in non_execute_breakdown.items())
+talent_ranks = calculator.get_talents_ranking()
 
 def max_length(dict_list):
     max_len = 0
@@ -105,26 +117,28 @@ def max_length(dict_list):
 
     return max_len
 
-def pretty_print(dict_list):
+def pretty_print(dict_list, total_sum = 1.):
     max_len = max_length(dict_list)
 
     for i in dict_list:
         dict_values = i.items()
         dict_values.sort(key=lambda entry: entry[1], reverse=True)
         for value in dict_values:
-            if ("{0:.2f}".format(float(value[1])/total_dps)) != '0.00':
-                print value[0] + ':' + ' ' * (max_len - len(value[0])), str(value[1]) + ' ('+str( "{0:.2f}".format(100*float(value[1])/total_dps) )+'%)'
+            #print value[0] + ':' + ' ' * (max_len - len(value[0])), str(value[1])
+            if ("{0:.2f}".format(10*float(value[1])/total_dps)) != '0.00':
+                print value[0] + ':' + ' ' * (max_len - len(value[0])), str(value[1]) + ' ('+str( "{0:.2f}".format(100*float(value[1])/total_sum) )+'%)'
             else:
                 print value[0] + ':' + ' ' * (max_len - len(value[0])), str(value[1])
         print '-' * (max_len + 15)
 
 dicts_for_pretty_print = [
     ep_values,
+    talent_ranks,
     dps_breakdown
 ]
-pretty_print(dicts_for_pretty_print)
+pretty_print(dicts_for_pretty_print, total_sum=total_dps)
 print ' ' * (max_length(dicts_for_pretty_print) + 1), total_dps, _("total damage per second.")
 print ''
 print 'non-execute breakdown: '
-pretty_print([non_execute_breakdown])
+pretty_print([non_execute_breakdown], total_sum=non_execute_total)
 print ' ' * (max_length([non_execute_breakdown]) + 1), non_execute_total, _("total damage per second.")

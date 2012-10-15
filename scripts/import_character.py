@@ -91,18 +91,28 @@ class CharacterData:
                 4419 : [{'stat':'agi', 'value':80}, {'stat':'str', 'value':80}],
                 4421 : [{'stat':'hit', 'value':180}],
                 4428 : [{'stat':'agi', 'value':140}], #Speed Boost
+                4430 : [{'stat':'haste', 'value':170}],
                 4431 : [{'stat':'exp', 'value':170}],
                 4804 : [{'stat':'agi', 'value':200}, {'stat':'crit', 'value':100}],
                 4875 : [{'stat':'agi', 'value':500}], #Leatherworking Perk
                 4880 : [{'stat':'agi', 'value':285}, {'stat':'crit', 'value':165}],
+                4411 : [{'stat':'mastery', 'value':170}],
+                4871 : [{'stat':'agi', 'value':170}, {'stat':'crit', 'value':100}]
     }
     
-    gemsMap = {76666: [{'stat':'agi', 'value':80}, {'stat':'haste', 'value':160}],
-               76884: [{'stat':'agi', 'value':216}, 'chaotic_metagem'],
-               76643: [{'stat':'hit', 'value':160}, {'stat':'mastery', 'value':160}],
-               76576: [{'stat':'hit', 'value':160}, {'stat':'haste', 'value':160}],
-               76636: [{'stat':'hit', 'value':320}],
+    gemsMap = {76884: [{'stat':'agi', 'value':216}, 'chaotic_metagem'],
+               83151: [{'stat':'agi', 'value':320}], #agi JC gem
+               76626: [{'stat':'agi', 'value':160}],
                76680: [{'stat':'agi', 'value':80}, {'stat':'hit', 'value':160}],
+               76614: [{'stat':'agi', 'value':80}, {'stat':'hit', 'value':160}],
+               76666: [{'stat':'agi', 'value':80}, {'stat':'haste', 'value':160}],
+               76600: [{'stat':'agi', 'value':80}, {'stat':'haste', 'value':160}],
+               76604: [{'stat':'agi', 'value':80}, {'stat':'mastery', 'value':160}],
+               76670: [{'stat':'agi', 'value':80}, {'stat':'mastery', 'value':160}],
+               76636: [{'stat':'hit', 'value':320}],
+               76576: [{'stat':'hit', 'value':160}, {'stat':'haste', 'value':160}],
+               76643: [{'stat':'hit', 'value':160}, {'stat':'mastery', 'value':160}],
+               76699: [{'stat':'haste', 'value':320}],
                76667: [{'stat':'exp', 'value':160}, {'stat':'haste', 'value':160}],
     }
 
@@ -263,6 +273,9 @@ class CharacterData:
         item_data = self.raw_data['data'][u'items'][u'offHand']
         weapon_data = get_item_cached(self.region, item_data[u'id'])
         return self.get_weapon(weapon_data, item_data)
+    
+    def get_mh_type(self):
+        return self.get_mh()[2]
 
     def get_trinket_proc(self, item_data):
         id = item_data[u'id']
@@ -319,6 +332,7 @@ class CharacterData:
         #           
         lst = {'agi': 0, 'str':0, 'stam':0, 'crit':0, 'hit':0, 'exp':0, 'haste':0, 'mastery':0, 'ap':0, 'pvp_power':0, 'pvp_resil':0}
         reforge = ('none', 'none')
+        reforgeID = None
         gemList = {u'gem0':None, u'gem1':None, u'gem2':None}
         #Loops over every item
         for p in self.raw_data['data'][u'items']:
@@ -357,6 +371,7 @@ class CharacterData:
                     #add stats from enchants
                     if u'enchant' in params.keys():
                         if not type( CharacterData.enchants[ params[u'enchant'] ] ) == type(''):
+                            #print CharacterData.enchants[ params[u'enchant'] ]
                             for key in CharacterData.enchants[ params[u'enchant'] ]:
                                 lst[ key['stat'] ] += key['value']
             except Exception as inst:
