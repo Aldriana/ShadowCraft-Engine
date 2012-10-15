@@ -6,3 +6,5 @@
 dist
 build
 MANIFEST
+item_db
+item_db.db

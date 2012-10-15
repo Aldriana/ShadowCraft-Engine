@@ -34,7 +34,7 @@ class Proc(object):
             else:
                 raise InvalidProcException(_('Behaviour \'{behaviour}\' is not defined for {proc}').format(proc=self.proc_name, behaviour=value))
 
-    def _set_behaviour(self, icd, trigger, proc_chance=False, ppm=False, on_crit=False, on_procced_strikes=True):
+    def _set_behaviour(self, icd, trigger, proc_chance=False, ppm=False, on_crit=False, on_procced_strikes=True, real_ppm=False):
         # This could be merged with __setattr__; its sole purpose is
         # to clearly surface the parameters passed with the behaviours.
         self.proc_chance = proc_chance
@@ -42,6 +42,7 @@ class Proc(object):
         self.icd = icd
         self.on_crit = on_crit
         self.ppm = ppm
+        self.real_ppm=real_ppm
         self.on_procced_strikes = on_procced_strikes  # Main Gauche and its kin
 
     def procs_off_auto_attacks(self):
@@ -104,20 +105,35 @@ class Proc(object):
         else:
             return False
 
-    def proc_rate(self, speed=None):
+    def proc_rate(self, speed=None, haste=0.0):
         if self.is_ppm():
             if speed is None:
                 raise InvalidProcException(_('Weapon speed needed to calculate the proc rate of {proc}').format(proc=self.proc_name))
             else:
                 return self.ppm * speed / 60.
+        elif self.is_real_ppm():
+            if speed is None:
+                raise InvalidProcException(_('Weapon speed needed to calculate the proc rate of {proc}').format(proc=self.proc_name))
+            else:
+                return (1 + haste/100) * self.ppm / 60
         else:
             return self.proc_chance
 
     def is_ppm(self):
         if self.proc_chance not in (False, None) and self.ppm == False:
             return False
+        elif self.real_ppm == True:
+            return False
         elif self.ppm not in (False, None) and self.proc_chance == False:
             return True
+        else:
+            raise InvalidProcException(_('Invalid data for proc {proc}').format(proc=self.proc_name))
+    
+    def is_real_ppm(self):
+        if self.real_ppm == True and (self.ppm not in (False, None)):
+            return True
+        elif self.real_ppm in (False, None):
+            return False
         else:
             raise InvalidProcException(_('Invalid data for proc {proc}').format(proc=self.proc_name))
 
