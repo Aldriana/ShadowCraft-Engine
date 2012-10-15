@@ -1,15 +1,50 @@
+from shadowcraft.core import exceptions
+
 class Settings(object):
     # Settings object for AldrianasRogueDamageCalculator.
 
-    def __init__(self, cycle, time_in_execute_range=.35, tricks_on_cooldown=True, response_time=.5, mh_poison='ip', oh_poison='dp', duration=300):
+    def __init__(self, cycle, time_in_execute_range=.35, tricks_on_cooldown=True, response_time=.5, dmg_poison='dp', utl_poison=None, duration=300, use_opener='always', opener_name='default', is_pvp=False, stormlash=False):
         self.cycle = cycle
         self.time_in_execute_range = time_in_execute_range
         self.tricks_on_cooldown = tricks_on_cooldown
         self.response_time = response_time
-        self.mh_poison = mh_poison
-        self.oh_poison = oh_poison
+        self.dmg_poison = dmg_poison
+        self.utl_poison = utl_poison
         self.duration = duration
+        self.use_opener = use_opener # Allowed values are 'always' (vanish/shadowmeld on cooldown), 'opener' (once per fight) and 'never'
+        self.opener_name = opener_name
+        self.is_pvp = is_pvp
+        self.use_stormlash = stormlash
+        allowed_openers_per_spec = {
+            'assassination': tuple(['mutilate']),
+            'combat': ('sinister_strike', 'revealing_strike'),
+            'subtlety': ()
+        }
+        allowed_openers = allowed_openers_per_spec[self.get_spec()] + ('ambush', 'garrote', 'default', 'cpg')
+        if opener_name not in allowed_openers:
+            raise exceptions.InvalidInputException(_('Opener {opener} is not allowed in {cycle} cycles.').format(opener=opener_name, cycle=self.get_spec()))
+        if opener_name == 'default':
+            default_openers = {
+                'assassination': 'ambush',
+                'combat': 'sinister_strike',
+                'subtlety': 'ambush'}
+            self.opener_name = default_openers[self.get_spec()]
+        if dmg_poison not in (None, 'dp', 'wp'):
+            raise exceptions.InvalidInputException(_('You can only choose Deadly(dp) or Wound(wp) as a damage poison'))
+        if utl_poison not in (None, 'cp', 'mnp', 'lp', 'pp'):
+            raise exceptions.InvalidInputException(_('You can only choose Crippling(cp), Mind-Numbing(mnp), Leeching(lp) or Paralytic(pp) as a non-lethal poison'))
 
+    def get_spec(self):
+        return self.cycle._cycle_type
+
+    def is_assassination_rogue(self):
+        return self.get_spec() == 'assassination'
+
+    def is_combat_rogue(self):
+        return self.get_spec() == 'combat'
+
+    def is_subtlety_rogue(self):
+        return self.get_spec() == 'subtlety'
 
 class Cycle(object):
     # Base class for cycle objects.  Can't think of anything that particularly
@@ -27,12 +62,12 @@ class AssassinationCycle(Cycle):
 
     allowed_values = (1, 2, 3, 4, 5)
 
-    def __init__(self, min_envenom_size_mutilate=4, min_envenom_size_backstab=5, prioritize_rupture_uptime_mutilate=True, prioritize_rupture_uptime_backstab=True):
-        assert min_envenom_size_mutilate in self.allowed_values
-        self.min_envenom_size_mutilate = min_envenom_size_mutilate
+    def __init__(self, min_envenom_size_non_execute=4, min_envenom_size_execute=5, prioritize_rupture_uptime_non_execute=True, prioritize_rupture_uptime_execute=True):
+        assert min_envenom_size_non_execute in self.allowed_values
+        self.min_envenom_size_non_execute = min_envenom_size_non_execute
 
-        assert min_envenom_size_backstab in self.allowed_values
-        self.min_envenom_size_backstab = min_envenom_size_backstab
+        assert min_envenom_size_execute in self.allowed_values
+        self.min_envenom_size_execute = min_envenom_size_execute
 
         # There are two fundamental ways you can manage rupture; one is to
         # reapply with whatever CP you have as soon as you can after the old
@@ -44,23 +79,23 @@ class AssassinationCycle(Cycle):
         # 5+ ruptures) but such things are significantly harder to model so I'm
         # not going to worry about them until we have reason to believe they're
         # actually better.
-        self.prioritize_rupture_uptime_mutilate = prioritize_rupture_uptime_mutilate
-        self.prioritize_rupture_uptime_backstab = prioritize_rupture_uptime_backstab
+        self.prioritize_rupture_uptime_non_execute = prioritize_rupture_uptime_non_execute
+        self.prioritize_rupture_uptime_execute = prioritize_rupture_uptime_execute
 
 
 class CombatCycle(Cycle):
     _cycle_type = 'combat'
 
-    def __init__(self, use_rupture=True, use_revealing_strike='sometimes', ksp_immediately=False):
+    def __init__(self, use_rupture=True, ksp_immediately=True, revealing_strike_pooling=True, blade_flurry=False):
+        self.blade_flurry = bool(blade_flurry)
         self.use_rupture = bool(use_rupture)
-        self.use_revealing_strike = use_revealing_strike # Allowed values are 'always' (on all damaging finishers), 'sometimes' (only at 4 cp), and 'never' (guess).
         self.ksp_immediately = bool(ksp_immediately) # Determines whether to KSp the instant it comes off cool or wait until Bandit's Guile stacks up.'
-
+        self.revealing_strike_pooling = revealing_strike_pooling
 
 class SubtletyCycle(Cycle):
     _cycle_type = 'subtlety'
 
-    def __init__(self, raid_crits_per_second, clip_recuperate=False, use_hemorrhage='never'):
+    def __init__(self, raid_crits_per_second, clip_recuperate=False, use_hemorrhage='24'):
         self.raid_crits_per_second = raid_crits_per_second
         self.clip_recuperate = clip_recuperate # Determines if you clip the previous recuperate or wait for it to drop before reapplying.
         self.use_hemorrhage = use_hemorrhage # Allowed values are 'always' (main CP generator), 'never' (default to backstab), or a number denoting the interval in seconds between applications.

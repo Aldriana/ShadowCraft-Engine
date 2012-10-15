@@ -4,34 +4,103 @@
 # Assumed heroic trinkets have the same behaviour as the non-heroic kin.
 # behaviours must have a 'default' key so that the proc is properly initialized.
 allowed_procs = {
-    'heroic_grace_of_the_herald': {
-        'stat': 'crit',
-        'value': 1710,
-        'duration': 10,
-        'proc_name': 'Herald of Doom',
-        'behaviours': {'default': 'grace_of_the_herald'}
-    },
-    'heroic_key_to_the_endless_chamber': {
-        'stat': 'agi',
-        'value': 1710,
-        'duration': 15,
-        'proc_name': 'Final Key',
-        'behaviours': {'default': 'key_to_the_endless_chamber'}
-    },
-    'heroic_left_eye_of_rajh': {
-        'stat': 'agi',
-        'value': 1710,
-        'duration': 10,
-        'proc_name': 'Eye of Vengeance',
-        'behaviours': {'default': 'left_eye_of_rajh'}
-    },
-    'heroic_matrix_restabilizer': {     # Proc_chance is a guess and should be verified.
+    'rogue_poison': {
         'stat': 'weird_proc',
-        'value': 1834,
-        'duration': 30,
-        'proc_name': 'Matrix Restabilized',
-        'behaviours': {'default': 'matrix_restabilizer'}
+        'value': 0,
+        'duration': 0,
+        'proc_name': 'rogue_poison',
+        'behaviours': {'default': 'rogue_poison'}
     },
+    'heroic_terror_in_the_mists': {
+        'stat': 'crit',
+        'value': 7796,
+        'duration': 20,
+        'proc_name': 'Terror in the Mists',
+        'behaviours': {'default': 'terror_in_the_mists'}
+    },
+    'terror_in_the_mists': {
+        'stat': 'crit',
+        'value': 6908,
+        'duration': 20,
+        'proc_name': 'Terror in the Mists',
+        'behaviours': {'default': 'terror_in_the_mists'}
+    },
+    'lfr_terror_in_the_mists': {
+        'stat': 'crit',
+        'value': 6121,
+        'duration': 20,
+        'proc_name': 'Terror in the Mists',
+        'behaviours': {'default': 'terror_in_the_mists'}
+    },
+    'heroic_bottle_of_infinite_stars': {
+        'stat': 'agi',
+        'value': 3653,
+        'duration': 20,
+        'proc_name': 'Full of Stars',
+        'behaviours': {'default': 'bottle_of_infinite_stars'}
+    },
+    'bottle_of_infinite_stars': {
+        'stat': 'agi',
+        'value': 3236,
+        'duration': 20,
+        'proc_name': 'Full of Stars',
+        'behaviours': {'default': 'bottle_of_infinite_stars'}
+    },
+    'lfr_bottle_of_infinite_stars': {
+        'stat': 'agi',
+        'value': 2866,
+        'duration': 20,
+        'proc_name': 'Full of Stars',
+        'behaviours': {'default': 'bottle_of_infinite_stars'}
+    },
+    'relic_of_xuen': {
+        'stat': 'agi',
+        'value': 3027,
+        'duration': 15,
+        'proc_name': 'Relic of Xuen',
+        'behaviours': {'default': 'relic_of_xuen'}
+    },
+    'corens_cold_chromium_coaster': {
+        'stat': 'ap',
+        'value': 10848,
+        'duration': 10,
+        'proc_name': 'Reflection of Torment',
+        'behaviours': {'default': 'corens_cold_chromium_coaster'}
+    },
+    'searing_words': {
+        'stat': 'agi',
+        'value': 3386,
+        'duration': 25,
+        'proc_name': "Searing Words",
+        'behaviours': {'default': 'searing_words'}
+    },
+    'windswept_pages': {
+        'stat': 'haste',
+        'value': 3386,
+        'duration': 20,
+        'proc_name': 'Windswept Pages',
+        'behaviours': {'default': 'windswept_pages'}
+    },
+    'zen_alchemist_stone': {
+        'stat': 'highest',
+        'stats': ('agi', 'str', 'int'),
+        'value': 4041,
+        'duration': 15,
+        'proc_name': 'Zen Alchemist Stone',
+        'behaviours': {'default': 'zen_alchemist_stone'}
+    },
+    'the_gloaming_blade': {
+        'stat': 'crit',
+        'value': 375,
+        'duration': 10,
+        'max_stacks': 3,
+        'proc_name': 'The Deepest Night',
+        'behaviours': {'default': 'the_gloaming_blade'}
+    },
+
+
+
+    # Cata Items
     'heroic_nokaled_the_elements_of_death': {
         'stat': 'spell_damage',
         'value': 10800,
@@ -40,34 +109,12 @@ allowed_procs = {
         'proc_name': 'Iceblast Shadowblast Flameblast',
         'behaviours': {'default': 'nokaled_the_elements_of_death'}
     },
-    'heroic_prestors_talisman_of_machination': {
-        'stat': 'haste',
-        'value': 2178,
-        'duration': 15,
-        'proc_name': 'Nefarious Plot',
-        'behaviours': {'default': 'prestors_talisman_of_machination'}
-    },
     'heroic_starcatcher_compass': {
         'stat': 'haste',
         'value': 3278,
         'duration': 20,
         'proc_name': 'Velocity',
         'behaviours': {'default': 'starcatcher_compass'}
-    },
-    'heroic_the_hungerer': {
-        'stat': 'haste',
-        'value': 1730,
-        'duration': 15,
-        'proc_name': 'Devour',
-        'behaviours': {'default': 'the_hungerer'}
-    },
-    'heroic_tias_grace': {
-        'stat': 'agi',
-        'value': 34,
-        'duration': 15,
-        'max_stacks': 10,
-        'proc_name': 'Grace',
-        'behaviours': {'default': 'tias_grace'}
     },
     'heroic_vial_of_shadows': {         # Name is a compromise to avoid conflicts
         'stat': 'physical_damage',
@@ -84,80 +131,6 @@ allowed_procs = {
         'max_stacks': 10,
         'proc_name': 'Combat Trance',
         'behaviours': {'default': 'wrath_of_unchaining'}
-    },
-    'arrow_of_time': {
-        'stat': 'haste',
-        'value': 1149,
-        'duration': 20,
-        'proc_name': 'Arrow of Time',
-        'behaviours': {'default': 'arrow_of_time'}
-    },
-    'darkmoon_card_hurricane': {
-        'stat': 'spell_damage',
-        'value': 7000,
-        'can_crit': False,
-        'duration': 0,
-        'max_stacks': 0,
-        'proc_name': 'Lightning Strike',
-        'behaviours': {'default': 'darkmoon_card_hurricane'}
-    },
-    'corens_chilled_chromium_coaster': {
-        'stat': 'ap',
-        'value': 4000,
-        'duration': 10,
-        'max_stacks': 0,
-        'proc_name': 'Reflection of Torment',
-        'behaviours': {'default': 'corens_chilled_chromium_coaster'}
-    },
-    'essence_of_the_cyclone': {
-        'stat': 'crit',
-        'value': 1926,
-        'duration': 10,
-        'proc_name': 'Twisted',
-        'behaviours': {'default': 'essence_of_the_cyclone'}
-    },
-    'heroic_essence_of_the_cyclone': {
-        'stat': 'crit',
-        'value': 2178,
-        'duration': 10,
-        'proc_name': 'Twisted',
-        'behaviours': {'default': 'essence_of_the_cyclone'}
-    },
-    'fluid_death': {
-        'stat': 'agi',
-        'value': 38,
-        'duration': 15,
-        'max_stacks': 10,
-        'proc_name': 'River of Death',
-        'behaviours': {'default': 'fluid_death'}
-    },
-    'grace_of_the_herald': {
-        'stat': 'crit',
-        'value': 924,
-        'duration': 10,
-        'proc_name': 'Herald of Doom',
-        'behaviours': {'default': 'grace_of_the_herald'}
-    },
-    'heart_of_the_vile': {
-        'stat': 'crit',
-        'value': 924,
-        'duration': 10,
-        'proc_name': 'Herald of Doom',
-        'behaviours': {'default': 'heart_of_the_vile'}
-    },
-    'key_to_the_endless_chamber': {
-        'stat': 'agi',
-        'value': 1290,
-        'duration': 15,
-        'proc_name': 'Final Key',
-        'behaviours': {'default': 'key_to_the_endless_chamber'}
-    },
-    'left_eye_of_rajh': {
-        'stat': 'agi',
-        'value': 1512,
-        'duration': 10,
-        'proc_name': 'Eye of Vengeance',
-        'behaviours': {'default': 'left_eye_of_rajh'}
     },
     'lfr_nokaled_the_elements_of_death': {
         'stat': 'spell_damage',
@@ -190,13 +163,19 @@ allowed_procs = {
         'proc_name': 'Combat Trance',
         'behaviours': {'default': 'wrath_of_unchaining'}
     },
+    'heroic_matrix_restabilizer': {     # Proc_chance is a guess and should be verified.
+        'stat': 'weird_proc',
+        'value': 1834,
+        'duration': 30,
+        'proc_name': 'Matrix Restabilized',
+        'behaviours': {'default': 'matrix_restabilizer'}
+    },
     'matrix_restabilizer': {            # Proc_chance is a guess and should be verified.
         'stat': 'weird_proc',
         'value': 1624,
         'duration': 30,
         'proc_name': 'Matrix Restabilized',
         'behaviours': {'default': 'matrix_restabilizer'}
-
     },
     'nokaled_the_elements_of_death': {
         'stat': 'spell_damage',
@@ -206,34 +185,12 @@ allowed_procs = {
         'proc_name': 'Iceblast Shadowblast Flameblast',
         'behaviours': {'default': 'nokaled_the_elements_of_death'}
     },
-    'prestors_talisman_of_machination': {
-        'stat': 'haste',
-        'value': 1926,
-        'duration': 15,
-        'proc_name': 'Nefarious Plot',
-        'behaviours': {'default': 'prestors_talisman_of_machination'}
-    },
-    'rickets_magnetic_fireball_proc': { # ICD should be verified.
-        'stat': 'physical_damage',
-        'value': 500,
-        'duration': 0,
-        'max_stacks': 0,
-        'proc_name': 'Magnetic Fireball',
-        'behaviours': {'default': 'rickets_magnetic_fireball'}
-    },
     'rogue_t11_4pc': {
         'stat': 'weird_proc',
         'value': 1,
         'duration': 15,
         'proc_name': 'Deadly Scheme',
         'behaviours': {'default': 'rogue_t11_4pc'}
-    },
-    'schnottz_medallion_of_command': {
-        'stat': 'mastery',
-        'value': 918,
-        'duration': 20,
-        'proc_name': 'Hardened Shell',
-        'behaviours': {'default': 'schnottz_medallion_of_command'}
     },
     'starcatcher_compass': {
         'stat': 'haste',
@@ -244,40 +201,10 @@ allowed_procs = {
     },
     'swordguard_embroidery': {
         'stat': 'ap',
-        'value': 1000,
+        'value': 'varies',
         'duration': 15,
         'proc_name': 'Swordguard Embroidery',
         'behaviours': {'default': 'swordguard_embroidery'}
-    },
-    'the_hungerer': {
-        'stat': 'haste',
-        'value': 1532,
-        'duration': 15,
-        'proc_name': 'Devour',
-        'behaviours': {'default': 'the_hungerer'}
-    },
-    'the_twilight_blade': {
-        'stat': 'crit',
-        'value': 185,
-        'duration': 10,
-        'max_stacks': 3,
-        'proc_name': 'The Deepest Night',
-        'behaviours': {'default': 'the_twilight_blade'}
-    },
-    'tias_grace': {
-        'stat': 'agi',
-        'value': 30,
-        'duration': 15,
-        'max_stacks': 10,
-        'proc_name': 'Grace',
-        'behaviours': {'default': 'tias_grace'}
-    },
-    'unheeded_warning': {
-        'stat': 'ap',
-        'value': 1926,
-        'duration': 10,
-        'proc_name': 'Heedless Carnage',
-        'behaviours': {'default': 'unheeded_warning'}
     },
     'vial_of_shadows': {                # Name is a compromise to avoid conflicts
         'stat': 'physical_damage',
@@ -342,7 +269,30 @@ allowed_melee_enchants = {
         'duration': 12,
         'proc_name': 'Landslide',
         'behaviours': {'default': 'landslide'}
-    }
+    },
+    'windsong': {
+        'stat': 'random',
+        'stats': ('haste', 'mastery', 'crit'),
+        'value': 1500,
+        'duration': 12,
+        'proc_name': 'Windsong',
+        'behaviours': {'default': 'windsong'}
+    },
+    'dancing_steel': {
+        'stat': 'highest',
+        'stats': ('agi', 'str'),
+        'value': 1650,
+        'duration': 12,
+        'proc_name': 'Dancing Steel',
+        'behaviours': {'default': 'dancing_steel'}
+    },
+    'elemental_force': {
+        'stat': 'spell_damage',
+        'value': 3000,
+        'duration': 0,
+        'proc_name': 'Elemental Force',
+        'behaviours': {'default': 'elemental_force'}
+    },
 }
 
 # The _set_behaviour method takes these parameters:
@@ -350,9 +300,78 @@ allowed_melee_enchants = {
 # You can't set a value for both 'ppm' and 'proc_chance': one must be False
 # Allowed triggers are: 'all_spells_and_attacks', 'all_damaging_attacks',
 # 'all_attacks', 'strikes', 'auto_attacks', 'damaging_spells', 'all_spells',
-# 'healing_spells', 'all_periodic_damage', 'bleeds',
-# 'spell_periodic_damage' and 'hots'.
+# 'healing_spells', 'all_periodic_damage', 'bleeds', 'spell_periodic_damage'
+# and 'hots'. The trigger 'all_melee_attacks' is sugar for 'all_attacks'.
 behaviours = {
+    'rogue_poison': {
+        'icd': 0,
+        'proc_chance': 1,
+        'trigger': 'all_attacks'
+    },
+    # weapon procs
+    'dancing_steel': {
+        'icd': 0,
+        'ppm': 1,
+        'trigger': 'all_melee_attacks'
+    },
+    'windsong': {
+        'icd': 0,
+        'ppm': 3,
+        'trigger': 'all_attacks'
+    },
+    'elemental_force': {
+        'icd': 0,
+        'ppm': 1,
+        'trigger': 'all_attacks'
+    },
+    # 5.0 Procs
+    'bottle_of_infinite_stars': {
+        'icd': 45,
+        'proc_chance': .15,
+        'trigger': 'all_attacks'
+    },
+    'corens_cold_chromium_coaster': {       # ICD is a guesstimate
+        'icd': 50,
+        'proc_chance': .10,
+        'trigger': 'all_attacks',
+        'on_crit': True
+    },
+    'relic_of_xuen': {
+        'icd': 55,
+        'proc_chance': .2,
+        'trigger': 'all_melee_attacks',
+        'on_crit': True
+    },
+    'searing_words': {
+        'icd': 85,
+        'proc_chance': .45,
+        'trigger': 'all_attacks',
+        'on_crit': True
+    },
+    'terror_in_the_mists':{
+        'icd': 105,
+        'proc_chance': .15,
+        'trigger': 'all_attacks'
+    },
+    'windswept_pages': {
+        'icd': 65,
+        'proc_chance': .15,
+        'trigger': 'all_attacks',
+    },
+    'zen_alchemist_stone': {                # ICD is a guesstimate
+        'icd': 55,
+        'proc_chance': .25,
+        'trigger': 'all_attacks',
+    },
+    'the_gloaming_blade': {                 # PPM/ICD is a guess and should be verified.
+        'icd': 0,
+        'ppm': 1,
+        'trigger': 'all_attacks',
+    },
+
+
+
+    # Cata Procs
     'avalanche_melee': {
         'icd': 0,
         'ppm': 5,
@@ -378,53 +397,6 @@ behaviours = {
         'ppm': 1,
         'trigger': 'all_attacks'
     },
-    'arrow_of_time': {
-        'icd': 50,
-        'proc_chance': .2,
-        'trigger': 'all_attacks'
-    },
-    'corens_chilled_chromium_coaster': {    # ICD is a guess and should be verified.
-        'icd': 50,
-        'proc_chance': .1,
-        'trigger': 'all_attacks',
-        'on_crit': True
-    },
-    'darkmoon_card_hurricane': {
-        'icd': 0,
-        'ppm': 1,
-        'trigger': 'all_attacks'
-    },
-    'essence_of_the_cyclone': {
-        'icd': 50,
-        'proc_chance': .1,
-        'trigger': 'all_attacks'
-    },
-    'fluid_death': {
-        'icd': None,
-        'proc_chance': 1,
-        'trigger': 'all_attacks'
-    },
-    'grace_of_the_herald': {
-        'icd': 50,
-        'proc_chance': .1,
-        'trigger': 'all_attacks'
-    },
-    'heart_of_the_vile': {
-        'icd': 50,
-        'proc_chance': .1,
-        'trigger': 'all_attacks'
-    },
-    'key_to_the_endless_chamber': {
-        'icd': 75,
-        'proc_chance': .1,
-        'trigger': 'all_attacks'
-    },
-    'left_eye_of_rajh': {
-        'icd': 50,
-        'proc_chance': .3,
-        'trigger': 'all_attacks',
-        'on_crit': True
-    },
     'matrix_restabilizer': {                # Proc_chance is a guess and should be verified.
         'icd': 105,
         'proc_chance': .1,
@@ -436,25 +408,10 @@ behaviours = {
         'trigger': 'all_attacks',
         'on_procced_strikes': False
     },
-    'prestors_talisman_of_machination': {
-        'icd': 75,
-        'proc_chance': .1,
-        'trigger': 'all_attacks'
-    },
-    'rickets_magnetic_fireball': {          # ICD should be verified.
-        'icd': 120,
-        'proc_chance': .2,
-        'trigger': 'all_attacks'
-    },
     'rogue_t11_4pc': {
         'icd': None,
         'proc_chance': .01,
         'trigger': 'auto_attacks'
-    },
-    'schnottz_medallion_of_command': {
-        'icd': 100,
-        'proc_chance': .1,
-        'trigger': 'all_attacks'
     },
     'starcatcher_compass': {
         'icd': 115,
@@ -464,26 +421,6 @@ behaviours = {
     'swordguard_embroidery': {
         'icd': 55,
         'proc_chance': .15,
-        'trigger': 'all_attacks'
-    },
-    'the_hungerer': {
-        'icd': 60,
-        'proc_chance': 1.,
-        'trigger': 'all_attacks'
-    },
-    'the_twilight_blade': {                 # PPM/ICD is a guess and should be verified.
-        'icd': 0,
-        'ppm': 1,
-        'trigger': 'all_attacks'
-    },
-    'tias_grace': {
-        'icd': None,
-        'proc_chance': 1,
-        'trigger': 'all_attacks'
-    },
-    'unheeded_warning': {
-        'icd': 50,
-        'proc_chance': .1,
         'trigger': 'all_attacks'
     },
     'vial_of_shadows': {                    # ICD should be verified.
@@ -503,17 +440,17 @@ behaviours = {
     },
     'rogue_t13_legendary_assassination': {
         'icd': None,
-        'proc_chance': .235,
+        'proc_chance': .23159,
         'trigger': 'all_attacks'
-    }, 
+    },
     'rogue_t13_legendary_combat': {
         'icd': None,
-        'proc_chance': .095,
+        'proc_chance': .09438,
         'trigger': 'all_attacks'
     },
     'rogue_t13_legendary_subtlety': {
         'icd': None,
-        'proc_chance': .275,
+        'proc_chance': .28223,
         'trigger': 'all_attacks'
     }
 }

@@ -8,8 +8,10 @@ class InvalidProcException(exceptions.InvalidInputException):
 class Proc(object):
     allowed_behaviours = proc_data.behaviours
 
-    def __init__(self, stat, value, duration, proc_name, behaviours, max_stacks=1, can_crit=True):
+    def __init__(self, stat, value, duration, proc_name, behaviours, max_stacks=1, can_crit=True, stats=None):
         self.stat = stat
+        if stats is not None:
+            self.stats = set(stats)
         self.value = value
         self.can_crit = can_crit
         self.duration = duration
@@ -43,13 +45,13 @@ class Proc(object):
         self.on_procced_strikes = on_procced_strikes  # Main Gauche and its kin
 
     def procs_off_auto_attacks(self):
-        if self.trigger in ('all_attacks', 'auto_attacks', 'all_spells_and_attacks'):
+        if self.trigger in ('all_attacks', 'auto_attacks', 'all_spells_and_attacks', 'all_melee_attacks'):
             return True
         else:
             return False
 
     def procs_off_strikes(self):
-        if self.trigger in ('all_attacks', 'strikes', 'all_spells_and_attacks'):
+        if self.trigger in ('all_attacks', 'strikes', 'all_spells_and_attacks', 'all_melee_attacks'):
             return True
         else:
             return False
@@ -91,7 +93,7 @@ class Proc(object):
             return False
 
     def procs_off_apply_debuff(self):
-        if self.trigger in ('all_spells_and_attacks', 'all_attacks'):
+        if self.trigger in ('all_spells_and_attacks', 'all_attacks', 'all_melee_attacks'):
             return True
         else:
             return False
@@ -104,7 +106,7 @@ class Proc(object):
 
     def proc_rate(self, speed=None):
         if self.is_ppm():
-            if speed == None:
+            if speed is None:
                 raise InvalidProcException(_('Weapon speed needed to calculate the proc rate of {proc}').format(proc=self.proc_name))
             else:
                 return self.ppm * speed / 60.
@@ -138,12 +140,35 @@ class ProcsList(object):
             return False
         object.__getattribute__(self, proc)
 
+    def __setattr__(self, name, value):
+        object.__setattr__(self, name, value)
+        if name == 'level':
+            self._set_constants_for_level()
+
+    def _set_constants_for_level(self):
+        self.set_swordguard_embroidery_value()
+
+    def set_swordguard_embroidery_value(self):
+        proc = getattr(self, 'swordguard_embroidery')
+        values = [
+            (90, 4000),
+            (85, 1000),
+            (80, 400),
+            (1, 0)
+        ]
+        for level, value in values:
+            if self.level >= level:
+                self.allowed_procs['swordguard_embroidery']['value'] = value
+                if proc:
+                    proc.value = value
+                break
+
     def get_all_procs_for_stat(self, stat=None):
         procs = []
         for proc_name in self.allowed_procs:
             proc = getattr(self, proc_name)
             if proc:
-                if stat == None or proc.stat == stat:
+                if stat is None or proc.stat == stat:
                     procs.append(proc)
 
         return procs
