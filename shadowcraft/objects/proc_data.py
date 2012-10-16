@@ -315,13 +315,15 @@ behaviours = {
         'trigger': 'all_melee_attacks'
     },
     'windsong': {
+        'real_ppm':True,
         'icd': 0,
-        'ppm': 3,
+        'ppm': 2,
         'trigger': 'all_attacks'
     },
     'elemental_force': {
+        'real_ppm':True,
         'icd': 0,
-        'ppm': 1,
+        'ppm': 10,
         'trigger': 'all_attacks'
     },
     # 5.0 Procs
