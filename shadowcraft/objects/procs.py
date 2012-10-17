@@ -115,7 +115,7 @@ class Proc(object):
             if speed is None:
                 raise InvalidProcException(_('Weapon speed needed to calculate the proc rate of {proc}').format(proc=self.proc_name))
             else:
-                return (1 + haste/100) * self.ppm / 60
+                return haste * self.ppm / 60
         else:
             return self.proc_chance
 

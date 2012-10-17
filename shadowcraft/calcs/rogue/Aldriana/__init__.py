@@ -590,7 +590,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second['main_gauche'] = main_gauche_proc_rate * attacks_per_second['mh_autoattack_hits']
         
 
-    def get_mh_procs_per_second(self, proc, attacks_per_second, crit_rates, haste=0.0):
+    def get_mh_procs_per_second(self, proc, attacks_per_second, crit_rates):
+        if proc.is_real_ppm():
+            return proc.proc_rate(self.stats.mh.speed, haste=self.attack_speed_increase)
         triggers_per_second = 0
         if proc.procs_off_auto_attacks():
             if proc.procs_off_crit_only():
@@ -619,11 +621,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 triggers_per_second += attacks_per_second['garrote']
             if 'hemorrhage_ticks' in attacks_per_second:
                 triggers_per_second += attacks_per_second['hemorrhage']
-        if proc.is_real_ppm():
-            return triggers_per_second * proc.proc_rate(self.stats.mh.speed, haste=haste)
         return triggers_per_second * proc.proc_rate(self.stats.mh.speed)
 
-    def get_oh_procs_per_second(self, proc, attacks_per_second, crit_rates, haste=0.0):
+    def get_oh_procs_per_second(self, proc, attacks_per_second, crit_rates):
+        if proc.is_real_ppm():
+            return proc.proc_rate(self.stats.mh.speed, haste=self.attack_speed_increase)
         triggers_per_second = 0
         if proc.procs_off_auto_attacks():
             if proc.procs_off_crit_only():
@@ -637,13 +639,12 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                         triggers_per_second += attacks_per_second[ability] * crit_rates[ability]
                     else:
                         triggers_per_second += attacks_per_second[ability]
-        if proc.is_real_ppm():
-            return 60 * proc.proc_rate(self.stats.mh.speed, haste=haste)
         return triggers_per_second * proc.proc_rate(self.stats.oh.speed)
 
-    def get_other_procs_per_second(self, proc, attacks_per_second, crit_rates, haste=0.0):
+    def get_other_procs_per_second(self, proc, attacks_per_second, crit_rates):
+        if proc.is_real_ppm():
+            return proc.proc_rate(self.stats.mh.speed, haste=self.attack_speed_increase)
         triggers_per_second = 0
-
         if proc.procs_off_harmful_spells():
             for ability in ('instant_poison', 'wound_poison', 'venomous_wounds'):
                 if ability in attacks_per_second:
@@ -673,9 +674,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                     triggers_per_second += attacks_per_second['hemorrhage_ticks'] * crit_rates['hemorrhage']
                 else:
                     triggers_per_second += attacks_per_second['hemorrhage_ticks']
-        if proc.is_real_ppm():
-            return 60 * proc.proc_rate(self.stats.mh.speed, haste=haste)
-        elif proc.is_ppm():
+        if proc.is_ppm():
             if triggers_per_second == 0:
                 return 0
             else:
@@ -683,16 +682,16 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         else:
             return triggers_per_second * proc.proc_rate()
 
-    def get_procs_per_second(self, proc, attacks_per_second, crit_rates, haste=0.0):
+    def get_procs_per_second(self, proc, attacks_per_second, crit_rates):
         # TODO: Include damaging proc hits in figuring out how often everything else procs.
         if getattr(proc, 'mh_only', False):
-            procs_per_second = self.get_mh_procs_per_second(proc, attacks_per_second, crit_rates, haste=haste)
+            procs_per_second = self.get_mh_procs_per_second(proc, attacks_per_second, crit_rates)
         elif getattr(proc, 'oh_only', False):
-            procs_per_second = self.get_oh_procs_per_second(proc, attacks_per_second, crit_rates, haste=haste)
+            procs_per_second = self.get_oh_procs_per_second(proc, attacks_per_second, crit_rates)
         else:
-            procs_per_second = self.get_mh_procs_per_second(proc, attacks_per_second, crit_rates, haste=haste)
-            procs_per_second += self.get_oh_procs_per_second(proc, attacks_per_second, crit_rates, haste=haste)
-            procs_per_second += self.get_other_procs_per_second(proc, attacks_per_second, crit_rates, haste=haste)
+            procs_per_second = self.get_mh_procs_per_second(proc, attacks_per_second, crit_rates)
+            procs_per_second += self.get_oh_procs_per_second(proc, attacks_per_second, crit_rates)
+            procs_per_second += self.get_other_procs_per_second(proc, attacks_per_second, crit_rates)
 
         return procs_per_second
 
@@ -1088,6 +1087,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         energy_regen_with_rupture = energy_regen + 0.5 * vw_energy_per_bleed_tick
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
+        self.attack_speed_increase = attack_speed_multiplier
 
         cpg_energy_cost = self.get_net_energy_cost(cpg)
         cpg_energy_cost *= self.stats.gear_buffs.rogue_t13_2pc_cost_multiplier()
@@ -1294,6 +1294,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         haste_multiplier = self.stats.get_haste_multiplier_from_rating(current_stats['haste'])
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
+        self.attack_speed_increase = attack_speed_multiplier
 
         main_gauche_proc_rate = .02 * self.stats.get_mastery_from_rating(current_stats['mastery']) * self.one_hand_melee_hit_chance()
 
@@ -1534,6 +1535,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         mastery_snd_speed = 1 + .4 * (1 + .03 * self.stats.get_mastery_from_rating(current_stats['mastery']))
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier * mastery_snd_speed / 1.4
+        self.attack_speed_increase = attack_speed_multiplier
 
         backstab_energy_cost = self.base_backstab_energy_cost
         st_energy_cost = self.base_st_cost
