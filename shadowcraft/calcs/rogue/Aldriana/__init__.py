@@ -922,17 +922,14 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                     current_stats[proc.stat] += proc.uptime * proc.value
 
             if windsong_enchants:
-                windsong_uptime = 0
-                stats = windsong_enchants[0].stats
-                for proc in windsong_enchants:
-                    proc.ppm /= 1. * len(stats)
-                    self.set_uptime(proc, attacks_per_second, crit_rates)
-                    proc.ppm *= 1. * len(stats)
-                    windsong_uptime += proc.uptime
-                if len(windsong_enchants) == 2:
-                    windsong_uptime -= windsong_enchants[0].uptime * windsong_enchants[1].uptime
+                proc = windsong_enchants[0]
+                stats = proc.stats
+                effective_ppm_multiplier = len(windsong_enchants) * 1.0 / len(stats)
+                proc.ppm *= effective_ppm_multiplier
+                self.set_uptime(proc, attacks_per_second, crit_rates)
+                proc.ppm /= effective_ppm_multiplier
                 for stat in stats:
-                    current_stats[stat] += windsong_uptime * windsong_enchants[0].value
+                    current_stats[stat] += proc.uptime * proc.value
 
             current_stats['agi'] *= self.agi_multiplier
             for stat in ('crit', 'haste', 'mastery'):
@@ -1042,9 +1039,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         for key in damage_breakdown:
             if key == 'shadow_blades':
                 damage_breakdown[key] *= 1 + (.3 - .05 * self.glyphs.vendetta) / 2
-            else:
+            elif key != 'Elemental Force':
                 damage_breakdown[key] *= self.vendetta_mult
-        
+
         return damage_breakdown
 
     def assassination_dps_breakdown_execute(self):
