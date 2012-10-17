@@ -16,7 +16,7 @@ class RogueDamageCalculator(DamageCalculator):
     # calculator will need to know, so things like that go here.
 
     default_ep_stats = ['white_hit', 'yellow_hit', 'str', 'agi', 'haste',
-        'crit', 'mastery', 'dodge_exp', 'spell_hit', 'spell_exp', 'pvp_power']
+        'crit', 'mastery', 'dodge_exp', 'spell_hit', 'spell_exp', 'pvp_power', 'ap']
     normalize_ep_stat = 'ap'
     melee_attacks = ['mh_autoattack_hits', 'oh_autoattack_hits', 'mh_shadow_blade', 'oh_shadow_blade',
                      'rupture', 'eviscerate', 'envenom', 'ambush',
