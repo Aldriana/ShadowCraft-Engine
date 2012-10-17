@@ -105,17 +105,14 @@ class Proc(object):
         else:
             return False
 
-    def proc_rate(self, speed=None, haste=0.0):
+    def proc_rate(self, speed=None, haste=1.0):
         if self.is_ppm():
             if speed is None:
                 raise InvalidProcException(_('Weapon speed needed to calculate the proc rate of {proc}').format(proc=self.proc_name))
             else:
                 return self.ppm * speed / 60.
         elif self.is_real_ppm():
-            if speed is None:
-                raise InvalidProcException(_('Weapon speed needed to calculate the proc rate of {proc}').format(proc=self.proc_name))
-            else:
-                return haste * self.ppm / 60
+            return haste * self.ppm / 60
         else:
             return self.proc_chance
 

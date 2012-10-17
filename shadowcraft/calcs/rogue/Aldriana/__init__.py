@@ -592,7 +592,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
     def get_mh_procs_per_second(self, proc, attacks_per_second, crit_rates):
         if proc.is_real_ppm():
-            return proc.proc_rate(self.stats.mh.speed, haste=self.attack_speed_increase)
+            return proc.proc_rate(haste=self.attack_speed_increase)
         triggers_per_second = 0
         if proc.procs_off_auto_attacks():
             if proc.procs_off_crit_only():
@@ -625,7 +625,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
     def get_oh_procs_per_second(self, proc, attacks_per_second, crit_rates):
         if proc.is_real_ppm():
-            return proc.proc_rate(self.stats.mh.speed, haste=self.attack_speed_increase)
+            return proc.proc_rate(haste=self.attack_speed_increase)
         triggers_per_second = 0
         if proc.procs_off_auto_attacks():
             if proc.procs_off_crit_only():
@@ -643,7 +643,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
     def get_other_procs_per_second(self, proc, attacks_per_second, crit_rates):
         if proc.is_real_ppm():
-            return proc.proc_rate(self.stats.mh.speed, haste=self.attack_speed_increase)
+            return proc.proc_rate(haste=self.attack_speed_increase)
         triggers_per_second = 0
         if proc.procs_off_harmful_spells():
             for ability in ('instant_poison', 'wound_poison', 'venomous_wounds'):
