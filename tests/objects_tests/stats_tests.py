@@ -30,7 +30,7 @@ class TestStats(unittest.TestCase):
 
     def test_get_spell_hit_from_rating(self):
         self.assertAlmostEqual(self.stats.get_spell_hit_from_rating(), .01 * 1086 / 102.445999145507812)
-        self.assertAlmostEqual(self.stats.get_spell_hit_from_rating(100), .01 * 100 / 102.445999145507812)
+        self.assertAlmostEqual(self.stats.get_spell_hit_from_rating(100, 0), .01 * 100 / 102.445999145507812)
 
     def test_get_crit_from_rating(self):
         self.assertAlmostEqual(self.stats.get_crit_from_rating(), .01 * 1517 / 179.279998779296875)
