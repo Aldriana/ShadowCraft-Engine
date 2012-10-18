@@ -837,7 +837,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         healing_sum = 0
         if self.settings.utl_poison == 'lp':
             for key in dps_breakdown:
-                if key in ('mutilate', 'dispatch', 'envenom', 'autoattack', 'backstab', 'hemorrhage', 'eviscerate', 'sinister_strike', 'revealing_strike', 'main_gauche'):
+                if key in self.melee_attacks:
                     healing_breakdown['leeching'] += dps_breakdown[key]*.1
         for entry in healing_breakdown:
             healing_sum += healing_breakdown[entry]

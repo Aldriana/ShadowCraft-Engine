@@ -88,6 +88,8 @@ class CharacterData:
                 4443 : 'elemental_force',
                 4444 : 'dancing_steel',
                 4359 : [{'stat':'agi', 'value':180}], #Enchanting Perk
+                4411 : [{'stat':'mastery', 'value':170}],
+                4416 : [{'stat':'agi', 'value':170}],
                 4419 : [{'stat':'agi', 'value':80}, {'stat':'str', 'value':80}],
                 4421 : [{'stat':'hit', 'value':180}],
                 4428 : [{'stat':'agi', 'value':140}], #Speed Boost
@@ -95,14 +97,14 @@ class CharacterData:
                 4431 : [{'stat':'exp', 'value':170}],
                 4804 : [{'stat':'agi', 'value':200}, {'stat':'crit', 'value':100}],
                 4875 : [{'stat':'agi', 'value':500}], #Leatherworking Perk
+                4871 : [{'stat':'agi', 'value':170}, {'stat':'crit', 'value':100}],
                 4880 : [{'stat':'agi', 'value':285}, {'stat':'crit', 'value':165}],
-                4411 : [{'stat':'mastery', 'value':170}],
-                4871 : [{'stat':'agi', 'value':170}, {'stat':'crit', 'value':100}]
     }
     
     gemsMap = {76884: [{'stat':'agi', 'value':216}, 'chaotic_metagem'],
                83151: [{'stat':'agi', 'value':320}], #agi JC gem
                76626: [{'stat':'agi', 'value':160}],
+               76692: [{'stat':'agi', 'value':160}],
                76680: [{'stat':'agi', 'value':80}, {'stat':'hit', 'value':160}],
                76614: [{'stat':'agi', 'value':80}, {'stat':'hit', 'value':160}],
                76666: [{'stat':'agi', 'value':80}, {'stat':'haste', 'value':160}],
@@ -114,6 +116,15 @@ class CharacterData:
                76643: [{'stat':'hit', 'value':160}, {'stat':'mastery', 'value':160}],
                76699: [{'stat':'haste', 'value':320}],
                76667: [{'stat':'exp', 'value':160}, {'stat':'haste', 'value':160}],
+               #engineering cogwheels
+               77540: [{'stat':'dodge_rating', 'value':600}],
+               77541: [{'stat':'crit', 'value':600}],
+               77542: [{'stat':'haste', 'value':600}],
+               77543: [{'stat':'exp', 'value':600}],
+               77544: [{'stat':'parry_rating', 'value':600}],
+               77545: [{'stat':'hit', 'value':600}],
+               77546: [{'stat':'spirit', 'value':600}],
+               77547: [{'stat':'mastery', 'value':600}],
     }
 
     trinkets = {87057 : 'heroic_bottle_of_infinite_stars', 

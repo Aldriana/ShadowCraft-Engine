@@ -78,6 +78,8 @@ glyph_list = character_data.get_glyphs()
 test_glyphs = glyphs.Glyphs(test_class, *glyph_list)
 
 # Set up settings.
+if character_data.get_mh_type() == 'dagger':
+    print "\nALERT: Dagger found. Playing combat with a dagger should be a last resort, and is not recommended. \n"
 test_cycle = settings.CombatCycle(use_rupture=True, ksp_immediately=True, revealing_strike_pooling=True, blade_flurry=False)
 test_settings = settings.Settings(test_cycle, response_time=.5, duration=360, dmg_poison='dp', utl_poison='lp', is_pvp=False)
 
@@ -91,6 +93,7 @@ ep_values = calculator.get_ep()
 dps_breakdown = calculator.get_dps_breakdown()
 total_dps = sum(entry[1] for entry in dps_breakdown.items())
 talent_ranks = calculator.get_talents_ranking()
+heal_sum, heal_table = calculator.get_self_healing(dps_breakdown=dps_breakdown)
 
 # Compute weapon type modifier.
 weapon_type_mod = calculator.get_oh_weapon_modifier()
@@ -119,8 +122,9 @@ def pretty_print(dict_list):
 
 dicts_for_pretty_print = [
     weapon_type_mod,
-    talent_ranks,
     ep_values,
+    talent_ranks,
+    heal_table,
     dps_breakdown
 ]
 pretty_print(dicts_for_pretty_print)

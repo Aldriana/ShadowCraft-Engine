@@ -107,6 +107,7 @@ non_execute_breakdown = calculator.assassination_dps_breakdown_non_execute()
 total_dps = sum(entry[1] for entry in dps_breakdown.items())
 non_execute_total = sum(entry[1] for entry in non_execute_breakdown.items())
 talent_ranks = calculator.get_talents_ranking()
+heal_sum, heal_table = calculator.get_self_healing(dps_breakdown=dps_breakdown)
 
 def max_length(dict_list):
     max_len = 0
@@ -134,6 +135,7 @@ def pretty_print(dict_list, total_sum = 1.):
 dicts_for_pretty_print = [
     ep_values,
     talent_ranks,
+    heal_table,
     dps_breakdown
 ]
 pretty_print(dicts_for_pretty_print, total_sum=total_dps)

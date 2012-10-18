@@ -92,7 +92,7 @@ test_glyphs = glyphs.Glyphs(test_class, *glyph_list)
 # Set up settings.
 raid_crits_per_second = 5
 hemo_interval = 24 #'always', 'never', 24, 25, 26...
-if not character_data.get_mh_type() == 'dagger':
+if not character_data.get_mh_type() == 'dagger' and not test_talents.shuriken_toss:
     if not hemo_interval == 'always':
         print "\nALERT: Dagger not found, forced rotation to strictly Hemo \n"
     hemo_interval = 'always'
