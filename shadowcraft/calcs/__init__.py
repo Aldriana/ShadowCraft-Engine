@@ -319,6 +319,8 @@ class DamageCalculator(object):
         baseline_dps = self.get_dps()
         talent_list = []
 
+        self.talents.reset_cache()
+
         if list is None:
             talent_list = self.talents.get_allowed_talents_for_level()
         else:
@@ -448,7 +450,7 @@ class DamageCalculator(object):
     def spell_hit_chance(self):
         hit_chance = 1 - max(self.base_spell_miss_rate - self.stats.get_spell_hit_from_rating() - self.get_spell_hit_from_talents() - self.race.get_racial_hit(), 0)
         if self.calculating_ep in ('yellow_hit', 'spell_hit', 'spell_exp'):
-            hit_chance -= self.stats.get_spell_hit_from_rating(1)
+            hit_chance -= self.stats.get_spell_hit_from_rating(1, 0)
         return hit_chance
 
     def buff_melee_crit(self):

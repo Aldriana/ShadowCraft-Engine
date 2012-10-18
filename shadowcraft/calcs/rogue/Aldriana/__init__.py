@@ -592,7 +592,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
     def get_mh_procs_per_second(self, proc, attacks_per_second, crit_rates):
         if proc.is_real_ppm():
-            return proc.proc_rate(self.stats.mh.speed, haste=self.attack_speed_increase)
+            return proc.proc_rate(haste=self.attack_speed_increase)
         triggers_per_second = 0
         if proc.procs_off_auto_attacks():
             if proc.procs_off_crit_only():
@@ -625,7 +625,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
     def get_oh_procs_per_second(self, proc, attacks_per_second, crit_rates):
         if proc.is_real_ppm():
-            return proc.proc_rate(self.stats.mh.speed, haste=self.attack_speed_increase)
+            return proc.proc_rate(haste=self.attack_speed_increase)
         triggers_per_second = 0
         if proc.procs_off_auto_attacks():
             if proc.procs_off_crit_only():
@@ -643,7 +643,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
     def get_other_procs_per_second(self, proc, attacks_per_second, crit_rates):
         if proc.is_real_ppm():
-            return proc.proc_rate(self.stats.mh.speed, haste=self.attack_speed_increase)
+            return proc.proc_rate(haste=self.attack_speed_increase)
         triggers_per_second = 0
         if proc.procs_off_harmful_spells():
             for ability in ('instant_poison', 'wound_poison', 'venomous_wounds'):
@@ -922,17 +922,14 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                     current_stats[proc.stat] += proc.uptime * proc.value
 
             if windsong_enchants:
-                windsong_uptime = 0
-                stats = windsong_enchants[0].stats
-                for proc in windsong_enchants:
-                    proc.ppm /= 1. * len(stats)
-                    self.set_uptime(proc, attacks_per_second, crit_rates)
-                    proc.ppm *= 1. * len(stats)
-                    windsong_uptime += proc.uptime
-                if len(windsong_enchants) == 2:
-                    windsong_uptime -= windsong_enchants[0].uptime * windsong_enchants[1].uptime
+                proc = windsong_enchants[0]
+                stats = proc.stats
+                effective_ppm_multiplier = len(windsong_enchants) * 1.0 / len(stats)
+                proc.ppm *= effective_ppm_multiplier
+                self.set_uptime(proc, attacks_per_second, crit_rates)
+                proc.ppm /= effective_ppm_multiplier
                 for stat in stats:
-                    current_stats[stat] += windsong_uptime * windsong_enchants[0].value
+                    current_stats[stat] += proc.uptime * proc.value
 
             current_stats['agi'] *= self.agi_multiplier
             for stat in ('crit', 'haste', 'mastery'):
@@ -972,6 +969,13 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         return damage_breakdown
 
+    # This relies on set_uptime being called for the proc in compute_damage before any of the actual computation stuff is invoked.
+    def unheeded_warning_bonus(self):
+        proc = self.stats.procs.unheeded_warning
+        if not proc:
+            return 0        
+        return proc.value * proc.uptime
+        
     ###########################################################################
     # Assassination DPS functions
     ###########################################################################
@@ -1035,9 +1039,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         for key in damage_breakdown:
             if key == 'shadow_blades':
                 damage_breakdown[key] *= 1 + (.3 - .05 * self.glyphs.vendetta) / 2
-            else:
+            elif key != 'Elemental Force':
                 damage_breakdown[key] *= self.vendetta_mult
-        
+
         return damage_breakdown
 
     def assassination_dps_breakdown_execute(self):

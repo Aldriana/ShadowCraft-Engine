@@ -73,10 +73,12 @@ class Stats(object):
             rating = self.exp
         return rating / (100 * self.expertise_rating_conversion)
 
-    def get_spell_hit_from_rating(self, rating=None):
-        if rating is None:
-            rating = self.hit
-        return rating / (100 * self.spell_hit_rating_conversion)
+    def get_spell_hit_from_rating(self, hit_rating=None, exp_rating=None):
+        if hit_rating is None:
+            hit_rating = self.hit
+        if exp_rating is None:
+            exp_rating = self.exp
+        return hit_rating / (100 * self.spell_hit_rating_conversion) + exp_rating / (100 * self.expertise_rating_conversion)
 
     def get_crit_from_rating(self, rating=None):
         if rating is None:
