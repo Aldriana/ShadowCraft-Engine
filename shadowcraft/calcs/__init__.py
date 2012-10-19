@@ -315,11 +315,10 @@ class DamageCalculator(object):
 
     def get_talents_ranking(self, list=None):
         talents_ranking = {}
-        self.talents = talents.Talents('000000', self.char_class, self.level)
+        #self.talents = talents.Talents('000000', self.char_class, self.level)
+        self.talents.reset_talents()
         baseline_dps = self.get_dps()
         talent_list = []
-
-        self.talents.reset_cache()
 
         if list is None:
             talent_list = self.talents.get_allowed_talents_for_level()

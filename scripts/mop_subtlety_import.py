@@ -94,7 +94,7 @@ raid_crits_per_second = 5
 hemo_interval = 24 #'always', 'never', 24, 25, 26...
 if not character_data.get_mh_type() == 'dagger' and not test_talents.shuriken_toss:
     if not hemo_interval == 'always':
-        print "\nALERT: Dagger not found, forced rotation to strictly Hemo \n"
+        print "\nALERT: Viable dagger cycle not found, forced rotation to strictly Hemo \n"
     hemo_interval = 'always'
 test_cycle = settings.SubtletyCycle(raid_crits_per_second, use_hemorrhage=hemo_interval)
 test_settings = settings.Settings(test_cycle, response_time=.5, duration=360, dmg_poison='dp', utl_poison='lp', is_pvp=False)
@@ -109,6 +109,8 @@ ep_values = calculator.get_ep()
 dps_breakdown = calculator.get_dps_breakdown()
 total_dps = sum(entry[1] for entry in dps_breakdown.items())
 talent_ranks = calculator.get_talents_ranking()
+heal_sum, heal_table = calculator.get_self_healing(dps_breakdown=dps_breakdown)
+
 
 def max_length(dict_list):
     max_len = 0
@@ -135,6 +137,7 @@ def pretty_print(dict_list):
 dicts_for_pretty_print = [
     ep_values,
     talent_ranks,
+    heal_table,
     dps_breakdown
 ]
 pretty_print(dicts_for_pretty_print)

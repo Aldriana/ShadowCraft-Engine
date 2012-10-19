@@ -345,6 +345,8 @@ class CharacterData:
         reforge = ('none', 'none')
         reforgeID = None
         gemList = {u'gem0':None, u'gem1':None, u'gem2':None}
+        gemStatMap = {'Agility':'agi', 'Strength':'str', 'Stamina':'stam', 'Critical Strike':'crit', 'Hit':'hit',
+                      'Expertise':'exp', 'Haste':'haste', 'Mastery':'mastery', 'Increased Critical Effect':'chaotic_metagem'}
         #Loops over every item
         for p in self.raw_data['data'][u'items']:
             try:
@@ -373,12 +375,20 @@ class CharacterData:
                     #find number of gems used
                     for key in gemList.keys():
                         if key in params.keys():
-                            if params[key] in CharacterData.gemsMap:
-                                for entry in CharacterData.gemsMap[ params[key] ]:
-                                    if not type( entry ) == type( '' ):
-                                        lst[ entry['stat'] ] += entry['value']
-                            else:
-                                print "unknown gem: ", params[key]
+                            tmpItem = get_item_cached(self.region, params[key])
+                            for entry in tmpItem['data'][u'gemInfo'][u'bonus'][u'name'].split(' and '):
+                                tmpLst = entry.split(' ')
+                                if not '%' in tmpLst[0]:
+                                    tmpVal = int(tmpLst[0][1:])
+                                    tmpStat = gemStatMap[ ' '.join(tmpLst[1:]) ]
+                                    lst[ tmpStat ] += tmpVal
+                            #grab from gem map
+                            #if params[key] in CharacterData.gemsMap:
+                                #for entry in CharacterData.gemsMap[ params[key] ]:
+                                    #if not type( entry ) == type( '' ):
+                                        #lst[ entry['stat'] ] += entry['value']
+                            #else:
+                                #print "unknown gem: ", params[key]
                     #add stats from enchants
                     if u'enchant' in params.keys():
                         if not type( CharacterData.enchants[ params[u'enchant'] ] ) == type(''):
