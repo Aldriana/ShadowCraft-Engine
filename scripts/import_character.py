@@ -82,7 +82,8 @@ class CharacterData:
              25 : 'pandaren', #Alliance
              26 : 'pandaren', #Horde
     }
-    statMap = {3:'agi', 7:'stam', 31:'hit', 32:'crit', 36:'haste', 37:'exp', 49:'mastery', 35:'pvp_resil', 57:'pvp_power'}
+    statMap = {3:'agi', 4:'str', 5:'int', 6:'spirit', 7:'stam', 31:'hit', 32:'crit', 36:'haste', 37:'exp', 49:'mastery',
+               35:'pvp_resil', 57:'pvp_power'}
 
     enchants = {4441 : 'windsong',
                 4443 : 'elemental_force',
@@ -254,6 +255,7 @@ class CharacterData:
         self.realm = realm
         self.name = name
         self.raw_data = None
+        self.chaotic_metagem = False
 
     def do_import(self):
         self.raw_data = wowapi.get_character(self.region , self.realm, self.name, ['talents', 'items', 'stats'])
@@ -263,8 +265,8 @@ class CharacterData:
 
     def get_weapon(self, weapon_data, item_data):
         weapon_info = weapon_data['data'][u'weaponInfo']
-        weaponMap = {1:'axe', 2:'2axe', 3:'bow', 4:'rifle',5:'mace', 6:'2mace', 7:'polearm', 8:'sword', 9:'2sword', 10:'staff',
-                     11:'exotic', 12:'2exotic', 13:'fist', 14:'misc', 15:'dagger', 16:'thrown', 17:'spear', 18:'xbow', 19:'wand',
+        weaponMap = {1:'axe', 2:'2h_axe', 3:'bow', 4:'rifle',5:'mace', 6:'2h_mace', 7:'polearm', 8:'sword', 9:'2H_sword', 10:'staff',
+                     11:'exotic', 12:'2h_exotic', 13:'fist', 14:'misc', 15:'dagger', 16:'thrown', 17:'spear', 18:'xbow', 19:'wand',
                      20:'fishing_pole'}
         tmpItem = get_item_cached(self.region, item_data[u'id'])
         damage_info = weapon_info[u'damage']
@@ -341,7 +343,7 @@ class CharacterData:
 
     def get_gear_stats(self):
         #           
-        lst = {'agi': 0, 'str':0, 'stam':0, 'crit':0, 'hit':0, 'exp':0, 'haste':0, 'mastery':0, 'ap':0, 'pvp_power':0, 'pvp_resil':0}
+        lst = {'agi': 0, 'str':0, 'int':0, 'spirit':0, 'stam':0, 'crit':0, 'hit':0, 'exp':0, 'haste':0, 'mastery':0, 'ap':0, 'pvp_power':0, 'pvp_resil':0}
         reforge = ('none', 'none')
         reforgeID = None
         gemList = {u'gem0':None, u'gem1':None, u'gem2':None}
@@ -382,17 +384,11 @@ class CharacterData:
                                     tmpVal = int(tmpLst[0][1:])
                                     tmpStat = gemStatMap[ ' '.join(tmpLst[1:]) ]
                                     lst[ tmpStat ] += tmpVal
-                            #grab from gem map
-                            #if params[key] in CharacterData.gemsMap:
-                                #for entry in CharacterData.gemsMap[ params[key] ]:
-                                    #if not type( entry ) == type( '' ):
-                                        #lst[ entry['stat'] ] += entry['value']
-                            #else:
-                                #print "unknown gem: ", params[key]
+                                else:
+                                    self.chaotic_metagem = True
                     #add stats from enchants
                     if u'enchant' in params.keys():
                         if not type( CharacterData.enchants[ params[u'enchant'] ] ) == type(''):
-                            #print CharacterData.enchants[ params[u'enchant'] ]
                             for key in CharacterData.enchants[ params[u'enchant'] ]:
                                 lst[ key['stat'] ] += key['value']
             except Exception as inst:
@@ -401,9 +397,12 @@ class CharacterData:
                 print "Error at slot: ", p
                 print "Error type:    ", type(inst)
                 raise
-        return [lst['str'], lst['agi'], lst['ap'], lst['crit'], lst['hit'], lst['exp'], lst['haste'], lst['mastery']]
-        #return self.raw_data['data'][u'items']
-
+        return lst
+        #return [lst['str'], lst['agi'], lst['int'], lst['spirit'], lst['stam'], lst['ap'], lst['crit'], lst['hit'], lst['exp'], lst['haste'], lst['mastery']]
+    
+    def has_chaotic_metagem(self):
+        return self.chaotic_metagem
+        
     def get_current_spec_data(self):
         specs_data = self.raw_data['data'][u'talents']
         if u'selected' in specs_data[0]:

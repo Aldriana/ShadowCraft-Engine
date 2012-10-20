@@ -228,6 +228,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         self.bonus_energy_regen = 0
         if self.settings.tricks_on_cooldown and not self.glyphs.tricks_of_the_trade:
             self.bonus_energy_regen -= 15. / (30 + self.settings.response_time)
+        if self.settings.shiv_interval != 0:
+            self.bonus_energy_regen -= 20. / self.settings.shiv_interval
         if self.race.arcane_torrent:
             self.bonus_energy_regen += 15. / (120 + self.settings.response_time)
 
@@ -830,12 +832,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if dps_breakdown is None:
             dps_breakdown = self.get_dps_breakdown()
         healing_breakdown = {
-            'leeching': 0,
+            #'leeching': 0,
             'recuperate': 0, #if we ever allow recup weaving
-            'shiv_effect': 0 #if we ever allow shiv weaving (only with lp)
+            #'shiv_effect': 0 #if we ever allow shiv weaving (only with lp)
         }
         healing_sum = 0
         if self.settings.utl_poison == 'lp':
+            if self.settings.shiv_interval > 0:
+                healing_breakdown['shiv_effect'] = .05 * self.stats.get_max_health() * (1./self.settings.shiv_interval)
+            healing_breakdown['leeching'] = 0
             for key in dps_breakdown:
                 if key in self.melee_attacks:
                     healing_breakdown['leeching'] += dps_breakdown[key]*.1

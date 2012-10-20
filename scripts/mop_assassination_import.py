@@ -2,7 +2,6 @@
 from os import path
 import sys
 from import_character import CharacterData
-
 #sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
 from shadowcraft.calcs.rogue.Aldriana import AldrianasRogueDamageCalculator
@@ -22,7 +21,7 @@ from shadowcraft.core import i18n
 test_language = 'local'
 i18n.set_language(test_language)
 
-charInfo = {'region':'us', 'realm':'Doomhammer', 'name':'Pins', 'talents':None, 'stormlash':False}
+charInfo = {'region':'us', 'realm':'Doomhammer', 'name':'Pins', 'talents':None, 'stormlash':False, 'pvp':False, 'shiv':0}
 key = 1
 while key < len(sys.argv):
     terms = sys.argv[key].split(':')
@@ -55,7 +54,6 @@ test_buffs = buffs.Buffs(
     )
 
 # Set up weapons.
-
 test_mh = stats.Weapon(*character_data.get_mh())
 test_oh = stats.Weapon(*character_data.get_oh())
 
@@ -69,21 +67,21 @@ character_procs_allowed = filter(lambda p: p in proc_data.allowed_procs, charact
 test_procs = procs.ProcsList(*character_procs_allowed)
 
 # Set up gear buffs.
-character_gear_buffs = character_data.get_gear_buffs() + ['leather_specialization', 'virmens_bite', 'virmens_bite_prepot', 'chaotic_metagem']
+character_gear_buffs = character_data.get_gear_buffs() + ['leather_specialization', 'virmens_bite', 'virmens_bite_prepot']
+if character_data.has_chaotic_metagem():
+    character_gear_buffs.append('chaotic_metagem')
 test_gear_buffs = stats.GearBuffs(*character_gear_buffs)
 
 # Set up a calcs object..
-#                       str,   agi,  ap, crit,  hit, exp, haste, mast,      mh,      oh,      procs,      gear_buffs
-#test_stats = stats.Stats(80, 19000, 250, 4800, 2550, 2550, 3000, 5000, test_mh, test_oh, test_procs, test_gear_buffs, pvp_power=0, pvp_resil=0, pvp_target_armor=None)
-#[215, 12136, 365, 2486, 2584, 1582, 2423, 4039]
-#character_stats = character_data.get_stats()
-character_stats = character_data.get_gear_stats()
-test_stats = stats.Stats(*(character_stats + [test_mh, test_oh, test_procs, test_gear_buffs]), pvp_power=0, pvp_resil=0, pvp_target_armor=None)
+lst = character_data.get_gear_stats()
+test_stats = stats.Stats(lst['str'], lst['agi'], lst['int'], lst['spirit'], lst['stam'], lst['ap'], lst['crit'], lst['hit'], lst['exp'],
+                         lst['haste'], lst['mastery'], test_mh, test_oh, test_procs, test_gear_buffs,
+                         pvp_power=lst['pvp_power'], pvp_resil=lst['pvp_resil'], pvp_target_armor=None)
 
 # Initialize talents..
 if charInfo['talents'] == None:
     charInfo['talents'] = character_data.get_talents()
-test_talents = talents.Talents(character_data.get_talents(), test_class, test_level)
+test_talents = talents.Talents(charInfo['talents'], test_class, test_level)
 
 # Set up glyphs.
 glyph_list = character_data.get_glyphs()
@@ -92,8 +90,8 @@ test_glyphs = glyphs.Glyphs(test_class, *glyph_list)
 # Set up settings.
 test_cycle = settings.AssassinationCycle(min_envenom_size_non_execute=4, min_envenom_size_execute=5,
                                          prioritize_rupture_uptime_non_execute=True, prioritize_rupture_uptime_execute=True)
-test_settings = settings.Settings(test_cycle, response_time=.5, duration=360, dmg_poison='dp', utl_poison='lp', is_pvp=False,
-                                  stormlash=charInfo['stormlash'])
+test_settings = settings.Settings(test_cycle, response_time=.5, duration=360, dmg_poison='dp', utl_poison='lp', is_pvp=charInfo['pvp'],
+                                  stormlash=charInfo['stormlash'], shiv_interval=charInfo['shiv'])
 
 # Build a DPS object.
 calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings, test_level, char_class=test_class)

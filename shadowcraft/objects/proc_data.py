@@ -11,6 +11,14 @@ allowed_procs = {
         'proc_name': 'rogue_poison',
         'behaviours': {'default': 'rogue_poison'}
     },
+    'touch_of_the_grave': {
+        'stat': 'spell_damage',
+        'value': 16000,
+        'duration': 0,
+        'max_stacks': 0,
+        'proc_name': 'Touch of the Grave',
+        'behaviours': {'default': 'touch_of_the_grave'}
+    },
     'heroic_terror_in_the_mists': {
         'stat': 'crit',
         'value': 7796,
@@ -306,6 +314,11 @@ behaviours = {
     'rogue_poison': {
         'icd': 0,
         'proc_chance': 1,
+        'trigger': 'all_attacks'
+    },
+    'touch_of_the_grave': {
+        'icd': 20,
+        'proc_chance': .20,
         'trigger': 'all_attacks'
     },
     # weapon procs

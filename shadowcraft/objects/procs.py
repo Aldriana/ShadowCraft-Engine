@@ -42,7 +42,7 @@ class Proc(object):
         self.icd = icd
         self.on_crit = on_crit
         self.ppm = ppm
-        self.real_ppm=real_ppm
+        self.real_ppm = real_ppm
         self.on_procced_strikes = on_procced_strikes  # Main Gauche and its kin
 
     def procs_off_auto_attacks(self):

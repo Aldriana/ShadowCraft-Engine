@@ -46,6 +46,8 @@ class DamageCalculator(object):
             self.stats.agi += self.stats.gear_buffs.tradeskill_bonus()
         if self.stats.gear_buffs.master_of_anatomy:
             self.stats.crit += self.stats.gear_buffs.tradeskill_bonus('master_of_anatomy')
+        if self.race.race_name == 'undead':
+            self.stats.procs.set_proc('touch_of_the_grave')
         self._set_constants_for_class()
         
         self.base_one_hand_miss_rate = .03 + .015 * self.level_difference
