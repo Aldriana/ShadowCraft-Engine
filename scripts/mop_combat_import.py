@@ -15,7 +15,6 @@ from shadowcraft.objects import procs
 from shadowcraft.objects import proc_data
 from shadowcraft.objects import talents
 from shadowcraft.objects import glyphs
-from char_info import charInfo
 
 from shadowcraft.core import i18n
 
