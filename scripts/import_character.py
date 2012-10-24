@@ -105,7 +105,8 @@ class CharacterData:
                 4880 : [{'stat':'agi', 'value':285}, {'stat':'crit', 'value':165}],
                 4822 : [{'stat':'agi', 'value':285}, {'stat':'crit', 'value':165}], # Shadowleather Leg Armor
                 4411 : [{'stat':'mastery', 'value':170}],
-                4871 : [{'stat':'agi', 'value':170}, {'stat':'crit', 'value':100}]
+                4871 : [{'stat':'agi', 'value':170}, {'stat':'crit', 'value':100}],
+                4427 : [{'stat':'hit', 'value':175}],
     }
     
     gemsMap = {76884: [{'stat':'agi', 'value':216}, 'chaotic_metagem'],
@@ -132,7 +133,6 @@ class CharacterData:
                77545: [{'stat':'hit', 'value':600}],
                77546: [{'stat':'spirit', 'value':600}],
                77547: [{'stat':'mastery', 'value':600}],
-               4427 : [{'stat':'hit', 'value':175}],
     }
 
     trinkets = {87057 : 'heroic_bottle_of_infinite_stars', 
