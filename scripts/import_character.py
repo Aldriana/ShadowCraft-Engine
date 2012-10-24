@@ -88,6 +88,7 @@ class CharacterData:
     enchants = {4441 : 'windsong',
                 4443 : 'elemental_force',
                 4444 : 'dancing_steel',
+                4416 : [{'stat':'agi', 'value':170}], # Enchant Bracer - Greater Agility
                 4359 : [{'stat':'agi', 'value':180}], #Enchanting Perk
                 4411 : [{'stat':'mastery', 'value':170}],
                 4416 : [{'stat':'agi', 'value':170}],
@@ -96,11 +97,42 @@ class CharacterData:
                 4428 : [{'stat':'agi', 'value':140}], #Speed Boost
                 4430 : [{'stat':'haste', 'value':170}],
                 4431 : [{'stat':'exp', 'value':170}],
+                4433 : [{'stat':'mastery', 'value':170}],
+                4429 : [{'stat':'mastery', 'value':140}], # Pandaren's Step
                 4804 : [{'stat':'agi', 'value':200}, {'stat':'crit', 'value':100}],
                 4875 : [{'stat':'agi', 'value':500}], #Leatherworking Perk
                 4871 : [{'stat':'agi', 'value':170}, {'stat':'crit', 'value':100}],
                 4880 : [{'stat':'agi', 'value':285}, {'stat':'crit', 'value':165}],
+                4822 : [{'stat':'agi', 'value':285}, {'stat':'crit', 'value':165}], # Shadowleather Leg Armor
+                4411 : [{'stat':'mastery', 'value':170}],
+                4871 : [{'stat':'agi', 'value':170}, {'stat':'crit', 'value':100}],
                 4427 : [{'stat':'hit', 'value':175}],
+    }
+    
+    gemsMap = {76884: [{'stat':'agi', 'value':216}, 'chaotic_metagem'],
+               83151: [{'stat':'agi', 'value':320}], #agi JC gem
+               76626: [{'stat':'agi', 'value':160}],
+               76680: [{'stat':'agi', 'value':80}, {'stat':'hit', 'value':160}],
+               76614: [{'stat':'agi', 'value':80}, {'stat':'hit', 'value':160}],
+               76666: [{'stat':'agi', 'value':80}, {'stat':'haste', 'value':160}],
+               76600: [{'stat':'agi', 'value':80}, {'stat':'haste', 'value':160}],
+               76604: [{'stat':'agi', 'value':80}, {'stat':'mastery', 'value':160}],
+               76670: [{'stat':'agi', 'value':80}, {'stat':'mastery', 'value':160}],
+               76636: [{'stat':'hit', 'value':320}],
+               76576: [{'stat':'hit', 'value':160}, {'stat':'haste', 'value':160}],
+               76643: [{'stat':'hit', 'value':160}, {'stat':'mastery', 'value':160}],
+               76692: [{'stat':'agi', 'value':160}],
+               76699: [{'stat':'haste', 'value':320}],
+               76667: [{'stat':'exp', 'value':160}, {'stat':'haste', 'value':160}],
+               # engineering cogwheels
+               77540: [{'stat':'dodge', 'value':600}],
+               77541: [{'stat':'crit', 'value':600}],
+               77542: [{'stat':'haste', 'value':600}],
+               77543: [{'stat':'exp', 'value':600}],
+               77544: [{'stat':'parry', 'value':600}],
+               77545: [{'stat':'hit', 'value':600}],
+               77546: [{'stat':'spirit', 'value':600}],
+               77547: [{'stat':'mastery', 'value':600}],
     }
 
     trinkets = {87057 : 'heroic_bottle_of_infinite_stars', 

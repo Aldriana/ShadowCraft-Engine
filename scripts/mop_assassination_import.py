@@ -2,6 +2,9 @@
 from os import path
 import sys
 from import_character import CharacterData
+from char_info import charInfo
+
+
 #sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
 from shadowcraft.calcs.rogue.Aldriana import AldrianasRogueDamageCalculator
@@ -21,7 +24,7 @@ from shadowcraft.core import i18n
 test_language = 'local'
 i18n.set_language(test_language)
 
-charInfo = {'region':'us', 'realm':'Doomhammer', 'name':'Pins', 'talents':None, 'stormlash':False, 'pvp':False, 'shiv':0}
+
 key = 1
 while key < len(sys.argv):
     terms = sys.argv[key].split(':')
@@ -94,7 +97,8 @@ test_settings = settings.Settings(test_cycle, response_time=.5, duration=360, dm
                                   stormlash=charInfo['stormlash'], shiv_interval=charInfo['shiv'])
 
 # Build a DPS object.
-calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings, test_level, char_class=test_class)
+#calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings, test_level, char_class=test_class)
+calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings, test_level)
 
 # Compute EP values.
 ep_values = calculator.get_ep()
