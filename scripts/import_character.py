@@ -100,32 +100,7 @@ class CharacterData:
                 4875 : [{'stat':'agi', 'value':500}], #Leatherworking Perk
                 4871 : [{'stat':'agi', 'value':170}, {'stat':'crit', 'value':100}],
                 4880 : [{'stat':'agi', 'value':285}, {'stat':'crit', 'value':165}],
-    }
-    
-    gemsMap = {76884: [{'stat':'agi', 'value':216}, 'chaotic_metagem'],
-               83151: [{'stat':'agi', 'value':320}], #agi JC gem
-               76626: [{'stat':'agi', 'value':160}],
-               76692: [{'stat':'agi', 'value':160}],
-               76680: [{'stat':'agi', 'value':80}, {'stat':'hit', 'value':160}],
-               76614: [{'stat':'agi', 'value':80}, {'stat':'hit', 'value':160}],
-               76666: [{'stat':'agi', 'value':80}, {'stat':'haste', 'value':160}],
-               76600: [{'stat':'agi', 'value':80}, {'stat':'haste', 'value':160}],
-               76604: [{'stat':'agi', 'value':80}, {'stat':'mastery', 'value':160}],
-               76670: [{'stat':'agi', 'value':80}, {'stat':'mastery', 'value':160}],
-               76636: [{'stat':'hit', 'value':320}],
-               76576: [{'stat':'hit', 'value':160}, {'stat':'haste', 'value':160}],
-               76643: [{'stat':'hit', 'value':160}, {'stat':'mastery', 'value':160}],
-               76699: [{'stat':'haste', 'value':320}],
-               76667: [{'stat':'exp', 'value':160}, {'stat':'haste', 'value':160}],
-               #engineering cogwheels
-               77540: [{'stat':'dodge_rating', 'value':600}],
-               77541: [{'stat':'crit', 'value':600}],
-               77542: [{'stat':'haste', 'value':600}],
-               77543: [{'stat':'exp', 'value':600}],
-               77544: [{'stat':'parry_rating', 'value':600}],
-               77545: [{'stat':'hit', 'value':600}],
-               77546: [{'stat':'spirit', 'value':600}],
-               77547: [{'stat':'mastery', 'value':600}],
+                4427 : [{'stat':'hit', 'value':175}],
     }
 
     trinkets = {87057 : 'heroic_bottle_of_infinite_stars', 
@@ -339,7 +314,6 @@ class CharacterData:
 #        ret = [str, agi + 956, 250, crit, hit, exp, haste, mast]
 #        pp.pprint(ret)
         return [str, agi, ap - 2 * agi, crit, hit, exp, haste, mast]
-
 
     def get_gear_stats(self):
         #           
