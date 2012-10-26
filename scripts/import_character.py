@@ -260,10 +260,11 @@ class CharacterData:
         }
 
 
-    def __init__(self, region, realm, name):
+    def __init__(self, region, realm, name, verbose=False):
         self.region = region
         self.realm = realm
         self.name = name
+        self.verbose = verbose
         self.raw_data = None
         self.chaotic_metagem = False
 
@@ -355,7 +356,8 @@ class CharacterData:
         lst = {'agi': 0, 'str':0, 'int':0, 'spirit':0, 'stam':0, 'crit':0, 'hit':0, 'exp':0, 'haste':0, 'mastery':0, 'ap':0, 'pvp_power':0, 'pvp_resil':0}
         reforge = ('none', 'none')
         reforgeID = None
-        gemList = {u'gem0':None, u'gem1':None, u'gem2':None}
+        gemColorToSocketColors = {u'RED': (u'RED'), u'YELLOW':(u'YELLOW'), u'BLUE':(u'BLUE'), u'META':(u'META'),
+                                  u'ORANGE':(u'RED', u'YELLOW'), u'PURPLE':(u'RED', u'BLUE'), u'GREEN':(u'YELLOW', u'BLUE')}
         verboseStatMap = {'Agility':'agi', 'Strength':'str', 'Stamina':'stam', 'Critical Strike':'crit', 'Hit':'hit',
                           'Expertise':'exp', 'Haste':'haste', 'Mastery':'mastery', 'Increased Critical Effect':'chaotic_metagem',
                           'PvP Resilience':'pvp_resil'}
@@ -365,10 +367,8 @@ class CharacterData:
                 #ilvl is included in the gear array for some unknown reason, lets ignore it
                 if p != 'averageItemLevelEquipped' and p != 'averageItemLevel':
                     tmpItem = get_item_cached(self.region, self.raw_data['data'][u'items'][p][u'id'])
-                    print
-                    print p + ': ' + self.raw_data['data'][u'items'][p][u'name']
+                    self.verbosePrint('\n' + p + ': ' + self.raw_data['data'][u'items'][p][u'name'])
                     params = self.raw_data['data'][u'items'][p][u'tooltipParams']
-                    #print tmpItem
                     #grab the reforge if it exists
                     if u'reforge' in self.raw_data['data'][u'items'][p][u'tooltipParams']:
                         reforgeID = self.raw_data['data'][u'items'][p][u'tooltipParams'][u'reforge']
@@ -382,56 +382,66 @@ class CharacterData:
                             tmpVal = math.ceil(key[u'amount'] * .6)
                             lst[ CharacterData.statMap[key[u'stat']] ] += tmpVal
                             lst[ reforge[1] ] += key[u'amount'] - tmpVal
-                            print 'Reforge found: +' + str(tmpVal) + ' ' + reforge[0] + ', +' + str(key[u'amount'] - tmpVal) + ' ' + reforge[1]	
+                            self.verbosePrint('Reforge found: +' + str(tmpVal) + ' ' + reforge[0] + ', +' + str(key[u'amount'] - tmpVal) + ' ' + reforge[1])
                         else:
                             #otherwise, no reforge
                             lst[ CharacterData.statMap[key[u'stat']] ] += key[u'amount']
-                            print '+' + str(key[u'amount']) + ' ' + CharacterData.statMap[key[u'stat']]                            
+                            self.verbosePrint('+' + str(key[u'amount']) + ' ' + CharacterData.statMap[key[u'stat']])
                     #prevents cached reforges from affecting subsequent items
                     reforge = ('none', 'none')
-                    #find number of gems used
-                    for key in gemList.keys():
-                        if key in params.keys():
-                            tmpGem = get_item_cached(self.region, params[key])
-                            #pp.pprint(tmpGem)
+                    #add stats from gems, check if socket colors are matched along the way
+                    if u'socketInfo' in tmpItem['data']:
+                        socketInfo = tmpItem['data'][u'socketInfo']
+                        socketBonusActivated = True  # we'll find out if this is not true as we process each gem
+                    else:
+                        socketInfo = None
+                        socketBonusActivated = False
+                    for gemNumber in range(3):
+                        gemId = 'gem' + str(gemNumber)
+                        if gemId in params.keys():
+                            tmpGem = get_item_cached(self.region, params[gemId])
+                            if not socketInfo == None:
+                                sockets = socketInfo[u'sockets']
+                                if gemNumber < len(sockets):
+                                    if not sockets[gemNumber][u'type'] in gemColorToSocketColors[tmpGem['data'][u'gemInfo'][u'type'][u'type']]:
+                                        socketBonusActivated = False
+                                        self.verbosePrint(tmpGem['data'][u'name'] + ' does not match socket of color ' + sockets[gemNumber][u'type'] + ', socket bonus not activated!')
                             for entry in tmpGem['data'][u'gemInfo'][u'bonus'][u'name'].split(' and '):
                                 tmpLst = entry.split(' ')
                                 if not '%' in tmpLst[0]:
                                     tmpVal = int(tmpLst[0][1:])
-                                    tmpStat = verboseStatMap[ ' '.join(tmpLst[1:]) ]
-                                    lst[ tmpStat ] += tmpVal
-                                    print tmpGem['data'][u'name'] + ': +' + str(tmpVal) + ' ' + tmpStat
+                                    tmpStat = verboseStatMap[' '.join(tmpLst[1:])]
+                                    lst[tmpStat] += tmpVal
+                                    self.verbosePrint(tmpGem['data'][u'name'] + ': +' + str(tmpVal) + ' ' + tmpStat)
                                 else:
                                     self.chaotic_metagem = True
-                                    print tmpGem['data'][u'name'] + ' is a meta gem'
+                                    self.verbosePrint(tmpGem['data'][u'name'] + ' is a meta gem')
+                    #add stats from socket bonuses
+                    if socketBonusActivated == True:
+                        for entry in socketInfo[u'socketBonus'].split(' and '): #similar to gem treatment... is there ever a socket bonus that gives multiple stats?
+                            tmpLst = entry.split(' ')
+                            tmpVal = int(tmpLst[0][1:])
+                            tmpStat = verboseStatMap[ ' '.join(tmpLst[1:]) ]
+                            lst[ tmpStat ] += tmpVal
+                            self.verbosePrint('Socket bonus +' + str(tmpVal) + ' ' + tmpStat)
                     #add stats from enchants
                     if u'enchant' in params.keys():
                         if not type( CharacterData.enchants[ params[u'enchant'] ] ) == type(''):
                             for key in CharacterData.enchants[ params[u'enchant'] ]:
                                 lst[ key['stat'] ] += key['value']
-                                print 'Enchant +' + str(key['value']) + ' ' + key['stat']
+                                self.verbosePrint('Enchant +' + str(key['value']) + ' ' + key['stat'])
                         else:
-                            print CharacterData.enchants[params[u'enchant']]
+                            self.verbosePrint(CharacterData.enchants[params[u'enchant']])
                     else:
-                        print 'Unenchanted'
-                    #add stats from socket bonuses
-                    if u'socketInfo' in tmpItem['data']:
-                        #pp.pprint(tmpItem['data'][u'socketInfo'])
-                        #simply assume that all socket bonuses are activated for now. 
-                        #we need to count gem colors above, and compute activation ourselves... I don't see any hint in the data from Blizzard.
-                        for entry in tmpItem['data'][u'socketInfo'][u'socketBonus'].split(' and '): #similar to gem treatment... is there ever a socket bonus that gives multiple stats?
-                            tmpLst = entry.split(' ')
-                            tmpVal = int(tmpLst[0][1:])
-                            tmpStat = verboseStatMap[ ' '.join(tmpLst[1:]) ]
-                            lst[ tmpStat ] += tmpVal
-                            print 'Socket bonus (assumed activated): +' + str(tmpVal) + ' ' + tmpStat    
+                        self.verbosePrint('Unenchanted')
             except Exception as inst:
                 #it's okay, we can keep going, just so long as we pretend to handle the exception
                 print "\n"
                 print "Error at slot: ", p
                 print "Error type:    ", type(inst)
                 raise
-        pp.pprint(lst)
+        if self.verbose:
+            pp.pprint(lst)
         return lst
         #return [lst['str'], lst['agi'], lst['int'], lst['spirit'], lst['stam'], lst['ap'], lst['crit'], lst['hit'], lst['exp'], lst['haste'], lst['mastery']]
     
@@ -463,3 +473,7 @@ class CharacterData:
             if glyph_name in CharacterData.glyphs:
                 glyphs.append(CharacterData.glyphs[glyph_name])
         return glyphs
+
+    def verbosePrint(self, str):
+        if self.verbose:
+            print str
