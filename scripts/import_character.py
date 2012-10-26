@@ -396,9 +396,11 @@ class CharacterData:
                     else:
                         socketInfo = None
                         socketBonusActivated = False
+                    gemCount = 0
                     for gemNumber in range(3):
                         gemId = 'gem' + str(gemNumber)
                         if gemId in params.keys():
+                            gemCount += 1
                             tmpGem = get_item_cached(self.region, params[gemId])
                             if not socketInfo == None:
                                 sockets = socketInfo[u'sockets']
@@ -417,7 +419,7 @@ class CharacterData:
                                     self.chaotic_metagem = True
                                     self.verbosePrint(tmpGem['data'][u'name'] + ' is a meta gem')
                     #add stats from socket bonuses
-                    if socketBonusActivated == True:
+                    if socketBonusActivated == True and gemCount >= len(socketInfo[u'sockets']):
                         for entry in socketInfo[u'socketBonus'].split(' and '): #similar to gem treatment... is there ever a socket bonus that gives multiple stats?
                             tmpLst = entry.split(' ')
                             tmpVal = int(tmpLst[0][1:])
