@@ -503,7 +503,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             average_dps = crit_dps = 0
             uptime = int(self.settings.use_stormlash) * 10. / (5 * 60)
             for value in attacks_per_second:
-                if value in self.melee_attacks:
+                if value in self.melee_hit_chance_attacks:
                     damage_mod = 1
                     if value in stormlash_mod_table:
                         damage_mod = stormlash_mod_table[value]
@@ -556,8 +556,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         return self.get_activated_uptime(duration, (cooldown, 180)[cooldown is None])
 
     def update_with_shadow_blades(self, attacks_per_second, shadow_blades_uptime):
-        if self.level < 87:
-            return
         mh_sb_swings_per_second = attacks_per_second['mh_autoattacks'] * shadow_blades_uptime
         oh_sb_swings_per_second = attacks_per_second['oh_autoattacks'] * shadow_blades_uptime
         attacks_per_second['mh_autoattacks'] -= mh_sb_swings_per_second
@@ -575,7 +573,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         if self.swing_reset_spacing is not None:
             attacks_per_second['mh_autoattacks'] *= (1 - max((1 - .5 * self.stats.mh.speed / kwargs['attack_speed_multiplier']), 0) / self.swing_reset_spacing)
             attacks_per_second['oh_autoattacks'] *= (1 - max((1 - .5 * self.stats.oh.speed / kwargs['attack_speed_multiplier']), 0) / self.swing_reset_spacing)
-        if (not args or 'shadow_blades' in args) and self.level >= 87:
+        if (not args or 'shadow_blades' in args):
             if 'shadow_blades_uptime' not in kwargs:
                 kwargs['shadow_blades_uptime'] = self.get_shadow_blades_uptime()
             self.update_with_shadow_blades(attacks_per_second, kwargs['shadow_blades_uptime'])
@@ -1275,13 +1273,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                     damage_breakdown[key] *= self.bandits_guile_multiplier * (1.5)
                 else:
                     damage_breakdown[key] *= self.max_bandits_guile_buff * (1.5)
-            elif key in ('sinister_strike', 'revealing_strike'):
+            elif key in ('sinister_strike', 'revealing_strike', 'shadow_blades'):
                 damage_breakdown[key] *= self.bandits_guile_multiplier
-                damage_breakdown[key] *= self.get_rogue_t13_legendary_combat_multiplier()
-            elif key == 'eviscerate':
+            elif key in ('eviscerate', 'rupture'):
                 damage_breakdown[key] *= self.bandits_guile_multiplier * self.revealing_strike_multiplier
-            elif key == 'rupture':
-                damage_breakdown[key] *= self.bandits_guile_multiplier * self.ksp_multiplier * self.revealing_strike_multiplier
             elif key in ('autoattack', 'instant_poison', 'deadly_poison', 'main_gauche'):
                 damage_breakdown[key] *= self.bandits_guile_multiplier * self.ksp_multiplier
             else:
@@ -1353,9 +1348,9 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             new_cd = self.base_cooldowns[i] / (1 + self.current_variables['cp_spent_on_damage_finishers_per_second'] * 2)
             current_cooldowns[i] = new_cd
 
-        ar_uptime = self.get_activated_uptime(ar_duration, current_cooldowns['ar'])
-        ar_autoattack_multiplier = 1 + .2 * ar_uptime
-        ar_energy_multiplier = 1 + 1. * ar_uptime
+        self.ar_uptime = self.get_activated_uptime(ar_duration, current_cooldowns['ar'])
+        ar_autoattack_multiplier = 1 + .2 * self.ar_uptime
+        ar_energy_multiplier = 1 + 1. * self.ar_uptime
 
         shb_uptime = self.get_shadow_blades_uptime(current_cooldowns['shb'])
 

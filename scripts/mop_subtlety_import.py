@@ -2,6 +2,7 @@
 from os import path
 import sys
 from import_character import CharacterData
+from char_info import charInfo 
 #sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
 from shadowcraft.calcs.rogue.Aldriana import AldrianasRogueDamageCalculator
@@ -21,7 +22,6 @@ from shadowcraft.core import i18n
 test_language = 'local'
 i18n.set_language(test_language)
 
-charInfo = {'region':'us', 'realm':'Doomhammer', 'name':'Pins', 'talents':None, 'stormlash':False, 'pvp':False, 'shiv':0}
 key = 1
 while key < len(sys.argv):
     terms = sys.argv[key].split(':')
