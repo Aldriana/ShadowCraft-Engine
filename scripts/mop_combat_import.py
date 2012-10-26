@@ -30,7 +30,7 @@ while key < len(sys.argv):
     key += 1
 
 print "Loading " + charInfo['name'] + " of " + charInfo['region'] + "-" + charInfo['realm'] + "\n"
-character_data = CharacterData(charInfo['region'], charInfo['realm'], charInfo['name'], verbose=True)
+character_data = CharacterData(charInfo['region'], charInfo['realm'], charInfo['name'])
 character_data.do_import()
 
 
