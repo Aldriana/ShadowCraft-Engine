@@ -109,6 +109,7 @@ class CharacterData:
                 4411 : [{'stat':'mastery', 'value':170}],
                 4871 : [{'stat':'agi', 'value':170}, {'stat':'crit', 'value':100}],
                 4427 : [{'stat':'hit', 'value':175}],
+                4908 : [{'stat':'agi', 'value':120}, {'stat':'crit', 'value':80}], # Tiger Claw Inscrption
     }
     
     #note: this is no longer used... delete unless it's usefull documentation.
@@ -356,7 +357,7 @@ class CharacterData:
         lst = {'agi': 0, 'str':0, 'int':0, 'spirit':0, 'stam':0, 'crit':0, 'hit':0, 'exp':0, 'haste':0, 'mastery':0, 'ap':0, 'pvp_power':0, 'pvp_resil':0}
         reforge = ('none', 'none')
         reforgeID = None
-        gemColorToSocketColors = {u'RED': (u'RED'), u'YELLOW':(u'YELLOW'), u'BLUE':(u'BLUE'), u'META':(u'META'),
+        gemColorToSocketColors = {u'RED': (u'RED'), u'YELLOW':(u'YELLOW'), u'BLUE':(u'BLUE'), u'META':(u'META'), u'COGWHEEL':(u'COGWHEEL'),
                                   u'ORANGE':(u'RED', u'YELLOW'), u'PURPLE':(u'RED', u'BLUE'), u'GREEN':(u'YELLOW', u'BLUE')}
         verboseStatMap = {'Agility':'agi', 'Strength':'str', 'Stamina':'stam', 'Critical Strike':'crit', 'Hit':'hit',
                           'Expertise':'exp', 'Haste':'haste', 'Mastery':'mastery', 'Increased Critical Effect':'chaotic_metagem',
