@@ -113,33 +113,6 @@ class CharacterData:
                 4908 : [{'stat':'agi', 'value':120}, {'stat':'crit', 'value':80}], # Tiger Claw Inscrption
     }
     
-    #note: this is no longer used... delete unless it's usefull documentation.
-    gemsMap = {76884: [{'stat':'agi', 'value':216}, 'chaotic_metagem'],
-               83151: [{'stat':'agi', 'value':320}], #agi JC gem
-               76626: [{'stat':'agi', 'value':160}],
-               76680: [{'stat':'agi', 'value':80}, {'stat':'hit', 'value':160}],
-               76614: [{'stat':'agi', 'value':80}, {'stat':'hit', 'value':160}],
-               76666: [{'stat':'agi', 'value':80}, {'stat':'haste', 'value':160}],
-               76600: [{'stat':'agi', 'value':80}, {'stat':'haste', 'value':160}],
-               76604: [{'stat':'agi', 'value':80}, {'stat':'mastery', 'value':160}],
-               76670: [{'stat':'agi', 'value':80}, {'stat':'mastery', 'value':160}],
-               76636: [{'stat':'hit', 'value':320}],
-               76576: [{'stat':'hit', 'value':160}, {'stat':'haste', 'value':160}],
-               76643: [{'stat':'hit', 'value':160}, {'stat':'mastery', 'value':160}],
-               76692: [{'stat':'agi', 'value':160}],
-               76699: [{'stat':'haste', 'value':320}],
-               76667: [{'stat':'exp', 'value':160}, {'stat':'haste', 'value':160}],
-               # engineering cogwheels
-               77540: [{'stat':'dodge', 'value':600}],
-               77541: [{'stat':'crit', 'value':600}],
-               77542: [{'stat':'haste', 'value':600}],
-               77543: [{'stat':'exp', 'value':600}],
-               77544: [{'stat':'parry', 'value':600}],
-               77545: [{'stat':'hit', 'value':600}],
-               77546: [{'stat':'spirit', 'value':600}],
-               77547: [{'stat':'mastery', 'value':600}],
-    }
-
     trinkets = {87057 : 'heroic_bottle_of_infinite_stars', 
                 86132 : 'bottle_of_infinite_stars',
                 87167 : 'heroic_terror_in_the_mists',
@@ -362,7 +335,7 @@ class CharacterData:
                                   u'ORANGE':(u'RED', u'YELLOW'), u'PURPLE':(u'RED', u'BLUE'), u'GREEN':(u'YELLOW', u'BLUE')}
         verboseStatMap = {'Agility':'agi', 'Strength':'str', 'Stamina':'stam', 'Critical Strike':'crit', 'Hit':'hit',
                           'Expertise':'exp', 'Haste':'haste', 'Mastery':'mastery', 'Increased Critical Effect':'chaotic_metagem',
-                          'PvP Resilience':'pvp_resil'}
+                          'PvP Resilience':'pvp_resil', 'PvP Power':'pvp_power'}
         #Loops over every item
         for p in self.raw_data['data'][u'items']:
             try:
