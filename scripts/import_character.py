@@ -77,7 +77,7 @@ class CharacterData:
              8 : 'troll',
              9 : 'goblin',
              10 : 'blood_elf',
-             11 : 'draenie',
+             11 : 'draenei',
              22 : 'worgen',
              24 : 'pandaren', #Neutral
              25 : 'pandaren', #Alliance
@@ -95,6 +95,7 @@ class CharacterData:
                 4416 : [{'stat':'agi', 'value':170}],
                 4419 : [{'stat':'agi', 'value':80}, {'stat':'str', 'value':80}, {'stat':'stam', 'value':80}],
                 4421 : [{'stat':'hit', 'value':180}],
+                4426 : [{'stat':'haste', 'value':175}], # Enchant Boots - Greater Haste
                 4428 : [{'stat':'agi', 'value':140}], #Speed Boost
                 4430 : [{'stat':'haste', 'value':170}],
                 4431 : [{'stat':'exp', 'value':170}],
