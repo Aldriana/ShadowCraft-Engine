@@ -546,11 +546,14 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         response_time = [0, self.settings.response_time][use_response_time]
         return 1. * duration / (cooldown + response_time)
 
-    def get_shadow_blades_uptime(self, cooldown=None):
-        # 'cooldown' used as an overide for combat cycles
+    def get_shadow_blades_duration(self):
         if self.level < 87:
             return 0
-        duration = 12 + self.stats.gear_buffs.rogue_t14_4pc_extra_time(is_combat=self.settings.is_combat_rogue())
+        return 12 + self.stats.gear_buffs.rogue_t14_4pc_extra_time(is_combat=self.settings.is_combat_rogue())
+
+    def get_shadow_blades_uptime(self, cooldown=None):
+        # 'cooldown' used as an overide for combat cycles
+        duration = self.get_shadow_blades_duration()
         return self.get_activated_uptime(duration, (cooldown, 180)[cooldown is None])
 
     def update_with_shadow_blades(self, attacks_per_second, shadow_blades_uptime):
@@ -1001,7 +1004,19 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         vendetta_duration = 20 + 10 * self.glyphs.vendetta
         vendetta_duration += self.stats.gear_buffs.rogue_t13_4pc * 9
-        self.vendetta_mult = 1 + (.3 - .05 * self.glyphs.vendetta) * vendetta_duration / (120 + self.settings.response_time)
+        vendetta_uptime = vendetta_duration / (120 + self.settings.response_time)
+        vendetta_multiplier = .3 - .05 * self.glyphs.vendetta
+        self.vendetta_mult = 1 + vendetta_multiplier * vendetta_uptime
+
+        shadow_blades_duration = self.get_shadow_blades_duration()
+        vendetta_shadow_blades_overlap = min(shadow_blades_duration, vendetta_duration)
+        vendetta_uptime_during_shadow_blades = .5 * vendetta_shadow_blades_overlap / shadow_blades_duration
+        self.shadow_blades_vendetta_mult = 1 + vendetta_multiplier * vendetta_uptime_during_shadow_blades
+
+        shadow_blades_spacing = 180 + self.settings.response_time
+        autoattack_duration = shadow_blades_spacing - shadow_blades_duration
+        autoattack_vendetta_overlap = shadow_blades_spacing * vendetta_uptime - shadow_blades_duration * vendetta_uptime_during_shadow_blades
+        self.autoattack_vendetta_mult = 1 + vendetta_multiplier * autoattack_vendetta_overlap / autoattack_duration
 
     def assassination_dps_estimate(self):
         non_execute_dps = self.assassination_dps_estimate_non_execute() * (1 - self.settings.time_in_execute_range)
@@ -1033,26 +1048,23 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         
         return dps_breakdown
 
-    def assassination_dps_breakdown_non_execute(self):
-        damage_breakdown = self.compute_damage(self.assassination_attack_counts_non_execute)
-
+    def update_damage_breakdown_for_vendetta(self, damage_breakdown):
         for key in damage_breakdown:
             if key == 'shadow_blades':
-                damage_breakdown[key] *= 1 + (.3 - .05 * self.glyphs.vendetta) / 2
+                damage_breakdown[key] *= self.shadow_blades_vendetta_mult
+            elif key == 'autoattack':
+                damage_breakdown[key] *= self.autoattack_vendetta_mult
             elif key != 'Elemental Force':
                 damage_breakdown[key] *= self.vendetta_mult
 
+    def assassination_dps_breakdown_non_execute(self):
+        damage_breakdown = self.compute_damage(self.assassination_attack_counts_non_execute)
+        self.update_damage_breakdown_for_vendetta(damage_breakdown)
         return damage_breakdown
 
     def assassination_dps_breakdown_execute(self):
         damage_breakdown = self.compute_damage(self.assassination_attack_counts_execute)
-
-        for key in damage_breakdown:
-            if key == 'shadow_blades':
-                damage_breakdown[key] *= 1 + (.3 - .05 * self.glyphs.vendetta) / 2
-            else:
-                damage_breakdown[key] *= self.vendetta_mult
-        
+        self.update_damage_breakdown_for_vendetta(damage_breakdown)
         return damage_breakdown
 
     def assassination_attack_counts(self, current_stats, cpg, finisher_size):
