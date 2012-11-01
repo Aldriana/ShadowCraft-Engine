@@ -17,6 +17,7 @@ class Race(object):
         90: {'ap': 4514, 'sp': 2257}
     }
     touch_of_the_grave_bonuses = {
+        80: {'spell_damage': 1000},
         90: {'spell_damage': 16000}
     }
 
@@ -78,8 +79,6 @@ class Race(object):
         'berserking':               {'stat': "haste_multiplier", 'value': 1.2, 'duration': 10, 'cooldown': 180},                    #20% haste increase for 10 seconds, 3 minute cd
         'arcane_torrent':           {'stat': "energy", 'value': 15, 'duration': 0, 'cooldown': 120},                                #gain 15 energy (or 15 runic power or 6% mana), 2 minute cd
         'rocket_barrage':           {'stat': "damage", 'value': calculate_rocket_barrage, 'duration': 0, 'cooldown': 120},      #deal formula-based damage, 2 min cd
-        'touch_of_the_grave':       {'stat': "damage", 'value': 16000, 'duration': 0, 'cooldown': 17} #should be proc based, real ICD probably either 10 or 15s
-                                                                                                      #damage value definitely wrong
     }
 
     racials_by_race = {
@@ -146,16 +145,20 @@ class Race(object):
             object.__getattribute__(self, name)
 
     def get_racial_expertise(self, weapon_type):
-        if weapon_type in ['1h_axe', '2h_axe', 'fist']:
+        #print weapon_type
+        if weapon_type in ['axe', '1h_axe', '2h_axe']:
             if self.axe_specialization:
                 return .01
-        elif weapon_type == '1h_sword':
+        elif weapon_type == 'fist':
+           if self.fist_specialization:
+               return .01
+        elif weapon_type in ['sword', '1h_sword']:
             if self.sword_1h_specialization:
                 return .01
         elif weapon_type == '2h_sword': 
             if self.sword_2h_specialization:
                 return .01
-        elif weapon_type in ['1h_mace', '2h_mace']:
+        elif weapon_type in ['mace', '1h_mace', '2h_mace']:
             if self.mace_specialization:
                 return .01
         elif weapon_type == 'dagger':

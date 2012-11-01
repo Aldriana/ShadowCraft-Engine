@@ -5,6 +5,7 @@ from types import *
 import sys
 import pprint
 import shelve
+import math
 
 sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
@@ -76,46 +77,42 @@ class CharacterData:
              8 : 'troll',
              9 : 'goblin',
              10 : 'blood_elf',
-             11 : 'draenie',
+             11 : 'draenei',
              22 : 'worgen',
              24 : 'pandaren', #Neutral
              25 : 'pandaren', #Alliance
              26 : 'pandaren', #Horde
     }
-    statMap = {3:'agi', 7:'stam', 31:'hit', 32:'crit', 36:'haste', 37:'exp', 49:'mastery', 35:'pvp_resil', 57:'pvp_power'}
+    statMap = {3:'agi', 4:'str', 5:'int', 6:'spirit', 7:'stam', 31:'hit', 32:'crit', 36:'haste', 37:'exp', 49:'mastery',
+               35:'pvp_resil', 57:'pvp_power'}
 
     enchants = {4441 : 'windsong',
                 4443 : 'elemental_force',
                 4444 : 'dancing_steel',
+                4416 : [{'stat':'agi', 'value':170}], # Enchant Bracer - Greater Agility
                 4359 : [{'stat':'agi', 'value':180}], #Enchanting Perk
-                4419 : [{'stat':'agi', 'value':80}, {'stat':'str', 'value':80}],
+                4411 : [{'stat':'mastery', 'value':170}],
+                4416 : [{'stat':'agi', 'value':170}],
+                4419 : [{'stat':'agi', 'value':80}, {'stat':'str', 'value':80}, {'stat':'stam', 'value':80}],
                 4421 : [{'stat':'hit', 'value':180}],
+                4426 : [{'stat':'haste', 'value':175}], # Enchant Boots - Greater Haste
                 4428 : [{'stat':'agi', 'value':140}], #Speed Boost
                 4430 : [{'stat':'haste', 'value':170}],
                 4431 : [{'stat':'exp', 'value':170}],
+                4433 : [{'stat':'mastery', 'value':170}],
+                4429 : [{'stat':'mastery', 'value':140}], # Pandaren's Step
                 4804 : [{'stat':'agi', 'value':200}, {'stat':'crit', 'value':100}],
+                4822 : [{'stat':'agi', 'value':285}, {'stat':'crit', 'value':165}],
                 4875 : [{'stat':'agi', 'value':500}], #Leatherworking Perk
+                4871 : [{'stat':'agi', 'value':170}, {'stat':'crit', 'value':100}],
                 4880 : [{'stat':'agi', 'value':285}, {'stat':'crit', 'value':165}],
+                4822 : [{'stat':'agi', 'value':285}, {'stat':'crit', 'value':165}], # Shadowleather Leg Armor
                 4411 : [{'stat':'mastery', 'value':170}],
-                4871 : [{'stat':'agi', 'value':170}, {'stat':'crit', 'value':100}]
+                4871 : [{'stat':'agi', 'value':170}, {'stat':'crit', 'value':100}],
+                4427 : [{'stat':'hit', 'value':175}],
+                4908 : [{'stat':'agi', 'value':120}, {'stat':'crit', 'value':80}], # Tiger Claw Inscrption
     }
     
-    gemsMap = {76884: [{'stat':'agi', 'value':216}, 'chaotic_metagem'],
-               83151: [{'stat':'agi', 'value':320}], #agi JC gem
-               76626: [{'stat':'agi', 'value':160}],
-               76680: [{'stat':'agi', 'value':80}, {'stat':'hit', 'value':160}],
-               76614: [{'stat':'agi', 'value':80}, {'stat':'hit', 'value':160}],
-               76666: [{'stat':'agi', 'value':80}, {'stat':'haste', 'value':160}],
-               76600: [{'stat':'agi', 'value':80}, {'stat':'haste', 'value':160}],
-               76604: [{'stat':'agi', 'value':80}, {'stat':'mastery', 'value':160}],
-               76670: [{'stat':'agi', 'value':80}, {'stat':'mastery', 'value':160}],
-               76636: [{'stat':'hit', 'value':320}],
-               76576: [{'stat':'hit', 'value':160}, {'stat':'haste', 'value':160}],
-               76643: [{'stat':'hit', 'value':160}, {'stat':'mastery', 'value':160}],
-               76699: [{'stat':'haste', 'value':320}],
-               76667: [{'stat':'exp', 'value':160}, {'stat':'haste', 'value':160}],
-    }
-
     trinkets = {87057 : 'heroic_bottle_of_infinite_stars', 
                 86132 : 'bottle_of_infinite_stars',
                 87167 : 'heroic_terror_in_the_mists',
@@ -238,11 +235,13 @@ class CharacterData:
         }
 
 
-    def __init__(self, region, realm, name):
+    def __init__(self, region, realm, name, verbose=False):
         self.region = region
         self.realm = realm
         self.name = name
+        self.verbose = verbose
         self.raw_data = None
+        self.chaotic_metagem = False
 
     def do_import(self):
         self.raw_data = wowapi.get_character(self.region , self.realm, self.name, ['talents', 'items', 'stats'])
@@ -252,8 +251,8 @@ class CharacterData:
 
     def get_weapon(self, weapon_data, item_data):
         weapon_info = weapon_data['data'][u'weaponInfo']
-        weaponMap = {1:'axe', 2:'2axe', 3:'bow', 4:'rifle',5:'mace', 6:'2mace', 7:'polearm', 8:'sword', 9:'2sword', 10:'staff',
-                     11:'exotic', 12:'2exotic', 13:'fist', 14:'misc', 15:'dagger', 16:'thrown', 17:'spear', 18:'xbow', 19:'wand',
+        weaponMap = {1:'axe', 2:'2h_axe', 3:'bow', 4:'rifle',5:'mace', 6:'2h_mace', 7:'polearm', 8:'sword', 9:'2H_sword', 10:'staff',
+                     11:'exotic', 12:'2h_exotic', 13:'fist', 14:'misc', 15:'dagger', 16:'thrown', 17:'spear', 18:'xbow', 19:'wand',
                      20:'fishing_pole'}
         tmpItem = get_item_cached(self.region, item_data[u'id'])
         damage_info = weapon_info[u'damage']
@@ -327,19 +326,23 @@ class CharacterData:
 #        pp.pprint(ret)
         return [str, agi, ap - 2 * agi, crit, hit, exp, haste, mast]
 
-
     def get_gear_stats(self):
         #           
-        lst = {'agi': 0, 'str':0, 'stam':0, 'crit':0, 'hit':0, 'exp':0, 'haste':0, 'mastery':0, 'ap':0, 'pvp_power':0, 'pvp_resil':0}
+        lst = {'agi': 0, 'str':0, 'int':0, 'spirit':0, 'stam':0, 'crit':0, 'hit':0, 'exp':0, 'haste':0, 'mastery':0, 'ap':0, 'pvp_power':0, 'pvp_resil':0}
         reforge = ('none', 'none')
         reforgeID = None
-        gemList = {u'gem0':None, u'gem1':None, u'gem2':None}
+        gemColorToSocketColors = {u'RED': (u'RED'), u'YELLOW':(u'YELLOW'), u'BLUE':(u'BLUE'), u'META':(u'META'), u'COGWHEEL':(u'COGWHEEL'),
+                                  u'ORANGE':(u'RED', u'YELLOW'), u'PURPLE':(u'RED', u'BLUE'), u'GREEN':(u'YELLOW', u'BLUE')}
+        verboseStatMap = {'Agility':'agi', 'Strength':'str', 'Stamina':'stam', 'Critical Strike':'crit', 'Hit':'hit',
+                          'Expertise':'exp', 'Haste':'haste', 'Mastery':'mastery', 'Increased Critical Effect':'chaotic_metagem',
+                          'PvP Resilience':'pvp_resil', 'PvP Power':'pvp_power'}
         #Loops over every item
         for p in self.raw_data['data'][u'items']:
             try:
                 #ilvl is included in the gear array for some unknown reason, lets ignore it
                 if p != 'averageItemLevelEquipped' and p != 'averageItemLevel':
                     tmpItem = get_item_cached(self.region, self.raw_data['data'][u'items'][p][u'id'])
+                    self.verbosePrint('\n' + p + ': ' + self.raw_data['data'][u'items'][p][u'name'])
                     params = self.raw_data['data'][u'items'][p][u'tooltipParams']
                     #grab the reforge if it exists
                     if u'reforge' in self.raw_data['data'][u'items'][p][u'tooltipParams']:
@@ -349,40 +352,79 @@ class CharacterData:
                         reforge = CharacterData.reforgeMap[reforgeID]
                     #for each stat on the gear
                     for key in tmpItem[u'data'][u'bonusStats']:
-                        if key[u'stat'] in CharacterData.statMap and key[u'stat'] == reforge[0]:
+                        if key[u'stat'] in CharacterData.statMap and CharacterData.statMap[key[u'stat']] == reforge[0]:
                             #if a reforge was found
-                            tmpVal = math.floor(key[u'amount'] * .6)
+                            tmpVal = math.ceil(key[u'amount'] * .6)
                             lst[ CharacterData.statMap[key[u'stat']] ] += tmpVal
                             lst[ reforge[1] ] += key[u'amount'] - tmpVal
+                            self.verbosePrint('Reforge found: +' + str(tmpVal) + ' ' + reforge[0] + ', +' + str(key[u'amount'] - tmpVal) + ' ' + reforge[1])
                         else:
                             #otherwise, no reforge
                             lst[ CharacterData.statMap[key[u'stat']] ] += key[u'amount']
+                            self.verbosePrint('+' + str(key[u'amount']) + ' ' + CharacterData.statMap[key[u'stat']])
                     #prevents cached reforges from affecting subsequent items
                     reforge = ('none', 'none')
-                    #find number of gems used
-                    for key in gemList.keys():
-                        if key in params.keys():
-                            if params[key] in CharacterData.gemsMap:
-                                for entry in CharacterData.gemsMap[ params[key] ]:
-                                    if not type( entry ) == type( '' ):
-                                        lst[ entry['stat'] ] += entry['value']
-                            else:
-                                print "unknown gem: ", params[key]
+                    #add stats from gems, check if socket colors are matched along the way
+                    if u'socketInfo' in tmpItem['data']:
+                        socketInfo = tmpItem['data'][u'socketInfo']
+                        socketBonusActivated = True  # we'll find out if this is not true as we process each gem
+                    else:
+                        socketInfo = None
+                        socketBonusActivated = False
+                    gemCount = 0
+                    for gemNumber in range(3):
+                        gemId = 'gem' + str(gemNumber)
+                        if gemId in params.keys():
+                            gemCount += 1
+                            tmpGem = get_item_cached(self.region, params[gemId])
+                            if not socketInfo == None:
+                                sockets = socketInfo[u'sockets']
+                                if gemNumber < len(sockets):
+                                    if not sockets[gemNumber][u'type'] in gemColorToSocketColors[tmpGem['data'][u'gemInfo'][u'type'][u'type']]:
+                                        socketBonusActivated = False
+                                        self.verbosePrint(tmpGem['data'][u'name'] + ' does not match socket of color ' + sockets[gemNumber][u'type'] + ', socket bonus not activated!')
+                            for entry in tmpGem['data'][u'gemInfo'][u'bonus'][u'name'].split(' and '):
+                                tmpLst = entry.split(' ')
+                                if not '%' in tmpLst[0]:
+                                    tmpVal = int(tmpLst[0][1:])
+                                    tmpStat = verboseStatMap[' '.join(tmpLst[1:])]
+                                    lst[tmpStat] += tmpVal
+                                    self.verbosePrint(tmpGem['data'][u'name'] + ': +' + str(tmpVal) + ' ' + tmpStat)
+                                else:
+                                    self.chaotic_metagem = True
+                                    self.verbosePrint(tmpGem['data'][u'name'] + ' is a meta gem')
+                    #add stats from socket bonuses
+                    if socketBonusActivated == True and gemCount >= len(socketInfo[u'sockets']):
+                        for entry in socketInfo[u'socketBonus'].split(' and '): #similar to gem treatment... is there ever a socket bonus that gives multiple stats?
+                            tmpLst = entry.split(' ')
+                            tmpVal = int(tmpLst[0][1:])
+                            tmpStat = verboseStatMap[ ' '.join(tmpLst[1:]) ]
+                            lst[ tmpStat ] += tmpVal
+                            self.verbosePrint('Socket bonus +' + str(tmpVal) + ' ' + tmpStat)
                     #add stats from enchants
                     if u'enchant' in params.keys():
                         if not type( CharacterData.enchants[ params[u'enchant'] ] ) == type(''):
-                            #print CharacterData.enchants[ params[u'enchant'] ]
                             for key in CharacterData.enchants[ params[u'enchant'] ]:
                                 lst[ key['stat'] ] += key['value']
+                                self.verbosePrint('Enchant +' + str(key['value']) + ' ' + key['stat'])
+                        else:
+                            self.verbosePrint(CharacterData.enchants[params[u'enchant']])
+                    else:
+                        self.verbosePrint('Unenchanted')
             except Exception as inst:
                 #it's okay, we can keep going, just so long as we pretend to handle the exception
                 print "\n"
                 print "Error at slot: ", p
                 print "Error type:    ", type(inst)
                 raise
-        return [lst['str'], lst['agi'], lst['ap'], lst['crit'], lst['hit'], lst['exp'], lst['haste'], lst['mastery']]
-        #return self.raw_data['data'][u'items']
-
+        if self.verbose:
+            pp.pprint(lst)
+        return lst
+        #return [lst['str'], lst['agi'], lst['int'], lst['spirit'], lst['stam'], lst['ap'], lst['crit'], lst['hit'], lst['exp'], lst['haste'], lst['mastery']]
+    
+    def has_chaotic_metagem(self):
+        return self.chaotic_metagem
+        
     def get_current_spec_data(self):
         specs_data = self.raw_data['data'][u'talents']
         if u'selected' in specs_data[0]:
@@ -408,3 +450,7 @@ class CharacterData:
             if glyph_name in CharacterData.glyphs:
                 glyphs.append(CharacterData.glyphs[glyph_name])
         return glyphs
+
+    def verbosePrint(self, str):
+        if self.verbose:
+            print str

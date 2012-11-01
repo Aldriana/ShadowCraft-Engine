@@ -18,12 +18,15 @@ class Stats(object):
     pvp_power_rating_conversion_values = {60:1.0, 70:2.0, 80:4.0, 85:79.182, 90:265.0}
     pvp_resil_rating_conversion_values = {60:1.0, 70:2.0, 80:4.0, 85:79.98, 90:310.0}
 
-    def __init__(self, str, agi, ap, crit, hit, exp, haste, mastery, mh, oh, procs, gear_buffs, level=None, pvp_power=0, pvp_resil=0, pvp_target_armor=None):
+    def __init__(self, str, agi, int, spirit, stam, ap, crit, hit, exp, haste, mastery, mh, oh, procs, gear_buffs, level=None, pvp_power=0, pvp_resil=0, pvp_target_armor=None):
         # This will need to be adjusted if at any point we want to support
         # other classes, but this is probably the easiest way to do it for
         # the moment.
         self.str = str
         self.agi = agi
+        self.int = int
+        self.spirit = spirit
+        self.stam = stam
         self.ap = ap
         self.crit = crit
         self.hit = hit
@@ -57,7 +60,12 @@ class Stats(object):
         object.__setattr__(self, name, value)
         if name == 'level' and value is not None:
             self._set_constants_for_level()
-
+    
+    def get_max_health(self, rating=None):
+        if rating is None:
+            rating = self.stam
+        return rating * 14 - 260 + 146663 #assumed to be level 90 for now
+    
     def get_mastery_from_rating(self, rating=None):
         if rating is None:
             rating = self.mastery

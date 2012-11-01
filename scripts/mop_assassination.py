@@ -50,8 +50,8 @@ test_procs = procs.ProcsList('heroic_bottle_of_infinite_stars', 'heroic_terror_i
 test_gear_buffs = stats.GearBuffs('rogue_t14_2pc', 'rogue_t14_4pc', 'leather_specialization', 'virmens_bite', 'virmens_bite_prepot', 'chaotic_metagem')
 
 # Set up a calcs object..
-#                       str,   agi,  ap, crit,  hit, exp, haste, mast,      mh,      oh,      procs,      gear_buffs
-test_stats = stats.Stats(80, 19000, 250, 4800, 2550, 2550, 3000, 5000, test_mh, test_oh, test_procs, test_gear_buffs, pvp_power=0, pvp_resil=0, pvp_target_armor=None)
+#                       str,   agi, int, spirit, stam,  ap, crit,  hit,  exp,haste, mast,      mh,      oh,      procs,      gear_buffs
+test_stats = stats.Stats(80, 19000,   0,      0,    0, 250, 4800, 2550, 2550, 3000, 5000, test_mh, test_oh, test_procs, test_gear_buffs, pvp_power=0, pvp_resil=0, pvp_target_armor=None)
 
 # Initialize talents..
 test_talents = talents.Talents('322210', test_class, test_level)

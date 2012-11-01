@@ -29,6 +29,24 @@ class Buffs(object):
         'food_275',                         # Pandaren Banquet
         'food_300_agi'                      # Sea Mist Rice Noodles
     ])
+    
+    buffs_debuffs = frozenset([
+        'short_term_haste_buff',            # Heroism/Blood Lust, Time Warp
+        'stat_multiplier_buff',             # Mark of the Wild, Blessing of Kings, Legacy of the Emperor
+        'crit_chance_buff',                 # Leader of the Pack, Legacy of the White Tiger, Arcane Brillance
+        'melee_haste_buff',                 # Swiftblade's Cunning, Unholy Aura
+        'attack_power_buff',                # Horn of Winter, Trueshot Aura, Battle Shout
+        'mastery_buff',                     # Blessing of Might, Grace of Air
+        'spell_haste_buff',                 # Moonkin Form, Shadowform
+        'spell_power_buff',                 # Dark Intent, Arcane Brillance
+        'stamina_buff',                     # PW: Fortitude, Blood Pact, Commanding Shout
+        'armor_debuff',                     # Sunder, Expose Armor, Faerie Fire
+        'physical_vulnerability_debuff',    # Brittle Bones, Ebon Plaguebringer, Judgments of the Bold, Colossus Smash
+        'spell_damage_debuff',              # Master Poisoner, Curse of Elements
+        'weakened_blows_debuff',
+        'slow_casting_debuff',
+        'mortal_wounds_debuff',
+    ])
 
     buff_scaling = {80: 131, 85: 509, 90: 1710}
 
@@ -55,6 +73,9 @@ class Buffs(object):
             self.mast_buff_bonus = round(1.7545000315 * self.buff_scaling[self.level])
         except KeyError as e:
             raise exceptions.InvalidLevelException(_('No conversion factor available for level {level}').format(level=self.level))
+    
+    def get_max_buffs(self):
+        return frozenset(buffs_debuffs + ['food_300_agi', 'agi_flask_mop'])
 
     def stat_multiplier(self):
         return [1, 1.05][self.stat_multiplier_buff]

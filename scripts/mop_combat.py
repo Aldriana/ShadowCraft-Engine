@@ -21,7 +21,7 @@ i18n.set_language(test_language)
 
 # Set up level/class/race
 test_level = 90
-test_race = race.Race('pandaren')
+test_race = race.Race('worgen')
 test_class = 'rogue'
 
 # Set up buffs.
@@ -40,18 +40,18 @@ test_buffs = buffs.Buffs(
     )
 
 # Set up weapons.
-test_mh = stats.Weapon(9725.5, 2.6, 'axe', 'dancing_steel')
-test_oh = stats.Weapon(9725.5, 2.6, 'axe', 'dancing_steel')
+test_mh = stats.Weapon(9725.5, 2.6, 'fist', 'dancing_steel')
+test_oh = stats.Weapon(9725.5, 2.6, 'fist', 'dancing_steel')
 
 # Set up procs.
-test_procs = procs.ProcsList('heroic_vial_of_shadows', 'heroic_wrath_of_unchaining')
+test_procs = procs.ProcsList('heroic_bottle_of_infinite_stars', 'heroic_terror_in_the_mists')
 
 # Set up gear buffs.
 test_gear_buffs = stats.GearBuffs('rogue_t14_2pc', 'rogue_t14_4pc', 'leather_specialization', 'vermins_bite', 'chaotic_metagem')
 
 # Set up a calcs object..
-#                       str,   agi, ap,  crit,  hit, exp, haste, mast,      mh,      oh,      procs,      gear_buffs
-test_stats = stats.Stats(80, 18000, 250, 2000, 2550, 2550, 4000, 4800, test_mh, test_oh, test_procs, test_gear_buffs, pvp_power=3000, pvp_resil=0, pvp_target_armor=None)
+#                       str,   agi, int, spirit,  stam,  ap, crit,  hit,  exp,haste, mast,      mh,      oh,      procs,      gear_buffs
+test_stats = stats.Stats(80, 15633,    0,     0, 14080,   0, 2023, 2550, 2550, 7527, 4201, test_mh, test_oh, test_procs, test_gear_buffs, pvp_power=3000, pvp_resil=0, pvp_target_armor=None)
 
 # Initialize talents..
 test_talents = talents.Talents('322213', test_class, test_level)

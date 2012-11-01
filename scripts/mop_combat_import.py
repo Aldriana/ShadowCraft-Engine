@@ -2,8 +2,8 @@
 from os import path
 import sys
 from import_character import CharacterData
-
-sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
+from char_info import charInfo
+#sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
 from shadowcraft.calcs.rogue.Aldriana import AldrianasRogueDamageCalculator
 from shadowcraft.calcs.rogue.Aldriana import settings
@@ -22,7 +22,15 @@ from shadowcraft.core import i18n
 test_language = 'local'
 i18n.set_language(test_language)
 
-character_data = CharacterData('us', 'Doomhammer', 'Pins')
+
+key = 1
+while key < len(sys.argv):
+    terms = sys.argv[key].split(':')
+    charInfo[ terms[0] ] = terms[1]
+    key += 1
+
+print "Loading " + charInfo['name'] + " of " + charInfo['region'] + "-" + charInfo['realm'] + "\n"
+character_data = CharacterData(charInfo['region'], charInfo['realm'], charInfo['name'])
 character_data.do_import()
 
 
@@ -60,26 +68,32 @@ character_procs_allowed = filter(lambda p: p in proc_data.allowed_procs, charact
 test_procs = procs.ProcsList(*character_procs_allowed)
 
 # Set up gear buffs.
-character_gear_buffs = character_data.get_gear_buffs() + ['leather_specialization', 'virmens_bite', 'virmens_bite_prepot', 'chaotic_metagem']
+character_gear_buffs = character_data.get_gear_buffs() + ['leather_specialization', 'virmens_bite', 'virmens_bite_prepot']
+if character_data.has_chaotic_metagem():
+    character_gear_buffs.append('chaotic_metagem')
 test_gear_buffs = stats.GearBuffs(*character_gear_buffs)
 
-
 # Set up a calcs object..
-#                       str,   agi, ap,  crit,  hit, exp, haste, mast,      mh,      oh,      procs,      gear_buffs
-character_stats = character_data.get_gear_stats()
-test_stats = stats.Stats(*(character_stats + [test_mh, test_oh, test_procs, test_gear_buffs]), pvp_power=0, pvp_resil=0, pvp_target_armor=None)
-
+lst = character_data.get_gear_stats()
+test_stats = stats.Stats(lst['str'], lst['agi'], lst['int'], lst['spirit'], lst['stam'], lst['ap'], lst['crit'], lst['hit'], lst['exp'],
+                         lst['haste'], lst['mastery'], test_mh, test_oh, test_procs, test_gear_buffs,
+                         pvp_power=lst['pvp_power'], pvp_resil=lst['pvp_resil'], pvp_target_armor=None)
 
 # Initialize talents..
-test_talents = talents.Talents(character_data.get_talents(), test_class, test_level)
+if charInfo['talents'] == None:
+    charInfo['talents'] = character_data.get_talents()
+test_talents = talents.Talents(charInfo['talents'], test_class, test_level)
 
 # Set up glyphs.
 glyph_list = character_data.get_glyphs()
 test_glyphs = glyphs.Glyphs(test_class, *glyph_list)
 
 # Set up settings.
+if character_data.get_mh_type() == 'dagger':
+    print "\nALERT: Dagger found. Playing combat with a dagger should be a last resort, and is not recommended. \n"
 test_cycle = settings.CombatCycle(use_rupture=True, ksp_immediately=True, revealing_strike_pooling=True, blade_flurry=False)
-test_settings = settings.Settings(test_cycle, response_time=.5, duration=360, dmg_poison='dp', utl_poison='lp', is_pvp=False)
+test_settings = settings.Settings(test_cycle, response_time=.5, duration=360, dmg_poison='dp', utl_poison='lp', is_pvp=charInfo['pvp'],
+                                  stormlash=charInfo['stormlash'], shiv_interval=charInfo['shiv'])
 
 # Build a DPS object.
 calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyphs, test_buffs, test_race, test_settings, test_level)
@@ -91,6 +105,7 @@ ep_values = calculator.get_ep()
 dps_breakdown = calculator.get_dps_breakdown()
 total_dps = sum(entry[1] for entry in dps_breakdown.items())
 talent_ranks = calculator.get_talents_ranking()
+heal_sum, heal_table = calculator.get_self_healing(dps_breakdown=dps_breakdown)
 
 # Compute weapon type modifier.
 weapon_type_mod = calculator.get_oh_weapon_modifier()
@@ -119,8 +134,9 @@ def pretty_print(dict_list):
 
 dicts_for_pretty_print = [
     weapon_type_mod,
-    talent_ranks,
     ep_values,
+    talent_ranks,
+    heal_table,
     dps_breakdown
 ]
 pretty_print(dicts_for_pretty_print)
