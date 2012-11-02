@@ -558,6 +558,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
     def update_with_shadow_blades(self, attacks_per_second, shadow_blades_uptime):
         mh_sb_swings_per_second = attacks_per_second['mh_autoattacks'] * shadow_blades_uptime
         oh_sb_swings_per_second = attacks_per_second['oh_autoattacks'] * shadow_blades_uptime
+        #assumes AR is stacked with SB, should have better implementation later
+        if self.settings.is_combat_rogue():
+            mh_sb_swings_per_second = mh_sb_swings_per_second / (1 + .2 * self.ar_uptime) * 1.2
+            oh_sb_swings_per_second = oh_sb_swings_per_second / (1 + .2 * self.ar_uptime) * 1.2
         attacks_per_second['mh_autoattacks'] -= mh_sb_swings_per_second
         attacks_per_second['oh_autoattacks'] -= oh_sb_swings_per_second
         attacks_per_second['mh_shadow_blade'] = mh_sb_swings_per_second * self.strike_hit_chance
@@ -1286,7 +1290,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             damage_breakdown['blade_flurry'] = 0
             for key in damage_breakdown:
                 if key in self.melee_attacks:
-                    damage_breakdown['blade_flurry'] += damage_breakdown[key] * self.armor_mitigation_multiplier(self.target_armor())
+                    damage_breakdown['blade_flurry'] += damage_breakdown[key]
         
         return damage_breakdown
 
@@ -1433,9 +1437,10 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         energy_spent_on_snd = snd_cost / (snd_duration - self.settings.response_time)
 
         if self.settings.cycle.use_rupture:
-            avg_rupture_gap = (total_rupture_cost - .5 * total_eviscerate_cost) / energy_regen
+            #avg_rupture_gap = (total_rupture_cost - .5 * total_eviscerate_cost) / energy_regen
             avg_rupture_duration = 4 * (1 + cp_per_finisher)
-            attacks_per_second['rupture'] = 1 / (avg_rupture_duration + avg_rupture_gap)
+            #attacks_per_second['rupture'] = 1 / (avg_rupture_duration + avg_rupture_gap)
+            attacks_per_second['rupture'] = 1 / (avg_rupture_duration * 2)
         else:
             attacks_per_second['rupture'] = 0
         energy_spent_on_rupture = total_rupture_cost * attacks_per_second['rupture']
@@ -1466,7 +1471,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             attacks_per_second['garrote_ticks'] = 6 * attacks_per_second['garrote']
 
         self.get_poison_counts(attacks_per_second)
-
+        
         return attacks_per_second, crit_rates
 
     ###########################################################################
