@@ -26,7 +26,10 @@ i18n.set_language(test_language)
 key = 1
 while key < len(sys.argv):
     terms = sys.argv[key].split(':')
-    charInfo[ terms[0] ] = terms[1]
+    if terms[0] in ['stormlash', 'shiv']:
+        charInfo[ terms[0] ] = float(terms[1])
+    else:
+        charInfo[ terms[0] ] = terms[1]
     key += 1
 
 print "Loading " + charInfo['name'] + " of " + charInfo['region'] + "-" + charInfo['realm'] + "\n"
@@ -67,14 +70,15 @@ character_procs_allowed = filter(lambda p: p in proc_data.allowed_procs, charact
 
 test_procs = procs.ProcsList(*character_procs_allowed)
 
+# Set up a calcs object..
+lst = character_data.get_gear_stats()
+
 # Set up gear buffs.
 character_gear_buffs = character_data.get_gear_buffs() + ['leather_specialization', 'virmens_bite', 'virmens_bite_prepot']
 if character_data.has_chaotic_metagem():
     character_gear_buffs.append('chaotic_metagem')
 test_gear_buffs = stats.GearBuffs(*character_gear_buffs)
 
-# Set up a calcs object..
-lst = character_data.get_gear_stats()
 test_stats = stats.Stats(lst['str'], lst['agi'], lst['int'], lst['spirit'], lst['stam'], lst['ap'], lst['crit'], lst['hit'], lst['exp'],
                          lst['haste'], lst['mastery'], test_mh, test_oh, test_procs, test_gear_buffs,
                          pvp_power=lst['pvp_power'], pvp_resil=lst['pvp_resil'], pvp_target_armor=None)

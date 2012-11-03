@@ -460,19 +460,20 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 p_double_crit = crit_rates['killing_spree'] ** 2
                 munch_per_sec = attacks_per_second['mh_killing_spree'] * p_double_crit
                 damage_breakdown['ksp_munch'] = 0, munch_per_sec * mh_dmg[1]
-
+                
+        finisher_per_second = {'envenom': 0, 'eviscerate': 0, 'rupture_ticks':0}
         if 'rupture_ticks' in attacks_per_second:
             average_dps = crit_dps = 0
             for i in xrange(1, 6):
                 dps_tuple = self.get_dps_contribution(self.rupture_tick_damage(average_ap, i), crit_rates['rupture_ticks'], attacks_per_second['rupture_ticks'][i])
                 average_dps += dps_tuple[0]
                 crit_dps += dps_tuple[1]
+                finisher_per_second['rupture_ticks'] += attacks_per_second['rupture_ticks'][i]
             damage_breakdown['rupture'] = average_dps, crit_dps
 
         if 'garrote_ticks' in attacks_per_second:
             damage_breakdown['garrote'] = self.get_dps_contribution(self.garrote_tick_damage(average_ap), crit_rates['garrote'], attacks_per_second['garrote_ticks'])
             
-        finisher_per_second = {'envenom': 0, 'eviscerate': 0}
         if 'envenom' in attacks_per_second:
             average_dps = crit_dps = 0
             for i in xrange(1, 6):
@@ -491,10 +492,15 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                 finisher_per_second['eviscerate'] += attacks_per_second['eviscerate'][i]
             damage_breakdown['eviscerate'] = average_dps, crit_dps
             
+        if 'hemorrhage_ticks' in attacks_per_second:
+            dps_from_hit_hemo = self.get_dps_contribution(self.hemorrhage_tick_damage(average_ap, from_crit_hemo=False), crit_rates['hemorrhage'], attacks_per_second['hemorrhage_ticks'] * (1 - crit_rates['hemorrhage']))
+            dps_from_crit_hemo = self.get_dps_contribution(self.hemorrhage_tick_damage(average_ap, from_crit_hemo=True), crit_rates['hemorrhage'], attacks_per_second['hemorrhage_ticks'] * crit_rates['hemorrhage'])
+            damage_breakdown['hemorrhage_dot'] = dps_from_hit_hemo[0] + dps_from_crit_hemo[0], dps_from_hit_hemo[1] + dps_from_crit_hemo[1]
+            
         stormlash_mod_table = {'mh_autoattack_hits': .4 * (self.stats.mh.speed / 2.6),
                      'oh_autoattack_hits': .4 * (self.stats.mh.speed / 2.6) * .5, 
-                     'mh_shadow_blades': .4 * (self.stats.mh.speed / 2.6), 
-                     'oh_shadow_blades': .4 * (self.stats.mh.speed / 2.6) * .5, 
+                     'mh_shadow_blade': .4 * (self.stats.mh.speed / 2.6), 
+                     'oh_shadow_blade': .4 * (self.stats.mh.speed / 2.6) * .5, 
                      'sinister_strike': .5}
 
         if self.settings.use_stormlash:
@@ -503,11 +509,11 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             average_dps = crit_dps = 0
             uptime = int(self.settings.use_stormlash) * 10. / (5 * 60)
             for value in attacks_per_second:
-                if value in self.melee_hit_chance_attacks:
-                    damage_mod = 1
+                if value in self.all_attacks:
+                    damage_mod = 1.
                     if value in stormlash_mod_table:
                         damage_mod = stormlash_mod_table[value]
-                    if value in ('envenom', 'eviscerate'):
+                    if value in ('envenom', 'eviscerate', 'rupture_ticks'):
                         damage_tuple = self.get_dps_contribution(self.stormlash_totem_damage(average_ap, mod=damage_mod), self.spell_crit_rate(), finisher_per_second[value])
                     else:
                         damage_tuple = self.get_dps_contribution(self.stormlash_totem_damage(average_ap, mod=damage_mod), self.spell_crit_rate(), attacks_per_second[value])
@@ -515,11 +521,6 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
                     crit_dps += uptime * damage_tuple[1] * self.spell_hit_chance()
             damage_breakdown['stormlash'] = average_dps, crit_dps
         
-        if 'hemorrhage_ticks' in attacks_per_second:
-            dps_from_hit_hemo = self.get_dps_contribution(self.hemorrhage_tick_damage(average_ap, from_crit_hemo=False), crit_rates['hemorrhage'], attacks_per_second['hemorrhage_ticks'] * (1 - crit_rates['hemorrhage']))
-            dps_from_crit_hemo = self.get_dps_contribution(self.hemorrhage_tick_damage(average_ap, from_crit_hemo=True), crit_rates['hemorrhage'], attacks_per_second['hemorrhage_ticks'] * crit_rates['hemorrhage'])
-            damage_breakdown['hemorrhage_dot'] = dps_from_hit_hemo[0] + dps_from_crit_hemo[0], dps_from_hit_hemo[1] + dps_from_crit_hemo[1]
-
         for proc in damage_procs:
             if proc.proc_name not in damage_breakdown:
                 # Toss multiple damage procs with the same name (Avalanche):
@@ -593,8 +594,8 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
             if 'main_gauche_proc_rate' in kwargs:
                 main_gauche_proc_rate = kwargs['main_gauche_proc_rate']
             elif 'current_stats' in kwargs:
-                main_gauche_proc_rate = .02 * self.stats.get_mastery_from_rating(kwargs['current_stats']['mastery']) * self.one_hand_melee_hit_chance()
-            attacks_per_second['main_gauche'] = main_gauche_proc_rate * attacks_per_second['mh_autoattack_hits']
+                main_gauche_proc_rate = self.combat_mastery_conversion * self.stats.get_mastery_from_rating(kwargs['current_stats']['mastery']) * self.one_hand_melee_hit_chance()
+            attacks_per_second['main_gauche'] = main_gauche_proc_rate * (attacks_per_second['mh_autoattack_hits'] + attacks_per_second['mh_shadow_blade'])
         
 
     def get_mh_procs_per_second(self, proc, attacks_per_second, crit_rates):
@@ -1316,7 +1317,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier
         self.attack_speed_increase = attack_speed_multiplier
 
-        main_gauche_proc_rate = .02 * self.stats.get_mastery_from_rating(current_stats['mastery']) * self.one_hand_melee_hit_chance()
+        main_gauche_proc_rate = self.combat_mastery_conversion * self.stats.get_mastery_from_rating(current_stats['mastery']) * self.one_hand_melee_hit_chance()
 
         combat_potency_regen_per_oh = 15 * .2 * self.stats.oh.speed / 1.4  # the new "normalized" formula
         combat_potency_from_mg = 15 * .2
@@ -1553,7 +1554,7 @@ class AldrianasRogueDamageCalculator(RogueDamageCalculator):
 
         haste_multiplier = self.stats.get_haste_multiplier_from_rating(current_stats['haste'])
 
-        mastery_snd_speed = 1 + .4 * (1 + .03 * self.stats.get_mastery_from_rating(current_stats['mastery']))
+        mastery_snd_speed = 1 + .4 * (1 + self.subtlety_mastery_conversion * self.stats.get_mastery_from_rating(current_stats['mastery']))
 
         attack_speed_multiplier = self.base_speed_multiplier * haste_multiplier * mastery_snd_speed / 1.4
         self.attack_speed_increase = attack_speed_multiplier

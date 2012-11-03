@@ -342,7 +342,7 @@ class CharacterData:
                 #ilvl is included in the gear array for some unknown reason, lets ignore it
                 if p != 'averageItemLevelEquipped' and p != 'averageItemLevel':
                     tmpItem = get_item_cached(self.region, self.raw_data['data'][u'items'][p][u'id'])
-                    self.verbosePrint('\n' + p + ': ' + self.raw_data['data'][u'items'][p][u'name'])
+                    self.verbose_print('\n' + p + ': ' + self.raw_data['data'][u'items'][p][u'name'])
                     params = self.raw_data['data'][u'items'][p][u'tooltipParams']
                     #grab the reforge if it exists
                     if u'reforge' in self.raw_data['data'][u'items'][p][u'tooltipParams']:
@@ -357,11 +357,11 @@ class CharacterData:
                             tmpVal = math.ceil(key[u'amount'] * .6)
                             lst[ CharacterData.statMap[key[u'stat']] ] += tmpVal
                             lst[ reforge[1] ] += key[u'amount'] - tmpVal
-                            self.verbosePrint('Reforge found: +' + str(tmpVal) + ' ' + reforge[0] + ', +' + str(key[u'amount'] - tmpVal) + ' ' + reforge[1])
+                            self.verbose_print('Reforge found: +' + str(tmpVal) + ' ' + reforge[0] + ', +' + str(key[u'amount'] - tmpVal) + ' ' + reforge[1])
                         else:
                             #otherwise, no reforge
                             lst[ CharacterData.statMap[key[u'stat']] ] += key[u'amount']
-                            self.verbosePrint('+' + str(key[u'amount']) + ' ' + CharacterData.statMap[key[u'stat']])
+                            self.verbose_print('+' + str(key[u'amount']) + ' ' + CharacterData.statMap[key[u'stat']])
                     #prevents cached reforges from affecting subsequent items
                     reforge = ('none', 'none')
                     #add stats from gems, check if socket colors are matched along the way
@@ -382,17 +382,17 @@ class CharacterData:
                                 if gemNumber < len(sockets):
                                     if not sockets[gemNumber][u'type'] in gemColorToSocketColors[tmpGem['data'][u'gemInfo'][u'type'][u'type']]:
                                         socketBonusActivated = False
-                                        self.verbosePrint(tmpGem['data'][u'name'] + ' does not match socket of color ' + sockets[gemNumber][u'type'] + ', socket bonus not activated!')
+                                        self.verbose_print(tmpGem['data'][u'name'] + ' does not match socket of color ' + sockets[gemNumber][u'type'] + ', socket bonus not activated!')
                             for entry in tmpGem['data'][u'gemInfo'][u'bonus'][u'name'].split(' and '):
                                 tmpLst = entry.split(' ')
                                 if not '%' in tmpLst[0]:
                                     tmpVal = int(tmpLst[0][1:])
                                     tmpStat = verboseStatMap[' '.join(tmpLst[1:])]
                                     lst[tmpStat] += tmpVal
-                                    self.verbosePrint(tmpGem['data'][u'name'] + ': +' + str(tmpVal) + ' ' + tmpStat)
+                                    self.verbose_print(tmpGem['data'][u'name'] + ': +' + str(tmpVal) + ' ' + tmpStat)
                                 else:
                                     self.chaotic_metagem = True
-                                    self.verbosePrint(tmpGem['data'][u'name'] + ' is a meta gem')
+                                    self.verbose_print(tmpGem['data'][u'name'] + ' is a meta gem')
                     #add stats from socket bonuses
                     if socketBonusActivated == True and gemCount >= len(socketInfo[u'sockets']):
                         for entry in socketInfo[u'socketBonus'].split(' and '): #similar to gem treatment... is there ever a socket bonus that gives multiple stats?
@@ -400,17 +400,17 @@ class CharacterData:
                             tmpVal = int(tmpLst[0][1:])
                             tmpStat = verboseStatMap[ ' '.join(tmpLst[1:]) ]
                             lst[ tmpStat ] += tmpVal
-                            self.verbosePrint('Socket bonus +' + str(tmpVal) + ' ' + tmpStat)
+                            self.verbose_print('Socket bonus +' + str(tmpVal) + ' ' + tmpStat)
                     #add stats from enchants
                     if u'enchant' in params.keys():
                         if not type( CharacterData.enchants[ params[u'enchant'] ] ) == type(''):
                             for key in CharacterData.enchants[ params[u'enchant'] ]:
                                 lst[ key['stat'] ] += key['value']
-                                self.verbosePrint('Enchant +' + str(key['value']) + ' ' + key['stat'])
+                                self.verbose_print('Enchant +' + str(key['value']) + ' ' + key['stat'])
                         else:
-                            self.verbosePrint(CharacterData.enchants[params[u'enchant']])
+                            self.verbose_print(CharacterData.enchants[params[u'enchant']])
                     else:
-                        self.verbosePrint('Unenchanted')
+                        self.verbose_print('Unenchanted')
             except Exception as inst:
                 #it's okay, we can keep going, just so long as we pretend to handle the exception
                 print "\n"
@@ -451,6 +451,6 @@ class CharacterData:
                 glyphs.append(CharacterData.glyphs[glyph_name])
         return glyphs
 
-    def verbosePrint(self, str):
+    def verbose_print(self, str):
         if self.verbose:
             print str
