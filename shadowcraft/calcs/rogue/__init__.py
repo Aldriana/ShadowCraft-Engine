@@ -18,12 +18,22 @@ class RogueDamageCalculator(DamageCalculator):
     default_ep_stats = ['white_hit', 'yellow_hit', 'str', 'agi', 'haste',
         'crit', 'mastery', 'dodge_exp', 'spell_hit', 'spell_exp', 'pvp_power', 'ap']
     normalize_ep_stat = 'ap'
+    if normalize_ep_stat in default_ep_stats:
+        default_ep_stats.remove(normalize_ep_stat)
     melee_attacks = ['mh_autoattack_hits', 'oh_autoattack_hits', 'mh_shadow_blade', 'oh_shadow_blade',
-                     'rupture', 'eviscerate', 'envenom', 'ambush',
+                     'rupture', 'eviscerate', 'envenom', 'ambush', 'garrote',
                      'sinister_strike', 'revealing_strike', 'main_gauche', 'mh_killing_spree', 'oh_killing_spree',
                      'backstab', 'hemorrhage', 
-                     'mh_mutilate', 'oh_mutilate', 'dispatch']
-    melee_hit_chance_attacks = melee_attacks + ['deadly_poison', 'deadly_instant_poison']
+                     'mutilate', 'mh_mutilate', 'oh_mutilate', 'dispatch']
+    melee_hit_chance_attacks = melee_attacks + ['deadly_instant_poison', 'fan_of_knives', 'crimson_tempest']
+    dot_ticks = ['rupture_ticks', 'garrote_ticks', 'deadly_poison', 'hemorrhage_dot']
+    ranged_attacks = ['shuriken_toss', 'throw']
+    non_dot_attacks = melee_hit_chance_attacks + ranged_attacks
+    all_attacks = melee_hit_chance_attacks + ranged_attacks + dot_ticks
+    
+    assassination_mastery_conversion = .035
+    combat_mastery_conversion = .02
+    subtlety_mastery_conversion = .03
 
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
@@ -99,9 +109,9 @@ class RogueDamageCalculator(DamageCalculator):
         base_modifier = 1
         kwargs.setdefault('mastery', None)
         if 'executioner' in args and self.settings.is_subtlety_rogue():
-            base_modifier += .03 * self.stats.get_mastery_from_rating(kwargs['mastery'])
+            base_modifier += self.subtlety_mastery_conversion * self.stats.get_mastery_from_rating(kwargs['mastery'])
         if 'potent_poisons' in args and self.settings.is_assassination_rogue():
-            base_modifier += .035 * self.stats.get_mastery_from_rating(kwargs['mastery'])
+            base_modifier += self.assassination_mastery_conversion * self.stats.get_mastery_from_rating(kwargs['mastery'])
         # Assassasins's Resolve
         if self.settings.is_assassination_rogue() and (self.stats.mh.type == 'dagger'):
             base_modifier *= 1.2

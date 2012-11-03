@@ -69,14 +69,15 @@ character_procs_allowed = filter(lambda p: p in proc_data.allowed_procs, charact
 
 test_procs = procs.ProcsList(*character_procs_allowed)
 
+# Set up a calcs object..
+lst = character_data.get_gear_stats()
+
 # Set up gear buffs.
 character_gear_buffs = character_data.get_gear_buffs() + ['leather_specialization', 'virmens_bite', 'virmens_bite_prepot']
 if character_data.has_chaotic_metagem():
     character_gear_buffs.append('chaotic_metagem')
 test_gear_buffs = stats.GearBuffs(*character_gear_buffs)
 
-# Set up a calcs object..
-lst = character_data.get_gear_stats()
 test_stats = stats.Stats(test_mh, test_oh, test_procs, test_gear_buffs, **lst)
 
 # Initialize talents..
