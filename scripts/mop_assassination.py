@@ -50,11 +50,18 @@ test_procs = procs.ProcsList('heroic_bottle_of_infinite_stars', 'heroic_terror_i
 test_gear_buffs = stats.GearBuffs('rogue_t14_2pc', 'rogue_t14_4pc', 'leather_specialization', 'virmens_bite', 'virmens_bite_prepot', 'chaotic_metagem')
 
 # Set up a calcs object..
-#                       str,   agi, int, spirit, stam,  ap, crit,  hit,  exp,haste, mast,      mh,      oh,      procs,      gear_buffs
-test_stats = stats.Stats(80, 19000,   0,      0,    0, 250, 4800, 2550, 2550, 3000, 5000, test_mh, test_oh, test_procs, test_gear_buffs, pvp_power=0, pvp_resil=0, pvp_target_armor=None)
+#                       str,   agi, int, spirit, stam, ap, crit,  hit, exp, haste, mast,      mh,      oh,      procs,      gear_buffs
+test_stats = stats.Stats(test_mh, test_oh, test_procs, test_gear_buffs,
+                         str=80,
+                         agi=17400,
+                         crit=2818,
+                         hit=2559,
+                         exp=2553,
+                         haste=2713,
+                         mastery=9328)
 
 # Initialize talents..
-test_talents = talents.Talents('322210', test_class, test_level)
+test_talents = talents.Talents('322213', test_class, test_level)
 
 # Set up glyphs.
 glyph_list = ['recuperate', 'sprint'] #just to have something
@@ -70,14 +77,42 @@ calculator = AldrianasRogueDamageCalculator(test_stats, test_talents, test_glyph
 
 # Compute EP values.
 ep_values = calculator.get_ep()
+tier_ep_values = calculator.get_other_ep(['rogue_t14_4pc', 'rogue_t14_2pc'])
+mh_enchants_and_dps_ep_values, oh_enchants_and_dps_ep_values = calculator.get_weapon_ep(dps=True, enchants=True)
+
+trinkets_list = [
+    'heroic_bottle_of_infinite_stars',
+    'bottle_of_infinite_stars',
+    'lfr_bottle_of_infinite_stars',
+    'heroic_terror_in_the_mists',
+    'terror_in_the_mists',
+    'lfr_terror_in_the_mists',
+    'relic_of_xuen',
+    'windswept_pages',
+    'jade_bandit_figurine',
+    'hawkmasters_talon',
+    'windswept_pages',
+    'searing_words',
+    'flashing_steel_talisman'
+]
+trinkets_ep_value = calculator.get_other_ep(trinkets_list)
+
+trinkets_ep_value['heroic_bottle_of_infinite_stars'] += 1218 * ep_values['mastery']
+trinkets_ep_value['bottle_of_infinite_stars'] += 1079 * ep_values['mastery']
+trinkets_ep_value['lfr_bottle_of_infinite_stars'] += 956 * ep_values['mastery']
+trinkets_ep_value['heroic_terror_in_the_mists'] += 1300 * ep_values['agi']
+trinkets_ep_value['terror_in_the_mists'] += 1152 * ep_values['agi']
+trinkets_ep_value['lfr_terror_in_the_mists'] += 1021 * ep_values['agi']
+trinkets_ep_value['relic_of_xuen'] += 956 * ep_values['agi']
+trinkets_ep_value['windswept_pages'] += 847 * ep_values['agi']
+trinkets_ep_value['jade_bandit_figurine'] += 1079 * ep_values['agi']
+trinkets_ep_value['hawkmasters_talon'] += 1079 * ep_values['agi']
+trinkets_ep_value['searing_words'] += 509 * ep_values['crit'] + 338 * ep_values['mastery']
+trinkets_ep_value['flashing_steel_talisman'] += 509 * ep_values['haste'] + 338 * ep_values['mastery']
 
 # Compute DPS Breakdown.
 dps_breakdown = calculator.get_dps_breakdown()
-non_execute_breakdown = calculator.assassination_dps_breakdown_non_execute()
 total_dps = sum(entry[1] for entry in dps_breakdown.items())
-non_execute_total = sum(entry[1] for entry in non_execute_breakdown.items())
-talent_ranks = calculator.get_talents_ranking()
-
 
 def max_length(dict_list):
     max_len = 0
@@ -88,7 +123,7 @@ def max_length(dict_list):
 
     return max_len
 
-def pretty_print(dict_list, total_sum = 1.):
+def pretty_print(dict_list, total_sum = 1., show_percent=False):
     max_len = max_length(dict_list)
 
     for i in dict_list:
@@ -96,7 +131,7 @@ def pretty_print(dict_list, total_sum = 1.):
         dict_values.sort(key=lambda entry: entry[1], reverse=True)
         for value in dict_values:
             #print value[0] + ':' + ' ' * (max_len - len(value[0])), str(value[1])
-            if ("{0:.2f}".format(float(value[1])/total_dps)) != '0.00':
+            if show_percent and ("{0:.2f}".format(float(value[1])/total_dps)) != '0.00':
                 print value[0] + ':' + ' ' * (max_len - len(value[0])), str(value[1]) + ' ('+str( "{0:.2f}".format(100*float(value[1])/total_sum) )+'%)'
             else:
                 print value[0] + ':' + ' ' * (max_len - len(value[0])), str(value[1])
@@ -104,12 +139,26 @@ def pretty_print(dict_list, total_sum = 1.):
 
 dicts_for_pretty_print = [
     ep_values,
-    talent_ranks,
-    dps_breakdown
+    tier_ep_values,
+    mh_enchants_and_dps_ep_values,
+    oh_enchants_and_dps_ep_values,
+    trinkets_ep_value,
 ]
-pretty_print(dicts_for_pretty_print, total_sum=total_dps)
-print ' ' * (max_length(dicts_for_pretty_print) + 1), total_dps, _("total damage per second.")
+pretty_print(dicts_for_pretty_print)
+
+pretty_print([dps_breakdown], total_sum=total_dps, show_percent=True)
+print ' ' * (max_length([dps_breakdown]) + 1), total_dps, _("total damage per second.")
 print ''
-print 'non-execute breakdown: '
-pretty_print([non_execute_breakdown], total_sum=non_execute_total)
-print ' ' * (max_length([non_execute_breakdown]) + 1), non_execute_total, _("total damage per second.")
+
+
+# non_execute_breakdown = calculator.assassination_dps_breakdown_non_execute()
+# non_execute_total = sum(entry[1] for entry in non_execute_breakdown.items())
+# print 'non-execute breakdown: '
+# pretty_print([non_execute_breakdown], total_sum=non_execute_total, show_percent=True)
+# print ' ' * (max_length([non_execute_breakdown]) + 1), non_execute_total, _("total damage per second.")
+
+# execute_breakdown = calculator.assassination_dps_breakdown_execute()
+# execute_total = sum(entry[1] for entry in execute_breakdown.items())
+# print 'execute breakdown: '
+# pretty_print([execute_breakdown], total_sum=execute_total, show_percent=True)
+# print ' ' * (max_length([execute_breakdown]) + 1), execute_total, _("total damage per second.")
